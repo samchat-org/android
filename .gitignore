@@ -2,10 +2,10 @@
 .DS_Store
 
 # android
-.gradle
-/local.properties
-/.idea/workspace.xml
-/.idea/libraries
-/build
-/captures
+/nim_demo/.gradle
+/nim_demo/local.properties
+/nim_demo/.idea/workspace.xml
+/nim_demo/.idea/libraries
+/nim_demo/build
+/nim_demo/captures
 
