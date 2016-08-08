@@ -2228,6 +2228,11 @@ public class HttpCommClient {
 			header.putOpt("token", scobj.token);
 			
 			JSONObject body = new JSONObject();
+			if(scobj.isCustomer){
+				body.putOpt("type",0);
+			}else{
+				body.putOpt("type",1);
+			}
 			
 			JSONObject data = new JSONObject();
 			data.put("header", header);

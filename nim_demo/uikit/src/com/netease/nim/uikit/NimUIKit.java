@@ -32,7 +32,10 @@ import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 
 import java.util.List;
-
+import com.netease.nimlib.sdk.msg.model.IMMessage;
+import com.netease.nim.uikit.session.sam_message.sam_message;
+import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
+import com.netease.nim.uikit.session.sam_message.SamchatObserver;
 /**
  * UIKit能力输出类。
  */
@@ -112,7 +115,7 @@ public final class NimUIKit {
      */
     public static void startChatting(Context context, String id, SessionTypeEnum sessionType, SessionCustomization customization) {
         if (sessionType == SessionTypeEnum.P2P) {
-            P2PMessageActivity.start(context, id, customization);
+            P2PMessageActivity.start(context, id, customization,NimUIKit.getCallback().getCurrentMode());
         } else if (sessionType == SessionTypeEnum.Team) {
             TeamMessageActivity.start(context, id, customization, null);
         }
@@ -279,4 +282,23 @@ public final class NimUIKit {
     public static MsgForwardFilter getMsgForwardFilter() {
         return msgForwardFilter;
     }
+
+    /*SAMC_BEGIN(add callback interface)*/
+    public interface NimUIKitInterface {
+        int getCurrentMode();
+        long storeMessage(IMMessage msg);
+        void clearUnreadCount(String session_id, int mode);
+        void queryMessage(String session_id, int mode,sam_message msg, QueryDirectionEnum direction, int count, NIMCallback callback);
+        void registerIncomingMsgObserver(SamchatObserver<List<IMMessage>> observer,boolean register);
+    }
+
+    static private NimUIKitInterface callback;
+    public static void setCallback(NimUIKitInterface callback) {
+        NimUIKit.callback = callback;
+    }
+
+    public static NimUIKitInterface getCallback() {
+        return callback;
+    }
+    /*SAMC_END(add callback interface)*/
 }

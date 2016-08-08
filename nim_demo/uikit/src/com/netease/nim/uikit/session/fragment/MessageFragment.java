@@ -29,7 +29,10 @@ import com.netease.nimlib.sdk.msg.model.MessageReceipt;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Map;
+import java.util.HashMap;
+import com.netease.nim.uikit.NimUIKit;
+import com.netease.nimlib.sdk.msg.model.CustomMessageConfig;
 /**
  * 聊天界面基类
  * <p/>
@@ -47,6 +50,10 @@ public class MessageFragment extends TFragment implements ModuleProxy {
     protected String sessionId; // p2p对方Account或者群id
 
     protected SessionTypeEnum sessionType;
+
+    /*SAMC_BEGIN(support mode setting for p2p activity)*/
+    private int mode = 0;
+    /*SAMC_BEGIN(support mode setting for p2p activity)*/
 
     // modules
     protected InputPanel inputPanel;
@@ -84,6 +91,10 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         messageListPanel.onResume();
         NIMClient.getService(MsgService.class).setChattingAccount(sessionId, sessionType);
         getActivity().setVolumeControlStream(AudioManager.STREAM_VOICE_CALL); // 默认使用听筒播放
+
+        /*SAMC_BEGIN(clear unread count)*/
+        NimUIKit.getCallback().clearUnreadCount(sessionId,  mode);
+        /*SAMC_END(clear unread count)*/
     }
 
     @Override
@@ -91,6 +102,9 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         super.onDestroy();
         messageListPanel.onDestroy();
         registerObservers(false);
+        /*SAMC_BEGIN(clear unread count)*/
+        NimUIKit.getCallback().clearUnreadCount(sessionId,  mode);
+        /*SAMC_END(clear unread count)*/
     }
 
     public boolean onBackPressed() {
@@ -109,6 +123,9 @@ public class MessageFragment extends TFragment implements ModuleProxy {
     }
 
     private void parseIntent() {
+		  /*SAMC_BEGIN(support mode setting for p2p activity)*/
+        mode = getArguments().getInt(Extras.EXTRA_MODE,0);
+        /*SAMC_BEGIN(support mode setting for p2p activity)*/
         sessionId = getArguments().getString(Extras.EXTRA_ACCOUNT);
         sessionType = (SessionTypeEnum) getArguments().getSerializable(Extras.EXTRA_TYPE);
 
@@ -185,6 +202,26 @@ public class MessageFragment extends TFragment implements ModuleProxy {
             return false;
         }
 
+        /*SAMC_BEGIN(add local and remote tag)*/
+        Map<String, Object> msg_from = new HashMap<>(1);
+        int current_mode = NimUIKit.getCallback().getCurrentMode();
+        msg_from.put("msg_from",new Integer(current_mode));
+        message.setRemoteExtension(msg_from);
+
+        Map<String, Object> msg_to = new HashMap<>(1);
+        msg_to.put("msg_to",new Integer(current_mode));
+        message.setLocalExtension(msg_to);
+
+        CustomMessageConfig config = message.getConfig();
+        if(config == null){
+            config = new CustomMessageConfig();
+            config.enableRoaming = false;
+        }else{
+            config.enableRoaming = false;
+        }
+        message.setConfig(config);
+        NimUIKit.getCallback().storeMessage(message);
+        /*SAMC_END(add local and remote tag)*/
         // send message to server and save to db
         NIMClient.getService(MsgService.class).sendMessage(message, false);
 

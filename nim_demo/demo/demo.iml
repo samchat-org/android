@@ -99,6 +99,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="AMap_Services_V2.3.1" level="project" />
     <orderEntry type="library" exported="" name="cosinesdk" level="project" />
+    <orderEntry type="library" exported="" name="pinyin4j-2.5.0" level="project" />
     <orderEntry type="library" exported="" name="nrtc-sdk" level="project" />
     <orderEntry type="library" exported="" name="nim-rts-2.5.0" level="project" />
     <orderEntry type="library" exported="" name="json_simple-1.1" level="project" />

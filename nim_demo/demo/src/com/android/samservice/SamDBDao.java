@@ -16,6 +16,7 @@ public class SamDBDao{
 	private Object dbLock_question;
 	private Object dbLock_rcvdadv;
 	private Object dbLock_writeadv;
+	private Object dbLock_msg;
 	private DBManager dbHandle;
 
 	public void close(){
@@ -28,6 +29,7 @@ public class SamDBDao{
 		dbLock_question = null;
 		dbLock_rcvdadv = null;
 		dbLock_writeadv = null;
+		dbLock_msg = null;
 		dbHandle = null;
 	}
 
@@ -36,6 +38,7 @@ public class SamDBDao{
 		dbLock_question = new Object();
 		dbLock_rcvdadv = new Object();
 		dbLock_writeadv = new Object();
+		dbLock_msg = new Object();
 		dbHandle = new DBManager(context,dbFolder);
 	}
 
@@ -171,7 +174,12 @@ public class SamDBDao{
 		synchronized(dbLock_userinfo){
 			return dbHandle.queryContactUser(id);
 		}
+	}
 
+	public  List<ContactUser> query_ContactUser_db_All(){
+		synchronized(dbLock_userinfo){
+			return dbHandle.queryContactUserAll();
+		}
 	}
 
 	public ContactUser query_ContactUser_db_by_unique_id(long unique_id){
@@ -421,7 +429,9 @@ public class SamDBDao{
 /********************************************Contact List DB******************************************************************/
 	private boolean compareContact(Contact old, Contact now){
 		if(old.getunique_id() != now.getunique_id()
-			||!stringEquals(old.getusername(),now.getusername()))
+			||!stringEquals(old.getusername(),now.getusername())
+			||!stringEquals(old.getavatar(),now.getavatar())
+            ||!stringEquals(old.getservice_category(),now.getservice_category()))
 		{
 			return true;
 		}else{
@@ -429,24 +439,24 @@ public class SamDBDao{
 		}
 	}
 
-	public long add_ContactList_db(Contact user){
+	public long add_ContactList_db(Contact user,boolean isCustomer){
 		long ret;
 		synchronized(dbLock_userinfo){
-			ret = dbHandle.addContact(user);
+			ret = dbHandle.addContact(user,isCustomer);
 		}
 
 		return ret;
 	}
 
-	public long update_ContactList_db(Contact user){
+	public long update_ContactList_db(Contact user,boolean isCustomer){
 		long ret;
 
 		synchronized(dbLock_userinfo){
-			Contact fsp = dbHandle.queryContactByUniqueID(user.getunique_id());
+			Contact fsp = dbHandle.queryContactByUniqueID(user.getunique_id(),isCustomer);
 			if(fsp == null){
-				ret = dbHandle.addContact(user);
+				ret = dbHandle.addContact(user,isCustomer);
 			}else if(compareContact(fsp, user)){
-				if(dbHandle.updateContact(fsp.getid(),user)!= 0){
+				if(dbHandle.updateContact(fsp.getid(),user,isCustomer)!= 0){
 					ret = fsp.getid();
 				}else{
 					ret = -1;
@@ -458,21 +468,27 @@ public class SamDBDao{
 		return ret;
 	}
 
-	public Contact query_ContactList_db_by_unique_id(long unique_id){
+	public Contact query_ContactList_db_by_unique_id(long unique_id,boolean isCustomer){
 		synchronized(dbLock_userinfo){
-			return dbHandle.queryContactByUniqueID(unique_id);
+			return dbHandle.queryContactByUniqueID(unique_id,isCustomer);
 		}
 	}
 
-	public void delete_ContactList_db_by_unique_id(long unique_id){
+	public List<Contact> query_ContactList_db_All(boolean isCustomer){
 		synchronized(dbLock_userinfo){
-			dbHandle.deleteContactByUniqueID(unique_id);
+			return dbHandle.queryContactAll(isCustomer);
 		}
 	}
 
-	public void delete_ContactList_db_all(){
+	public void delete_ContactList_db_by_unique_id(long unique_id,boolean isCustomer){
 		synchronized(dbLock_userinfo){
-			dbHandle.deleteContactAll();
+			dbHandle.deleteContactByUniqueID(unique_id, isCustomer);
+		}
+	}
+
+	public void delete_ContactList_db_all(boolean isCustomer){
+		synchronized(dbLock_userinfo){
+			dbHandle.deleteContactAll(isCustomer);
 		}
 	}
 
@@ -559,6 +575,12 @@ public class SamDBDao{
 	public FollowedSamPros query_FollowList_db_by_unique_id(long unique_id){
 		synchronized(dbLock_userinfo){
 			return dbHandle.queryFollowedSamProsByUniqueID(unique_id);
+		}
+	}
+
+	public List<FollowedSamPros> query_FollowList_db_All(){
+		synchronized(dbLock_userinfo){
+			return dbHandle.queryFollowedSamProsAll();
 		}
 	}
 
@@ -657,6 +679,104 @@ public class SamDBDao{
 	public void delete_RcvdAdv_db_ALL(long session){
 		synchronized(dbLock_rcvdadv){
 			dbHandle.deleteRcvdAdvAll(session);
+		}
+	}
+
+/********************************************Msg Session Table******************************************************************/
+	private boolean compareMsgSession(MsgSession old, MsgSession now){
+		if( !stringEquals(old.getsession_id(),now.getsession_id())
+			||old.getmode() != now.getmode()
+			|| !stringEquals(old.getmsg_table_name(),now.getmsg_table_name())
+			||old.gettotal_unread() != now.gettotal_unread()){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	public long add_MsgSession_db(MsgSession session){
+		long ret;
+		synchronized(dbLock_msg){
+			ret = dbHandle.addMsgSession(session);
+		}
+		return ret;
+	}
+
+	public long update_MsgSession_db(MsgSession session){
+		long ret;
+		synchronized(dbLock_msg){	
+			MsgSession ts = dbHandle.queryMsgSession(session.getsession_id(), session.getmode());
+			if(ts == null){
+				ret = dbHandle.addMsgSession(session);
+			}else if(compareMsgSession(ts, session)){
+				if(dbHandle.updateMsgSession(ts.getid(), session) != 0){
+					ret = ts.getid();
+				}else{
+					ret = -1;
+				}
+			}else{
+				ret = ts.getid();	
+			}	
+		}
+		return ret;
+	}
+
+	public long update_MsgSession_db_unread_count(String session_id, int mode, int count){
+		synchronized(dbLock_msg){
+			return dbHandle.updateMsgSessionUnreadCount( session_id,  mode, count);
+		}
+	}
+
+	public MsgSession query_MsgSession_db(String session_id, int mode){
+		synchronized(dbLock_msg){
+			return dbHandle.queryMsgSession( session_id,  mode);
+		}
+	}
+
+	public void delete_MsgSession_db(String session_id, int mode){
+		synchronized(dbLock_msg){
+			dbHandle.deleteMsgSession( session_id,  mode);
+		}
+	}
+
+	public void delete_MsgSession_db_ALL(){
+		synchronized(dbLock_msg){
+			dbHandle.deleteMsgSessionAll();
+		}
+	}
+
+/********************************************Msg Table******************************************************************/
+	public void createMsgTable(String table){
+		synchronized(dbLock_msg){
+			dbHandle.createMsgTable(table);
+		}
+	}
+
+	public long add_Message_db(String table, Message msg){
+		long ret;
+		synchronized(dbLock_msg){
+			ret = dbHandle.addMessage( table, msg);
+		}
+		return ret;
+	}
+
+	public int add_Messages_db(String table, List < Message > msgs){
+		int ret;
+		synchronized(dbLock_msg){
+			ret = dbHandle.addMessages( table, msgs);
+		}
+		return ret;
+	}
+
+	public List<Message> query_Messages_db_Newest(String table, int count){
+		synchronized(dbLock_msg){
+			return dbHandle.queryMessages( table,  count);
+		}
+	}
+
+	public List<Message> query_Messages_db_by_anchor(String table, long id, int count){
+		synchronized(dbLock_msg){
+			return dbHandle.queryMessages( table, id,  count);
 		}
 	}
 

@@ -95,6 +95,7 @@ public class HomeFragment extends TFragment implements OnPageChangeListener, Rem
         if (scrollState == ViewPager.SCROLL_STATE_IDLE) {
             adapter.onPageSelected(pager.getCurrentItem());
             /*SAMC_BEGIN(change title and icon when switch)*/
+			  ((MainActivity)getActivity()).setCurrentPostition(page);
             ((MainActivity)getActivity()).refreshToolBar(page);
             /*SAMC_END(change title and icon when switch)*/
         }

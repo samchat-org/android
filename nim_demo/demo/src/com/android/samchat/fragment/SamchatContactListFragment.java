@@ -24,7 +24,6 @@ import com.netease.nim.uikit.contact.ContactsCustomization;
 import com.netease.nim.uikit.contact.ContactsFragment;
 import com.netease.nim.uikit.contact.core.item.AbsContactItem;
 import com.netease.nim.uikit.contact.core.item.ItemTypes;
-import com.netease.nim.uikit.contact.core.model.ContactDataAdapter;
 import com.netease.nim.uikit.contact.core.viewholder.AbsContactViewHolder;
 
 import java.util.ArrayList;
@@ -33,7 +32,7 @@ import com.netease.nim.demo.main.fragment.MainTabFragment;
 
 public class SamchatContactListFragment extends MainTabFragment {
 
-    private ContactsFragment fragment;
+    private SamchatContactFragment fragment;
 
     public SamchatContactListFragment() {
         setContainerId(MainTab.SAMCHAT_CONTACT.fragmentId);
@@ -48,24 +47,17 @@ public class SamchatContactListFragment extends MainTabFragment {
 
     @Override
     protected void onInit() {
-        addContactFragment();  
+        addSamchatContactFragment();  
     }
 
-    private void addContactFragment() {
-        fragment = new ContactsFragment();
+    private void addSamchatContactFragment() {
+        fragment = new SamchatContactFragment();
         fragment.setContainerId(R.id.samchat_contact_fragment);
 
         UI activity = (UI) getActivity();
 
         // 如果是activity从堆栈恢复，FM中已经存在恢复而来的fragment，此时会使用恢复来的，而new出来这个会被丢弃掉
-        fragment = (ContactsFragment) activity.addFragment(fragment);
-    }
-
-    @Override
-    public void onCurrentTabClicked() {
-        if (fragment != null) {
-            fragment.scrollToTop();
-        }
+        fragment = (SamchatContactFragment) activity.addFragment(fragment);
     }
 }
 

@@ -22,16 +22,23 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.CustomNotification;
 
 import java.util.List;
+import com.netease.nim.uikit.session.fragment.P2PMessageFragment;
 
-
-/**
- * 点对点聊天界面
- * <p/>
- * Created by huangjun on 2015/2/1.
- */
-public class P2PMessageActivity extends BaseMessageActivity {
+public class P2PMessageActivity extends P2PBaseMessageActivity {
 
     private boolean isResume = false;
+    /*SAMC_BEGIN(support mode setting for p2p activity)*/
+    public static void start(Context context, String contactId, SessionCustomization customization,int mode) {
+        Intent intent = new Intent();
+        intent.putExtra(Extras.EXTRA_ACCOUNT, contactId);
+        intent.putExtra(Extras.EXTRA_CUSTOMIZATION, customization);
+        intent.putExtra(Extras.EXTRA_MODE,mode);
+        intent.setClass(context, P2PMessageActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        context.startActivity(intent);
+    }
+    /*SAMC_BEGIN(support mode setting for p2p activity)*/
 
     public static void start(Context context, String contactId, SessionCustomization customization) {
         Intent intent = new Intent();
@@ -164,10 +171,10 @@ public class P2PMessageActivity extends BaseMessageActivity {
     }
 
     @Override
-    protected MessageFragment fragment() {
+    protected P2PMessageFragment fragment() {
         Bundle arguments = getIntent().getExtras();
         arguments.putSerializable(Extras.EXTRA_TYPE, SessionTypeEnum.P2P);
-        MessageFragment fragment = new MessageFragment();
+        P2PMessageFragment fragment = new P2PMessageFragment();
         fragment.setArguments(arguments);
         fragment.setContainerId(R.id.message_fragment_container);
         return fragment;

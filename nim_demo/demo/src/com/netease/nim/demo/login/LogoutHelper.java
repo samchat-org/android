@@ -8,6 +8,7 @@ import com.netease.nim.uikit.NimUIKit;
 /*SAMC_BEGIN(stop push service when logout)*/
 import com.igexin.sdk.PushManager;
 import com.android.samservice.SamService;
+import com.android.samchat.service.SamDBManager;
 /*SAMC_END(stop push service when logout)*/
 
 /**
@@ -23,6 +24,7 @@ public class LogoutHelper {
         LoginSyncDataStatusObserver.getInstance().reset();
 
         /*SAMC_BEGIN(stop push service when logout)*/
+        SamDBManager.getInstance().registerObservers(false);
         SamService.getInstance().stopSamService();
         PushManager.getInstance().stopService(DemoCache.getContext());
         /*SAMC_END(stop push service when logout)*/

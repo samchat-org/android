@@ -24,7 +24,9 @@ import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
-
+import com.netease.nim.uikit.session.sam_message.sam_message;
+import com.netease.nim.uikit.common.adapter.TAdapter;
+import com.netease.nim.uikit.session.module.list.P2PMsgAdapter;
 /**
  * 会话窗口消息列表项的ViewHolder基类，负责每个消息项的外层框架，包括头像，昵称，发送/接收进度条，重发按钮等。<br>
  *     具体的消息展示项可继承该基类，然后完成具体消息内容展示即可。
@@ -96,8 +98,8 @@ public abstract class MsgViewHolderBase extends TViewHolder {
 
     /// -- 以下接口可由子类调用
     // 获取MsgAdapter对象
-    protected final MsgAdapter getAdapter() {
-        return (MsgAdapter) adapter;
+    protected final TAdapter getAdapter() {
+        return adapter;
     }
 
     /**
@@ -159,7 +161,11 @@ public abstract class MsgViewHolderBase extends TViewHolder {
 
     @Override
     protected final void refresh(Object item) {
-        message = (IMMessage) item;
+        if(item instanceof sam_message){
+            message = ((sam_message)item).getim_msg();
+        }else{
+            message = (IMMessage) item;
+        }
         setHeadImageView();
         setNameTextView();
         setTimeTextView();
@@ -182,7 +188,13 @@ public abstract class MsgViewHolderBase extends TViewHolder {
      * 设置时间显示
      */
     private void setTimeTextView() {
-        if (getAdapter().needShowTime(message)) {
+        boolean needShowTime = false;
+    	  if(getAdapter() instanceof P2PMsgAdapter){
+              needShowTime = ((P2PMsgAdapter)getAdapter()).needShowTime(message);
+        }else{
+              needShowTime = ((MsgAdapter)getAdapter()).needShowTime(message);
+		  }
+        if (needShowTime) {
             timeTextView.setVisibility(View.VISIBLE);
         } else {
             timeTextView.setVisibility(View.GONE);
@@ -234,15 +246,21 @@ public abstract class MsgViewHolderBase extends TViewHolder {
 
     private void setOnClickListener() {
         // 重发/重收按钮响应事件
-        if (getAdapter().getEventListener() != null) {
-            alertButton.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-                    getAdapter().getEventListener().onFailedBtnClick(message);
-                }
-            });
-        }
+    	  if(getAdapter() instanceof P2PMsgAdapter && ((P2PMsgAdapter)getAdapter()).getEventListener()!=null){
+              alertButton.setOnClickListener(new View.OnClickListener() {
+                  @Override
+                  public void onClick(View v) {
+                      ((P2PMsgAdapter)getAdapter()).getEventListener().onFailedBtnClick(message);
+                  }
+              });
+        }else if(getAdapter() instanceof MsgAdapter && ((MsgAdapter)getAdapter()).getEventListener()!=null){
+              alertButton.setOnClickListener(new View.OnClickListener() {
+                  @Override
+                  public void onClick(View v) {
+                      ((MsgAdapter)getAdapter()).getEventListener().onFailedBtnClick(message);
+                  }
+              });
+		  }
 
         // 内容区域点击事件响应， 相当于点击了整项
         contentContainer.setOnClickListener(new View.OnClickListener() {
@@ -274,10 +292,13 @@ public abstract class MsgViewHolderBase extends TViewHolder {
             public boolean onLongClick(View v) {
                 // 优先派发给自己处理，
                 if (!onItemLongClick()) {
-                    if (getAdapter().getEventListener() != null) {
-                        getAdapter().getEventListener().onViewHolderLongClick(contentContainer, view, message);
+    	  				 if(getAdapter() instanceof P2PMsgAdapter && ((P2PMsgAdapter)getAdapter()).getEventListener()!= null){
+                        ((P2PMsgAdapter)getAdapter()).getEventListener().onViewHolderLongClick(contentContainer, view, message);
                         return true;
-                    }
+                    }else if(getAdapter() instanceof MsgAdapter && ((MsgAdapter)getAdapter()).getEventListener()!= null){
+                        ((MsgAdapter)getAdapter()).getEventListener().onViewHolderLongClick(contentContainer, view, message);
+                        return true;
+		              }
                 }
                 return false;
             }
@@ -337,7 +358,13 @@ public abstract class MsgViewHolderBase extends TViewHolder {
     }
 
     private void setReadReceipt() {
-        if (!TextUtils.isEmpty(getAdapter().getUuid()) && message.getUuid().equals(getAdapter().getUuid())) {
+        String uuid = null;
+    	  if(getAdapter() instanceof P2PMsgAdapter){
+            uuid = ((P2PMsgAdapter)getAdapter()).getUuid();
+        }else{
+            uuid = ((MsgAdapter)getAdapter()).getUuid();
+		  }
+        if (!TextUtils.isEmpty(uuid) && message.getUuid().equals(uuid)) {
             readReceiptTextView.setVisibility(View.VISIBLE);
         } else {
             readReceiptTextView.setVisibility(View.GONE);

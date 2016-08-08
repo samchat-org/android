@@ -1,0 +1,47 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/tv_lv_item_tag"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:background="#e6e6e6"
+        android:gravity="center_vertical"
+        android:paddingLeft="10dip"
+        android:text="Z"
+        android:visibility="visible" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <com.netease.nim.uikit.common.ui.imageview.HeadImageView
+            android:id="@+id/avatar"
+            android:layout_width="@dimen/avatar_size_in_contact"
+            android:layout_height="@dimen/avatar_size_in_contact"
+            android:layout_gravity="center_vertical"/>
+
+        <LinearLayout
+            android:id="@+id/info_layout"
+            android:orientation="vertical"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical">
+            <TextView
+                android:id="@+id/username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="14sp"/>
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/option_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="30dip"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/samchat_option_button"/>
+    </LinearLayout>
+</LinearLayout>

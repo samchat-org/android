@@ -9,14 +9,12 @@ import com.android.samchat.callback.SendQuestionCallback;
 import com.android.samservice.info.SendQuestion;
 import com.android.samchat.callback.ReceivedQuestionCallback;
 import com.android.samservice.info.ReceivedQuestion;
-import com.android.samchat.test.TestCase;
 
 public class SamchatRequestListFragment extends MainTabFragment {
 	private SamchatRequestFragment fragment;
 
 	public SamchatRequestListFragment() {
 		setContainerId(MainTab.SAMCHAT_REQUEST.fragmentId);
-        TestCase.testInitDB();
 	}
 
 	@Override

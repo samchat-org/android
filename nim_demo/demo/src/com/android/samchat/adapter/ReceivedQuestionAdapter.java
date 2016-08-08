@@ -43,17 +43,13 @@ public class ReceivedQuestionAdapter extends BaseAdapter{
 	@Override
 	public int getCount(){
 		if(items == null || items.size() == 0){
-			LogUtil.e("test","getCount is 0");
 			return 0;
 		}else{
 			if(answered == -1){
-				LogUtil.e("test","getCount is " + items.size() + 1);
 				return items.size() + 1;
 			}else if(answered == 0){
-				LogUtil.e("test","getCount is " + items.size() + 1);
 				return items.size() + 1;
 			}else{
-				LogUtil.e("test","getCount is " + items.size() + 2);
 				return items.size() + 2;
 			}
 		}

@@ -11,6 +11,12 @@ public class FollowUser extends BasicUserInfo{
 		this.favourite_tag = Constants.NO_TAG;
 		this.block_tag = Constants.NO_TAG;
 	}
+
+	public FollowUser(int ftag, int btag){
+		super(Constants.SAM_PROS);
+		this.favourite_tag = ftag;
+		this.block_tag = btag;
+	}
 	
 	public int getblock_tag(){
 		return block_tag;

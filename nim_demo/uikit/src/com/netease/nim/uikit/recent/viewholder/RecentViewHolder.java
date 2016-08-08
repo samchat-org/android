@@ -22,6 +22,7 @@ import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.RecentContact;
 import com.netease.nimlib.sdk.team.model.Team;
+import com.android.samchat.adapter.SamchatRecentContactAdapter;
 
 public abstract class RecentViewHolder extends TViewHolder implements OnClickListener {
 
@@ -39,7 +40,6 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
 
     protected TextView tvDatetime;
 
-    // 消息发送错误状态标记，目前没有逻辑处理
     protected ImageView imgMsgStatus;
 
     protected RecentContact recent;
@@ -158,7 +158,11 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
     }
 
     protected RecentContactsCallback getCallback() {
-        return ((RecentContactAdapter)getAdapter()).getCallback();
+		 if(getAdapter() instanceof SamchatRecentContactAdapter){
+			 return ((SamchatRecentContactAdapter)getAdapter()).getCallback();
+		 }else{
+          return ((RecentContactAdapter)getAdapter()).getCallback();
+		 }
     }
 
     @Override

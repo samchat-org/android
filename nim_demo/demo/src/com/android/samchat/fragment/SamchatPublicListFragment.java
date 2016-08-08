@@ -1,73 +1,73 @@
 package com.android.samchat.fragment;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.ImageView.ScaleType;
-import android.widget.TextView;
 
-import com.netease.nim.demo.DemoCache;
+import com.android.samservice.info.FollowUser;
 import com.netease.nim.demo.R;
-import com.netease.nim.demo.contact.activity.BlackListActivity;
-import com.netease.nim.demo.main.activity.SystemMessageActivity;
-import com.netease.nim.demo.main.activity.TeamListActivity;
-import com.netease.nim.demo.main.helper.SystemMessageUnreadManager;
 import com.netease.nim.demo.main.model.MainTab;
-import com.netease.nim.demo.main.reminder.ReminderId;
-import com.netease.nim.demo.main.reminder.ReminderItem;
-import com.netease.nim.demo.main.reminder.ReminderManager;
-import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nim.uikit.common.activity.UI;
-import com.netease.nim.uikit.contact.ContactsCustomization;
-import com.netease.nim.uikit.contact.ContactsFragment;
-import com.netease.nim.uikit.contact.core.item.AbsContactItem;
-import com.netease.nim.uikit.contact.core.item.ItemTypes;
-import com.netease.nim.uikit.contact.core.model.ContactDataAdapter;
-import com.netease.nim.uikit.contact.core.viewholder.AbsContactViewHolder;
-
-import java.util.ArrayList;
-import java.util.List;
 import com.netease.nim.demo.main.fragment.MainTabFragment;
+import com.android.samchat.callback.SendQuestionCallback;
+import com.android.samservice.info.SendQuestion;
+import com.android.samchat.callback.ReceivedQuestionCallback;
+import com.android.samservice.info.ReceivedQuestion;
+import com.android.samchat.callback.CustomerPublicCallback;
 
 public class SamchatPublicListFragment extends MainTabFragment {
+	private SamchatPublicFragment fragment;
 
-    private ContactsFragment fragment;
+	public SamchatPublicListFragment() {
+		setContainerId(MainTab.SAMCHAT_PUBLIC.fragmentId);
+	}
 
-    public SamchatPublicListFragment() {
-        setContainerId(MainTab.SAMCHAT_PUBLIC.fragmentId);
-    }
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		onCurrent(); 
+	}
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
+	@Override
+	protected void onInit() {
+		addSamchatPublicFragment();  
+	}
 
-        onCurrent(); 
-    }
+	private void addSamchatPublicFragment() {
+		fragment = new SamchatPublicFragment();
+		fragment.setContainerId(R.id.samchat_public_fragment);
 
-    @Override
-    protected void onInit() {
-        addContactFragment();  
-    }
+		UI activity = (UI) getActivity();
+		fragment = (SamchatPublicFragment) activity.addFragment(fragment);  
+		fragment.setCpCallback(new CustomerPublicCallback(){
+			@Override
+			public void onCustomerPublicLoaded() {
+				//all followed public loaded
+			}
 
-    private void addContactFragment() {
-        fragment = new ContactsFragment();
-        fragment.setContainerId(R.id.samchat_public_fragment);
+			@Override
+			public void onItemClick(FollowUser fsp){
 
-        UI activity = (UI) getActivity();
+			}
 
-        // 如果是activity从堆栈恢复，FM中已经存在恢复而来的fragment，此时会使用恢复来的，而new出来这个会被丢弃掉
-        fragment = (ContactsFragment) activity.addFragment(fragment);
-    }
+			@Override
+			public void onDelete(){
 
-    @Override
-    public void onCurrentTabClicked() {
-        if (fragment != null) {
-            fragment.scrollToTop();
-        }
-    }
+			}
+
+			@Override
+			public void onAdd(){
+
+			}	
+		});
+
+
+	}
+	@Override
+	public void onCurrentTabClicked() {
+
+	}
 }
+
+
 
 
 

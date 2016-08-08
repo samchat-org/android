@@ -11,6 +11,8 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +31,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.android.samservice.Constants;
-
+import android.content.BroadcastReceiver;
+import android.support.v4.content.LocalBroadcastManager;
+import com.android.samchat.type.ModeEnum;
+import android.content.IntentFilter;
+import android.content.Context;
+import android.content.Intent;
 /**
  * Main Fragment in SamchatRequestListFragment
  */
@@ -56,6 +63,50 @@ public class SamchatRequestFragment extends TFragment {
 	private boolean rcvdQuestionsLoaded = false;
 	private ReceivedQuestionCallback rqcallback;
 
+	//observer and broadcast
+	private boolean isBroadcastRegistered = false;
+	private BroadcastReceiver broadcastReceiver;
+	private LocalBroadcastManager broadcastManager;
+
+	private void switchMode(ModeEnum to){
+		if(to == ModeEnum.SP_MODE){
+			
+		}else{
+
+		}
+	}
+
+	private void registerBroadcastReceiver() {
+		broadcastManager = LocalBroadcastManager.getInstance(getActivity());
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(Constants.BROADCAST_SWITCH_MODE);
+
+		broadcastReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if(intent.getAction().equals(Constants.BROADCAST_SWITCH_MODE)){
+					int to = intent.getExtras().getInt("to");
+					if(to == ModeEnum.valueOfType(ModeEnum.SP_MODE)){
+						customer_request_layout.setVisibility(View.GONE);
+						sp_request_layout.setVisibility(View.VISIBLE);
+					}else{
+						customer_request_layout.setVisibility(View.VISIBLE);
+						sp_request_layout.setVisibility(View.GONE);
+					}
+					((MainActivity)getActivity()).dimissSwitchProgress();
+				}
+			}
+		};
+		
+		broadcastManager.registerReceiver(broadcastReceiver, filter);
+	}
+		
+
+	
+	private void unregisterBroadcastReceiver(){
+	    broadcastManager.unregisterReceiver(broadcastReceiver);
+	}
+
 	public SamchatRequestFragment(){
 		super();
 	}
@@ -64,6 +115,12 @@ public class SamchatRequestFragment extends TFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.samchat_request_fragment_layout, container, false);
 	}
+
+    @Override
+    public void onDestroyView(){
+        unregisterBroadcastReceiver();
+        super.onDestroyView();
+    }
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -74,6 +131,8 @@ public class SamchatRequestFragment extends TFragment {
 		
 		LoadSendQuestions(true);
 		LoadRcvdQuestions(true);
+
+		registerBroadcastReceiver();
 		
 	}
 
@@ -90,6 +149,14 @@ public class SamchatRequestFragment extends TFragment {
 		//sp mode views
 		sp_request_layout = (LinearLayout) findView(R.id.sp_request_layout);
 		sp_request_list = (ListView) findView(R.id.sp_request_list);
+
+		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+			customer_request_layout.setVisibility(View.VISIBLE);
+			sp_request_layout.setVisibility(View.GONE);
+		}else{
+			customer_request_layout.setVisibility(View.GONE);
+			sp_request_layout.setVisibility(View.VISIBLE);
+		}
     }
 
 	private void initSendQuestionList(){
@@ -99,7 +166,6 @@ public class SamchatRequestFragment extends TFragment {
 		customer_request_list.setItemsCanFocus(true);
 		customer_request_list.setOnItemClickListener(new OnItemClickListener(){
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				LogUtil.e("test","click position:"+position);
 				if (sqcallback != null) {
 					SendQuestion sq = (SendQuestion) parent.getAdapter().getItem(position);
 					if(sq != null){
@@ -248,7 +314,6 @@ public class SamchatRequestFragment extends TFragment {
 				}
 				
 				loadedRcvdQuestions = SamService.getInstance().getDao().query_ReceivedQuestion_db_by_timestamp(SamchatGlobal.getoneWeekSysTime(),true);
-				LogUtil.e("test","load recvd question count:"+loadedRcvdQuestions.size());
 				rcvdQuestionsLoaded = true;
 				if(isAdded()){
 					onRcvdQuestionsLoaded();
@@ -292,7 +357,6 @@ public class SamchatRequestFragment extends TFragment {
 	private void refreshRcvdQuestionList(){
 		sortRcvdQuestion(rcvdquestions);
 		int answered = findRqAnsweredItemId();
-		LogUtil.e("test","answered id is " + answered);
 		rqadapter.setanswered(answered);
 		notifyDataSetChangedRQ();
 	}

@@ -53,10 +53,14 @@ import com.netease.nimlib.sdk.team.model.IMMessageFilter;
 import com.netease.nimlib.sdk.team.model.UpdateTeamAttachment;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samservice.SamService;
+import com.netease.nim.uikit.common.util.string.StringUtil;
+import com.android.samchat.cache.SamchatDataCacheManager;
+import com.android.samchat.service.SamDBManager;
 
 public class NimApplication extends Application {
 
@@ -79,6 +83,13 @@ public class NimApplication extends Application {
 
             // 初始化UIKit模块
             initUIKit();
+
+            if(!TextUtils.isEmpty(DemoCache.getAccount())){
+					 DemoCache.setTAccount(DemoCache.getAccount());
+                 SamService.getInstance().initDao(StringUtil.makeMd5(DemoCache.getAccount()));
+                 SamchatDataCacheManager.buildDataCache(); // build data cache on auto login
+                 SamDBManager.getInstance().registerObservers(true);
+            }
 
             // 注册通知消息过滤器
             registerIMMessageFilter();
@@ -281,14 +292,24 @@ public class NimApplication extends Application {
         ContactHelper.init();
     }
 
+	 /*SAMC_BEGIN(samchat user info provider)*/
+
+	 private long stringTolong(String s){
+	 	long ret = -1;
+		try{
+			ret = Long.valueOf(s);
+		}catch(Exception e){
+			return ret;
+		}
+		return ret;
+	 }
     private UserInfoProvider infoProvider = new UserInfoProvider() {
         @Override
         public UserInfo getUserInfo(String account) {
-            UserInfo user = NimUserInfoCache.getInstance().getUserInfo(account);
-            if (user == null) {
-                NimUserInfoCache.getInstance().getUserInfoFromRemote(account, null);
-            }
+           UserInfo user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
+           if(user ==  null){
 
+           }
             return user;
         }
 
@@ -309,9 +330,6 @@ public class NimApplication extends Application {
 
         @Override
         public Bitmap getAvatarForMessageNotifier(String account) {
-            /**
-             * 注意：这里最好从缓存里拿，如果读取本地头像可能导致UI进程阻塞，导致通知栏提醒延时弹出。
-             */
             UserInfo user = getUserInfo(account);
             return (user != null) ? ImageLoaderKit.getNotificationBitmapFromCache(user) : null;
         }
@@ -320,14 +338,14 @@ public class NimApplication extends Application {
         public String getDisplayNameForMessageNotifier(String account, String sessionId, SessionTypeEnum sessionType) {
             String nick = null;
             if (sessionType == SessionTypeEnum.P2P) {
-                nick = NimUserInfoCache.getInstance().getAlias(account);
+					UserInfo user = getUserInfo(account);
+					nick = (user != null) ? user.getName():null;
             } else if (sessionType == SessionTypeEnum.Team) {
                 nick = TeamDataCache.getInstance().getTeamNick(sessionId, account);
                 if (TextUtils.isEmpty(nick)) {
                     nick = NimUserInfoCache.getInstance().getAlias(account);
                 }
             }
-            // 返回null，交给sdk处理。如果对方有设置nick，sdk会显示nick
             if (TextUtils.isEmpty(nick)) {
                 return null;
             }
@@ -335,6 +353,7 @@ public class NimApplication extends Application {
             return nick;
         }
     };
+	 /*SAMC_END(samchat user info provider)*/
 
     private ContactProvider contactProvider = new ContactProvider() {
         @Override

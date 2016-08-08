@@ -8,6 +8,14 @@ public class SamchatGlobal {
 		return mode;
 	}
 
+	public static void switchMode(){
+		if(mode == ModeEnum.CUSTOMER_MODE){
+			mode = ModeEnum.SP_MODE;
+		}else{
+			mode = ModeEnum.CUSTOMER_MODE;
+		}
+	}
+
 	public static void setmode(ModeEnum m){
 		mode = m;
 	}

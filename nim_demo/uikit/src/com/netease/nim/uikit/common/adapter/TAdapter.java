@@ -79,6 +79,7 @@ public class TAdapter<T> extends BaseAdapter implements IViewReclaimer {
             try {
                 holder.refresh(getItem(position));
             } catch (RuntimeException e) {
+                e.printStackTrace();
                 LogUtil.e("TAdapter", "refresh viewholder error. " + e.getMessage());
             }
 		}
@@ -142,6 +143,7 @@ public class TAdapter<T> extends BaseAdapter implements IViewReclaimer {
         return mutable;
     }
 
+//RecentViewHolder
 	public View viewAtPosition(int position) {
 		TViewHolder holder = null;
 		View view = null;

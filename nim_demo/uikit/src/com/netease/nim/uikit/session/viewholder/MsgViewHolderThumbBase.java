@@ -10,6 +10,7 @@ import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.media.ImageUtil;
 import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
+import com.netease.nim.uikit.session.module.list.P2PMsgAdapter;
 import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
 import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
 import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
@@ -18,7 +19,7 @@ import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 
 import java.io.File;
-
+import com.netease.nim.uikit.session.module.list.MsgAdapter;
 /**
  * Created by zhoujianghua on 2015/8/4.
  */
@@ -72,7 +73,14 @@ public abstract class MsgViewHolderThumbBase extends MsgViewHolderBase {
         } else {
             progressCover.setVisibility(View.GONE);
         }
-        progressLabel.setText(StringUtil.getPercentString(getAdapter().getProgress(message)));
+
+        float process = 0;
+        if(getAdapter() instanceof P2PMsgAdapter){
+            process = ((P2PMsgAdapter)getAdapter()).getProgress(message);
+        }else{
+            process = ((MsgAdapter)getAdapter()).getProgress(message);
+        }
+        progressLabel.setText(StringUtil.getPercentString(process));
     }
 
     private void loadThumbnailImage(String thumbPath) {

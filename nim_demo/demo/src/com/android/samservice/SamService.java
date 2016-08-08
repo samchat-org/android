@@ -34,7 +34,7 @@ import android.os.SystemClock;
 import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.netease.nim.demo.config.preference.Preferences;
 import com.igexin.sdk.PushManager;
-
+import com.android.samchat.test.TestCase;
 
 public class SamService{
 	public static final String TAG="SamService";
@@ -101,6 +101,9 @@ public class SamService{
 	public static final int MSG_WRITE_ADV = MSG_SYNC_FOLLOW_LIST + 1;
 	public static final int MSG_DELETE_ADV = MSG_WRITE_ADV + 1;
 	public static final int MSG_BIND_ALIAS = MSG_DELETE_ADV + 1;
+
+	public static final int MSG_DB_START = 1000; 
+	public static final int MSG_DB_ADD_MSGS = MSG_DB_START+1;
 
 	private boolean isTimeOut(SamCoreObj samobj){
 		cancelTimeOut(samobj);
@@ -1219,6 +1222,19 @@ public class SamService{
 			return;
 		}else if(http_ret){
 			if(hcc.ret == 0){
+				String service_category = null;
+				if(opobj.user.getusertype() == Constants.SAM_PROS){
+					service_category = ((SamProsUser)opobj.user).getservice_category();
+				}
+				Contact user = new Contact(opobj.user.getunique_id(),opobj.user.getusername(),
+																	opobj.user.getavatar(),service_category);
+				
+				if(opobj.type == Constants.ADD_INTO_CONTACT){
+					dao.update_ContactList_db(user, false);
+				}else{
+					dao.update_ContactList_db(user, true);
+				}
+				
 				if(hcc.userinfo.getusertype() == Constants.SAM_PROS){
 					if(dao.update_SamProsUser_db((SamProsUser)hcc.userinfo) == -1){
 						samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
@@ -1276,6 +1292,11 @@ public class SamService{
 			return;
 		}else if(http_ret){
 			if(hcc.ret == 0){
+				if(opobj.type == Constants.REMOVE_OUT_CONTACT){
+					dao.delete_ContactList_db_by_unique_id(opobj.user.getunique_id(), false);
+				}else{
+					dao.delete_ContactList_db_by_unique_id(opobj.user.getunique_id(), true);
+				}
 				samobj.callback.onSuccess(hcc,0);
 			}else{
 				samobj.callback.onFailed(hcc.ret);
@@ -1303,20 +1324,21 @@ public class SamService{
 	}
 
 /***************************************sync contact list*******************************************************/
-	public void sync_contact_list(SMCallBack callback){
+	public void sync_contact_list(boolean isCustomer, SMCallBack callback){
 		SyncContactListCoreObj samobj = new SyncContactListCoreObj(callback);
-		samobj.init(get_current_token());
+		samobj.init(isCustomer,get_current_token());
 		Message msg = mSamServiceHandler.obtainMessage(MSG_SYNC_CONTACT_LIST, samobj);
 		mSamServiceHandler.sendMessage(msg);
 		startTimeOut(samobj);
 	}
 
-	private boolean syncUpdateContactList(MultipleBasicUserInfo basicuserinfos){
+	private boolean syncUpdateContactList(boolean isCustomer,MultipleBasicUserInfo basicuserinfos){
 		boolean isDbError = false;
-		dao.delete_ContactList_db_all();
+		
 		if(basicuserinfos.getcount()>0){
 			for(BasicUserInfo userinfo:basicuserinfos.getuserinfos()){
-				if(dao.add_ContactList_db(new Contact(userinfo.getunique_id(),userinfo.getusername())) == -1){
+				if(dao.add_ContactList_db(new Contact(userinfo.getunique_id(),userinfo.getusername(),
+																userinfo.getavatar_thumb(),userinfo.getservice_category()),isCustomer) == -1){
 					isDbError = true;
 				}
 			}
@@ -1353,7 +1375,7 @@ public class SamService{
 			return;
 		}else if(http_ret){
 			if(hcc.ret == 0){
-				boolean isDbError = syncUpdateContactList(hcc.basicuserinfos);
+				boolean isDbError = syncUpdateContactList(scobj.isCustomer,hcc.basicuserinfos);
 				if(!isDbError){
 					isDbError = syncUpdateBasicInfo(hcc.basicuserinfos);
 				}
@@ -1375,7 +1397,7 @@ public class SamService{
 	private void retry_sync_contact_list(SyncContactListCoreObj samobj){
 		SyncContactListCoreObj  retryobj = new SyncContactListCoreObj(samobj.callback);
 		
-		retryobj.init(samobj.token);
+		retryobj.init(samobj.isCustomer,samobj.token);
 		
 		retryobj.setRetryCount(samobj.retry_count);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_SYNC_CONTACT_LIST,retryobj);
@@ -1611,9 +1633,13 @@ public class SamService{
 
 /********************************************** HTTP API END ********************************************************/
 
+/********************************************** DB API  ********************************************************/
+		
 
 
 
+/********************************************** DB END  ********************************************************/
+	
 
 
 	public static synchronized SamService getInstance(){
@@ -1687,6 +1713,7 @@ public class SamService{
 	   if(dao == null){
 		 	this.dbFolder = dbFolder;
 			dao = new SamDBDao(mContext,dbFolder);
+			TestCase.testInitDB();
 		}
 	}
 
@@ -1703,12 +1730,14 @@ public class SamService{
 		mHandlerTimeOutThread = new HandlerThread("SamServiceTimeOut");
 		mHandlerTimeOutThread.start();
 		mHandlerTimeOutHandler = new SamServiceTimeOutHandler(mHandlerTimeOutThread.getLooper());
-
+		
 		mFixedHttpThreadPool = Executors.newFixedThreadPool(5);
+
+		
 	}
 	
 	public void stopSamService(){
-		/*remove all msg in mSamServiceHandler*/
+		/*remove all msg in mSamServiceHandler*/		
 		mSamServiceHandler.removeCallbacksAndMessages(null);
 		mHandlerThread.getLooper().quit();
 

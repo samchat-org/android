@@ -95,7 +95,9 @@ public class SessionHelper {
         if (!DemoCache.getAccount().equals(account)) {
             NimUIKit.startChatting(context, account, SessionTypeEnum.P2P, getP2pCustomization());
         } else {
-            NimUIKit.startChatting(context, account, SessionTypeEnum.P2P, getMyP2pCustomization());
+            /*SAMC_BEGIN(not support chat with myself)*/
+            return;//NimUIKit.startChatting(context, account, SessionTypeEnum.P2P, getMyP2pCustomization());
+            /*SAMC_END(not support chat with myself)*/
         }
     }
 

@@ -3,11 +3,11 @@ package com.android.samservice.info;
 import java.io.Serializable;
 
 import com.android.samservice.Constants;
-
+import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 	/*
 	id(primary) | unique_id | username | usertype | lastupdate | avatar | avatar_original |countrycode | cellphone | email | address 
 	*/
-public class ContactUser implements Serializable
+public class ContactUser implements UserInfoProvider.UserInfo
 {
 	private long id;
 	private long unique_id;
@@ -139,4 +139,22 @@ public class ContactUser implements Serializable
 	public void setaddress(String address){
 		this.address = address;
 	}
+
+	@Override
+	public String getAccount(){
+		return (""+unique_id);
+	}
+
+	@Override
+	public String getName(){
+		return username;
+	}
+
+	@Override
+	public String getAvatar(){
+		return avatar;
+	}
+
+
+	
 }

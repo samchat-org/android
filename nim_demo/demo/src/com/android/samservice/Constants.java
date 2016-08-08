@@ -45,6 +45,15 @@ public class Constants{
 	public static final int NO_TAG = 0;
 	public static final int TAG = 1;
 
+	/****************************msg***********************************************/
+	public static final int MSG_READ = 0;
+	public static final int MSG_UNREAD = 1;
+
+	public static final int MSG_TYPE_IM = 0;
+	public static final int MSG_TYPE_SQ = 1; 
+	public static final int MSG_TYPE_RQ = 2; 
+	public static final int MSG_TYPE_ADV = 3; 
+
 	/****************************Avatar update of type***********************************************/
 	public static final int AVATAR_UPDATE_USER = 0;
 	public static final int AVATAR_UPDATE_SAM_PROS = 1;
@@ -68,8 +77,14 @@ public class Constants{
 
 
 	/****************************Broadcast***********************************************/
-	public static final String BROADCAST_FINISH_ALL_SIGN_ACTVITY = "com.android.sam.finishAllSign";
-	public static final String EASEMOBNAMEGOT = "com.android.sam.easemobnamegot";
+	public static final String BROADCAST_SWITCH_MODE = "com.android.samchat.switchmode";
+
+	/****************************Message From***********************************************/
+	public static final String MSG_FROM = "msg_from";
+	public static final int FROM_CUSTOMER = 0;
+	public static final int FROM_SP = 1;
+	public static final String MSG_TO = "msg_to";
+	
 
 
 

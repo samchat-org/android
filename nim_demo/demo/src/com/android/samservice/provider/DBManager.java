@@ -35,6 +35,11 @@ public class DBManager
 	public static final String WRITE_ADV_DB_NAME = "adv.db";
 	private DatabaseHelper write_adv_db_helper;
 	private SQLiteDatabase write_adv_db;
+	/*5. msg db to distinguish mode*/
+	public static final int MSG_DB_VERSION=1;
+	public static final String MESSAGE_DB_NAME = "message.db";
+	private DatabaseHelper message_db_helper;
+	private SQLiteDatabase message_db;
 	
 	public DBManager(Context context,String dbFolder)
 	{
@@ -51,7 +56,193 @@ public class DBManager
 
 		write_adv_db_helper = new DatabaseHelper(mContext,mDBFolder,WRITE_ADV_DB_NAME,WRITE_ADV_DB_VERSION);
 		write_adv_db = write_adv_db_helper.getWritableDatabase();
+
+		message_db_helper = new DatabaseHelper(mContext,mDBFolder,MESSAGE_DB_NAME,MSG_DB_VERSION);
+		message_db = message_db_helper.getWritableDatabase();
 	}
+
+/******************************Message Session DB*************************************************/
+	public long addMsgSession(MsgSession session){
+		String table =  DatabaseHelper.TABLE_NAME_MSG_SESSION;
+		ContentValues cv = new ContentValues();
+		cv.put("session_id",session.getsession_id());
+		cv.put("mode",session.getmode());
+		cv.put("msg_table_name",session.getmsg_table_name());
+		cv.put("total_unread",session.gettotal_unread());
+		cv.put("recent_msg_type",session.getrecent_msg_type());
+		cv.put("recent_msg_uuid",session.getrecent_msg_uuid());
+
+		return message_db.insert(table,null,cv);
+	}
+
+	public long updateMsgSession(long id, MsgSession session)
+	{
+		String table =  DatabaseHelper.TABLE_NAME_MSG_SESSION;
+		ContentValues cv = new ContentValues();
+		cv.put("session_id",session.getsession_id());
+		cv.put("mode",session.getmode());
+		cv.put("msg_table_name",session.getmsg_table_name());
+		cv.put("total_unread",session.gettotal_unread());
+		cv.put("recent_msg_type",session.getrecent_msg_type());
+		cv.put("recent_msg_uuid",session.getrecent_msg_uuid());
+
+		String whereClause = "id=?";
+		String [] whereArgs = {""+id+""};
+
+		return message_db.update(table,cv,whereClause,whereArgs);
+	}
+
+	public long updateMsgSessionUnreadCount(String session_id, int mode, int count)
+	{
+		String table =  DatabaseHelper.TABLE_NAME_MSG_SESSION;
+		ContentValues cv = new ContentValues();
+		cv.put("total_unread",count);
+
+		String whereClause = "session_id=? and mode=?";
+		String [] whereArgs = {session_id,""+mode};
+
+		return message_db.update(table,cv,whereClause,whereArgs);
+	}
+
+	public long updateMsgSessionRecentMsg(String session_id, int mode, int recent_msg_type, String recent_msg_uuid)
+	{
+		String table =  DatabaseHelper.TABLE_NAME_MSG_SESSION;
+		ContentValues cv = new ContentValues();
+		cv.put("recent_msg_type",recent_msg_type);
+		cv.put("recent_msg_uuid",recent_msg_uuid);
+
+		String whereClause = "session_id=? and mode=?";
+		String [] whereArgs = {session_id,""+mode};
+
+		return message_db.update(table,cv,whereClause,whereArgs);
+	}
+
+	public void increaseMsgSessionUnreadCount(String session_id, int mode , int increase){
+		String rawSQL = "UPDATE "+DatabaseHelper.TABLE_NAME_MSG_SESSION
+			+" SET total_unread = total_unread + ? WHERE session_id=? and mode=?";
+		Object [] bindArgs={new Integer(increase),session_id, new Integer(mode)};
+		
+		message_db.execSQL(rawSQL,bindArgs);
+	}
+
+	public MsgSession queryMsgSession(String session_id,int mode){
+		String table = DatabaseHelper.TABLE_NAME_MSG_SESSION;
+		MsgSession session = null;
+		String name = null;
+		Cursor c = message_db.query(table,null,"session_id=? and mode=?",new String[]{session_id,""+mode},null,null,null);
+
+		while(c.moveToNext()){
+			session = new MsgSession();
+			session.setid(c.getLong(c.getColumnIndex("id")));
+			session.setsession_id(c.getString(c.getColumnIndex("session_id")));
+			session.setmode(c.getInt(c.getColumnIndex("mode")));
+			session.setmsg_table_name(c.getString(c.getColumnIndex("msg_table_name")));
+			session.settotal_unread(c.getInt(c.getColumnIndex("total_unread")));
+			session.setrecent_msg_type(c.getInt(c.getColumnIndex("recent_msg_type")));
+			session.setrecent_msg_uuid(c.getString(c.getColumnIndex("recent_msg_uuid")));
+		}
+
+		c.close();
+
+		if(c.getCount()>1){
+			throw new RuntimeException("code error:"+c.getCount()+" msg session is found in db by session_id:"+session_id+" mode:"+mode);
+		}
+
+		return session;
+	}
+
+	public void deleteMsgSession(String session_id,int mode){
+		String table = DatabaseHelper.TABLE_NAME_MSG_SESSION ;
+		
+		message_db.delete(table, "session_id=? and mode=?", new String[]{session_id,""+mode});
+	}
+
+	public void deleteMsgSessionAll(){
+		String table = DatabaseHelper.TABLE_NAME_MSG_SESSION ;
+		
+		message_db.delete(table, null, null);
+	}
+
+/******************************Message DB*************************************************/
+	public void createMsgTable(String table){
+		message_db_helper.createMsgTable(message_db,table);
+	}
+
+	public long addMessage(String table, Message msg){
+		ContentValues cv = new ContentValues();
+		
+		cv.put("id",msg.getid());
+		cv.put("type",msg.gettype());
+		cv.put("uuid",msg.getuuid());
+
+		return message_db.insert(table,null,cv);
+	}
+
+	public int addMessages(String table, List<Message> msgs){
+		message_db.beginTransaction();
+		try{
+			for(Message msg : msgs){
+				String rawSQL = "INSERT INTO "+table+"(type,uuid) VALUES (?,?)";
+				Object [] bindArgs={new Integer(msg.gettype()),new String(msg.getuuid())};
+				message_db.execSQL(rawSQL, bindArgs);
+			}
+			message_db.setTransactionSuccessful();
+		}catch(Exception e){
+			return -1;
+		}finally{
+			message_db.endTransaction();
+		}
+		
+		return msgs.size();
+	}
+
+	public List<Message> queryMessages(String table, int count){
+		Message msg = null;
+		List<Message> msgs = new ArrayList<Message>();
+		
+		Cursor c = message_db.query(table,null,null,null,null,null,"id DESC",""+count);
+
+		while(c.moveToNext()){
+			msg = new Message();
+			msg.setid(c.getLong(c.getColumnIndex("id")));
+			msg.settype(c.getInt(c.getColumnIndex("type")));
+			msg.setuuid(c.getString(c.getColumnIndex("uuid")));
+
+			msgs.add(msg);
+		}
+
+		c.close();
+
+		return msgs;
+	}
+
+	public List<Message> queryMessages(String table, long id, int count){
+		String selections = "id < ?";
+		String limits = ""+count;
+		String [] selectionArgs = {""+id};
+		Message msg = null;
+		List<Message> msgs = new ArrayList<Message>();
+
+        Cursor c = message_db.query(table, null, selections, selectionArgs, null, null, "id desc",limits);
+
+		while(c.moveToNext()){
+			msg = new Message();
+			msg.setid(c.getLong(c.getColumnIndex("id")));
+			msg.settype(c.getInt(c.getColumnIndex("type")));
+			msg.setuuid(c.getString(c.getColumnIndex("uuid")));
+
+			msgs.add(msg);
+		}
+
+		c.close();
+
+		return msgs;
+	}
+
+	public void deleteMessage(String table, long id){
+		message_db.delete(table, "id=?", new String[]{""+id});
+	}
+
 
 /******************************ContactUser DB**********************************************/
 	public long addContactUser(ContactUser user)
@@ -204,6 +395,35 @@ public class DBManager
 		}
 
 		return user;
+	}
+
+	public List<ContactUser> queryContactUserAll(){
+		String table = DatabaseHelper.TABLE_NAME_CONTACT_USER;
+		ContactUser user = null;
+		List<ContactUser> users = new ArrayList<ContactUser>();
+		
+		Cursor c = userinfo_db.query(table,null,null,null,null,null,null);
+
+		while(c.moveToNext()){
+			user = new ContactUser();
+			user.setid(c.getLong(c.getColumnIndex("id")));
+			user.setunique_id(c.getLong(c.getColumnIndex("unique_id")));
+			user.setusername(c.getString(c.getColumnIndex("username")));
+			user.setusertype( c.getInt(c.getColumnIndex("usertype")));
+ 			user.setlastupdate(c.getLong(c.getColumnIndex("lastupdate")));
+			user.setavatar(c.getString(c.getColumnIndex("avatar")));
+			user.setavatar_original(c.getString(c.getColumnIndex("avatar_original")));
+			user.setcountrycode(c.getString(c.getColumnIndex("countrycode")));
+			user.setcellphone(c.getString(c.getColumnIndex("cellphone")));
+			user.setemail(c.getString(c.getColumnIndex("email")));
+			user.setaddress(c.getString(c.getColumnIndex("address")));
+
+			users.add(user);
+		}
+
+		c.close();
+
+		return users;
 	}
 
 /******************************SamProsUser DB**********************************************/
@@ -539,25 +759,29 @@ public class DBManager
 	}
 
 /******************************Contact List DB**********************************************/
-	public long addContact(Contact user)
+	public long addContact(Contact user, boolean isCustomer)
 	{
-		String table = DatabaseHelper.TABLE_NAME_CONTACT_LIST;
+		String table = isCustomer? DatabaseHelper.TABLE_NAME_CUSTOMER_LIST:DatabaseHelper.TABLE_NAME_CONTACT_LIST;
 
 		ContentValues cv = new ContentValues();
 		cv.put("unique_id",user.getunique_id());
 		cv.put("username",user.getusername());
+		cv.put("avatar",user.getavatar());
+		cv.put("service_category",user.getservice_category());
 
 		return userinfo_db.insert(table,null,cv);
 	}
 
-	public long updateContact(long id, Contact user)
+	public long updateContact(long id, Contact user,boolean isCustomer)
 	{
-		String table = DatabaseHelper.TABLE_NAME_CONTACT_LIST;
+		String table = isCustomer? DatabaseHelper.TABLE_NAME_CUSTOMER_LIST:DatabaseHelper.TABLE_NAME_CONTACT_LIST;
 
 		ContentValues cv = new ContentValues();
 		
 		cv.put("unique_id",user.getunique_id());
 		cv.put("username",user.getusername());
+		cv.put("avatar",user.getavatar());
+		cv.put("service_category",user.getservice_category());
 
 		String whereClause = "id=?";
 		String [] whereArgs = {""+id+""};
@@ -565,19 +789,20 @@ public class DBManager
 		return userinfo_db.update(table,cv,whereClause,whereArgs);
 	}
 
-	public Contact queryContactByUniqueID(long unique_id){
-		String table = DatabaseHelper.TABLE_NAME_CONTACT_LIST;
+	public Contact queryContactByUniqueID(long unique_id,boolean isCustomer){
+		String table = isCustomer? DatabaseHelper.TABLE_NAME_CUSTOMER_LIST:DatabaseHelper.TABLE_NAME_CONTACT_LIST;
+
 		Contact user = null;
 		String name = null;
 		
 		Cursor c = userinfo_db.query(table,null,"unique_id=?",new String[]{""+unique_id},null,null,null);
 
 		while(c.moveToNext()){
-			user = new Contact();	
+			user = new Contact(c.getLong(c.getColumnIndex("unique_id")),
+                    c.getString(c.getColumnIndex("username")),
+                    c.getString(c.getColumnIndex("avatar")),
+                    c.getString(c.getColumnIndex("service_category")));
 			user.setid(c.getLong(c.getColumnIndex("id")));
-			user.setunique_id(c.getLong(c.getColumnIndex("unique_id")));
-			user.setusername(c.getString(c.getColumnIndex("username")));
-
 			name += ":"+user.getunique_id()+":";
 		}
 
@@ -590,14 +815,38 @@ public class DBManager
 		return user;
 	}
 
-	public void deleteContactByUniqueID(long unique_id){
-		String table = DatabaseHelper.TABLE_NAME_CONTACT_LIST ;
+	public List<Contact> queryContactAll(boolean isCustomer){
+		String table = isCustomer? DatabaseHelper.TABLE_NAME_CUSTOMER_LIST:DatabaseHelper.TABLE_NAME_CONTACT_LIST;
+
+		Contact user = null;
+		String name = null;
+		List<Contact> contacts = new ArrayList<Contact>();
+		
+		Cursor c = userinfo_db.query(table,null,null,null,null,null,null);
+
+		while(c.moveToNext()){
+            user = new Contact(c.getLong(c.getColumnIndex("unique_id")),
+                    c.getString(c.getColumnIndex("username")),
+                    c.getString(c.getColumnIndex("avatar")),
+                    c.getString(c.getColumnIndex("service_category")));
+            user.setid(c.getLong(c.getColumnIndex("id")));
+			contacts.add(user);
+		}
+
+		c.close();
+
+		return contacts;
+	}
+
+
+	public void deleteContactByUniqueID(long unique_id,boolean isCustomer){
+		String table = isCustomer? DatabaseHelper.TABLE_NAME_CUSTOMER_LIST:DatabaseHelper.TABLE_NAME_CONTACT_LIST;
 		
 		userinfo_db.delete(table, "unique_id=?", new String[]{""+unique_id});	
 	}
 
-	public void deleteContactAll(){
-		String table = DatabaseHelper.TABLE_NAME_CONTACT_LIST ;
+	public void deleteContactAll(boolean isCustomer){
+		String table = isCustomer? DatabaseHelper.TABLE_NAME_CUSTOMER_LIST:DatabaseHelper.TABLE_NAME_CONTACT_LIST;
 		
 		userinfo_db.delete(table, null, null);
 	}
@@ -684,6 +933,29 @@ public class DBManager
 		}
 
 		return follower;
+	}
+
+	public List<FollowedSamPros> queryFollowedSamProsAll(){
+		String table = DatabaseHelper.TABLE_NAME_FOLLOW_LIST;
+		List<FollowedSamPros> followSps = new ArrayList<FollowedSamPros>();
+		FollowedSamPros follower = null;
+		
+		Cursor c = userinfo_db.query(table,null,null,null,null,null,null);
+
+		while(c.moveToNext()){
+			follower = new FollowedSamPros();	
+			follower.setid(c.getLong(c.getColumnIndex("id")));
+			follower.setunique_id(c.getLong(c.getColumnIndex("unique_id")));
+			follower.setusername(c.getString(c.getColumnIndex("username")));
+			follower.setfavourite_tag(c.getInt(c.getColumnIndex("favourite_tag")));
+			follower.setblock_tag( c.getInt(c.getColumnIndex("block_tag")));
+
+			followSps.add(follower);
+		}
+
+		c.close();
+
+		return followSps;
 	}
 
 	public void deleteFollowedSamProsByUniqueID(long unique_id){
@@ -960,6 +1232,7 @@ public class DBManager
 		question_db.close();
 		rcvd_adv_db.close();
 		write_adv_db.close();
+		message_db.close();
     }
 
 }

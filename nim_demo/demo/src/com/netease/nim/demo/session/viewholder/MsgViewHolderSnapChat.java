@@ -17,7 +17,8 @@ import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
-
+import com.netease.nim.uikit.session.module.list.P2PMsgAdapter;
+import com.netease.nim.uikit.session.module.list.MsgAdapter;
 /**
  * Created by zhoujianghua on 2015/8/7.
  */
@@ -61,7 +62,13 @@ public class MsgViewHolderSnapChat extends MsgViewHolderBase {
             progressCover.setVisibility(View.GONE);
         }
 
-        progressLabel.setText(StringUtil.getPercentString(getAdapter().getProgress(message)));
+        float percent = 0;
+        if(getAdapter() instanceof P2PMsgAdapter){
+            percent = ((P2PMsgAdapter)getAdapter()).getProgress(message);
+        }else{
+            percent = ((MsgAdapter)getAdapter()).getProgress(message);
+        }
+        progressLabel.setText(StringUtil.getPercentString(percent));
     }
 
     protected View.OnTouchListener onTouchListener = new View.OnTouchListener() {
@@ -85,7 +92,11 @@ public class MsgViewHolderSnapChat extends MsgViewHolderBase {
                     AttachmentStore.delete(((SnapChatAttachment) message.getAttachment()).getPath());
                     AttachmentStore.delete(((SnapChatAttachment) message.getAttachment()).getThumbPath());
 
-                    getAdapter().deleteItem(message);
+                    if(getAdapter() instanceof P2PMsgAdapter) {
+                        ((P2PMsgAdapter)getAdapter()).deleteItem(message);
+                    }else{
+                        ((MsgAdapter)getAdapter()).deleteItem(message);
+                    }
                     isLongClick = false;
                 }
                 break;

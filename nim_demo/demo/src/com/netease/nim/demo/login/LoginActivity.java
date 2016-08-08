@@ -45,7 +45,10 @@ import com.netease.nimlib.sdk.ResponseCode;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.ClientType;
 import com.netease.nimlib.sdk.auth.LoginInfo;
-
+import com.android.samchat.cache.SamchatDataCacheManager;
+import com.android.samservice.SamService;
+import com.netease.nim.uikit.common.util.string.StringUtil;
+import com.android.samchat.service.SamDBManager;
 /**
  * 登录/注册界面
  * <p/>
@@ -273,6 +276,11 @@ public class LoginActivity extends UI implements OnKeyListener {
         final String account = loginAccountEdit.getEditableText().toString().toLowerCase();
         final String token = tokenFromPassword(loginPasswordEdit.getEditableText().toString());
         // 登录
+        /*SAMC_BEGIN(register message before login)*/
+        SamDBManager.getInstance().registerObservers(false);
+        SamDBManager.getInstance().registerObservers(true);
+		  DemoCache.setTAccount(account);
+		  /*SAMC_BEGIN(register message before login)*/
         loginRequest = NIMClient.getService(AuthService.class).login(new LoginInfo(account, token));
         loginRequest.setCallback(new RequestCallback<LoginInfo>() {
             @Override
@@ -294,6 +302,12 @@ public class LoginActivity extends UI implements OnKeyListener {
 
                 // 构建缓存
                 DataCacheManager.buildDataCacheAsync();
+					/*SAMC_BEGIN(build samchat cache)*/
+					DemoCache.setTAccount(account);
+					SamService.getInstance().initDao(StringUtil.makeMd5(account));
+					SamchatDataCacheManager.buildDataCache();
+					
+					/*SAMC_END(build samchat cache)*/
 
                 // 进入主界面
                 MainActivity.start(LoginActivity.this, null);

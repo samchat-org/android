@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.netease.nim.demo.DemoCache;
-
+import com.android.samchat.type.ModeEnum;
 /**
  * Created by hzxuwen on 2015/4/13.
  */
@@ -22,6 +22,22 @@ public class Preferences {
         return getString(KEY_USER_ALIAS);
     }
     /*SAMC_END(GETU Alias)*/
+
+	/*SAMC_BEGIN(current mode)*/
+	private static final String KEY_MODE = "mode";
+	public static void saveMode(int mode) {
+		saveString(KEY_MODE, String.valueOf(mode));
+	}
+
+	public static int getMode() {
+		String str = getString(KEY_MODE);
+		if(str == null){
+			return ModeEnum.valueOfType(ModeEnum.CUSTOMER_MODE);
+		}
+		
+		return Integer.valueOf(str).intValue();
+	}
+	/*SAMC_END(current mode)*/
 
     public static void saveUserAccount(String account) {
         saveString(KEY_USER_ACCOUNT, account);

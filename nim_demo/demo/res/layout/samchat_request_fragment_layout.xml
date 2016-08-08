@@ -7,8 +7,7 @@
         android:id="@+id/customer_request_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone">
+        android:orientation="vertical">
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
@@ -46,7 +45,8 @@
         android:id="@+id/sp_request_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
         <ListView
             android:id="@+id/sp_request_list"
             android:layout_width="match_parent"

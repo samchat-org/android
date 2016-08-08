@@ -55,7 +55,7 @@ public class DataCacheManager {
                     });
                 }
 
-                LogUtil.i(TAG, "build data cache completed");
+                LogUtil.e(TAG, "build data cache completed" +" Thread id:"+Thread.currentThread().getId() );
             }
         });
     }

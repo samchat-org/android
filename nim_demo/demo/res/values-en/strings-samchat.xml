@@ -14,4 +14,29 @@
     <string name="sp_setting">Service Settings</string>
 
     <string name="make_new_request">+ Make a new service request</string>
+    <string name="active_requests">Active requests</string>
+    <string name="history">History</string>
+    <string name="rq_new">New</string>
+    <string name="rq_answered">Answered</string>
+    <string name="mode_switching">mode switching ...</string>
+    <string name="search">Search</string>
+    <string name="delete_chatting">Delete this chat ?</string>
+    <string name="sticky_on_top">Sticky on top</string>
+    <string name="clear_sticky_on_top">Clear sticky</string>
+    <string name="samchat_account">Account</string>
+    <string name="samchat_preference">Preferences</string>
+    <string name="samchat_about">About</string>
+    <string name="samchat_myprofile">My profile</string>
+    <string name="samchat_myqr">My QR code</string>
+    <string name="samchat_notification">Notifications</string>
+    <string name="samchat_option">Options</string>
+    <string name="samchat_aboutSamchat">About Samchat</string>
+    <string name="samchat_faq">FAQ</string>
+
+    <string name="samchat_service_account">Service Account</string>
+    <string name="samchat_service_profile">Service Profile</string>
+    <string name="samchat_service_qr">Service QR code</string>
+    <string name="samchat_service_preference">Service Preferences</string>
+    <string name="samchat_service_notification">Notifications</string>
+    <string name="samchat_service_subscription">Subscription and plans</string>
 </resources>

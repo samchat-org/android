@@ -240,7 +240,6 @@ public class RecentContactsFragment extends TFragment implements TAdapterDelegat
                 if (msgLoaded) {
                     return;
                 }
-                // 查询最近联系人列表数据
                 NIMClient.getService(MsgService.class).queryRecentContacts().setCallback(new RequestCallbackWrapper<List<RecentContact>>() {
 
                     @Override

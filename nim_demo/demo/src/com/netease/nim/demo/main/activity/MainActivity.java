@@ -53,6 +53,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.view.View;
 import com.netease.nim.demo.main.model.MainTab;
+import android.support.v4.content.LocalBroadcastManager;
+import com.netease.nim.demo.DemoCache;
+import com.android.samchat.SamchatGlobal;
+import com.android.samchat.type.ModeEnum;
+import com.android.samservice.Constants;
+import com.android.samchat.service.SamDBManager;
+import com.netease.nim.uikit.session.sam_message.sam_message;
+import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
+import com.netease.nim.uikit.NIMCallback;
+import java.util.List;
+import com.netease.nim.uikit.session.sam_message.SamchatObserver;
 /*SAMC_END(......)*/
 
 /**
@@ -60,7 +71,7 @@ import com.netease.nim.demo.main.model.MainTab;
  * <p/>
  * Created by huangjun on 2015/3/25.
  */
-public class MainActivity extends UI {
+public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
     private static final String EXTRA_APP_QUIT = "APP_QUIT";
     private static final int REQUEST_CODE_NORMAL = 1;
@@ -71,7 +82,7 @@ public class MainActivity extends UI {
     private HomeFragment mainFragment;
 
     /*SAMC_BEGIN(Getu SDK initilized tag)*/
-    private Boolean isGetuInited = false;
+    private boolean isGetuInited = false;
     /*SAMC_END(Getu SDK initilized tag)*/
 
     /*SAMC_BEGIN(Customized title bar)*/
@@ -79,7 +90,45 @@ public class MainActivity extends UI {
     private TextView switch_reminder;
     private TextView titlebar_name;
     private ImageView titlebar_right_icon;
+    private int current_position = 0;
     /*SAMC_END(Customized title bar)*/ 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_activity_menu, menu);
+        super.onCreateOptionsMenu(menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.about:
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                break;
+            case R.id.create_normal_team:
+                ContactSelectActivity.Option option = TeamHelper.getCreateContactSelectOption(null, 50);
+                NimUIKit.startContactSelect(MainActivity.this, option, REQUEST_CODE_NORMAL);
+                break;
+            case R.id.create_regular_team:
+                ContactSelectActivity.Option advancedOption = TeamHelper.getCreateContactSelectOption(null, 50);
+                NimUIKit.startContactSelect(MainActivity.this, advancedOption, REQUEST_CODE_ADVANCED);
+                break;
+            case R.id.search_advanced_team:
+                AdvancedTeamSearchActivity.start(MainActivity.this);
+                break;
+            case R.id.add_buddy:
+                AddFriendActivity.start(MainActivity.this);
+                break;
+            case R.id.search_btn:
+                GlobalSearchActivity.start(MainActivity.this);
+                break;
+            default:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     public static void start(Context context) {
         start(context, null);
@@ -111,6 +160,7 @@ public class MainActivity extends UI {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         /*SAMC_BEGIN(import GETU)*/
+        initMode();
         registerObservers(true);
         if(NIMClient.getStatus() == StatusCode.LOGINED){
             initSamAutoLogin();
@@ -186,6 +236,9 @@ public class MainActivity extends UI {
         ChatRoomHelper.init();
 
         LogUtil.ui("NIM SDK cache path=" + NIMClient.getSdkStorageDirPath());
+        /*SAMC_BEGIN(add uikit interface)*/
+        NimUIKit.setCallback(this);
+        /*SAMC_END(add uikit interface)*/
     }
 
     @Override
@@ -369,8 +422,31 @@ public class MainActivity extends UI {
         titlebar_name.setText(MainTab.getTabTitle(position));
 	}
 
+	private void sendbroadcast(Intent intent){
+		LocalBroadcastManager manager = LocalBroadcastManager.getInstance(DemoCache.getContext());
+		manager.sendBroadcast(intent);
+	}
+
+	private void sendSwitchModeBroadcast(){
+		int to=0;
+		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+			to = ModeEnum.valueOfType(ModeEnum.SP_MODE);
+		}else{
+			to = ModeEnum.valueOfType(ModeEnum.CUSTOMER_MODE);
+		}
+
+		Bundle bundle = new Bundle();
+		bundle.putInt("to",to);
+		Intent intent = new Intent();
+		intent.setAction(Constants.BROADCAST_SWITCH_MODE);
+		intent.putExtras(bundle);
+		sendbroadcast(intent);
+	}
+
 	private void switchMode(){
 		LogUtil.e(TAG,"start switch samchat Mode");
+		startSwitchProgress();
+		sendSwitchModeBroadcast();
 	}
 
 	private void titlebarInit(){
@@ -378,11 +454,8 @@ public class MainActivity extends UI {
 		switch_reminder = (TextView) findViewById(R.id.switch_reminder);
 		titlebar_name = (TextView) findViewById(R.id.titlebar_name);
 		titlebar_right_icon = (ImageView) findViewById(R.id.titlebar_right_icon);
-		switch_icon.setImageResource(R.drawable.samchat_switch_to_sp_icon);
-		switch_reminder.setVisibility(View.GONE);
-		titlebar_name.setText(getString(R.string.customer_request_service));
-		titlebar_right_icon.setVisibility(View.GONE);
 
+		refreshToolBar(current_position);
 		switch_icon.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -391,5 +464,57 @@ public class MainActivity extends UI {
 		});
 		
 	}
+
+	public void startSwitchProgress(){
+		DemoCache.setSwitching(true);
+		DemoCache.clearTag();
+		DialogMaker.showProgressDialog(MainActivity.this, getString(R.string.mode_switching)).setCanceledOnTouchOutside(false);
+	}
+
+	public void dimissSwitchProgress(){
+		DemoCache.addTag();
+		if(DemoCache.getTag() == MainTab.values().length){
+			DialogMaker.dismissProgressDialog();
+			DemoCache.setSwitching(false);
+			DemoCache.clearTag();
+			SamchatGlobal.switchMode();
+			saveMode(SamchatGlobal.getmode());
+			refreshToolBar(current_position);
+		}
+	}
+
+	public void setCurrentPostition(int pos){
+		current_position = pos;
+	}
+
+	public void initMode(){
+		SamchatGlobal.setmode(ModeEnum.typeOfValue(Preferences.getMode())); 
+	}
+	public void saveMode(ModeEnum mode){
+		Preferences.saveMode(ModeEnum.valueOfType(mode));
+	}
+
+	//NimUIKitInterface
+	public  int getCurrentMode(){
+		return ModeEnum.valueOfType(SamchatGlobal.getmode());
+	}
+
+	public long storeMessage(IMMessage msg){
+		return SamDBManager.getInstance().syncStoreSendMessage(msg);
+	}
+
+	public void clearUnreadCount(String session_id, int mode){
+		SamDBManager.getInstance().syncClearUnreadCount( session_id, mode);
+	}
+
+	public void queryMessage(String session_id, int mode,sam_message msg, QueryDirectionEnum direction, int count, NIMCallback callback){
+		SamDBManager.getInstance().queryMessage(session_id,  mode,  msg,  direction,  count,  callback);
+	}
+
+	public void registerIncomingMsgObserver(SamchatObserver<List<IMMessage>> observer,boolean register){
+		SamDBManager.getInstance().registerIncomingMsgObserver(observer, register);
+	}
+
+	
 /*SAMC_END(...)*/
 }
