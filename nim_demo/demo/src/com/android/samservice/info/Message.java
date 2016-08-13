@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import com.android.samservice.Constants;
 /*
-	id(primary) | type | uuid
+	id(primary) | type | uuid | time
 */
 public class Message implements Serializable
 {

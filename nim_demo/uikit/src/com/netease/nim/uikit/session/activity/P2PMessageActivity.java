@@ -22,9 +22,9 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.CustomNotification;
 
 import java.util.List;
-import com.netease.nim.uikit.session.fragment.P2PMessageFragment;
 
-public class P2PMessageActivity extends P2PBaseMessageActivity {
+
+public class P2PMessageActivity extends BaseMessageActivity {
 
     private boolean isResume = false;
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
@@ -171,10 +171,10 @@ public class P2PMessageActivity extends P2PBaseMessageActivity {
     }
 
     @Override
-    protected P2PMessageFragment fragment() {
+    protected MessageFragment fragment() {
         Bundle arguments = getIntent().getExtras();
         arguments.putSerializable(Extras.EXTRA_TYPE, SessionTypeEnum.P2P);
-        P2PMessageFragment fragment = new P2PMessageFragment();
+        MessageFragment fragment = new MessageFragment();
         fragment.setArguments(arguments);
         fragment.setContainerId(R.id.message_fragment_container);
         return fragment;

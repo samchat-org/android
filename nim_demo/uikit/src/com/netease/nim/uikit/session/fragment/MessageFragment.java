@@ -33,6 +33,9 @@ import java.util.Map;
 import java.util.HashMap;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nimlib.sdk.msg.model.CustomMessageConfig;
+import com.netease.nim.uikit.session.sam_message.SamchatObserver;
+import com.netease.nim.uikit.NIMCallback;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 /**
  * 聊天界面基类
  * <p/>
@@ -52,7 +55,7 @@ public class MessageFragment extends TFragment implements ModuleProxy {
     protected SessionTypeEnum sessionType;
 
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
-    private int mode = 0;
+    protected int mode = 0;
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
 
     // modules
@@ -93,7 +96,9 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         getActivity().setVolumeControlStream(AudioManager.STREAM_VOICE_CALL); // 默认使用听筒播放
 
         /*SAMC_BEGIN(clear unread count)*/
-        NimUIKit.getCallback().clearUnreadCount(sessionId,  mode);
+        if(sessionType == SessionTypeEnum.P2P){
+            NimUIKit.getCallback().clearUnreadCount(sessionId,  mode);
+        }
         /*SAMC_END(clear unread count)*/
     }
 
@@ -103,7 +108,9 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         messageListPanel.onDestroy();
         registerObservers(false);
         /*SAMC_BEGIN(clear unread count)*/
-        NimUIKit.getCallback().clearUnreadCount(sessionId,  mode);
+        if(sessionType == SessionTypeEnum.P2P){
+            NimUIKit.getCallback().clearUnreadCount(sessionId,  mode);
+        }
         /*SAMC_END(clear unread count)*/
     }
 
@@ -125,12 +132,14 @@ public class MessageFragment extends TFragment implements ModuleProxy {
     private void parseIntent() {
 		  /*SAMC_BEGIN(support mode setting for p2p activity)*/
         mode = getArguments().getInt(Extras.EXTRA_MODE,0);
-        /*SAMC_BEGIN(support mode setting for p2p activity)*/
+        /*SAMC_END(support mode setting for p2p activity)*/
         sessionId = getArguments().getString(Extras.EXTRA_ACCOUNT);
         sessionType = (SessionTypeEnum) getArguments().getSerializable(Extras.EXTRA_TYPE);
 
         customization = (SessionCustomization) getArguments().getSerializable(Extras.EXTRA_CUSTOMIZATION);
-        Container container = new Container(getActivity(), sessionId, sessionType, this);
+        /*SAMC_BEGIN(support mode setting for p2p activity)*/
+        Container container = new Container(getActivity(), sessionId, mode ,sessionType, this);
+        /*SAMC_END(support mode setting for p2p activity)*/
 
         if (messageListPanel == null) {
             messageListPanel = new MessageListPanel(container, rootView, false, false);
@@ -166,9 +175,48 @@ public class MessageFragment extends TFragment implements ModuleProxy {
 
     private void registerObservers(boolean register) {
         MsgServiceObserve service = NIMClient.getService(MsgServiceObserve.class);
-        service.observeReceiveMessage(incomingMessageObserver, register);
+        /*SAMC_BEGIN(support mode setting for p2p activity)*/
+        if(sessionType != SessionTypeEnum.P2P){
+            service.observeReceiveMessage(incomingMessageObserver, register);
+        }else{
+            NimUIKit.getCallback().registerIncomingMsgObserver(P2PincomingMsgObserver, register);
+            NimUIKit.getCallback().registerSendCustomerMsgObserver(P2PSendCustomerMsgObserver,register);
+        }
+        /*SAMC_END(support mode setting for p2p activity)*/
         service.observeMessageReceipt(messageReceiptObserver, register);
     }
+
+    SamchatObserver <  IMMessage > P2PSendCustomerMsgObserver = new SamchatObserver <  IMMessage >(){
+		@Override
+		public void onEvent(final IMMessage msg) {
+         getHandler().postDelayed(new Runnable() {
+             @Override
+             public void run() {
+                 if(msg.getSessionType() == sessionType && sessionId.equals(msg.getSessionId())
+								&& messageListPanel.isMyMode(msg)){
+                     messageListPanel.onMsgSend(msg);
+					 }
+             }
+          }, 0);
+		}
+	};
+
+    SamchatObserver < List < IMMessage >> P2PincomingMsgObserver = new SamchatObserver < List < IMMessage >>(){
+		@Override
+		public void onEvent(final List < IMMessage > messages) {
+			if (messages == null || messages.isEmpty()) {
+				return;
+			}
+
+         getHandler().postDelayed(new Runnable() {
+             @Override
+             public void run() {
+                 messageListPanel.onIncomingMessage(messages);
+                 sendMsgReceipt();
+             }
+          }, 50);
+		}
+	};
 
     /**
      * 消息接收观察者
@@ -203,25 +251,42 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         }
 
         /*SAMC_BEGIN(add local and remote tag)*/
-        Map<String, Object> msg_from = new HashMap<>(1);
-        int current_mode = NimUIKit.getCallback().getCurrentMode();
-        msg_from.put("msg_from",new Integer(current_mode));
-        message.setRemoteExtension(msg_from);
+        if(sessionType == SessionTypeEnum.P2P){
+            Map<String, Object> msg_from = new HashMap<>(1);
+            msg_from.put("msg_from",new Integer(mode));
+            message.setRemoteExtension(msg_from);
 
-        Map<String, Object> msg_to = new HashMap<>(1);
-        msg_to.put("msg_to",new Integer(current_mode));
-        message.setLocalExtension(msg_to);
+            CustomMessageConfig config = message.getConfig();
+            if(config == null){
+               config = new CustomMessageConfig();
+               config.enableRoaming = false;
+            }else{
+               config.enableRoaming = false;
+            }
+            message.setConfig(config);
+            NimUIKit.getCallback().storeSendMessage(message,new NIMCallback(){
+                @Override
+                public void onResult(Object obj1, Object obj2, int code) {
+                    if(obj1 == null || code !=0){
+                        LogUtil.e("test", "storeMessage failed before send msg, will not send this msg");
+                        return;
+                    }
+                   final IMMessage msg = (IMMessage)obj1;
+                   getHandler().postDelayed(new Runnable() {
+                       @Override
+                       public void run() {
+                       	// send message to server and save to db
+                        	NIMClient.getService(MsgService.class).sendMessage(msg, false);
+                          messageListPanel.onMsgSend(msg);
+                       }
+                    },0);
+                 }
+            });
 
-        CustomMessageConfig config = message.getConfig();
-        if(config == null){
-            config = new CustomMessageConfig();
-            config.enableRoaming = false;
-        }else{
-            config.enableRoaming = false;
+				return true;
         }
-        message.setConfig(config);
-        NimUIKit.getCallback().storeMessage(message);
-        /*SAMC_END(add local and remote tag)*/
+       /*SAMC_END(add local and remote tag)*/
+
         // send message to server and save to db
         NIMClient.getService(MsgService.class).sendMessage(message, false);
 

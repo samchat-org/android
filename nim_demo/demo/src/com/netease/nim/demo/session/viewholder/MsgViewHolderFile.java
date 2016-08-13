@@ -10,7 +10,6 @@ import com.netease.nim.demo.R;
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
 import com.netease.nim.uikit.common.util.file.FileUtil;
 import com.netease.nim.demo.file.FileIcons;
-import com.netease.nim.uikit.session.module.list.P2PMsgAdapter;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderBase;
 import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
@@ -58,13 +57,7 @@ public class MsgViewHolderFile extends MsgViewHolderBase {
             case transferring:
                 fileStatusLabel.setVisibility(View.GONE);
                 progressBar.setVisibility(View.VISIBLE);
-                int percent = 0;
-                if(getAdapter() instanceof P2PMsgAdapter){
-                    percent = (int) (((P2PMsgAdapter)getAdapter()).getProgress (message) * 100);
-                }else{
-                    percent = (int) (((MsgAdapter)getAdapter()).getProgress (message) * 100);
-                }
-                progressBar.setProgress(percent);
+                progressBar.setProgress((int) (getAdapter().getProgress (message) * 100));
                 break;
             case transferred:
             case fail:

@@ -33,7 +33,6 @@ import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 
 import java.util.List;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
-import com.netease.nim.uikit.session.sam_message.sam_message;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
 import com.netease.nim.uikit.session.sam_message.SamchatObserver;
 /**
@@ -286,10 +285,14 @@ public final class NimUIKit {
     /*SAMC_BEGIN(add callback interface)*/
     public interface NimUIKitInterface {
         int getCurrentMode();
-        long storeMessage(IMMessage msg);
+        void storeSendMessage(IMMessage msg,NIMCallback callback);
         void clearUnreadCount(String session_id, int mode);
-        void queryMessage(String session_id, int mode,sam_message msg, QueryDirectionEnum direction, int count, NIMCallback callback);
+        void queryMessage(String session_id, int mode,IMMessage msg, QueryDirectionEnum direction, int count, NIMCallback callback);
         void registerIncomingMsgObserver(SamchatObserver<List<IMMessage>> observer,boolean register);
+        void registerSendCustomerMsgObserver(SamchatObserver<IMMessage> observer,boolean register);
+        void deleteMessage(String session_id, int mode,IMMessage msg);
+        void storeSendCustomerMessage(IMMessage msg,NIMCallback callback);
+        void storeRecvCustomerMessage(IMMessage msg, NIMCallback callback);
     }
 
     static private NimUIKitInterface callback;

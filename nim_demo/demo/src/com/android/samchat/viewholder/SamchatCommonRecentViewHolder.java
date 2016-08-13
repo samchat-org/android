@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.msg.MsgService;
+import com.netease.nim.uikit.NimConstants;
 
 public class SamchatCommonRecentViewHolder extends SamchatRecentViewHolder {
 
@@ -31,18 +32,44 @@ public class SamchatCommonRecentViewHolder extends SamchatRecentViewHolder {
     }
 
 	protected String descOfMsg(MsgSession session) {
-		List<String> uuids = new ArrayList<String>();
-		uuids.add(session.getrecent_msg_uuid());
-		List<IMMessage> msgs = NIMClient.getService(MsgService.class).queryMessageListByUuidBlock(uuids);
-		return msgs.get(0).getContent();
+		if(session.getrecent_msg_type() == NimConstants.MSG_TYPE_IM){
+			if(session.getrecent_msg_uuid() == null){
+				return "";
+			}
+			
+			List<String> uuids = new ArrayList<>(1);
+			uuids.add(session.getrecent_msg_uuid());
+          List<IMMessage> msgs = NIMClient.getService(MsgService.class).queryMessageListByUuidBlock(uuids);
+			if(msgs == null || msgs.size() <=0){
+				return "";
+			}
+			
+			if (msgs.get(0).getMsgType() == MsgTypeEnum.text) {
+				return msgs.get(0).getContent();
+			} else if (msgs.get(0).getMsgType() == MsgTypeEnum.tip) {
+				String digest = null;
+				digest = getDefaultDigest(msgs.get(0),null);
+				return digest;
+        } else if (msgs.get(0).getAttachment() != null) {
+            String digest = null;
+            digest = getDefaultDigest(msgs.get(0),msgs.get(0).getAttachment());
+            return digest;
+        }
+        return "";
+		}else if(session.getrecent_msg_type() == NimConstants.MSG_TYPE_SQ){
+
+		}else if(session.getrecent_msg_type() == NimConstants.MSG_TYPE_RQ){
+
+		}else if(session.getrecent_msg_type() == NimConstants.MSG_TYPE_ADV){
+
+		}
+        return "";
 	}
 
-    // SDK本身只记录原始数据，第三方APP可根据自己实际需求，在最近联系人列表上显示缩略消息
-    // 以下为一些常见消息类型的示例。
-    private String getDefaultDigest(MsgAttachment attachment) {
-        switch (recent.getMsgType()) {
+   private String getDefaultDigest(IMMessage im, MsgAttachment attachment) {
+        switch (im.getMsgType()) {
             case text:
-                return recent.getContent();
+                return im.getContent();
             case image:
                 return "[图片]";
             case video:

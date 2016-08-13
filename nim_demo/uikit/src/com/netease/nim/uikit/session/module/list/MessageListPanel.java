@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.UserPreferences;
@@ -59,7 +60,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+import com.netease.nim.uikit.NIMCallback;
+import java.util.Map;
+import com.netease.nimlib.sdk.msg.model.CustomMessageConfig;
+import java.util.HashMap;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 /**
  * 消息收发模块
  * Created by hzxuwen on 2015/6/10.
@@ -76,6 +81,7 @@ public class MessageListPanel implements TAdapterDelegate {
     // message list view
     private MessageListView messageListView;
     private List<IMMessage> items;
+		
     private MsgAdapter adapter;
     private ImageView listviewBk;
 
@@ -139,14 +145,13 @@ public class MessageListPanel implements TAdapterDelegate {
     public void reload(Container container, IMMessage anchor) {
         this.container = container;
         items.clear();
-        // 重新load
         messageListView.setOnRefreshListener(new MessageLoader(anchor, remote));
     }
 
     private void init(IMMessage anchor) {
+        this.uiHandler = new Handler();
         initListView(anchor);
 
-        this.uiHandler = new Handler();
         if (!recordOnly) {
             incomingMsgPrompt = new IncomingMsgPrompt(container.activity, rootView, messageListView, uiHandler);
         }
@@ -182,7 +187,15 @@ public class MessageListPanel implements TAdapterDelegate {
                 container.proxy.shouldCollapseInputPanel();
             }
         });
-        messageListView.setOnRefreshListener(new MessageLoader(anchor, remote));
+
+        /*SAMC_BEGIN(support mode setting for p2p activity)*/
+        if(container.sessionType == SessionTypeEnum.P2P){
+            messageListView.setOnRefreshListener(new MessageLoader(anchor, remote, true));
+        }else{
+            messageListView.setOnRefreshListener(new MessageLoader(anchor, remote));
+        }
+        /*SAMC_END(support mode setting for p2p activity)*/
+        
     }
 
     // 刷新消息列表
@@ -214,16 +227,62 @@ public class MessageListPanel implements TAdapterDelegate {
         }, 200);
     }
 
+    /*SAMC_BEGIN(support mode setting for p2p activity)*/
+    private boolean isP2PMsg(IMMessage msg){
+        if(msg.getSessionType() == SessionTypeEnum.P2P){
+            return true;
+        }else{
+            return false;
+        }
+    }
+		
+    public boolean isMyMode(IMMessage msg){
+        if(msg.getDirect() == MsgDirectionEnum.In){
+             Map<String, Object> content = msg.getRemoteExtension();
+             if(content == null){
+                 return false;
+             }
+			
+            int msg_from = (int)content.get("msg_from");
+            if(msg_from != container.mode){
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            Map<String, Object> content = msg.getRemoteExtension();
+            if(content == null){
+                 return false;
+            }
+			
+            int msg_from = (int)content.get("msg_from");
+            if(msg_from == container.mode){
+                return true;
+            }else{
+                return false;
+            }
+        }
+    }
+    /*SAMC_END(support mode setting for p2p activity)*/
+
     public void onIncomingMessage(List<IMMessage> messages) {
         boolean needScrollToBottom = ListViewUtil.isLastMessageVisible(messageListView);
         boolean needRefresh = false;
         List<IMMessage> addedListItems = new ArrayList<>(messages.size());
         for (IMMessage message : messages) {
             if (isMyMessage(message)) {
-                items.add(message);
-                addedListItems.add(message);
-                needRefresh = true;
-            }
+                /*SAMC_BEGIN(support mode setting for p2p activity)*/
+					if(container.sessionType != SessionTypeEnum.P2P){
+                    items.add(message);
+                    addedListItems.add(message);
+                    needRefresh = true;
+					}else if(isMyMode(message)){
+                    items.add(message);
+                    addedListItems.add(message);
+                    needRefresh = true;
+					}
+				   /*SAMC_END(support mode setting for p2p activity)*/
+				}
         }
         if (needRefresh) {
             adapter.notifyDataSetChanged();
@@ -252,6 +311,7 @@ public class MessageListPanel implements TAdapterDelegate {
 
         adapter.notifyDataSetChanged();
         ListViewUtil.scrollToBottom(messageListView);
+        
     }
 
     /**
@@ -296,7 +356,11 @@ public class MessageListPanel implements TAdapterDelegate {
         @Override
         public void onEvent(IMMessage message) {
             if (isMyMessage(message)) {
-                onMessageStatusChange(message);
+                if(!isP2PMsg(message)){
+                    onMessageStatusChange(message);
+					}else if(isMyMode(message)){
+                    onMessageStatusChange(message);
+					}
             }
         }
     };
@@ -429,6 +493,46 @@ public class MessageListPanel implements TAdapterDelegate {
 
         private boolean firstLoad = true;
 
+        /*SAMC_BEGIN(support mode setting for p2p activity)*/
+        private boolean isP2P = false;
+
+        public MessageLoader(IMMessage anchor, boolean remote, boolean isP2P) {
+            this.isP2P = isP2P;
+            this.anchor = anchor;
+            this.remote = remote;
+            loadFromLocalP2P(QueryDirectionEnum.QUERY_OLD);
+        }
+
+        private NIMCallback nim_callback = new NIMCallback(){
+            @Override
+            public void onResult(Object obj1,Object obj2, int code) {
+               final List<IMMessage> ims = (List<IMMessage>)obj1;
+				  LogUtil.e("test","query ims:"+ims+" code:"+code);
+               uiHandler.post(new Runnable() {
+                   @Override
+                   public void run() {
+                       onMessageLoaded(ims);
+                   }
+               });
+            }
+       };
+
+        private void loadFromLocalP2P(QueryDirectionEnum direction) {
+            this.direction = direction;
+            messageListView.onRefreshStart(AutoRefreshListView.Mode.START);
+            NimUIKit.getCallback().queryMessage(container.account, container.mode, anchorP2P(), direction, 
+							LOAD_MESSAGE_COUNT,nim_callback);
+        }
+				
+        private IMMessage anchorP2P() {
+            if (items == null || items.size() == 0) {
+                return null;
+            } else {
+                return items.get(0);
+            }
+        }
+        /*SAMC_END(support mode setting for p2p activity)*/
+
         public MessageLoader(IMMessage anchor, boolean remote) {
             this.anchor = anchor;
             this.remote = remote;
@@ -531,7 +635,13 @@ public class MessageListPanel implements TAdapterDelegate {
             if (remote) {
                 loadFromRemote();
             } else {
-                loadFromLocal(QueryDirectionEnum.QUERY_OLD);
+            /*SAMC_BEGIN(support mode setting for p2p activity)*/
+                if(!isP2P){
+                    loadFromLocal(QueryDirectionEnum.QUERY_OLD);
+                }else{
+                    loadFromLocalP2P(QueryDirectionEnum.QUERY_OLD);
+                }
+            /*SAMC_END(support mode setting for p2p activity)*/
             }
         }
 
@@ -739,6 +849,9 @@ public class MessageListPanel implements TAdapterDelegate {
             }
             updateReceipt(messages);
             adapter.deleteItem(messageItem);
+            /*SAMC_BEGIN(support mode)*/
+            NimUIKit.getCallback().deleteMessage(container.account, container.mode, messageItem);
+            /*SAMC_END(support mode)*/
         }
 
 
@@ -974,14 +1087,53 @@ public class MessageListPanel implements TAdapterDelegate {
     }
 
     // 转发消息
-    private void doForwardMessage(final String sessionId, SessionTypeEnum sessionTypeEnum) {
+    private void doForwardMessage(final String sessionId, final SessionTypeEnum sessionTypeEnum) {
         IMMessage message = MessageBuilder.createForwardMessage(forwardMessage, sessionId, sessionTypeEnum);
         if (message == null) {
             Toast.makeText(container.activity, "该类型不支持转发", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        if(sessionTypeEnum == SessionTypeEnum.P2P){  
+            /*SAMC_BEGIN(add local and remote tag)*/
+            Map<String, Object> msg_from = new HashMap<>(1);
+            msg_from.put("msg_from",new Integer(container.mode));
+            message.setRemoteExtension(msg_from);
+
+            CustomMessageConfig config = message.getConfig();
+            if(config == null){
+                config = new CustomMessageConfig();
+                config.enableRoaming = false;
+            }else{
+                config.enableRoaming = false;
+            }
+            message.setConfig(config);
+            NimUIKit.getCallback().storeSendMessage(message,new NIMCallback(){
+                @Override
+                public void onResult(Object obj1, Object obj2, int code) {
+                    if(obj1 == null || code !=0){
+                        LogUtil.e("test", "storeMessage failed before send msg, will not send this msg");
+                        return;
+                    }
+                   final IMMessage msg = (IMMessage)obj1;
+                   uiHandler.postDelayed(new Runnable() {
+                       @Override
+                       public void run() {
+                       	// send message to server and save to db
+                        	NIMClient.getService(MsgService.class).sendMessage(msg, false);
+                          if (container.account.equals(sessionId) && container.sessionType == sessionTypeEnum) {
+                              onMsgSend(msg);
+                          }
+                       }
+                    },0);
+                 }
+             });
+             return;
+            /*SAMC_END(add local and remote tag)*/
+        }
+
         NIMClient.getService(MsgService.class).sendMessage(message, false);
-        if (container.account.equals(sessionId)) {
+        if (container.account.equals(sessionId) && container.sessionType == sessionTypeEnum) {
             onMsgSend(message);
         }
     }

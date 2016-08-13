@@ -33,7 +33,22 @@ import com.netease.nimlib.sdk.avchat.model.AVChatData;
 import com.netease.nimlib.sdk.avchat.model.AVChatOnlineAckEvent;
 
 import java.io.File;
-
+import com.netease.nimlib.sdk.msg.model.IMMessage;
+import java.util.Map;
+import java.util.HashMap;
+import com.netease.nim.uikit.NimConstants;
+import com.android.samchat.SamchatGlobal;
+import com.netease.nimlib.sdk.msg.model.CustomMessageConfig;
+import com.netease.nimlib.sdk.msg.MessageBuilder;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.msg.MsgService;
+import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.NIMCallback;
+import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
+import com.android.samchat.type.ModeEnum;
+import com.netease.nimlib.sdk.RequestCallback;
+import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 /**
  * 音视频界面
  * Created by hzxuwen on 2015/4/21.
@@ -159,6 +174,132 @@ public class AVChatActivity extends UI implements AVChatUI.AVChatListener, AVCha
         }
     }
 
+     /*SAMC_BEGIN(support mode for avchat)*/
+     private void setSendMessageConfig(IMMessage im){
+          im.setDirect(MsgDirectionEnum.Out);
+          Map<String, Object> msg_from = new HashMap<>(1);
+          msg_from.put(NimConstants.MSG_FROM, SamchatGlobal.getmode().ordinal());
+          im.setRemoteExtension(msg_from);
+
+          CustomMessageConfig config = im.getConfig();
+          if(config == null){
+              config = new CustomMessageConfig();
+              config.enableRoaming = false;
+          }else{
+              config.enableRoaming = false;
+          }
+          im.setConfig(config);
+     }
+
+    private void setRecvMessageConfig(IMMessage im){
+          im.setDirect(MsgDirectionEnum.In);
+          Map<String, Object> msg_from = new HashMap<>(1);
+          if((NimConstants.AVCHAT_MODE_COUSTOMER).equals(avChatData.getExtra())){
+            msg_from.put(NimConstants.MSG_FROM, ModeEnum.CUSTOMER_MODE.ordinal());
+          }else{
+            msg_from.put(NimConstants.MSG_FROM, ModeEnum.SP_MODE.ordinal());
+          }
+          
+          im.setRemoteExtension(msg_from);
+
+          CustomMessageConfig config = im.getConfig();
+          if(config == null){
+              config = new CustomMessageConfig();
+              config.enableRoaming = false;
+          }else{
+              config.enableRoaming = false;
+          }
+          im.setConfig(config);
+     }
+
+    private String appendixZero(long value){
+        if(value < 10){
+           return ("0"+value);
+        }else{
+           return (""+value);
+        }
+    }
+
+    private String createText(){
+         String text=null;
+         if(!isCallEstablished){
+             text = getString(R.string.samchat_missing_call);
+         }else{
+             long duration = SystemClock.elapsedRealtime() - avChatUI.getTimeBase();
+             long hours = duration/(60*60*1000L);
+             long mins = (duration - hours*60*60*1000L)/(60*1000L);
+             long seconds = (duration - hours*60*60*1000L - mins*60*1000L)/1000L;
+
+             String hourString = appendixZero(hours);
+             String minString = appendixZero(mins);
+             String secString = appendixZero(seconds);
+
+          if(hours != 0){
+                text = hourString + ":"+minString + ":" +secString;
+  	       }else{
+                text = minString + ":" + secString;
+			 }
+          text = getString(R.string.samchat_call_duration)+" "+text;
+       }
+       return text;
+    }
+		 
+    private void saveSendCustomerMessage(){
+        String text = createText();
+        final IMMessage im = MessageBuilder.createTextMessage(receiverId,SessionTypeEnum.P2P,text);
+        setSendMessageConfig(im);
+        im.setStatus(MsgStatusEnum.unread);
+        NIMClient.getService(MsgService.class).saveMessageToLocal(im, false).setCallback(new RequestCallback<Void>() {
+           @Override
+           public void onSuccess(Void a) {
+           LogUtil.e("test","saveMessageToLocal succeed im:"+im);
+               NimUIKit.getCallback().storeSendCustomerMessage(im,new NIMCallback(){
+                   @Override
+                   public void onResult(Object obj1, Object obj2, int code) {
+            
+                   }
+               });
+            }
+
+            @Override
+            public void onFailed(int code) {}
+
+            @Override
+            public void onException(Throwable exception) {}
+        });
+           
+		}
+
+		private void saveRecvCustomerMessage(){
+           String text = createText();
+
+           LogUtil.e("test","saveRecvCustomerMessage 1");
+
+           final IMMessage  im = MessageBuilder.createTextMessage(avChatData.getAccount(),SessionTypeEnum.P2P,text);
+           setRecvMessageConfig(im);
+           im.setStatus(MsgStatusEnum.success);
+           NIMClient.getService(MsgService.class).saveMessageToLocal(im, false).setCallback(new RequestCallback<Void>() {
+            @Override
+            public void onSuccess(Void a) {
+                LogUtil.e("test","saveRecvCustomerMessage save im to local succeed");
+                NimUIKit.getCallback().storeRecvCustomerMessage(im,new NIMCallback(){
+                   @Override
+                   public void onResult(Object obj1, Object obj2, int code) {
+            
+                   }
+               });
+            }
+
+            @Override
+            public void onFailed(int code) {}
+
+            @Override
+            public void onException(Throwable exception) {}
+        });
+           
+		}
+      /*SAMC_END(support mode for avchat)*/
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -166,6 +307,17 @@ public class AVChatActivity extends UI implements AVChatUI.AVChatListener, AVCha
         registerNetCallObserver(false);
         cancelCallingNotifier();
         needFinish = true;
+
+        /*SAMC_BEGIN(support mode for avchat)*/
+        LogUtil.e("test","saveRecvCustomerMessage:"+avChatUI.isCallServerConnected +" "+mIsInComingCall +" "+receiverId);
+        if(avChatUI.isCallServerConnected && !mIsInComingCall && receiverId != null){
+			  LogUtil.e("test","saveSendCustomerMessage");
+            saveSendCustomerMessage();
+        }else if(avChatUI.isCallServerConnected && mIsInComingCall && avChatData.getAccount() != null){
+            LogUtil.e("test","saveRecvCustomerMessage");
+            saveRecvCustomerMessage();
+        }
+        /*SAMC_END(support mode for avchat)*/
     }
 
     @Override
@@ -345,6 +497,14 @@ public class AVChatActivity extends UI implements AVChatUI.AVChatListener, AVCha
      */
     private void inComingCalling() {
         avChatUI.inComingCalling(avChatData);
+        /*SAMC_BEGIN(support mode for avchat)*/
+        if(NimConstants.AVCHAT_MODE_COUSTOMER.equals(avChatData.getExtra())){
+            avChatUI.setmode(ModeEnum.SP_MODE.ordinal());
+        }else if(NimConstants.AVCHAT_MODE_SP.equals(avChatData.getExtra())){
+            avChatUI.setmode(ModeEnum.CUSTOMER_MODE.ordinal());
+        }
+        
+        /*SAMC_END(support mode for avchat)*/
     }
 
     /**
@@ -357,6 +517,10 @@ public class AVChatActivity extends UI implements AVChatUI.AVChatListener, AVCha
             return;
         }
         avChatUI.outGoingCalling(receiverId, AVChatType.typeOfValue(state));
+        /*SAMC_BEGIN(support mode for avchat)*/
+        avChatUI.setmode(SamchatGlobal.getmode().ordinal());
+        /*SAMC_END(support mode for avchat)*/
+
     }
 
     /**
@@ -562,7 +726,7 @@ public class AVChatActivity extends UI implements AVChatUI.AVChatListener, AVCha
 
     @Override
     public void onDisconnectServer() {
-
+        Log.e(TAG, "onDisconnectServer");
     }
 
     @Override

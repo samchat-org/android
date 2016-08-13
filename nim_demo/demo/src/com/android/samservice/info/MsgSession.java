@@ -4,8 +4,11 @@ import java.io.Serializable;
 
 import com.android.samservice.Constants;
 import com.android.samchat.type.ModeEnum;
+import com.netease.nim.uikit.NimConstants;
+
 /*
-	id(primary) | session_id | mode | msg_table_name | total_unread |recent_msg_type |recent_msg_uuid
+	id(primary) | session_id | mode | msg_table_name | total_unread 
+	|recent_msg_type |recent_msg_uuid | recent_msg_subtype | recent_msg_content | recent_msg_time | recent_msg_status
 */
 public class MsgSession implements Serializable
 {
@@ -16,6 +19,10 @@ public class MsgSession implements Serializable
 	private int total_unread;
 	private int recent_msg_type;
 	private String recent_msg_uuid;
+	private int recent_msg_subtype;
+	private String recent_msg_content;
+	private long recent_msg_time;
+	private int recent_msg_status;
 
 	public MsgSession(){
 		this.id = 0;
@@ -25,16 +32,52 @@ public class MsgSession implements Serializable
 		this.total_unread = 0;
 		this.recent_msg_type = Constants.MSG_TYPE_IM;
 		this.recent_msg_uuid = null;
+		this.recent_msg_subtype = NimConstants.MSG_SUBTYPE_DEFAULT;
+		this.recent_msg_content = null;
+		this.recent_msg_time = 0;
+		this.recent_msg_status = NimConstants.MSG_STATUS_DEFAULT;
 	}
 
-	public MsgSession(String session_id, int mode, String msg_table_name, int total_unread, int recent_msg_type, String recent_msg_uuid){
+	public MsgSession(String session_id, int mode, String msg_table_name){
 		this.id = 0;
 		this.session_id = session_id;
 		this.mode = mode;
 		this.msg_table_name = msg_table_name;
-		this.total_unread = total_unread;
-		this.recent_msg_type = recent_msg_type;
-		this.recent_msg_uuid = recent_msg_uuid;
+		this.total_unread = 0;
+		this.recent_msg_type = Constants.MSG_TYPE_IM;
+		this.recent_msg_uuid = null;
+		this.recent_msg_subtype = NimConstants.MSG_SUBTYPE_DEFAULT;
+		this.recent_msg_content = null;
+		this.recent_msg_time = 0;
+		this.recent_msg_status = NimConstants.MSG_STATUS_DEFAULT;
+	}
+
+	public int getrecent_msg_subtype(){
+		return this.recent_msg_subtype;
+	}
+	public void setrecent_msg_subtype(int recent_msg_subtype){
+		this.recent_msg_subtype = recent_msg_subtype;
+	}
+
+	public String getrecent_msg_content(){
+		return this.recent_msg_content;
+	}
+	public void setrecent_msg_content(String recent_msg_content){
+		this.recent_msg_content = recent_msg_content;
+	}
+
+	public long getrecent_msg_time(){
+		return this.recent_msg_time;
+	}
+	public void setrecent_msg_time(long recent_msg_time){
+		this.recent_msg_time = recent_msg_time;
+	}
+
+	public int getrecent_msg_status(){
+		return this.recent_msg_status;
+	}
+	public void setrecent_msg_status(int recent_msg_status){
+		this.recent_msg_status = recent_msg_status;
 	}
 
 	public long getid(){

@@ -4,12 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.netease.nim.demo.R;
-import com.netease.nim.demo.config.preference.Preferences;
-import com.netease.nim.demo.login.LoginActivity;
-import com.netease.nim.demo.login.LogoutHelper;
-import com.netease.nim.demo.main.activity.MultiportActivity;
 import com.netease.nim.demo.main.model.MainTab;
 import com.netease.nim.demo.main.reminder.ReminderManager;
 import com.netease.nim.demo.session.SessionHelper;
@@ -20,12 +15,7 @@ import com.netease.nim.demo.session.extension.StickerAttachment;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.recent.RecentContactsCallback;
-import com.netease.nim.uikit.recent.RecentContactsFragment;
 import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.Observer;
-import com.netease.nimlib.sdk.StatusCode;
-import com.netease.nimlib.sdk.auth.AuthServiceObserver;
-import com.netease.nimlib.sdk.auth.ClientType;
 import com.netease.nimlib.sdk.auth.OnlineClient;
 import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
@@ -36,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import com.netease.nim.demo.main.fragment.MainTabFragment;
-import com.netease.nim.demo.main.fragment.SessionListFragment;
+import com.netease.nim.demo.main.activity.MainActivity;
 
 public class SamchatChatListFragment extends MainTabFragment {
 
@@ -102,7 +92,9 @@ public class SamchatChatListFragment extends MainTabFragment {
 
             @Override
             public void onUnreadCountChange(int unreadCount) {
+                LogUtil.e("test","onUnreadCountChange Customer:" + unreadCount);
                 ReminderManager.getInstance().updateSessionUnreadNum(unreadCount);
+					((MainActivity)getActivity()).setchat_unread_count_customer(unreadCount);
             }
 
             @Override
@@ -161,7 +153,9 @@ public class SamchatChatListFragment extends MainTabFragment {
 
             @Override
             public void onUnreadCountChange(int unreadCount) {
+                LogUtil.e("test","onUnreadCountChange SP:" + unreadCount);
                 ReminderManager.getInstance().updateSessionUnreadNum(unreadCount);
+					((MainActivity)getActivity()).setchat_unread_count_sp(unreadCount);
             }
 
             @Override

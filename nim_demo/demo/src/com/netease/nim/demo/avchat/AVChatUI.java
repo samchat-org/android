@@ -26,7 +26,8 @@ import com.netease.nimlib.sdk.avchat.model.AVChatNotifyOption;
 import com.netease.nimlib.sdk.avchat.model.AVChatOptionalParam;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
-
+import com.android.samchat.SamchatGlobal;
+import com.android.samchat.type.ModeEnum;
 /**
  * 音视频管理器, 音视频相关功能管理
  * Created by hzxuwen on 2015/4/23.
@@ -58,6 +59,18 @@ public class AVChatUI implements AVChatUIListener {
     private boolean isClosedCamera = false;
     public AtomicBoolean isCallEstablish = new AtomicBoolean(false);
 
+    /*SAMC_BEGIN(support mode for avchat)*/
+    public boolean isCallServerConnected = false;
+    private int mode;
+    public int getmode(){
+        return mode;
+    }
+
+    public void setmode(int m){
+        mode = m;
+    }
+		
+    /*SAMC_END(support mode for avchat)*/
 
     // 检查存储
     private Handler uiHandler = new Handler(Looper.getMainLooper());
@@ -138,6 +151,10 @@ public class AVChatUI implements AVChatUIListener {
         } else {
             onCallStateChange(CallStateEnum.INCOMING_VIDEO_CALLING);
         }
+
+        /*SAMC_BEGIN(support mode for avchat)*/
+        isCallServerConnected = true;
+        /*SAMC_END(support mode for avchat)*/
     }
 
 
@@ -160,7 +177,7 @@ public class AVChatUI implements AVChatUIListener {
 
 
         AVChatNotifyOption notifyOption = new AVChatNotifyOption();
-        notifyOption.extendMessage = "extra_data";
+        notifyOption.extendMessage = (SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE?"customer":"sp");
 
         avChatOptionalParam.enableCallProximity(true).enableMultiUser(false).enableVideoCrop(true);
         avChatOptionalParam.enableVideoRotate(true);
@@ -173,6 +190,9 @@ public class AVChatUI implements AVChatUIListener {
             public void onSuccess(AVChatData data) {
                 avChatData = data;
                 DialogMaker.dismissProgressDialog();
+                /*SAMC_BEGIN(support mode for avchat)*/
+                isCallServerConnected = true;
+                /*SAMC_END(support mode for avchat)*/
             }
 
             @Override

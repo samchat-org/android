@@ -70,6 +70,7 @@ import com.android.samservice.SamService;
 import com.android.samservice.info.Message;
 import com.netease.nim.demo.config.preference.Preferences;
 import com.netease.nim.demo.DemoCache;
+import com.netease.nim.uikit.NIMCallback;
 /**
  * Main Fragment in SamchatChatListFragment
  */
@@ -362,16 +363,17 @@ public class SamchatChatFragment extends TFragment{
             		removeTag(recent,RECENT_TAG_CUSTOMER_ROLE);
 					NIMClient.getService(MsgService.class).updateRecent(recent);
 					if(recent.getSessionType() != SessionTypeEnum.P2P || !isTagSet(recent, RECENT_TAG_SP_ROLE)){
+						NIMClient.getService(MsgService.class).clearChattingHistory(recent.getContactId(), recent.getSessionType());
                 	NIMClient.getService(MsgService.class).deleteRecentContact(recent);
-                	NIMClient.getService(MsgService.class).clearChattingHistory(recent.getContactId(), recent.getSessionType());
 					}
+
+					if(recent.getSessionType() == SessionTypeEnum.P2P){
+						SamDBManager.getInstance().syncDeleteMessageSession(recent.getContactId(), ModeEnum.CUSTOMER_MODE.ordinal());
+					}
+					
                 items_customer.remove(recent);
 
-                if (recent.getUnreadCount() > 0) {
-                    refreshCustomerMessages(true);
-                } else {
-                    notifyDataSetChangedCustomer();
-                }
+                refreshCustomerMessages(true);
             }
         });
 
@@ -474,19 +476,30 @@ public class SamchatChatFragment extends TFragment{
         sortRecentContacts(items_customer);
         notifyDataSetChangedCustomer();
 
-        if (unreadChanged) {
-            /*
-            int unreadNum = 0;
-            for (RecentContact r : items) {
-                unreadNum += r.getUnreadCount();
-            }
-            */
+        if (unreadChanged && SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE) {
+            SamDBManager.getInstance().asyncReadTotalUnreadCount(ModeEnum.CUSTOMER_MODE.ordinal(), new NIMCallback() {
+                @Override
+                public void onResult(Object obj1, Object obj2, int code) {
+                    final int p2p_unread = (Integer) obj1;
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (SamchatGlobal.getmode() != ModeEnum.CUSTOMER_MODE) {
+                                return;
+                            }
 
-            int unreadNum = NIMClient.getService(MsgService.class).getTotalUnreadCount();
+                            int other_unread = 0;
+                            for (RecentContact r : items_customer) {
+                                if (r.getSessionType() != SessionTypeEnum.P2P) {
+                                    other_unread += r.getUnreadCount();
+                                }
+                            }
 
-            if (callback_customer!= null) {
-                callback_customer.onUnreadCountChange(unreadNum);
-            }
+                            callback_customer.onUnreadCountChange(other_unread + p2p_unread);
+                        }
+                    });
+                }
+            });
         }
     }
 
@@ -591,13 +604,14 @@ public class SamchatChatFragment extends TFragment{
                 	NIMClient.getService(MsgService.class).deleteRecentContact(recent);
                 	NIMClient.getService(MsgService.class).clearChattingHistory(recent.getContactId(), recent.getSessionType());
 					}
+					
+					if(recent.getSessionType() == SessionTypeEnum.P2P){
+						SamDBManager.getInstance().syncDeleteMessageSession(recent.getContactId(), ModeEnum.SP_MODE.ordinal());
+					}
+					
                 items_sp.remove(recent);
 
-                if (recent.getUnreadCount() > 0) {
-                    refreshSPMessages(true);
-                } else {
-                    notifyDataSetChangedSP();
-                }
+                refreshSPMessages(true);
             }
         });
 
@@ -696,20 +710,31 @@ public class SamchatChatFragment extends TFragment{
         sortRecentContacts(items_sp);
         notifyDataSetChangedSP();
 
-        if (unreadChanged) {
-            /*
-            int unreadNum = 0;
-            for (RecentContact r : items) {
-                unreadNum += r.getUnreadCount();
-            }
-            */
+		 if (unreadChanged && SamchatGlobal.getmode() == ModeEnum.SP_MODE) {
+             SamDBManager.getInstance().asyncReadTotalUnreadCount(ModeEnum.SP_MODE.ordinal(),new NIMCallback(){
+                 @Override
+                 public void onResult(Object obj1, Object obj2, int code) {
+                     final int p2p_unread = (Integer)obj1;
+                     getActivity().runOnUiThread(new Runnable() {
+                         @Override
+                         public void run() {
+                             if(SamchatGlobal.getmode() != ModeEnum.SP_MODE){
+                                 return;
+                             }
 
-            int unreadNum = NIMClient.getService(MsgService.class).getTotalUnreadCount();
+                             int other_unread = 0;
+                             for (RecentContact r : items_sp) {
+                                 if(r.getSessionType() != SessionTypeEnum.P2P){
+                                     other_unread += r.getUnreadCount();
+                                 }
+                             }
 
-            if (callback_sp!= null) {
-                callback_sp.onUnreadCountChange(unreadNum);
-            }
-        }
+                             callback_sp.onUnreadCountChange(other_unread + p2p_unread);
+                         }
+                     });
+                 }
+             });
+         }
     }
 
 	private void notifyDataSetChangedSP() {
@@ -853,15 +878,32 @@ public class SamchatChatFragment extends TFragment{
 		public void onEvent(IMMessage message){
 			LogUtil.e("test","statusObserver:"+message.getSessionId()+" Thread id:"+Thread.currentThread().getId());
 			if(message.	getDirect() == MsgDirectionEnum.Out){
-				Map<String, Object> content = message.getLocalExtension();
+				Map<String, Object> content = message.getRemoteExtension();
 				LogUtil.e("test","content:"+content);
-				if((Integer)content.get(Constants.MSG_TO) == Constants.FROM_CUSTOMER){
+				if(content == null){
+					int index = findRecentContactIndex(items_customer,message);
+					if(index != -1){
+						items_customer.get(index).setMsgStatus(message.getStatus());
+						refreshViewHolderCustomerByIndex(index);
+						return;
+					}
+					index = findRecentContactIndex(items_sp,message);
+					if(index != -1){
+						items_sp.get(index).setMsgStatus(message.getStatus());
+						refreshViewHolderSPByIndex(index);
+						return;
+					}
+					
+					return;
+				}
+				
+				if((Integer)content.get(Constants.MSG_FROM) == Constants.FROM_CUSTOMER){
 					int index = findRecentContactIndex(items_customer,message);
 					if(index != -1){
 						items_customer.get(index).setMsgStatus(message.getStatus());
 						refreshViewHolderCustomerByIndex(index);
 					}
-				}else if((Integer)content.get(Constants.MSG_TO) == Constants.FROM_SP){
+				}else if((Integer)content.get(Constants.MSG_FROM) == Constants.FROM_SP){
 					int index = findRecentContactIndex(items_sp,message);
 					if(index != -1){
 						items_sp.get(index).setMsgStatus(message.getStatus());

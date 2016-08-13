@@ -687,7 +687,13 @@ public class SamDBDao{
 		if( !stringEquals(old.getsession_id(),now.getsession_id())
 			||old.getmode() != now.getmode()
 			|| !stringEquals(old.getmsg_table_name(),now.getmsg_table_name())
-			||old.gettotal_unread() != now.gettotal_unread()){
+			||old.gettotal_unread() != now.gettotal_unread()
+			||old.getrecent_msg_type() != now.getrecent_msg_type()
+			|| !stringEquals(old.getrecent_msg_uuid(),now.getrecent_msg_uuid())
+			||old.getrecent_msg_subtype() != now.getrecent_msg_subtype()
+			|| !stringEquals(old.getrecent_msg_content(),now.getrecent_msg_content())
+			||old.getrecent_msg_time() != now.getrecent_msg_time()
+			||old.getrecent_msg_status() != now.getrecent_msg_status()){
 			return true;
 		}else{
 			return false;
@@ -730,6 +736,12 @@ public class SamDBDao{
 	public MsgSession query_MsgSession_db(String session_id, int mode){
 		synchronized(dbLock_msg){
 			return dbHandle.queryMsgSession( session_id,  mode);
+		}
+	}
+
+	public List<MsgSession> query_MsgSession_db(int mode){
+		synchronized(dbLock_msg){
+			return dbHandle.queryMsgSession( mode);
 		}
 	}
 
@@ -777,6 +789,26 @@ public class SamDBDao{
 	public List<Message> query_Messages_db_by_anchor(String table, long id, int count){
 		synchronized(dbLock_msg){
 			return dbHandle.queryMessages( table, id,  count);
+		}
+	}
+
+	public Message query_Message_db_by_uuid(String table, String uuid){
+		synchronized(dbLock_msg){
+			return dbHandle.queryMessageByUuid( table, uuid);
+		}
+	}
+
+	public void delete_Message_db(String table, String uuid){
+		long ret;
+		synchronized(dbLock_msg){
+			dbHandle.deleteMessage( table, uuid);
+		}
+	}
+
+	public void delete_Message_db_all(String table){
+		long ret;
+		synchronized(dbLock_msg){
+			dbHandle.deleteMessageAll(table);
 		}
 	}
 

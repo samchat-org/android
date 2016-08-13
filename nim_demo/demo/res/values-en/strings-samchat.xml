@@ -39,4 +39,7 @@
     <string name="samchat_service_preference">Service Preferences</string>
     <string name="samchat_service_notification">Notifications</string>
     <string name="samchat_service_subscription">Subscription and plans</string>
+
+    <string name="samchat_missing_call">Missing call</string>
+    <string name="samchat_call_duration">Call duration:</string>
 </resources>

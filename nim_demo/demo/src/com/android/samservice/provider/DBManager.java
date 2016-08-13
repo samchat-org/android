@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 import com.netease.nim.uikit.common.util.string.StringUtil;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 
 public class DBManager
 {
@@ -71,6 +72,10 @@ public class DBManager
 		cv.put("total_unread",session.gettotal_unread());
 		cv.put("recent_msg_type",session.getrecent_msg_type());
 		cv.put("recent_msg_uuid",session.getrecent_msg_uuid());
+		cv.put("recent_msg_subtype",session.getrecent_msg_subtype());
+		cv.put("recent_msg_content",session.getrecent_msg_content());
+		cv.put("recent_msg_time",session.getrecent_msg_time());
+		cv.put("recent_msg_status",session.getrecent_msg_status()); 
 
 		return message_db.insert(table,null,cv);
 	}
@@ -85,6 +90,10 @@ public class DBManager
 		cv.put("total_unread",session.gettotal_unread());
 		cv.put("recent_msg_type",session.getrecent_msg_type());
 		cv.put("recent_msg_uuid",session.getrecent_msg_uuid());
+		cv.put("recent_msg_subtype",session.getrecent_msg_subtype());
+		cv.put("recent_msg_content",session.getrecent_msg_content());
+		cv.put("recent_msg_time",session.getrecent_msg_time());
+		cv.put("recent_msg_status",session.getrecent_msg_status()); 
 
 		String whereClause = "id=?";
 		String [] whereArgs = {""+id+""};
@@ -104,12 +113,17 @@ public class DBManager
 		return message_db.update(table,cv,whereClause,whereArgs);
 	}
 
-	public long updateMsgSessionRecentMsg(String session_id, int mode, int recent_msg_type, String recent_msg_uuid)
+	public long updateMsgSessionRecentMsg(String session_id, int mode, int recent_msg_type, String recent_msg_uuid,
+		int recent_msg_subtype,String recent_msg_content,long recent_msg_time,int recent_msg_status)
 	{
 		String table =  DatabaseHelper.TABLE_NAME_MSG_SESSION;
 		ContentValues cv = new ContentValues();
 		cv.put("recent_msg_type",recent_msg_type);
 		cv.put("recent_msg_uuid",recent_msg_uuid);
+		cv.put("recent_msg_subtype",recent_msg_subtype);
+		cv.put("recent_msg_content",recent_msg_content);
+		cv.put("recent_msg_time",recent_msg_time);
+		cv.put("recent_msg_status",recent_msg_status); 
 
 		String whereClause = "session_id=? and mode=?";
 		String [] whereArgs = {session_id,""+mode};
@@ -140,6 +154,9 @@ public class DBManager
 			session.settotal_unread(c.getInt(c.getColumnIndex("total_unread")));
 			session.setrecent_msg_type(c.getInt(c.getColumnIndex("recent_msg_type")));
 			session.setrecent_msg_uuid(c.getString(c.getColumnIndex("recent_msg_uuid")));
+			session.setrecent_msg_subtype(c.getInt(c.getColumnIndex("recent_msg_subtype")));
+			session.setrecent_msg_content(c.getString(c.getColumnIndex("recent_msg_content")));
+			session.setrecent_msg_time(c.getLong(c.getColumnIndex("recent_msg_time")));
 		}
 
 		c.close();
@@ -149,6 +166,33 @@ public class DBManager
 		}
 
 		return session;
+	}
+
+	public List<MsgSession> queryMsgSession(int mode){
+		String table = DatabaseHelper.TABLE_NAME_MSG_SESSION;
+		MsgSession session = null;
+		String name = null;
+		Cursor c = message_db.query(table,null,"mode=?",new String[]{""+mode},null,null,null);
+		List<MsgSession> sessions = new ArrayList<MsgSession>();
+		
+		while(c.moveToNext()){
+			session = new MsgSession();
+			session.setid(c.getLong(c.getColumnIndex("id")));
+			session.setsession_id(c.getString(c.getColumnIndex("session_id")));
+			session.setmode(c.getInt(c.getColumnIndex("mode")));
+			session.setmsg_table_name(c.getString(c.getColumnIndex("msg_table_name")));
+			session.settotal_unread(c.getInt(c.getColumnIndex("total_unread")));
+			session.setrecent_msg_type(c.getInt(c.getColumnIndex("recent_msg_type")));
+			session.setrecent_msg_uuid(c.getString(c.getColumnIndex("recent_msg_uuid")));
+			session.setrecent_msg_subtype(c.getInt(c.getColumnIndex("recent_msg_subtype")));
+			session.setrecent_msg_content(c.getString(c.getColumnIndex("recent_msg_content")));
+			session.setrecent_msg_time(c.getLong(c.getColumnIndex("recent_msg_time")));
+			sessions.add(session);
+		}
+
+		c.close();
+
+		return sessions;
 	}
 
 	public void deleteMsgSession(String session_id,int mode){
@@ -171,7 +215,6 @@ public class DBManager
 	public long addMessage(String table, Message msg){
 		ContentValues cv = new ContentValues();
 		
-		cv.put("id",msg.getid());
 		cv.put("type",msg.gettype());
 		cv.put("uuid",msg.getuuid());
 
@@ -200,7 +243,7 @@ public class DBManager
 		Message msg = null;
 		List<Message> msgs = new ArrayList<Message>();
 		
-		Cursor c = message_db.query(table,null,null,null,null,null,"id DESC",""+count);
+		Cursor c = message_db.query(table,null,null,null,null,null,"id desc",""+count);
 
 		while(c.moveToNext()){
 			msg = new Message();
@@ -208,7 +251,11 @@ public class DBManager
 			msg.settype(c.getInt(c.getColumnIndex("type")));
 			msg.setuuid(c.getString(c.getColumnIndex("uuid")));
 
-			msgs.add(msg);
+			msgs.add(0,msg);
+		}
+
+		for(Message m:msgs){
+			LogUtil.e("test", "queryMessages id:" + m.getid());
 		}
 
 		c.close();
@@ -223,7 +270,7 @@ public class DBManager
 		Message msg = null;
 		List<Message> msgs = new ArrayList<Message>();
 
-        Cursor c = message_db.query(table, null, selections, selectionArgs, null, null, "id desc",limits);
+      Cursor c = message_db.query(table, null, selections, selectionArgs, null, null, "id desc",limits);
 
 		while(c.moveToNext()){
 			msg = new Message();
@@ -231,7 +278,7 @@ public class DBManager
 			msg.settype(c.getInt(c.getColumnIndex("type")));
 			msg.setuuid(c.getString(c.getColumnIndex("uuid")));
 
-			msgs.add(msg);
+			msgs.add(0,msg);
 		}
 
 		c.close();
@@ -239,8 +286,36 @@ public class DBManager
 		return msgs;
 	}
 
+
+
+	public Message queryMessageByUuid(String table, String uuid){
+		Message msg = null;
+
+      Cursor c = message_db.query(table, null, "uuid = ?", new String[]{uuid}, null, null, null);
+
+		while(c.moveToNext()){
+			msg = new Message();
+			msg.setid(c.getLong(c.getColumnIndex("id")));
+			msg.settype(c.getInt(c.getColumnIndex("type")));
+			msg.setuuid(c.getString(c.getColumnIndex("uuid")));
+		}
+
+		c.close();
+
+		return msg;
+	}
+
+
 	public void deleteMessage(String table, long id){
 		message_db.delete(table, "id=?", new String[]{""+id});
+	}
+
+	public void deleteMessage(String table, String uuid){
+		message_db.delete(table, "uuid=?", new String[]{uuid});
+	}
+
+	public void deleteMessageAll(String table){
+		message_db.execSQL("DROP TABLE IF EXISTS " + table);
 	}
 
 

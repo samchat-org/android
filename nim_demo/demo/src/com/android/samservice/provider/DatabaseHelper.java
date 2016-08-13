@@ -197,7 +197,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	private void createMsgSessionTable(SQLiteDatabase db){
 	/*
-	id(primary) | session_id | mode | msg_table_name | total_unread | recent_msg_type |recent_msg_uuid
+	id(primary) | session_id | mode | msg_table_name | total_unread 
+	|recent_msg_type |recent_msg_uuid | recent_msg_subtype | recent_msg_content | recent_msg_time | recent_msg_status
 	*/
 		StringBuffer sBuffer = new StringBuffer();
 		sBuffer.append("CREATE TABLE [" + TABLE_NAME_MSG_SESSION+ "] (");
@@ -207,7 +208,12 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		sBuffer.append("[msg_table_name] TEXT ,");
 		sBuffer.append("[total_unread] INTEGER ,");
 		sBuffer.append("[recent_msg_type] INTEGER ,");
-		sBuffer.append("[recent_msg_uuid] TEXT )");
+		sBuffer.append("[recent_msg_uuid] TEXT ,");
+		sBuffer.append("[recent_msg_subtype] INTEGER,");
+		sBuffer.append("[recent_msg_content] TEXT ,");
+		sBuffer.append("[recent_msg_time] INTEGER ,");
+		sBuffer.append("[recent_msg_status] INTEGER )");
+ 
 		db.execSQL(sBuffer.toString());
 
 		sBuffer = new StringBuffer();

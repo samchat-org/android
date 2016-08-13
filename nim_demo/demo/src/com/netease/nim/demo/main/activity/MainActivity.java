@@ -59,11 +59,11 @@ import com.android.samchat.SamchatGlobal;
 import com.android.samchat.type.ModeEnum;
 import com.android.samservice.Constants;
 import com.android.samchat.service.SamDBManager;
-import com.netease.nim.uikit.session.sam_message.sam_message;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
 import com.netease.nim.uikit.NIMCallback;
 import java.util.List;
 import com.netease.nim.uikit.session.sam_message.SamchatObserver;
+import com.netease.nim.demo.main.reminder.ReminderManager;
 /*SAMC_END(......)*/
 
 /**
@@ -92,6 +92,27 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
     private ImageView titlebar_right_icon;
     private int current_position = 0;
     /*SAMC_END(Customized title bar)*/ 
+
+    /*SAMC_BEGIN(unread count for 2 mode)*/
+    private int chat_unread_count_customer = 0;
+    private int chat_unread_count_sp = 0;
+
+    public int getchat_unread_count_customer(){
+        return chat_unread_count_customer;
+    }
+		
+    public void setchat_unread_count_customer(int count){
+        chat_unread_count_customer = count;
+    }
+
+    public int getchat_unread_count_sp(){
+        return chat_unread_count_customer;
+    }
+		
+    public void setchat_unread_count_sp(int count){
+        chat_unread_count_sp = count;
+    }
+    /*SAMC_END(unread count for 2 mode)*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -418,8 +439,16 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	}
 
 	public void refreshToolBar(int position){
-        switch_icon.setImageResource(MainTab.getTabIcon(position));
-        titlebar_name.setText(MainTab.getTabTitle(position));
+		switch_icon.setImageResource(MainTab.getTabIcon(position));
+		titlebar_name.setText(MainTab.getTabTitle(position));
+	}
+
+	public void refreshTabUnreadCount(ModeEnum currentMode){
+		if(currentMode == ModeEnum.CUSTOMER_MODE){
+			ReminderManager.getInstance().updateSessionUnreadNum(chat_unread_count_customer);
+		}else{
+			ReminderManager.getInstance().updateSessionUnreadNum(chat_unread_count_sp);
+		}
 	}
 
 	private void sendbroadcast(Intent intent){
@@ -480,6 +509,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 			SamchatGlobal.switchMode();
 			saveMode(SamchatGlobal.getmode());
 			refreshToolBar(current_position);
+			refreshTabUnreadCount(SamchatGlobal.getmode());
 		}
 	}
 
@@ -499,22 +529,39 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 		return ModeEnum.valueOfType(SamchatGlobal.getmode());
 	}
 
-	public long storeMessage(IMMessage msg){
-		return SamDBManager.getInstance().syncStoreSendMessage(msg);
+	public void storeSendMessage(IMMessage msg,NIMCallback callback){
+		SamDBManager.getInstance().asyncStoreSendMessage(msg,  callback);
 	}
 
 	public void clearUnreadCount(String session_id, int mode){
-		SamDBManager.getInstance().syncClearUnreadCount( session_id, mode);
+		SamDBManager.getInstance().asyncClearUnreadCount( session_id, mode);
 	}
 
-	public void queryMessage(String session_id, int mode,sam_message msg, QueryDirectionEnum direction, int count, NIMCallback callback){
+	public void queryMessage(String session_id, int mode,IMMessage msg, QueryDirectionEnum direction, int count, NIMCallback callback){
 		SamDBManager.getInstance().queryMessage(session_id,  mode,  msg,  direction,  count,  callback);
+	}
+
+	public void deleteMessage(String session_id, int mode,IMMessage msg){
+		SamDBManager.getInstance().asyncDeleteMessage(session_id, mode, msg);
 	}
 
 	public void registerIncomingMsgObserver(SamchatObserver<List<IMMessage>> observer,boolean register){
 		SamDBManager.getInstance().registerIncomingMsgObserver(observer, register);
 	}
 
+	public void registerSendCustomerMsgObserver(SamchatObserver < IMMessage > observer, boolean register){
+		SamDBManager.getInstance().registerSendCustomerMsgObserver(observer, register);
+	}
+
+	public void storeSendCustomerMessage(IMMessage msg,NIMCallback callback){
+		SamDBManager.getInstance().asyncStoreSendCustomerMessage(msg,  callback);
+	}
+
+	public void storeRecvCustomerMessage(IMMessage msg,NIMCallback callback){
+		List<IMMessage> ims = new ArrayList<IMMessage>(1);
+		ims.add(msg);
+		SamDBManager.getInstance().asyncStoreRecvCustomerMessages(ims);
+	}
 	
 /*SAMC_END(...)*/
 }

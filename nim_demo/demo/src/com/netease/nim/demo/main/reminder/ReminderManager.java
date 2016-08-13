@@ -37,11 +37,17 @@ public class ReminderManager {
 
     // interface
     public final void updateSessionUnreadNum(int unreadNum) {
-        updateUnreadMessageNum(unreadNum, false, ReminderId.SESSION);
+        /*SAMC_BEGIN(add samchat reminderId of 5 fragment)*/
+        //updateUnreadMessageNum(unreadNum, false, ReminderId.SESSION);
+        updateUnreadMessageNum(unreadNum, false, ReminderId.SAMCHAT_TAB_CHAT);
+        /*SAMC_END(add samchat reminderId of 5 fragment)*/
     }
 
     public final void updateSessionDeltaUnreadNum(int delta) {
-        updateUnreadMessageNum(delta, true, ReminderId.SESSION);
+        /*SAMC_BEGIN(add samchat reminderId of 5 fragment)*/
+        //updateUnreadMessageNum(delta, true, ReminderId.SESSION);
+       updateUnreadMessageNum(delta, true, ReminderId.SAMCHAT_TAB_CHAT);
+        /*SAMC_END(add samchat reminderId of 5 fragment)*/
     }
 
     public final void updateContactUnreadNum(int unreadNum) {
@@ -66,8 +72,15 @@ public class ReminderManager {
 
     // inner
     private final void populate(SparseArray<ReminderItem> items) {
-        items.put(ReminderId.SESSION, new ReminderItem(ReminderId.SESSION));
-        items.put(ReminderId.CONTACT, new ReminderItem(ReminderId.CONTACT));
+        /*SAMC_BEGIN(add samchat reminderId of 5 fragment)*/
+        //items.put(ReminderId.SESSION, new ReminderItem(ReminderId.SESSION));
+        //items.put(ReminderId.CONTACT, new ReminderItem(ReminderId.CONTACT));
+        items.put(ReminderId.SAMCHAT_TAB_REQUEST,new ReminderItem(ReminderId.SAMCHAT_TAB_REQUEST));
+        items.put(ReminderId.SAMCHAT_TAB_PUBLIC,new ReminderItem(ReminderId.SAMCHAT_TAB_PUBLIC));
+        items.put(ReminderId.SAMCHAT_TAB_CHAT,new ReminderItem(ReminderId.SAMCHAT_TAB_CHAT));
+        items.put(ReminderId.SAMCHAT_TAB_CONTACT,new ReminderItem(ReminderId.SAMCHAT_TAB_CONTACT));
+        items.put(ReminderId.SAMCHAT_TAB_SETTING,new ReminderItem(ReminderId.SAMCHAT_TAB_SETTING));
+        /*SAMC_END(add samchat reminderId of 5 fragment)*/
     }
 
     private final void updateUnreadMessageNum(int unreadNum, boolean delta, int reminderId) {

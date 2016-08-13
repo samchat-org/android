@@ -10,7 +10,6 @@ import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.media.ImageUtil;
 import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
-import com.netease.nim.uikit.session.module.list.P2PMsgAdapter;
 import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
 import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
 import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
@@ -73,14 +72,7 @@ public abstract class MsgViewHolderThumbBase extends MsgViewHolderBase {
         } else {
             progressCover.setVisibility(View.GONE);
         }
-
-        float process = 0;
-        if(getAdapter() instanceof P2PMsgAdapter){
-            process = ((P2PMsgAdapter)getAdapter()).getProgress(message);
-        }else{
-            process = ((MsgAdapter)getAdapter()).getProgress(message);
-        }
-        progressLabel.setText(StringUtil.getPercentString(process));
+        progressLabel.setText(StringUtil.getPercentString(getAdapter().getProgress(message)));
     }
 
     private void loadThumbnailImage(String thumbPath) {
