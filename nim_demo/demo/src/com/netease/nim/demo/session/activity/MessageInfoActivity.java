@@ -26,7 +26,7 @@ import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.friend.FriendService;
 
 import java.util.ArrayList;
-
+import com.netease.nim.uikit.common.util.log.LogUtil;
 /**
  * Created by hzxuwen on 2015/10/13.
  */
@@ -144,7 +144,9 @@ public class MessageInfoActivity extends UI {
     private void createTeamMsg() {
         ArrayList<String> memberAccounts = new ArrayList<>();
         memberAccounts.add(account);
+        LogUtil.e("test","createTeamMsg 1 memberAccounts:"+memberAccounts);
         ContactSelectActivity.Option option = TeamHelper.getCreateContactSelectOption(memberAccounts, 50);
+		  LogUtil.e("test","createTeamMsg 2 memberAccounts:"+memberAccounts);
         NimUIKit.startContactSelect(this, option, REQUEST_CODE_NORMAL);// 创建群
     }
 

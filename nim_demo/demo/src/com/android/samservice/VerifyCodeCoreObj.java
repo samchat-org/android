@@ -17,6 +17,13 @@ public class VerifyCodeCoreObj extends SamCoreObj{
 		this.deviceid = deviceid;
 	}
 
+	public void init_register_code_verify(String countrycode,String cellphone, String verifycode, String deviceid){
+		this.countrycode = countrycode;
+		this.cellphone = cellphone;
+		this.verifycode = verifycode;
+		this.deviceid = deviceid;
+	}
+
 	public void init_findpwd_code_request(String countrycode,String cellphone,String deviceid){
 		this.countrycode = countrycode;
 		this.cellphone = cellphone;

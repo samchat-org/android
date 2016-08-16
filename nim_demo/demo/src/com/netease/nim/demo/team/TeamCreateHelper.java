@@ -26,7 +26,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import com.netease.nim.uikit.common.util.log.LogUtil;
 /**
  * Created by hzxuwen on 2015/9/25.
  */
@@ -45,6 +45,7 @@ public class TeamCreateHelper {
         // 创建群
         HashMap<TeamFieldEnum, Serializable> fields = new HashMap<TeamFieldEnum, Serializable>();
         fields.put(TeamFieldEnum.Name, teamName);
+				LogUtil.e("test","create normal team:" + memberAccounts);
         NIMClient.getService(TeamService.class).createTeam(fields, TeamTypeEnum.Normal, "",
                 memberAccounts).setCallback(
                 new RequestCallback<Team>() {
@@ -98,6 +99,7 @@ public class TeamCreateHelper {
         TeamTypeEnum type = TeamTypeEnum.Advanced;
         HashMap<TeamFieldEnum, Serializable> fields = new HashMap<>();
         fields.put(TeamFieldEnum.Name, teamName);
+		  LogUtil.e("test","create advance team" + memberAccounts);
         NIMClient.getService(TeamService.class).createTeam(fields, type, "",
                 memberAccounts).setCallback(
                 new RequestCallback<Team>() {

@@ -18,7 +18,7 @@ import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.nostra13.universalimageloader.core.assist.ViewScaleType;
 import com.nostra13.universalimageloader.core.imageaware.NonViewAware;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
-
+import com.netease.nim.uikit.common.util.log.LogUtil;
 /**
  * Created by huangjun on 2015/11/13.
  */
@@ -82,6 +82,7 @@ public class HeadImageView extends CircleImageView {
 
         // 判断是否需要ImageLoader加载
         final UserInfoProvider.UserInfo userInfo = NimUIKit.getUserInfoProvider().getUserInfo(account);
+		  LogUtil.e("test","loadBuddyAvatar: " + account + "userInfo:"+userInfo);
         boolean needLoad = userInfo != null && ImageLoaderKit.isImageUriValid(userInfo.getAvatar());
 
         doLoadImage(needLoad, account, userInfo != null ? userInfo.getAvatar() : null, thumbSize);

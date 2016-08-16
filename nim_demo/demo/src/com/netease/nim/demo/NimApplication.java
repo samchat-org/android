@@ -61,6 +61,8 @@ import com.android.samservice.SamService;
 import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.android.samchat.cache.SamchatDataCacheManager;
 import com.android.samchat.service.SamDBManager;
+import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.android.samchat.factory.UuidFactory;
 
 public class NimApplication extends Application {
 
@@ -77,6 +79,9 @@ public class NimApplication extends Application {
         AppCrashHandler.getInstance(this);
 
         if (inMainProcess()) {
+            /*SAMC_BEGIN(application store)*/
+            DemoCache.setApp(NimApplication.this);
+            /*SAMC_END(application store)*/
             // init pinyin
             PinYin.init(this);
             PinYin.validate();
@@ -108,10 +113,9 @@ public class NimApplication extends Application {
         }
     }
 
-    private LoginInfo getLoginInfo() {
+    public LoginInfo getLoginInfo() {
         String account = Preferences.getUserAccount();
         String token = Preferences.getUserToken();
-
         if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
             DemoCache.setAccount(account.toLowerCase());
             return new LoginInfo(account, token);
@@ -120,7 +124,7 @@ public class NimApplication extends Application {
         }
     }
 
-    private SDKOptions getOptions() {
+    public SDKOptions getOptions() {
         SDKOptions options = new SDKOptions();
 
         // 如果将新消息通知提醒托管给SDK完成，需要添加以下配置。
@@ -307,10 +311,13 @@ public class NimApplication extends Application {
         @Override
         public UserInfo getUserInfo(String account) {
            UserInfo user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
+	        LogUtil.e("test","info provider: " + account+" user:"+user);
            if(user ==  null){
-
+				  user = NimUserInfoCache.getInstance().getUserInfo(account);
+               if(user == null)
+							 	NimUserInfoCache.getInstance().getUserInfoFromRemote(account, null);
            }
-            return user;
+           return user;
         }
 
         @Override

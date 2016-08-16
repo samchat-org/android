@@ -2,6 +2,9 @@ package com.android.samservice;
 
 
 public class Constants{
+
+
+	
 	/*
 		true: server use username to be easemob id
 		false: server use cellphone to be easemob id
@@ -78,13 +81,17 @@ public class Constants{
 
 	/****************************Broadcast***********************************************/
 	public static final String BROADCAST_SWITCH_MODE = "com.android.samchat.switchmode";
+	public static final String BROADCAST_SIGN_IN_ALREADY = "com.android.samchat.signinalready";
+	public static final String BROADCAST_SIGN_UP_ALREADY = "com.android.samchat.signupalready";
 
 	/****************************Message From***********************************************/
 	public static final String MSG_FROM = "msg_from";
 	public static final int FROM_CUSTOMER = 0;
 	public static final int FROM_SP = 1;
 	public static final String MSG_TO = "msg_to";
-	
+
+	/****************************Start Activity Confirm ID***********************************************/
+	public static final String CONFIRM_COUNTRYCODE = "countrycode";
 
 
 
@@ -123,6 +130,7 @@ public class Constants{
 	public static final int RET_PASSWORD_ERROR_TOO_OFTEN = -208;
 	public static final int RET_QUERY_USER_TOO_OFTEN = -209;
 	public static final int RET_SEND_INVITE_MSG_TOO_OFTEN = -210;
+	public static final int RET_VERIFY_CODE_EXPIRATION = -211;
 
 	//-300 ~ -399:
 

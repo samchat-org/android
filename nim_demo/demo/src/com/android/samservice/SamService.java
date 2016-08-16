@@ -68,7 +68,8 @@ public class SamService{
 	//sign msg:
 	public static final int MSG_SIGN_START = 100;
 	public static final int MSG_REGISTER_CODE_REQEUST = MSG_SIGN_START + 1;
-	public static final int MSG_SIGN_UP = MSG_REGISTER_CODE_REQEUST + 1;
+	public static final int MSG_REGISTER_CODE_VERIFY = MSG_REGISTER_CODE_REQEUST + 1;
+	public static final int MSG_SIGN_UP = MSG_REGISTER_CODE_VERIFY + 1;
 	public static final int MSG_SIGN_IN = MSG_SIGN_UP + 1;
 	public static final int MSG_AUTO_SIGN_IN = MSG_SIGN_IN + 1;
 	public static final int MSG_SIGN_OUT = MSG_AUTO_SIGN_IN + 1;
@@ -160,6 +161,50 @@ public class SamService{
 		mSamServiceHandler.sendMessage(msg);
 		startTimeOut(samobj);
 	}
+
+/***************************************register-code-verify*******************************************************/
+	private void do_register_code_verify(SamCoreObj samobj){
+		VerifyCodeCoreObj vcobj = (VerifyCodeCoreObj)samobj;
+		HttpCommClient hcc = new HttpCommClient();
+
+		boolean http_ret = hcc.register_code_verify(vcobj);
+		if(isTimeOut(samobj)){
+			return;
+		}else if(http_ret){
+			if(hcc.ret == 0){
+				samobj.callback.onSuccess(hcc,0);
+			}else{
+				samobj.callback.onFailed(hcc.ret);
+			}
+		}else if(!hcc.exception){
+			if(0<samobj.retry_count--){
+				retry_register_code_verify(vcobj);
+			}else{
+				samobj.callback.onError(Constants.CONNECTION_HTTP_ERROR);
+			}
+		}else{
+				samobj.callback.onError(Constants.EXCEPTION_ERROR);
+		}
+
+	}
+
+	private void retry_register_code_verify(VerifyCodeCoreObj samobj){
+		VerifyCodeCoreObj  retryobj = new VerifyCodeCoreObj(samobj.callback);
+		retryobj.init_register_code_verify(samobj.countrycode, samobj.cellphone,samobj.verifycode,samobj.deviceid);
+
+		retryobj.setRetryCount(samobj.retry_count);
+		Message msg = mSamServiceHandler.obtainMessage(MSG_REGISTER_CODE_VERIFY, retryobj);
+		mSamServiceHandler.sendMessageDelayed(msg, SAMSERVICE_RETRY_WAIT);
+		startTimeOutRetry(retryobj);
+	}
+
+	public void register_code_verify(String countrycode, String cellphone, String verifycode, String deviceid,SMCallBack callback){
+		VerifyCodeCoreObj samobj = new VerifyCodeCoreObj(callback);
+		samobj.init_register_code_verify(countrycode, cellphone,verifycode,deviceid);
+		Message msg = mSamServiceHandler.obtainMessage(MSG_REGISTER_CODE_VERIFY, samobj);
+		mSamServiceHandler.sendMessage(msg);
+		startTimeOut(samobj);
+	}
 	
 /***************************************signup*******************************************************/
 	private void do_sign_up(SamCoreObj samobj){
@@ -173,7 +218,7 @@ public class SamService{
 		}else if(http_ret){
 			if(hcc.ret == 0){
 				set_current_user(hcc.userinfo);
-				store_current_token(hcc.token_id);
+				store_current_token(hcc.token_id+suobj.deviceid);
 				initDao(StringUtil.makeMd5(""+hcc.userinfo.getunique_id()));
 				if(dao.update_ContactUser_db(hcc.userinfo) == -1){
 					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
@@ -1713,7 +1758,7 @@ public class SamService{
 	   if(dao == null){
 		 	this.dbFolder = dbFolder;
 			dao = new SamDBDao(mContext,dbFolder);
-			TestCase.testInitDB();
+			//TestCase.testInitDB();
 		}
 	}
 
@@ -1908,6 +1953,16 @@ public class SamService{
 						}
 					});
 					break;
+					
+				case MSG_REGISTER_CODE_VERIFY:
+					mFixedHttpThreadPool.execute(new Runnable(){
+						@Override
+						public void run(){
+							do_register_code_verify(msgObj);
+						}
+					});
+					break;
+
 				case MSG_SIGN_UP:
 					mFixedHttpThreadPool.execute(new Runnable(){
 						@Override

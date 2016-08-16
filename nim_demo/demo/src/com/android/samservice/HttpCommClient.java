@@ -51,6 +51,12 @@ public class HttpCommClient {
 	public static final String URL_ATICLE = "http://139.129.57.77/sw/api/1.0/ArticleApi";
 	public static final String URL_HOTTOPIC = "http://139.129.57.77/sw/api_1.0_HotTopicAPI.do";
 	public static final String URL_VENDOR_WEB = "http://139.129.57.77/sw/skservicer/setting/info";
+
+
+	public static final String URL_registerCodeRequest = "http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_registerCodeRequest.do";
+	public static final String URL_registerCodeVerify = "http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_signupCodeVerify.do";
+	public static final String URL_signup="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_register.do";
+
 	
 	public static final int CONNECTION_TIMEOUT = 20000;
 	public static final int HTTP_TIMEOUT = 10000;
@@ -337,7 +343,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructRegisterCodeReqeustJson(vcobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_registerCodeRequest,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -378,6 +384,68 @@ public class HttpCommClient {
 		
 	}
 
+	private JSONObject constructRegisterCodeVerifyJson(VerifyCodeCoreObj vcobj) throws JSONException{
+			JSONObject header = new JSONObject();
+			header.putOpt("action", "signup-code-verify");
+			
+			JSONObject body = new JSONObject();
+			body.putOpt("countrycode", vcobj.countrycode);
+			body.putOpt("cellphone",vcobj.cellphone);
+			body.putOpt("verifycode",vcobj.verifycode);
+			body.putOpt("deviceid",vcobj.deviceid);
+			
+			JSONObject data = new JSONObject();
+			data.put("header", header);
+			data.put("body", body);
+
+			return data;
+	}
+	
+	public boolean register_code_verify(VerifyCodeCoreObj vcobj){			
+		try{
+			JSONObject  data = constructRegisterCodeVerifyJson(vcobj);
+
+			HttpResponse response = httpCmdStart(URL_registerCodeVerify,data);
+			
+			statusCode = response.getStatusLine().getStatusCode();
+			
+			if(isHttpOK()){
+				String rev = EntityUtils.toString(response.getEntity());
+				SamLog.i(TAG,"rev:" + rev);
+				
+				JSONObject obj = new JSONObject(rev); 
+				ret = obj.getInt("ret");
+				return true;
+				
+			}else{
+				SamLog.i(TAG,"register code verify http status code:"+statusCode);
+				return false;
+			}
+		
+		}catch (JSONException e) {  
+			exception = true;
+			e.printStackTrace();
+			SamLog.e(TAG,"register code verify :JSONException");
+			return false;
+		} catch (ClientProtocolException e) {
+			exception = true;
+			SamLog.e(TAG,"register code verify :ClientProtocolException");
+			e.printStackTrace(); 
+			return false;
+		} catch (IOException e) { 
+			exception = true;
+			SamLog.e(TAG,"register code verify :IOException");
+			e.printStackTrace(); 
+			return false;
+		} catch (Exception e) { 
+			exception = true;
+			SamLog.e(TAG,"register code verify :Exception");
+			e.printStackTrace(); 
+			return false;
+		}
+		
+	}
+
 	private JSONObject constructSignUpJson(SignUpCoreObj suobj) throws JSONException{
 			JSONObject header = new JSONObject();
 			header.putOpt("action", "register");
@@ -399,9 +467,10 @@ public class HttpCommClient {
 	
 	public boolean signup(SignUpCoreObj suobj){			
 		try{
+			SamLog.i(TAG,"signup start");
 			JSONObject  signup_data = constructSignUpJson(suobj);
 
-			HttpResponse response = httpCmdStart(URL,signup_data);
+			HttpResponse response = httpCmdStart(URL_signup,signup_data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -423,7 +492,8 @@ public class HttpCommClient {
 					userinfo.setcountrycode(suobj.countrycode);
 					userinfo.setcellphone(suobj.cellphone); 
 				}
-				
+
+				SamLog.i(TAG,"signup end");
 				return true;
 				
 			}else{

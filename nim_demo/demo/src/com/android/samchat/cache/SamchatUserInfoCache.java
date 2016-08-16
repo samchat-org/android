@@ -37,7 +37,15 @@ public class SamchatUserInfoCache {
 	}
 
 	public ContactUser getUserByUniqueID(Long unique_id){
-		return userInfoMap.get(unique_id);
+		ContactUser user =  userInfoMap.get(unique_id);
+		if(user == null){
+
+		}
+        return user;
+	}
+
+	public void getUserByUniqueIDFromRemote(Long unique_id){
+		
 	}
 
 	public void addUser(Long unique_id, ContactUser user){

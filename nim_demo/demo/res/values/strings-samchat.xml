@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="samchat_ok">OK</string>
+    <string name="samchat_cancel">Cancel</string>
+
     <string name="permision_apply_succeed">permission apply succeed</string>
     <string name="permision_apply_failed">permssion apply failed , samchat will run abnormally</string>
     <string name="customer_request_service">Request Service</string>
@@ -42,4 +45,63 @@
 
     <string name="samchat_missing_call">Missing call</string>
     <string name="samchat_call_duration">Call duration:</string>
+
+
+
+    <string name="samchat_username_or_phone">Username or phone no</string>
+    <string name="samchat_enter_password">Enter your password</string>
+    <string name="samchat_signin">SIGN IN</string>
+    <string name="samchat_signup">Sign Up</string>
+    <string name="samchat_forgot_pwd">Forgot Password?</string>
+
+    <string name="samchat_cient_type_web">Web side</string>
+    <string name="samchat_cient_type_pc">PC side</string>
+    <string name="samchat_cient_type_server">Server side</string>
+    <string name="samchat_cient_type_mobile">Mobile side</string>
+
+    <string name="samchat_input_error">Username or Phone no error</string>
+    <string name="samchat_login_failed">Login Failed</string>
+    <string name="samchat_login_exception">Invalid Input</string>
+
+    <string name="samchat_your_phone_no">Your phone number</string>
+    <string name="samchat_send_confirmation_code">Send Confirmation Code</string>
+
+    <string name="samchat_region">Region</string>
+    <string name="samchat_top_hit">Top hit</string>
+
+    <string name="China">China</string>
+    <string name="USA">USA</string>
+    <string name="samchat_sending">Sending...</string>
+    <string name="samchat_confirmation_code">Confirmation Code</string>
+
+    <string name="samchat_default_error">Make sure network is available and try it again</string>
+    <string name="samchat_internal_error">Internal error</string>
+    <string name="samchat_server_error">Server error</string>
+    <string name="samchat_cellphone_registered_error">Cellphone has been registered before</string>
+    <string name="samchat_illeage_cellphone_registered_error">Cellphone has been registered before</string>
+    <string name="samchat_pwd_error">Password is wrong</string>
+    <string name="samchat_cellphone_not_register_error">Cellphone has not been registered before</string>
+    <string name="samchat_verifycode_error">Verify code is wrong</string>
+    <string name="samchat_verifycode_request_too_offten_error">Verify code request too often</string>
+    <string name="samchat_user_not_existed_error">This user has not been sign up in samchat</string>
+    <string name="samchat_pwd_try_too_offten_error">Try password too many times</string>
+    <string name="samchat_query_too_offten_error">Query too many times</string>
+    <string name="samchat_send_invite_too_offten_error">Send invite message too many times</string>
+    <string name="samchat_verify_code_expiration_error">Verify code has been expired</string>
+    <string name="samchat_token_error">Token is not right</string>
+    <string name="samchat_upgrade_error">You have been Service provider</string>
+    <string name="samchat_original_pwd_error">Original password is wrong</string>
+    <string name="samchat_not_sp_error">Service provider not existed</string>
+    <string name="samchat_adv_not_existed_error">This advertisement is not found</string>
+    <string name="samchat_wait_for_audit_error">Wait for audit backend</string>
+    <string name="samchat_follow_maxium_number_error">Followed Service provider has been maxium</string>
+    <string name="samchat_not_follow_error">You have not followed this Service Provider</string>
+    <string name="samchat_not_add_contact_error">You have not add this user into your contact</string>
+
+    <string name="samchat_verifying">Verifying</string>
+
+    <string name="samchat_enter_username">Enter a username</string>
+    <string name="samchat_license">I agree with Samchat User Agreement</string>
+    <string name="samchat_done">Done</string>
+    <string name="samchat_signuping">Sign up now ...</string>
 </resources>

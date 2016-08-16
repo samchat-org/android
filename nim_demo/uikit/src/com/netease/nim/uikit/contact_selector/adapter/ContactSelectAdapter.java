@@ -16,7 +16,7 @@ import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-
+import com.netease.nim.uikit.common.util.log.LogUtil;
 public class ContactSelectAdapter extends ContactDataAdapter {
     private HashSet<String> selects = new HashSet<String>();
 
@@ -37,6 +37,7 @@ public class ContactSelectAdapter extends ContactDataAdapter {
         List<ContactItem> res = new ArrayList<>();
         for (String account : selects) {
             final UserInfoProvider.UserInfo user = NimUIKit.getUserInfoProvider().getUserInfo(account);
+				LogUtil.e("test","getSelectedItem account:"+account+" user:"+user);
             if (user != null) {
                 res.add(new ContactItem(ContactHelper.makeContactFromUserInfo(user), ItemTypes.FRIEND));
             }

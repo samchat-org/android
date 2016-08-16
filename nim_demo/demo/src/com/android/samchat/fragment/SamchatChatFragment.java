@@ -161,9 +161,22 @@ public class SamchatChatFragment extends TFragment{
 					if(to == ModeEnum.valueOfType(ModeEnum.CUSTOMER_MODE)){
 						listView_customer.setVisibility(View.VISIBLE);
 						listView_sp.setVisibility(View.GONE);
+						getHandler().postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								refreshCustomerMessages(true);
+							}
+						}, 50);
+						
 					}else{
 						listView_customer.setVisibility(View.GONE);
 						listView_sp.setVisibility(View.VISIBLE);
+						getHandler().postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								refreshSPMessages(true);
+							}
+						}, 50);
 					}
 					((MainActivity)getActivity()).dimissSwitchProgress();
 				}
@@ -496,6 +509,7 @@ public class SamchatChatFragment extends TFragment{
                             }
 
                             callback_customer.onUnreadCountChange(other_unread + p2p_unread);
+									LogUtil.e("test","customer p2p_unread:"+p2p_unread+" other_unread:"+other_unread);
                         }
                     });
                 }
@@ -730,6 +744,7 @@ public class SamchatChatFragment extends TFragment{
                              }
 
                              callback_sp.onUnreadCountChange(other_unread + p2p_unread);
+									LogUtil.e("test","sp p2p_unread:"+p2p_unread+" other_unread:"+other_unread);
                          }
                      });
                  }
@@ -840,8 +855,11 @@ public class SamchatChatFragment extends TFragment{
 			List<RecentContact> recents = NIMClient.getService(MsgService.class).queryRecentContactsBlock();	
 			final RecentContact rc = findRecentContact(recents,session.getsession_id());
 			if(rc == null){
+				LogUtil.e("test","find recent contact:" +session.getsession_id()+" not found");
 				return;
 			}
+
+			LogUtil.e("test","find recent contact:" +session.getsession_id()+"  found");
 
 			if(session.getmode() == ModeEnum.valueOfType(ModeEnum.CUSTOMER_MODE)){
 				if(!isTagSet(rc, RECENT_TAG_CUSTOMER_ROLE)){
