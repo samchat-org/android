@@ -185,7 +185,7 @@ public class SamchatChatFragment extends TFragment{
 		
 		broadcastManager.registerReceiver(broadcastReceiver, filter);
 	}
-		
+
 
 	
 	private void unregisterBroadcastReceiver(){
@@ -447,7 +447,7 @@ public class SamchatChatFragment extends TFragment{
 									loadedRecentsCustomer.add(rc);
 								}else if(!isTagSet(rc,RECENT_TAG_SP_ROLE)){
 									Team team = TeamDataCache.getInstance().getTeamById(rc.getContactId());
-									String myAccount = DemoCache.getTAccount();
+									String myAccount = DemoCache.getAccount();
 									if(team != null && !myAccount.equals(team.getCreator())){
 										addTag(rc,RECENT_TAG_CUSTOMER_ROLE);
 										NIMClient.getService(MsgService.class).updateRecent(rc);
@@ -682,7 +682,7 @@ public class SamchatChatFragment extends TFragment{
 									loadedRecentsSP.add(rc);
 								}else if(!isTagSet(rc,RECENT_TAG_CUSTOMER_ROLE)){
 									Team team = TeamDataCache.getInstance().getTeamById(rc.getContactId());
-									String myAccount = DemoCache.getTAccount();
+									String myAccount = DemoCache.getAccount();
 									if(team != null && myAccount.equals(team.getCreator())){
 										addTag(rc,RECENT_TAG_SP_ROLE);
 										NIMClient.getService(MsgService.class).updateRecent(rc);
@@ -978,7 +978,7 @@ public class SamchatChatFragment extends TFragment{
 						refreshSP = true;
 					}else{
 						Team team = TeamDataCache.getInstance().getTeamById(msg.getContactId());
-						String myAccount = DemoCache.getTAccount();
+						String myAccount = DemoCache.getAccount();
 						if(team != null){
 							if(myAccount.equals(team.getCreator())){
 								addTag(msg,RECENT_TAG_SP_ROLE);

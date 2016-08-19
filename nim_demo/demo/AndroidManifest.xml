@@ -64,7 +64,7 @@
         android:name=".NimApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_logo"
-        android:label="@string/app_name"
+        android:label="@string/samchat_app_name"
         android:theme="@style/AppTheme.NoActionBar">
 
         <meta-data
@@ -76,6 +76,7 @@
         <meta-data
             android:name="PUSH_APPSECRET"
             android:value="ovHqi2uWuw5pvqYJf5QgO6"/>
+
         <!-- 配置SDK核⼼服务 -->
         <receiver
             android:name="com.android.samchat.receiver.PushReceiver"
@@ -153,7 +154,7 @@
 
         <meta-data
             android:name="com.netease.nim.appKey"
-			android:value="45c6af3c98409b18a84451215d0bdd6e" />
+			android:value="a95830f52659eec125b54bc1b88f05b2" />
 
         <uses-library
             android:name="com.google.android.maps"
@@ -203,6 +204,64 @@
             android:screenOrientation="portrait"
             android:theme="@style/LoginTheme"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+
+        <activity
+            android:name="com.android.samchat.activity.SamchatLoginActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/LoginTheme"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+
+        <activity
+            android:name="com.android.samchat.activity.SamchatRegisterCodeRequestActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+
+        <activity
+            android:name="com.android.samchat.activity.SamchatRegisterCodeVerifyActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+
+        <activity
+            android:name="com.android.samchat.activity.SamchatCountryCodeSelectActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name="com.android.samchat.activity.SamchatSignupActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity
+            android:name="com.android.samchat.activity.SamchatCreateSPStepOneActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity
+            android:name="com.android.samchat.activity.SamchatCreateSPStepTwoActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity
+            android:name="com.android.samchat.activity.SamchatCreateSPStepThreeActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity
+            android:name="com.android.samchat.activity.SamchatResetPasswordActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity
+            android:name="com.android.samchat.activity.SamchatUpdatePasswordActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+
+
+
 
         <!-- 关于 -->
         <activity

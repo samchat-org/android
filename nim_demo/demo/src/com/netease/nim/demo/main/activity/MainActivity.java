@@ -66,6 +66,12 @@ import com.netease.nim.uikit.session.sam_message.SamchatObserver;
 import com.netease.nim.demo.main.reminder.ReminderManager;
 import com.android.samchat.factory.UuidFactory;
 import com.android.samservice.SMCallBack;
+import android.os.Message;
+import com.android.samservice.appkey;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import com.android.samservice.HttpCommClient;
 /*SAMC_END(......)*/
 
 /**
@@ -84,6 +90,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
     private HomeFragment mainFragment;
 
     /*SAMC_BEGIN(Getu SDK initilized tag)*/
+    private static final int MSG_START_GETUI_INIT = 1;
     private boolean isGetuInited = false;
     /*SAMC_END(Getu SDK initilized tag)*/
 
@@ -183,10 +190,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         /*SAMC_BEGIN(import GETU)*/
+        initSamAutoLogin();
         initMode();
         registerObservers(true);
         if(NIMClient.getStatus() == StatusCode.LOGINED){
-            initSamAutoLogin();
             initGeTui();
         }
         /*SAMC_END(import GETU)*/
@@ -410,7 +417,6 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 			} else {
 				if (code == StatusCode.LOGINED) {
 					LogUtil.ui("SDK auto login succeed");
-					initSamAutoLogin();
 					initGeTui();
 				} 
 			}
@@ -425,14 +431,15 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
 	private void initGeTui(){
 		if(!isGetuInited){
+			LogUtil.e("test","init getui service");
 			PushManager.getInstance().initialize(getApplicationContext());
 			isGetuInited = true;
 		}
 	}
-
+	
 	private void initSamAutoLogin(){
 		String account = Preferences.getUserAccount();
-		String token = Preferences.getUserToken();
+		String token = Preferences.getUserToken()+UuidFactory.getInstance().getDeviceId();
 		SamService.getInstance().initDao(StringUtil.makeMd5(account));
 		if(SamService.getInstance().get_current_user() == null || SamService.getInstance().get_current_token() == null){
 			ContactUser cuser = SamService.getInstance().getDao().query_ContactUser_db_by_unique_id(Long.valueOf(account));

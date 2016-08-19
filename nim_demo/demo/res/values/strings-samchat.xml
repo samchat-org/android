@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="samchat_app_name">Samchat</string>
     <string name="samchat_ok">OK</string>
     <string name="samchat_cancel">Cancel</string>
 
@@ -53,6 +54,9 @@
     <string name="samchat_signin">SIGN IN</string>
     <string name="samchat_signup">Sign Up</string>
     <string name="samchat_forgot_pwd">Forgot Password?</string>
+    <string name="samchat_reset_password">Reset Password</string>
+    <string name="samchat_reseting">Resetting</string>
+    <string name="samchat_reset_succeed">Reset password succeed</string>
 
     <string name="samchat_cient_type_web">Web side</string>
     <string name="samchat_cient_type_pc">PC side</string>
@@ -104,4 +108,25 @@
     <string name="samchat_license">I agree with Samchat User Agreement</string>
     <string name="samchat_done">Done</string>
     <string name="samchat_signuping">Sign up now ...</string>
+
+    <string name="samchat_next">Next step</string>
+    <string name="samchat_tophit">Top hit</string>
+
+    <string name="samchat_cellphone_warning">only number could be used in cellphone</string>
+    <string name="samchat_password_warning">space should not be used in password</string>
+    <string name="samchat_loginging">Logining ....</string>
+
+    <string name="samchat_create_sp">Create Service Account</string>
+    <string name="samchat_next2">Next</string>
+    <string name="samchat_bussiness_name">Your business name(optional)</string>
+    <string name="samchat_service_category">Service category</string>
+    <string name="samchat_service_description">How do you describe your service?</string>
+    <string name="samchat_welcome_borad_title">Start selling your service now</string>
+    <string name="samchat_welcome_borad_desc">Glad to have you on board, we will try our best to help your business reach out to more customers.</string>
+    <string name="samchat_welcome_get_start">Get Started</string>
+
+    <string name="samchat_update_password">Update Password</string>
+    <string name="samchat_updating">Updating</string>
+    <string name="samchat_old_password">Old password</string>
+    <string name="samchat_new_password">New password</string>
 </resources>

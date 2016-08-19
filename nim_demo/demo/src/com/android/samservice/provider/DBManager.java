@@ -201,12 +201,6 @@ public class DBManager
 		message_db.delete(table, "session_id=? and mode=?", new String[]{session_id,""+mode});
 	}
 
-	public void deleteMsgSessionAll(){
-		String table = DatabaseHelper.TABLE_NAME_MSG_SESSION ;
-		
-		message_db.delete(table, null, null);
-	}
-
 /******************************Message DB*************************************************/
 	public void createMsgTable(String table){
 		message_db_helper.createMsgTable(message_db,table);
@@ -608,6 +602,33 @@ public class DBManager
 		}
 		
 		return sam_pros_user;
+	}
+
+	public List<SamProsUser> querySamProsUserAll(){
+		String table = DatabaseHelper.TABLE_NAME_SAMPROS_USER;
+		SamProsUser sam_pros_user = null;
+		List<SamProsUser> users = new ArrayList<SamProsUser>();
+		
+		Cursor c = userinfo_db.query(table,null,null,null,null,null,null);
+
+		while(c.moveToNext()){
+			sam_pros_user = new SamProsUser();
+			sam_pros_user.setid_sampros(c.getLong(c.getColumnIndex("id")));
+			sam_pros_user.setunique_id(c.getLong(c.getColumnIndex("unique_id")));
+			sam_pros_user.setcompany_name(c.getString(c.getColumnIndex("company_name")));
+			sam_pros_user.setservice_category(c.getString(c.getColumnIndex("service_category")));
+			sam_pros_user.setservice_description(c.getString(c.getColumnIndex("service_description")));
+			sam_pros_user.setcountrycode_sampros(c.getString(c.getColumnIndex("countrycode")));
+			sam_pros_user.setphone_sampros(c.getString(c.getColumnIndex("phone")));
+			sam_pros_user.setemail_sampros(c.getString(c.getColumnIndex("email")));
+			sam_pros_user.setaddress_sampros(c.getString(c.getColumnIndex("address")));
+
+			users.add(sam_pros_user);
+		}
+
+		c.close();
+
+		return users;
 	}
 
 /******************************SendQuestion DB**********************************************/

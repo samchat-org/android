@@ -133,7 +133,6 @@ public class NimLocationManager implements AMapLocationListener {
     }
 	
 	private class MsgHandler extends Handler {
-
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {

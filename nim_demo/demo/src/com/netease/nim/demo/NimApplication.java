@@ -79,36 +79,26 @@ public class NimApplication extends Application {
         AppCrashHandler.getInstance(this);
 
         if (inMainProcess()) {
-            /*SAMC_BEGIN(application store)*/
-            DemoCache.setApp(NimApplication.this);
-            /*SAMC_END(application store)*/
             // init pinyin
             PinYin.init(this);
             PinYin.validate();
 
-            // 初始化UIKit模块
             initUIKit();
 
             if(!TextUtils.isEmpty(DemoCache.getAccount())){
-					 DemoCache.setTAccount(DemoCache.getAccount());
                  SamService.getInstance().initDao(StringUtil.makeMd5(DemoCache.getAccount()));
                  SamchatDataCacheManager.buildDataCache(); // build data cache on auto login
                  SamDBManager.getInstance().registerObservers(true);
             }
 
-            // 注册通知消息过滤器
             registerIMMessageFilter();
 
-            // 初始化消息提醒
             NIMClient.toggleNotification(UserPreferences.getNotificationToggle());
 
-            // 注册网络通话来电
             enableAVChat();
 
-            // 注册白板会话
             enableRTS();
 
-            // 注册语言变化监听
             registerLocaleReceiver(true);
         }
     }
@@ -118,7 +108,7 @@ public class NimApplication extends Application {
         String token = Preferences.getUserToken();
         if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
             DemoCache.setAccount(account.toLowerCase());
-            return new LoginInfo(account, token);
+            return new LoginInfo(account, token+UuidFactory.getInstance().getDeviceId());
         } else {
             return null;
         }

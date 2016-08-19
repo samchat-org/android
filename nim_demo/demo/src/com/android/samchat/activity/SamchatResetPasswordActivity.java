@@ -65,40 +65,32 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.content.IntentFilter;
 import android.graphics.Typeface;
 
-public class SamchatSignupActivity extends UI implements OnKeyListener {
-	private static final String TAG = SamchatSignupActivity.class.getSimpleName();
+public class SamchatResetPasswordActivity extends UI implements OnKeyListener {
+	private static final String TAG = SamchatResetPasswordActivity.class.getSimpleName();
 	private static final String COUNTRYCODE="countrycode";
 	private static final String CELLPHONE="cellphone";
 	private static final String VERIFYCODE="verifycode";
 	private static final String DEVICEID="deviceid";
 
 	private FrameLayout back_arrow_layout;
-	private EditText username_edittext;
 	private EditText password_edittext;
 	private RelativeLayout hidden_layout;
-	private ImageView selected_imageview;
 	private TextView done_textview;
 
-	private boolean ready_username=false;
 	private boolean ready_password=false;
-	private boolean ready_selected=true;
 
 	private boolean isPwdShown=false;
 
-	private String username;
 	private String password;
 	private String countrycode;
 	private String cellphone;
 	private String verifycode;
 	private String deviceid;
 
-	private AbortableFuture<LoginInfo> loginRequest;
-
-	private boolean isSignuping = false;
-	
+	private boolean isReseting = false;
 	
 	public static void start(Context context,String countrycode, String cellphone, String verifycode, String deviceid) {
-		Intent intent = new Intent(context, SamchatSignupActivity.class);
+		Intent intent = new Intent(context, SamchatResetPasswordActivity.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		intent.putExtra(COUNTRYCODE,countrycode);
 		intent.putExtra(CELLPHONE,cellphone);
@@ -127,7 +119,7 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.samchat_signup_activity);
+		setContentView(R.layout.samchat_resetpassword_activity);
 
 		ToolBarOptions options = new ToolBarOptions();
 		options.isNeedNavigate = false;
@@ -135,7 +127,9 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 		setToolBar(R.id.toolbar, options);
 
 		onParseIntent();
-		setupSignUpPanel();
+		setupPanel();
+
+		LogUtil.e("test","reset password activity launched");
 	}
 	
 	private void setupBackArrowClick(){
@@ -145,32 +139,6 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 				finish();
 			}
 		});
-	}
-
-	private TextWatcher username_textWatcher = new TextWatcher() {
-		@Override
- 		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-		}
-
-		@Override
-		public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-		}
-
-		@Override
-		public void afterTextChanged(Editable s) {
-			ready_username = (username_edittext.getText().toString().trim().length()>=Constants.MIN_USERNAME_LENGTH);
-			updateDoneButton();
-			if(ready_username){
-				username = username_edittext.getText().toString().trim();
-			}
-		}
-	};
-
-	private void setupUsernameEditClick(){
-		username_edittext.addTextChangedListener(username_textWatcher);
-		username_edittext.setTypeface(Typeface.SANS_SERIF);
 	}
 
 	private boolean isPasswordValid(){
@@ -184,17 +152,16 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 		done_textview.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				if(isSignuping){
+				if(isReseting){
 					return;
 				}
 				
 				if(!isPasswordValid()){
-					Toast.makeText(SamchatSignupActivity.this, R.string.samchat_password_warning, Toast.LENGTH_SHORT).show();
+					Toast.makeText(SamchatResetPasswordActivity.this, R.string.samchat_password_warning, Toast.LENGTH_SHORT).show();
 					return;
 				}
-
-				isSignuping = true;
-				signup();
+				isReseting = true;
+				resetpassword();
 			}
 		});
 
@@ -202,32 +169,9 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 	}
 
 	private void updateDoneButton(){
-		done_textview.setEnabled(ready_username & ready_password & ready_selected);
+		done_textview.setEnabled( ready_password );
 	}
 
-	private void updateSelectImage(){
-		if(ready_selected){
-			selected_imageview.setImageResource(R.drawable.nim_picker_orignal_checked);
-		}else{
-			selected_imageview.setImageResource(R.drawable.nim_picker_orignal_normal);
-		}
-	}
-
-	private void setupSelectedClick(){
-		updateSelectImage();
-		selected_imageview.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				if(ready_selected){
-					ready_selected = false;
-				}else{
-					ready_selected = true;
-				}
-				updateSelectImage();
-				updateDoneButton();
-			}
-		});
-	}
 
 	private TextWatcher password_textWatcher = new TextWatcher() {
 		@Override
@@ -279,123 +223,30 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 		});
 	}
 	
-	private void setupSignUpPanel() {
+	private void setupPanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
-		username_edittext = findView(R.id.username);
 		password_edittext = findView(R.id.password);
 		hidden_layout = findView(R.id.hidden_layout);
-		selected_imageview = findView(R.id.selected);
 		done_textview = findView(R.id.done);
 
 		setupBackArrowClick();
-		setupUsernameEditClick();
 		setupPasswordEditClick();
 		setupHiddenClick();
-		setupSelectedClick();
 		setupDoneClick();
 
 	}
 
 /******************************Data Flow Control*************************************************************/
-	private void sendbroadcast(Intent intent){
-		LocalBroadcastManager manager = LocalBroadcastManager.getInstance(DemoCache.getContext());
-		manager.sendBroadcast(intent);
-	}
 
-	private void saveLoginInfo(final String account, final String token) {
-		Preferences.saveUserAccount(account);
-		Preferences.saveUserToken(token);
-	}
-
-	private void login(final String account, final String token) {
-        DialogMaker.showProgressDialog(this, null, getString(R.string.logining), false, new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                if (loginRequest != null) {
-                    loginRequest.abort();
-                    onLoginDone();
-                }
-            }
-        }).setCanceledOnTouchOutside(false);
-
-        /*SAMC_BEGIN(register message before login)*/
-        SamDBManager.getInstance().registerObservers(false);
-        SamDBManager.getInstance().registerObservers(true);
-		  DemoCache.setAccount(account);
-		  /*SAMC_BEGIN(register message before login)*/
-        loginRequest = NIMClient.getService(AuthService.class).login(new LoginInfo(account, token));
-        loginRequest.setCallback(new RequestCallback<LoginInfo>() {
-            @Override
-            public void onSuccess(LoginInfo param) {
-                LogUtil.i(TAG, "login success");
-
-                onLoginDone();
-                DemoCache.setAccount(account);
-                saveLoginInfo(account, token);
-
-                NIMClient.toggleNotification(UserPreferences.getNotificationToggle());
-
-                if (UserPreferences.getStatusConfig() == null) {
-                    UserPreferences.setStatusConfig(DemoCache.getNotificationConfig());
-                }
-                NIMClient.updateStatusBarNotificationConfig(UserPreferences.getStatusConfig());
-
-                DataCacheManager.buildDataCacheAsync();
-					/*SAMC_BEGIN(build samchat cache)*/
-					SamService.getInstance().initDao(StringUtil.makeMd5(account));
-					SamchatDataCacheManager.buildDataCache();
-					
-					/*SAMC_END(build samchat cache)*/
-
-                // 进入主界面
-                MainActivity.start(SamchatSignupActivity.this, null);
-                finish();
-					Intent intent = new Intent();
-                intent.setAction(Constants.BROADCAST_SIGN_IN_ALREADY);
-                sendbroadcast(intent);
-            }
-
-            @Override
-            public void onFailed(int code) {
-                onLoginDone();
-                Toast.makeText(SamchatSignupActivity.this, getString(R.string.samchat_login_failed) + code, Toast.LENGTH_SHORT).show();
-					finish();
-            }
-
-            @Override
-            public void onException(Throwable exception) {
-					onLoginDone();
-                Toast.makeText(SamchatSignupActivity.this, R.string.samchat_login_exception, Toast.LENGTH_LONG).show();
-					finish();
-            }
-        });
-    }
-
-
-    private void onLoginDone() {
-        loginRequest = null;
-        DialogMaker.dismissProgressDialog();
-    }
-	
-	private void onSignupDone(final Object obj){
-		HttpCommClient hcc = (HttpCommClient)obj;
-		final String account = ""+hcc.userinfo.getunique_id();
-		final String token = hcc.token_id + deviceid;
-		LogUtil.e("test","signup token:"+token);
-		saveLoginInfo(account,token);
-
-		login(account,token);
-	}
-
-	private void signup(){
-		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_signuping), false, new DialogInterface.OnCancelListener() {
+	private void resetpassword(){
+		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_reseting), false, new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {
 
 			}
 		}).setCanceledOnTouchOutside(false);
 
-		SamService.getInstance().signup(countrycode,cellphone,verifycode,password,username,deviceid,
+		SamService.getInstance().findpwd_update( countrycode,  cellphone,  verifycode, password,  deviceid,
 			new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
@@ -404,7 +255,8 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 					getHandler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
-							onSignupDone(obj);
+							Toast.makeText(SamchatResetPasswordActivity.this, R.string.samchat_reset_succeed, Toast.LENGTH_SHORT).show();
+							finish();
 						}
 					}, 0);
 				}
@@ -412,14 +264,14 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 				@Override
 				public void onFailed(int code) {
 					DialogMaker.dismissProgressDialog();
-					final ErrorString error = new ErrorString(SamchatSignupActivity.this,code);
+					final ErrorString error = new ErrorString(SamchatResetPasswordActivity.this,code);
 					
 					getHandler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
-							EasyAlertDialogHelper.showOneButtonDiolag(SamchatSignupActivity.this, null,
+							EasyAlertDialogHelper.showOneButtonDiolag(SamchatResetPasswordActivity.this, null,
                     			error.reminder, getString(R.string.samchat_ok), true, null);
-							isSignuping = false;
+							isReseting = false;
 						}
 					}, 0);
 				}
@@ -427,13 +279,13 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 				@Override
 				public void onError(int code) {
 					DialogMaker.dismissProgressDialog();
-					final ErrorString error = new ErrorString(SamchatSignupActivity.this,code);
+					final ErrorString error = new ErrorString(SamchatResetPasswordActivity.this,code);
 					getHandler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
-							EasyAlertDialogHelper.showOneButtonDiolag(SamchatSignupActivity.this, null,
+							EasyAlertDialogHelper.showOneButtonDiolag(SamchatResetPasswordActivity.this, null,
                     			error.reminder, getString(R.string.samchat_ok), true, null);
-							isSignuping = false;
+							isReseting = false;
 						}
 					}, 0);
 				}
@@ -442,5 +294,6 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 	}
 
 }
+
 
 

@@ -35,6 +35,7 @@ import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.netease.nim.demo.config.preference.Preferences;
 import com.igexin.sdk.PushManager;
 import com.android.samchat.test.TestCase;
+import com.android.samchat.cache.SamchatUserInfoCache;
 
 public class SamService{
 	public static final String TAG="SamService";
@@ -279,7 +280,8 @@ public class SamService{
 		}else if(http_ret){
 			if(hcc.ret == 0){
 				set_current_user(hcc.userinfo);
-				store_current_token(hcc.token_id);
+				store_current_token(hcc.token_id+siobj.deviceid);
+				LogUtil.e("test","save token "+(hcc.token_id+siobj.deviceid));
 				initDao(StringUtil.makeMd5(""+hcc.userinfo.getunique_id()));
 				if(hcc.userinfo.getusertype() == Constants.SAM_PROS){
 					if(dao.update_SamProsUser_db((SamProsUser)hcc.userinfo) == -1){
@@ -354,6 +356,7 @@ public class SamService{
 	public void signout(SMCallBack callback ){
 		SignOutCoreObj  samobj = new SignOutCoreObj(callback);
 		samobj.init(get_current_token());
+		LogUtil.e("test","signout token:"+get_current_token());
 		Message msg = mSamServiceHandler.obtainMessage(MSG_SIGN_OUT, samobj);
 		mSamServiceHandler.sendMessage(msg);
 		startTimeOut(samobj);
@@ -412,8 +415,9 @@ public class SamService{
 		if(isTimeOut(samobj)){
 			return;
 		}else if(http_ret){
-			if(hcc.ret == 0 || hcc.ret == Constants.RET_ALREADY_UPGRADE_ERROR){
+			if(hcc.ret == 0){
 				set_current_user(hcc.userinfo);
+				SamchatUserInfoCache.getInstance().addUser(hcc.userinfo.getunique_id(), hcc.userinfo);
 				if(dao.update_SamProsUser_db((SamProsUser)hcc.userinfo) == -1){
 					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
 				}else{

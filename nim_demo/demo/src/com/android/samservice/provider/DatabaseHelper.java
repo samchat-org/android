@@ -40,7 +40,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	id(primary) | unique_id | username | usertype | lastupdate | avatar | avatar_original | countrycode |cellphone | email | address
 	*/
 		StringBuffer sBuffer = new StringBuffer();
-		sBuffer.append("CREATE TABLE [" + TABLE_NAME_CONTACT_USER + "] (");
+		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_CONTACT_USER + "] (");
 		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
 		sBuffer.append("[unique_id] INTEGER, ");
 		sBuffer.append("[username] TEXT ,");
@@ -63,7 +63,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	//avatar | avatar_original
 	*/
 		StringBuffer sBuffer = new StringBuffer();
-		sBuffer.append("CREATE TABLE [" + TABLE_NAME_SAMPROS_USER + "] (");
+		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_SAMPROS_USER + "] (");
 		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
 		sBuffer.append("[lastupdate] INTEGER, ");
 		sBuffer.append("[unique_id] INTEGER, ");
@@ -86,7 +86,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	id(primary) | question_id | question | address | status | datetime | latest_answer_time
 	*/
 		StringBuffer sBuffer = new StringBuffer();
-		sBuffer.append("CREATE TABLE [" + TABLE_NAME_SEND_QUESTION + "] (");
+		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_SEND_QUESTION + "] (");
 		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
 		sBuffer.append("[question_id] INTEGER, ");
 		sBuffer.append("[question] TEXT ,");
@@ -102,7 +102,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	id(primary) | question_id | question | sender_unique_id | status | datetime |address
 	*/
 		StringBuffer sBuffer = new StringBuffer();
-		sBuffer.append("CREATE TABLE [" + TABLE_NAME_RECEIVED_QUESTION + "] (");
+		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_RECEIVED_QUESTION + "] (");
 		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
 		sBuffer.append("[question_id] INTEGER, ");
 		sBuffer.append("[question] TEXT ,");
@@ -118,7 +118,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	id(primary) | unique_id | username |avatar | service_category
 	*/
 		StringBuffer sBuffer = new StringBuffer();
-		sBuffer.append("CREATE TABLE [" + TABLE_NAME_CONTACT_LIST + "] (");
+		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_CONTACT_LIST + "] (");
 		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
 		sBuffer.append("[unique_id] INTEGER, ");
 		sBuffer.append("[username] TEXT,");
@@ -132,7 +132,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	id(primary) | unique_id | username |avatar | service_category
 	*/
 		StringBuffer sBuffer = new StringBuffer();
-		sBuffer.append("CREATE TABLE [" + TABLE_NAME_CUSTOMER_LIST + "] (");
+		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_CUSTOMER_LIST + "] (");
 		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
 		sBuffer.append("[unique_id] INTEGER, ");
 		sBuffer.append("[username] TEXT,");
@@ -146,7 +146,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	id(primary) | unique_id | username | favourite_tag | block_tag
 	*/
 		StringBuffer sBuffer = new StringBuffer();
-		sBuffer.append("CREATE TABLE [" + TABLE_NAME_FOLLOW_LIST + "] (");
+		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_FOLLOW_LIST + "] (");
 		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
 		sBuffer.append("[unique_id] INTEGER, ");
 		sBuffer.append("[username] TEXT ,");
@@ -160,7 +160,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	id(primary) | adv_id | type | content | publish_timestamp 
 	*/
 		StringBuffer sBuffer = new StringBuffer();
-		sBuffer.append("CREATE TABLE [" + TABLE_NAME_SAMPROS_ADV + "] (");
+		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_SAMPROS_ADV + "] (");
 		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
 		sBuffer.append("[adv_id] INTEGER, ");
 		sBuffer.append("[type] INTEGER ,");
@@ -174,7 +174,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	id(primary) | session | name
 	*/
 		StringBuffer sBuffer = new StringBuffer();
-		sBuffer.append("CREATE TABLE [" + TABLE_NAME_RCVD_ADV_SESSION + "] (");
+		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_RCVD_ADV_SESSION + "] (");
 		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
 		sBuffer.append("[session] INTEGER, ");
 		sBuffer.append("[name] TEXT )");
@@ -186,7 +186,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	id(primary) | adv_id | publish_timestamp | type | content
 	*/
 		StringBuffer sBuffer = new StringBuffer();
-		sBuffer.append("CREATE TABLE [" + table_name + "] (");
+		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + table_name + "] (");
 		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
 		sBuffer.append("[adv_id] INTEGER, ");
 		sBuffer.append("[publish_timestamp] INTEGER, ");
@@ -201,7 +201,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	|recent_msg_type |recent_msg_uuid | recent_msg_subtype | recent_msg_content | recent_msg_time | recent_msg_status
 	*/
 		StringBuffer sBuffer = new StringBuffer();
-		sBuffer.append("CREATE TABLE [" + TABLE_NAME_MSG_SESSION+ "] (");
+		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_MSG_SESSION+ "] (");
 		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
 		sBuffer.append("[session_id] TEXT, ");
 		sBuffer.append("[mode] INTEGER ,");

@@ -29,7 +29,8 @@ import com.netease.nimlib.sdk.msg.MsgService;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import com.android.samservice.SamService;
+import com.android.samservice.SMCallBack;
 /**
  * Created by hzxuwen on 2015/6/26.
  */
@@ -109,7 +110,10 @@ public class SettingsActivity extends UI implements SettingsAdapter.SwitchChange
         logoutBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                logout();
+                //logout();
+                /*SAMC_BEGIN(samchat logout function)*/
+                samchatLogout();
+					/*SAMC_END(samchat logout function)*/
             }
         });
     }
@@ -201,7 +205,47 @@ public class SettingsActivity extends UI implements SettingsAdapter.SwitchChange
      */
     private void removeLoginState() {
         Preferences.saveUserToken("");
+        /*SAMC_BEGIN(remove auto login info)*/
+        Preferences.saveUserAccount("");
+        /*SAMC_END(remove auto login info)*/
     }
+
+    /*SAMC_BEGIN(samchat logout function)*/
+    private void samchatLogout(){
+        SamService.getInstance().signout(new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							logout();
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onFailed(int code) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							logout();
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onError(int code) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							logout();
+						}
+					}, 0);
+				}
+
+		});
+    }
+    /*SAMC_END(samchat logout function)*/
 
     @Override
     public void onSwitchChange(SettingTemplate item, boolean checkState) {

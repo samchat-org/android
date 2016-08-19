@@ -61,9 +61,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.content.IntentFilter;
 
 public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListener {
-	private static final String TAG = SamchatRegisterCodeRequestActivity.class.getSimpleName();
+	private static final String TAG = SamchatRegisterCodeVerifyActivity.class.getSimpleName();
 
 	private FrameLayout back_arrow_layout;
+	private TextView titlebar_name_textview;
 	private TextView countrycode_textview;
 	private TextView cellphone_textview;
 
@@ -79,9 +80,16 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 
 	private static final String COUNTRYCODE = "COUNTRYCODE";
 	private static final String CELLPHONE = "CELLPHONE";
+	private static final String DEVICEID = "DEVICEID";
+	private static final String FROM = "FROM";
+	
+	private int from;
 	private String countrycode;
 	private String cellphone;
 	private String verifycode;
+	private String deviceid;
+
+	private boolean isVerifying = false;
 
 	//observer and broadcast
 	private boolean isBroadcastRegistered = false;
@@ -91,15 +99,15 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 	private void registerBroadcastReceiver() {
 		broadcastManager = LocalBroadcastManager.getInstance(SamchatRegisterCodeVerifyActivity.this);
 		IntentFilter filter = new IntentFilter();
-		filter.addAction(Constants.BROADCAST_SIGN_IN_ALREADY);
 		filter.addAction(Constants.BROADCAST_SIGN_UP_ALREADY);
+		filter.addAction(Constants.BROADCAST_FINDPWD_ALREADY);
 
 		broadcastReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				if(intent.getAction().equals(Constants.BROADCAST_SIGN_IN_ALREADY)){
+				if(intent.getAction().equals(Constants.BROADCAST_SIGN_UP_ALREADY)){
 					finish();
-				}else if(intent.getAction().equals(Constants.BROADCAST_SIGN_UP_ALREADY)){
+				}else if(intent.getAction().equals(Constants.BROADCAST_FINDPWD_ALREADY)){
 					finish();
 				}
 			}
@@ -114,11 +122,13 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 	    broadcastManager.unregisterReceiver(broadcastReceiver);
 	}
 	
-	public static void start(Context context,String countrycode, String cellphone) {
+	public static void start(Context context,String countrycode, String cellphone,String deviceid,int from) {
 		Intent intent = new Intent(context, SamchatRegisterCodeVerifyActivity.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		intent.putExtra(COUNTRYCODE,countrycode);
 		intent.putExtra(CELLPHONE,cellphone);
+		intent.putExtra(DEVICEID,deviceid);
+		intent.putExtra(FROM,from);
 		context.startActivity(intent);
 	}
 
@@ -150,13 +160,37 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 
 	@Override
 	protected void onDestroy() {
-        super.onDestroy();
+		super.onDestroy();
 		unregisterBroadcastReceiver();
 	}
 
 	private void onParseIntent() {
 		countrycode = getIntent().getStringExtra(COUNTRYCODE);
 		cellphone = getIntent().getStringExtra(CELLPHONE);
+		deviceid = getIntent().getStringExtra(DEVICEID);
+		from = getIntent().getIntExtra(FROM,Constants.FROM_SIGNUP);
+	}
+
+	private void setupConfirmationCodePanel() {
+		back_arrow_layout = findView(R.id.back_arrow_layout);
+		titlebar_name_textview = findView(R.id.titlebar_name);
+		countrycode_textview = findView(R.id.countrycode);
+		cellphone_textview = findView(R.id.cellphone);
+		code_1_edittext = findView(R.id.code_1);
+		code_2_edittext = findView(R.id.code_2);
+		code_3_edittext = findView(R.id.code_3);
+		code_4_edittext = findView(R.id.code_4);
+
+		if(from == Constants.FROM_SIGNUP){
+			titlebar_name_textview.setText(getString(R.string.samchat_confirmation_code));
+		}else{
+			titlebar_name_textview.setText(getString(R.string.samchat_reset_password));
+		}
+
+		setupBackArrowClick();
+		updateCountryCode();
+		updateCellphone();
+		setupInputCode();
 	}
 	
 	private void setupBackArrowClick(){
@@ -271,26 +305,25 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 		cellphone_textview.setText(cellphone);
 	}
 	
-	private void setupConfirmationCodePanel() {
-		back_arrow_layout = findView(R.id.back_arrow_layout);
-		countrycode_textview = findView(R.id.countrycode);
-		cellphone_textview = findView(R.id.cellphone);
-		code_1_edittext = findView(R.id.code_1);
-		code_2_edittext = findView(R.id.code_2);
-		code_3_edittext = findView(R.id.code_3);
-		code_4_edittext = findView(R.id.code_4);
-
-		setupBackArrowClick();
-		updateCountryCode();
-		updateCellphone();
-		setupInputCode();
-	}
+	
 
 	private void verify(){
+		if(isVerifying){
+			return;
+		}
+		
 		if(code_1_ready && code_2_ready && code_3_ready && code_4_ready){
 			verifycode = code_1_edittext.getText().toString() + code_2_edittext.getText().toString() +
-				code_3_edittext.getText().toString() + code_4_edittext.getText().toString();
-			verifyConfirmationCode();
+								  code_3_edittext.getText().toString() + code_4_edittext.getText().toString();
+			
+			if(from == Constants.FROM_SIGNUP){
+				isVerifying = true;
+				verifyConfirmationCode();
+			}else{
+				isVerifying = true;
+				verifyForgetPwdConfirmationCode();
+			}
+			
 		}
 	}
 
@@ -300,7 +333,12 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 		code_3_edittext.setText("");
 		code_4_edittext.setText("");
 	}
-
+	
+/*************************************data flow control*********************************************************/
+	private void sendbroadcast(Intent intent){
+		LocalBroadcastManager manager = LocalBroadcastManager.getInstance(DemoCache.getContext());
+		manager.sendBroadcast(intent);
+	}
 	private void verifyConfirmationCode(){
 		LogUtil.e("test","verifyConfirmationCode...");
 		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_verifying), false, new DialogInterface.OnCancelListener() {
@@ -310,7 +348,7 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 			}
 		}).setCanceledOnTouchOutside(false);
 		
-		SamService.getInstance().register_code_verify(countrycode,cellphone,verifycode,UuidFactory.getInstance().getDeviceId(), 
+		SamService.getInstance().register_code_verify(countrycode,cellphone,verifycode,deviceid, 
 			new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
@@ -318,8 +356,11 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 					DialogMaker.dismissProgressDialog();
 					//lunch sign up finally ui
 					SamchatSignupActivity.start(SamchatRegisterCodeVerifyActivity.this,  countrycode,  cellphone,  
-						verifycode, UuidFactory.getInstance().getDeviceId());
+						verifycode, deviceid);
 					
+                Intent intent = new Intent();
+                intent.setAction(Constants.BROADCAST_SIGN_UP_ALREADY);
+                sendbroadcast(intent);
 				}
 
 				@Override
@@ -333,6 +374,7 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 							clearAllEditText();
 							EasyAlertDialogHelper.showOneButtonDiolag(SamchatRegisterCodeVerifyActivity.this, null,
                     			error.reminder, getString(R.string.samchat_ok), true, null);
+							isVerifying = false;
 						}
 					}, 0);
 				}
@@ -349,6 +391,68 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 							clearAllEditText();
 							EasyAlertDialogHelper.showOneButtonDiolag(SamchatRegisterCodeVerifyActivity.this, null,
                     			error.reminder, getString(R.string.samchat_ok), true, null);
+							isVerifying = false;
+						}
+					}, 0);
+				}
+		});
+	}
+
+
+	private void verifyForgetPwdConfirmationCode(){
+		LogUtil.e("test","verifyForgetPwdConfirmationCode...");
+		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_verifying), false, new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				LogUtil.e("test","verifyForgetPwdConfirmationCode canceled");
+			}
+		}).setCanceledOnTouchOutside(false);
+		
+		SamService.getInstance().findpwd_code_verify(countrycode,cellphone,verifycode,deviceid, 
+			new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					LogUtil.e("test","verifyForgetPwdConfirmationCode succeed");
+					DialogMaker.dismissProgressDialog();
+					//lunch reset password finally ui
+					SamchatResetPasswordActivity.start(SamchatRegisterCodeVerifyActivity.this,  countrycode,  cellphone,  
+						verifycode, deviceid);
+
+					Intent intent = new Intent();
+                intent.setAction(Constants.BROADCAST_FINDPWD_ALREADY);
+                sendbroadcast(intent);
+					
+				}
+
+				@Override
+				public void onFailed(final int code) {
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(SamchatRegisterCodeVerifyActivity.this,code);
+					
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							clearAllEditText();
+							EasyAlertDialogHelper.showOneButtonDiolag(SamchatRegisterCodeVerifyActivity.this, null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							isVerifying = false;
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onError(int code) {
+					LogUtil.e("test","verifyConfirmationCode error "+code);
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(SamchatRegisterCodeVerifyActivity.this,code);
+					
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							clearAllEditText();
+							EasyAlertDialogHelper.showOneButtonDiolag(SamchatRegisterCodeVerifyActivity.this, null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							isVerifying = false;
 						}
 					}, 0);
 				}

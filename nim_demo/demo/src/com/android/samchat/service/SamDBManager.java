@@ -190,7 +190,7 @@ public class SamDBManager{
 	}
 	
 	private MsgSession storeRcvdMessages(String session_id, int mode, List<Message> dbMsgs, List<IMMessage> ims, boolean recordUnread){
-		SamService.getInstance().initDao(StringUtil.makeMd5(DemoCache.getTAccount()));
+		SamService.getInstance().initDao(StringUtil.makeMd5(DemoCache.getAccount()));
 		MsgSession session = SamService.getInstance().getDao().query_MsgSession_db( session_id,  mode);
 		if(session == null){
 			String msg_table_name = "msgdb_"+StringUtil.makeMd5(session_id)+"_"+mode;//StringUtil.makeMd5(session_id)+"_"+mode;

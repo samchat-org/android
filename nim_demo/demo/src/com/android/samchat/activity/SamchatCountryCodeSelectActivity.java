@@ -54,18 +54,96 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import com.android.samservice.Constants;
 import android.app.Activity;
+import android.widget.ListView;
+import com.android.samchat.common.CountryInfo;
+import java.util.List;
+import com.android.samchat.adapter.CountryCodeAdapter;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.ArrayList;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView;
 
 public class SamchatCountryCodeSelectActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatCountryCodeSelectActivity.class.getSimpleName();
+	private static final String [][] countryInfoarray={
+		{"Afghanistan","93"},
+		{"Albania","355"},
+		{"Algeria","213"},
+		{"Andorra","376"},
+		{"Bahamas","193"},
+		{"Bahrian","293"},
+		{"China","86"},
+		{"USA","1"}
+	};
+	
 
 	private FrameLayout back_arrow_layout;
 	private TextView search_textview;
-	private RelativeLayout hot_tip_china_layout;
-	private RelativeLayout hot_tip_usa_layout;
+	private ListView countrylist;
+
+	private List<CountryInfo> items;
+	private CountryCodeAdapter adapter;
+
+	private void createCountryInfoList(){
+		for(int i=0; i<countryInfoarray.length;i++){
+			items.add(new CountryInfo(countryInfoarray[i][0],countryInfoarray[i][1]));
+		}
+	}
+
+	private void sortCountry(List<CountryInfo> list) {
+		if (list.size() == 0) {
+			return;
+		}
+		Collections.sort(list, comp);
+	}
+
+	private static Comparator<CountryInfo> comp = new Comparator<CountryInfo>() {
+		@Override
+		public int compare(CountryInfo lhs, CountryInfo rhs) {
+			int lhs_ascii = lhs.getFPinYin().toUpperCase().charAt(0);
+			int rhs_ascii = rhs.getFPinYin().toUpperCase().charAt(0);
+
+			if (lhs_ascii < 65 || lhs_ascii > 90)
+				return 1;
+			else if (rhs_ascii < 65 || rhs_ascii > 90)
+				return -1;
+			else
+				return lhs.getPinYin().compareTo(rhs.getPinYin());
+		}
+	};
 
 	public static void startActivityForResult(Activity activity, int requestCode) {
 		Intent intent = new Intent(activity, SamchatCountryCodeSelectActivity.class);
 		activity.startActivityForResult(intent, requestCode);
+	}
+
+	private void initCountryList(){
+		items = new ArrayList<CountryInfo>();
+		createCountryInfoList();
+		sortCountry(items);
+		adapter = new CountryCodeAdapter(SamchatCountryCodeSelectActivity.this,items);
+		countrylist.setAdapter(adapter);
+		countrylist.setOnItemClickListener(new OnItemClickListener(){
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				if(position == 0){
+					return;
+				}
+				
+				Intent data = new Intent();
+				if(position == 1){
+					data.putExtra(Constants.CONFIRM_COUNTRYCODE,"86");
+				}else if(position == 2){
+					data.putExtra(Constants.CONFIRM_COUNTRYCODE, "1");
+				}else{
+					data.putExtra(Constants.CONFIRM_COUNTRYCODE, items.get(position).code);
+				}
+
+				setResult(RESULT_OK, data);
+				finish();
+			}
+		});
+		
 	}
 
 	@Override
@@ -115,42 +193,15 @@ public class SamchatCountryCodeSelectActivity extends UI implements OnKeyListene
 			}
 		});
 	}
-
-	private void setupHotTipChinaClick(){
-		hot_tip_china_layout.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				Intent data = new Intent();
-				data.putExtra(Constants.CONFIRM_COUNTRYCODE, "86");
-				setResult(RESULT_OK, data);
-				finish();
-			}
-		});
-
-	}
-
-	private void setupHotTipUSAClick(){
-		hot_tip_usa_layout.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				Intent data = new Intent();
-				data.putExtra(Constants.CONFIRM_COUNTRYCODE, "1");
-				setResult(RESULT_OK, data);
-				finish();
-			}
-		});
-	}
 	
 	private void setupCountryCodeSelectPanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
 		search_textview = findView(R.id.search);
-		hot_tip_china_layout = findView(R.id.hot_tip_china_layout);
-		hot_tip_usa_layout = findView(R.id.hot_tip_usa_layout);
+		countrylist = findView(R.id.list);
 
 		setupBackArrowClick();
 		setupSearchClick();
-		setupHotTipChinaClick();
-		setupHotTipUSAClick();
+		initCountryList();
 
 	}
 

@@ -16,28 +16,6 @@ public class DemoCache {
 
     private static StatusBarNotificationConfig notificationConfig;
 
-    /*SAMC_BEGIN(temp account before login succeed)*/
-    private static String taccount;
-	 public static String getTAccount() {
-        return taccount;
-    }
-
-    public static void setTAccount(String account) {
-        DemoCache.taccount = account;
-    }
-    /*SAMC_BEGIN(temp account before login succeed)*/
-
-    /*SAMC_BEGIN(save application)*/
-    private static NimApplication app;
-	 public static NimApplication getApp() {
-        return app;
-    }
-
-    public static void setApp(NimApplication ap) {
-        DemoCache.app = ap;
-    }
-    /*SAMC_BEGIN(save application)*/
-
     public static void clear() {
         account = null;
     }

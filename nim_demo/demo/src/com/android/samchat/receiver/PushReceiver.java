@@ -9,6 +9,7 @@ import android.util.Log;
 import com.igexin.sdk.PushConsts;
 import com.igexin.sdk.PushManager;
 import com.android.samchat.service.SamchatAppService;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 public class PushReceiver extends BroadcastReceiver {
 	public static StringBuilder payloadData = new StringBuilder();
 	public static final String action_get_msg_data="samchat.service.msg.GET_MSG_DATA";
@@ -18,7 +19,7 @@ public class PushReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Bundle bundle = intent.getExtras();
         Log.e("GetuiSdkDemo", "onReceive() action=" + bundle.getInt("action"));
-
+        LogUtil.e("GetuiSdkDemo", "onReceive() action=" + bundle.getInt("action"));
         switch (bundle.getInt(PushConsts.CMD_ACTION)) {
             case PushConsts.GET_MSG_DATA:
                 //receive transparent MSG

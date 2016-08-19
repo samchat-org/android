@@ -279,7 +279,7 @@ public class LoginActivity extends UI implements OnKeyListener {
         /*SAMC_BEGIN(register message before login)*/
         SamDBManager.getInstance().registerObservers(false);
         SamDBManager.getInstance().registerObservers(true);
-		  DemoCache.setTAccount(account);
+		  DemoCache.setAccount(account);
 		  /*SAMC_BEGIN(register message before login)*/
         loginRequest = NIMClient.getService(AuthService.class).login(new LoginInfo(account, token));
         loginRequest.setCallback(new RequestCallback<LoginInfo>() {
@@ -303,7 +303,6 @@ public class LoginActivity extends UI implements OnKeyListener {
                 // 构建缓存
                 DataCacheManager.buildDataCacheAsync();
 					/*SAMC_BEGIN(build samchat cache)*/
-					DemoCache.setTAccount(account);
 					SamService.getInstance().initDao(StringUtil.makeMd5(account));
 					SamchatDataCacheManager.buildDataCache();
 					

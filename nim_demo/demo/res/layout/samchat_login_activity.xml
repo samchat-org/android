@@ -64,7 +64,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:background="@color/color_gray_d9d9d9">
+                    android:background="@drawable/samchat_text_radius_border">
                     <TextView
                         android:id="@+id/countrycode"
                         android:layout_width="60dp"
@@ -79,6 +79,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_marginLeft="5dp"
+                        android:maxLength="15"
                         android:hint="@string/samchat_username_or_phone"
                         android:background="@null"/>
                 </LinearLayout>
@@ -87,7 +88,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
                     android:orientation="horizontal"
-                    android:background="@color/color_gray_d9d9d9">
+                    android:background="@drawable/samchat_text_radius_border">
                     <ImageView
                         android:id="@+id/hidden"
                         android:layout_width="60dp"
@@ -103,6 +104,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:inputType="textVisiblePassword"
+                        android:maxLength="32"
                         android:layout_marginLeft="5dp"
                         android:hint="@string/samchat_enter_password"
                         android:background="@null"/>
@@ -112,7 +114,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
                     android:layout_marginTop="20dp"
-                    android:background="@color/color_gray_cbd0d8"
+                    android:background="@drawable/samchat_text_radius_border"
                     android:gravity="center"
                     android:textSize="20sp"
                     android:text="@string/samchat_signin"/>

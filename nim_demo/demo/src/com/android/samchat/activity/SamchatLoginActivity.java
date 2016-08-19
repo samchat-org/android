@@ -56,6 +56,11 @@ import com.android.samservice.Constants;
 import android.content.BroadcastReceiver;
 import android.support.v4.content.LocalBroadcastManager;
 import android.content.IntentFilter;
+import android.graphics.Typeface;
+import com.android.samservice.HttpCommClient;
+import com.android.samchat.factory.UuidFactory;
+import com.android.samservice.SMCallBack;
+import com.android.samchat.service.ErrorString;
 
 public class SamchatLoginActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatLoginActivity.class.getSimpleName();
@@ -73,10 +78,16 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 	private TextView forgot_pwd_textview;
 
 	private String countrycode = "1";
+	private String input;
+	private String password;
 
 	private boolean isPwdShown = false;
+	private boolean input_ready=false;
+	private boolean password_ready=false;
 
 	private AbortableFuture<LoginInfo> loginRequest;
+
+	private boolean isLogining = false;
 
 	//observer and broadcast
 	private boolean isBroadcastRegistered = false;
@@ -205,6 +216,27 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
         }
     }
 
+	private void setupLoginPanel() {
+		countrycode_textview = findView(R.id.countrycode);
+		logininput_edittext = findView(R.id.logininput);
+		hidden_imageview = findView(R.id.hidden);
+		password_edittext = findView(R.id.password);
+		signin_textview = findView(R.id.signin);
+		signup_textview = findView(R.id.signup);
+		forgot_pwd_textview = findView(R.id.forgot_pwd);
+
+		setupCountrycodeClick();
+		setupLoginInputEditClick();
+		setupHiddenClick();
+		setupPasswordEditClick();
+		setupSignInClick();
+		setupSignUpClick();
+		setupForgotPwdClick();
+		
+    }
+
+
+/************************country code button setup***************************************/
 	private void updateCountryCode(){
 		countrycode_textview.setText("+" + countrycode);
 	}
@@ -218,11 +250,10 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 			}
 		});
 	}
-
-	private void updateSigninButton(boolean enable){
-		signin_textview.setEnabled(enable);
-	}
 	
+/***********************************************************************************/
+
+/************************login input setup***************************************/
 	private TextWatcher logininput_textWatcher = new TextWatcher() {
 		@Override
 		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -236,38 +267,20 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 
 		@Override
 		public void afterTextChanged(Editable s) {
-			boolean isEnable = logininput_edittext.getText().length()>0 && password_edittext.getText().length()>0 ;
-			updateSigninButton(isEnable);
+			input = logininput_edittext.getText().toString().trim();
+			input_ready = input.length()>=Constants.MIN_USERNAME_LENGTH;
+			updateSigninButton();
 		}
 	};
 	
-	private void setupLoginInputClick(){
+	private void setupLoginInputEditClick(){
 		logininput_edittext.addTextChangedListener(logininput_textWatcher);
-	}
-
-	private void updatePasswordVisibility(){
-		if(!isPwdShown){
-			password_edittext.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);  
-			Editable etable = password_edittext.getText();  
-			Selection.setSelection(etable, etable.length());
-			isPwdShown = true;
-		}else{
-			password_edittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);  
-			Editable etable = password_edittext.getText();  
-			Selection.setSelection(etable, etable.length());
-			isPwdShown = false;
-		}
+		logininput_edittext.setTypeface(Typeface.SANS_SERIF);
 	}
 	
-	private void setupHiddenClick(){
-		hidden_imageview.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				updatePasswordVisibility();
-			}
-		});
-	}
+/***********************************************************************************/
 
+/************************password view setup********************************************/
 	private TextWatcher password_textWatcher = new TextWatcher() {
 		@Override
 		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -281,112 +294,158 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 
 		@Override
 		public void afterTextChanged(Editable s) {
-			boolean isEnable = password_edittext.getText().length()>0 && password_edittext.getText().length()>0 ;
-			updateSigninButton(isEnable);
+			password = password_edittext.getText().toString();
+			password_ready = password.length()>=Constants.MIN_PASSWORD_LENGTH;
+			updateSigninButton();
 		}
 	};
-	
+
+	private void togglePasswordVisibility(){
+		if(!isPwdShown){
+			password_edittext.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);  
+			Editable etable = password_edittext.getText();  
+			Selection.setSelection(etable, etable.length());
+			isPwdShown = true;
+		}else{
+			password_edittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);  
+			Editable etable = password_edittext.getText();  
+			Selection.setSelection(etable, etable.length());
+			isPwdShown = false;
+		}
+	}
+
+	private void setupHiddenClick(){
+		hidden_imageview.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				togglePasswordVisibility();
+			}
+		});
+	}
+
 	private void setupPasswordEditClick(){
 		password_edittext.addTextChangedListener(password_textWatcher);
 		password_edittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+		password_edittext.setTypeface(Typeface.SANS_SERIF);
+	}
+/***********************************************************************************/
+
+/************************signin view setup********************************************/
+	private void updateSigninButton(){
+		boolean enable = input_ready & password_ready;
+		signin_textview.setEnabled(enable);
 	}
 
 	private void setupSignInClick(){
 		signin_textview.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				login();
+				if(isLogining){
+					return;
+				}
+				
+				loginSamchat();
 			}
 		});
-		updateSigninButton(false);
+		updateSigninButton();
 	}
 
+/***********************************************************************************/
+
+/************************signup view setup********************************************/
 	private void setupSignUpClick(){
 		signup_textview.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				SamchatRegisterCodeRequestActivity.start(SamchatLoginActivity.this);
+				SamchatRegisterCodeRequestActivity.start(SamchatLoginActivity.this,Constants.FROM_SIGNUP);
 			}
 		});
 	}
 
+/***********************************************************************************/
+
+/************************signup view setup********************************************/
 	private void setupForgotPwdClick(){
 		forgot_pwd_textview.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				
-				
+				SamchatRegisterCodeRequestActivity.start(SamchatLoginActivity.this,Constants.FROM_FORGETPWD);
 			}
 		});
 	}
 
-	private void setupLoginPanel() {
-		countrycode_textview = findView(R.id.countrycode);
-		logininput_edittext = findView(R.id.logininput);
-		hidden_imageview = findView(R.id.hidden);
-		password_edittext = findView(R.id.password);
-		signin_textview = findView(R.id.signin);
-		signup_textview = findView(R.id.signup);
-		forgot_pwd_textview = findView(R.id.forgot_pwd);
+/***********************************************************************************/
 
-		setupCountrycodeClick();
-		setupLoginInputClick();
-		setupHiddenClick();
-		setupPasswordEditClick();
-		setupSignInClick();
-		setupSignUpClick();
-		setupForgotPwdClick();
-		
-    }
+/************************transaction implement********************************************/	
+	private void loginSamchat() {
+		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_loginging), false, null).setCanceledOnTouchOutside(false);
+		SamService.getInstance().signin(countrycode, input, password, UuidFactory.getInstance().getDeviceId(), 
+			new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							login((HttpCommClient)obj);
+						}
+					}, 0);
+				}
 
-    private void login() {
-        DialogMaker.showProgressDialog(this, null, getString(R.string.logining), true, new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                if (loginRequest != null) {
-                    loginRequest.abort();
-                    onLoginDone();
-                }
-            }
-        }).setCanceledOnTouchOutside(false);
+				@Override
+				public void onFailed(int code) {
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(SamchatLoginActivity.this,code);
+					
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							EasyAlertDialogHelper.showOneButtonDiolag(SamchatLoginActivity.this, null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							isLogining = false;
+						}
+					}, 0);
+				}
 
-        final String account = logininput_edittext.getEditableText().toString().toLowerCase();
-        final String token = tokenFromPassword(password_edittext.getEditableText().toString());
+				@Override
+				public void onError(int code) {
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(SamchatLoginActivity.this,code);
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							EasyAlertDialogHelper.showOneButtonDiolag(SamchatLoginActivity.this, null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							isLogining = false;
+						}
+					}, 0);
+				}
 
-        /*SAMC_BEGIN(register message before login)*/
-        SamDBManager.getInstance().registerObservers(false);
-        SamDBManager.getInstance().registerObservers(true);
-		  DemoCache.setTAccount(account);
-		  /*SAMC_BEGIN(register message before login)*/
-        loginRequest = NIMClient.getService(AuthService.class).login(new LoginInfo(account, token));
-        loginRequest.setCallback(new RequestCallback<LoginInfo>() {
+		});
+	}
+
+	private void login(HttpCommClient hcc) {
+		final String account = ""+hcc.userinfo.getunique_id();
+		final String token = hcc.token_id;
+		final String final_token = token + UuidFactory.getInstance().getDeviceId();
+
+		SamDBManager.getInstance().registerObservers(true);
+		DemoCache.setAccount(account);
+		loginRequest = NIMClient.getService(AuthService.class).login(new LoginInfo(account, final_token));
+		loginRequest.setCallback(new RequestCallback<LoginInfo>() {
             @Override
             public void onSuccess(LoginInfo param) {
                 LogUtil.i(TAG, "login success");
-
                 onLoginDone();
                 DemoCache.setAccount(account);
                 saveLoginInfo(account, token);
-
-                // 初始化消息提醒
                 NIMClient.toggleNotification(UserPreferences.getNotificationToggle());
-
-                // 初始化免打扰
                 if (UserPreferences.getStatusConfig() == null) {
                     UserPreferences.setStatusConfig(DemoCache.getNotificationConfig());
                 }
                 NIMClient.updateStatusBarNotificationConfig(UserPreferences.getStatusConfig());
-
-                // 构建缓存
                 DataCacheManager.buildDataCacheAsync();
-					/*SAMC_BEGIN(build samchat cache)*/
-					DemoCache.setTAccount(account);
 					SamService.getInstance().initDao(StringUtil.makeMd5(account));
 					SamchatDataCacheManager.buildDataCache();
-					
-					/*SAMC_END(build samchat cache)*/
-
-                // 进入主界面
                 MainActivity.start(SamchatLoginActivity.this, null);
                 finish();
             }
@@ -399,12 +458,14 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
                 } else {
                     Toast.makeText(SamchatLoginActivity.this, getString(R.string.samchat_login_failed) + code, Toast.LENGTH_SHORT).show();
                 }
+					isLogining = false;
             }
 
             @Override
             public void onException(Throwable exception) {
+            		onLoginDone();
                 Toast.makeText(SamchatLoginActivity.this, R.string.samchat_login_exception, Toast.LENGTH_LONG).show();
-                onLoginDone();
+					isLogining = false;
             }
         });
     }

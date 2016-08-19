@@ -56,6 +56,14 @@ public class HttpCommClient {
 	public static final String URL_registerCodeRequest = "http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_registerCodeRequest.do";
 	public static final String URL_registerCodeVerify = "http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_signupCodeVerify.do";
 	public static final String URL_signup="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_register.do";
+	public static final String URL_signin="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_login.do";
+	public static final String URL_signout="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_logout.do";
+	public static final String URL_getappkey="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_profile_appkeyGet.do";
+	public static final String URL_createsp="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_createSamPros.do";
+	public static final String URL_findpwdCodeRequest="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_findpwdCodeRequest.do";
+	public static final String URL_findpwdCodeVerify="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_findpwdCodeVerify.do";
+	public static final String URL_findpwdUpdate="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_findpwdUpdate.do";
+	public static final String URL_pwdUpdate="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_pwdUpdate.do";
 
 	
 	public static final int CONNECTION_TIMEOUT = 20000;
@@ -547,7 +555,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructSignInJson(siobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_signin,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -640,7 +648,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructGetAppKeyJson(gakobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_getappkey,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -693,6 +701,7 @@ public class HttpCommClient {
 			JSONObject header = new JSONObject();
 			header.putOpt("action", "logout");
 			header.putOpt("token", soobj.token);
+			SamLog.i("test","constructSignOutJson token:"+soobj.token);
 			
 			JSONObject body = new JSONObject();
 			
@@ -707,7 +716,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructSignOutJson(soobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_signout,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -755,7 +764,9 @@ public class HttpCommClient {
 			header.putOpt("token", cspobj.token);
 			
 			JSONObject body = new JSONObject();
-			body.putOpt("company_name",cspobj.sam_pros.getcompany_name());
+			if(cspobj.sam_pros.getcompany_name() != null){
+				body.putOpt("company_name",cspobj.sam_pros.getcompany_name());
+			}
 			body.putOpt("service_category",cspobj.sam_pros.getservice_category());
 			body.putOpt("service_description",cspobj.sam_pros.getservice_description());
 			if(cspobj.sam_pros.getcountrycode_sampros() != null){
@@ -771,7 +782,9 @@ public class HttpCommClient {
 			}
 
 			if(cspobj.sam_pros.getaddress_sampros() != null){
-				body.putOpt("address",cspobj.sam_pros.getaddress_sampros());
+				JSONObject location = new JSONObject();
+				location.putOpt("address",cspobj.sam_pros.getaddress_sampros());
+				body.put("location",location);
 			}
 
 			/*JSONObject avatar = new JSONObject();
@@ -801,7 +814,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructCreateSamProsJson(cspobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_createsp,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -812,29 +825,18 @@ public class HttpCommClient {
 				JSONObject obj = new JSONObject(rev); 
 				ret = obj.getInt("ret");
 
-				if(isRetOK() || ret == Constants.RET_ALREADY_UPGRADE_ERROR){
+				if(isRetOK()){
 					JSONObject user = obj.getJSONObject("user");
-					userinfo = new SamProsUser();
-
-					userinfo.setunique_id(user.getLong("id"));
-					userinfo.setusername(user.getString("username"));
-					userinfo.setusertype(user.getInt("type"));
+					userinfo = new SamProsUser(cspobj.sam_pros);
 					userinfo.setlastupdate(user.getLong("lastupdate"));
-					userinfo.setavatar(getAvatarThumb(user));
-					userinfo.setavatar_original(getAvatarOrigin(user));
-					userinfo.setcountrycode(user.getString("countrycode"));
-					userinfo.setcellphone(user.getString("cellphone"));
-					userinfo.setemail(getEmail(user));
-					userinfo.setaddress(getAddress(user));
-
-					JSONObject sam_pros = user.getJSONObject("sam_pros_info");
-					((SamProsUser)userinfo).setcompany_name(sam_pros.getString("company_name"));
-					((SamProsUser)userinfo).setservice_category(sam_pros.getString("service_category"));
-					((SamProsUser)userinfo).setservice_description(sam_pros.getString("service_description"));
-					((SamProsUser)userinfo).setcountrycode_sampros(getCountryCode(sam_pros));
-					((SamProsUser)userinfo).setphone_sampros(getPhone(sam_pros));
-					((SamProsUser)userinfo).setemail_sampros(getEmail(sam_pros));
-					((SamProsUser)userinfo).setaddress_sampros(getAddress(sam_pros));
+					userinfo.setusertype(user.getInt("type"));
+					((SamProsUser)userinfo).setcompany_name(cspobj.sam_pros.getcompany_name());
+					((SamProsUser)userinfo).setservice_category(cspobj.sam_pros.getservice_category());
+					((SamProsUser)userinfo).setservice_description(cspobj.sam_pros.getservice_description());
+					((SamProsUser)userinfo).setcountrycode_sampros(cspobj.sam_pros.getcountrycode_sampros());
+					((SamProsUser)userinfo).setphone_sampros(cspobj.sam_pros.getphone_sampros());
+					((SamProsUser)userinfo).setemail_sampros(cspobj.sam_pros.getemail_sampros());
+					((SamProsUser)userinfo).setaddress_sampros(cspobj.sam_pros.getaddress_sampros());
 					//((SamProsUser)userinfo).setavatar_sampros(getAvatarThumb(sam_pros));
 					//((SamProsUser)userinfo).setavatar_original_sampros(getAvatarOrigin(sam_pros));
 					
@@ -844,7 +846,7 @@ public class HttpCommClient {
 				return true;
 				
 			}else{
-				SamLog.i(TAG,"signout http status code:"+statusCode);
+				SamLog.i(TAG,"create sam pros http status code:"+statusCode);
 				return false;
 			}
 		
@@ -893,7 +895,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructFindpwdCodeRequestJson(vcobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_findpwdCodeRequest,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -956,7 +958,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructFindpwdCodeVerifyJson(vcobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_findpwdCodeVerify,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -1021,7 +1023,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructFindpwdUpdateJson(vcobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_findpwdUpdate,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -1069,8 +1071,8 @@ public class HttpCommClient {
 			header.putOpt("token", upobj.token);
 			
 			JSONObject body = new JSONObject();
-			body.putOpt("old-pwd",upobj.old_pwd);
-			body.putOpt("new-pwd", upobj.new_pwd);
+			body.putOpt("old_pwd",upobj.old_pwd);
+			body.putOpt("new_pwd", upobj.new_pwd);
 			
 			JSONObject data = new JSONObject();
 			data.put("header", header);
@@ -1083,7 +1085,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructUpdatePasswordJson(upobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_pwdUpdate,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			

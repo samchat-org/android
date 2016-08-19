@@ -82,6 +82,26 @@
             </RelativeLayout>
 
         </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/create_sp_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/samchat_text_radius_border_green">
+            <TextView
+                android:id="@+id/create_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_centerVertical="true"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:text="@string/samchat_create_sp"/>
+        </RelativeLayout>
         <TextView
             android:id="@+id/preference_label"
             android:layout_width="wrap_content"
@@ -144,6 +164,26 @@
             android:textSize="@dimen/text_size_14"
             android:gravity="center_vertical"
             android:background="@drawable/nim_message_input_edittext_box"/>
+
+        <RelativeLayout
+            android:id="@+id/update_password_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/samchat_text_radius_border_green">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_centerVertical="true"
+                android:textSize="16sp"
+                android:textColor="@color/white"
+                android:text="@string/samchat_update_password"/>
+        </RelativeLayout>
 
 
     </LinearLayout>

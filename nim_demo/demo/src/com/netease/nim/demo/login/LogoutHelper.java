@@ -9,6 +9,7 @@ import com.netease.nim.uikit.NimUIKit;
 import com.igexin.sdk.PushManager;
 import com.android.samservice.SamService;
 import com.android.samchat.service.SamDBManager;
+import com.android.samchat.cache.SamchatDataCacheManager;
 /*SAMC_END(stop push service when logout)*/
 
 /**
@@ -27,6 +28,7 @@ public class LogoutHelper {
         SamDBManager.getInstance().registerObservers(false);
         SamService.getInstance().stopSamService();
         PushManager.getInstance().stopService(DemoCache.getContext());
+        SamchatDataCacheManager.clearDataCache();
         /*SAMC_END(stop push service when logout)*/
     }
 }

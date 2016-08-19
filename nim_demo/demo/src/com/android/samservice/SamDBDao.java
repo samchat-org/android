@@ -315,6 +315,12 @@ public class SamDBDao{
 		}
 	}
 
+	public  List<SamProsUser> query_SamProsUser_db_All(){
+		synchronized(dbLock_userinfo){
+			return dbHandle.querySamProsUserAll();
+		}
+	}
+
 /********************************************SendQuestion DB******************************************************************/
 	private boolean compareSendQuestion(SendQuestion old, SendQuestion now){
 		if(old.getquestion_id() != now.getquestion_id()
@@ -486,6 +492,7 @@ public class SamDBDao{
 		}
 	}
 
+	//just for test case
 	public void delete_ContactList_db_all(boolean isCustomer){
 		synchronized(dbLock_userinfo){
 			dbHandle.deleteContactAll(isCustomer);
@@ -748,12 +755,6 @@ public class SamDBDao{
 	public void delete_MsgSession_db(String session_id, int mode){
 		synchronized(dbLock_msg){
 			dbHandle.deleteMsgSession( session_id,  mode);
-		}
-	}
-
-	public void delete_MsgSession_db_ALL(){
-		synchronized(dbLock_msg){
-			dbHandle.deleteMsgSessionAll();
 		}
 	}
 

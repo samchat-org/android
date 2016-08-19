@@ -47,6 +47,9 @@ import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import android.widget.RelativeLayout;
 import com.netease.nim.demo.config.preference.Preferences;
 import com.netease.nim.demo.DemoCache;
+import android.view.View.OnClickListener;
+import com.android.samchat.activity.SamchatCreateSPStepOneActivity;
+import com.android.samchat.activity.SamchatUpdatePasswordActivity;
 /**
  * Main Fragment in SamchatSettingListFragment
  */
@@ -57,12 +60,14 @@ public class SamchatSettingFragment extends TFragment {
 	private TextView profile;
 	private RelativeLayout qr_layout;
 	private TextView qr_code;
+	private RelativeLayout create_sp_layout;
 	private TextView preference_label;
 	private TextView notification;
 	private TextView option;
 	private TextView about_label;
 	private TextView about;
 	private TextView faq;
+	private RelativeLayout update_password_layout;
 	
 	//observer and broadcast
 	private boolean isBroadcastRegistered = false;
@@ -74,6 +79,7 @@ public class SamchatSettingFragment extends TFragment {
 			account_label.setText(getString(R.string.samchat_account));
 			profile.setText(getString(R.string.samchat_myprofile));
 			qr_code.setText(getString(R.string.samchat_myqr));
+			
 			preference_label.setText(getString(R.string.samchat_preference));
 			notification.setText(getString(R.string.samchat_notification));
 			option.setText(getString(R.string.samchat_option));
@@ -86,7 +92,9 @@ public class SamchatSettingFragment extends TFragment {
 			faq.setText(getString(R.string.samchat_faq));
 			faq.setVisibility(View.VISIBLE);
 
-			avatar.loadBuddyAvatar(DemoCache.getTAccount());
+			avatar.loadBuddyAvatar(DemoCache.getAccount());
+
+			updateCrateSPLayout();
 		}else{
 			account_label.setText(getString(R.string.samchat_service_account));
 			profile.setText(getString(R.string.samchat_service_profile));
@@ -97,7 +105,9 @@ public class SamchatSettingFragment extends TFragment {
 			about_label.setVisibility(View.GONE);
 			about.setVisibility(View.GONE);
 			faq.setVisibility(View.GONE);
-			avatar.loadBuddyAvatar(DemoCache.getTAccount());
+			avatar.loadBuddyAvatar(DemoCache.getAccount());
+
+			updateCrateSPLayout();
 		}
 	}
 
@@ -148,7 +158,7 @@ public class SamchatSettingFragment extends TFragment {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		findViews();
+		setupSettingPanel();
 
 		registerBroadcastReceiver();
 	}
@@ -158,6 +168,21 @@ public class SamchatSettingFragment extends TFragment {
 		super.onDestroy();
 	}
 
+	@Override
+	public void onResume(){
+		super.onResume();
+		updateCrateSPLayout();
+	}
+
+	private void updateCrateSPLayout(){
+		if(SamService.getInstance().get_current_user().getusertype() == Constants.USER
+			&& SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+			create_sp_layout.setVisibility(View.VISIBLE);
+		}else{
+			create_sp_layout.setVisibility(View.GONE);
+		}
+	}
+
 	private void findViews() {
 		account_label = (TextView) findView(R.id.account_label);
 		avatar = (HeadImageView) findView(R.id.avatar);
@@ -165,12 +190,14 @@ public class SamchatSettingFragment extends TFragment {
 		profile = (TextView) findView(R.id.profile);
 		qr_layout = (RelativeLayout) findView(R.id.qr_layout);
 		qr_code = (TextView) findView(R.id.qr_code);
+		create_sp_layout = (RelativeLayout) findView(R.id.create_sp_layout);
 		preference_label = (TextView) findView(R.id.preference_label);
 		notification =  (TextView) findView(R.id.notification);
 		option =  (TextView) findView(R.id.option);
 		about_label = (TextView) findView(R.id.about_label);
 		about = (TextView) findView(R.id.about);
 		faq = (TextView) findView(R.id.faq);
+		update_password_layout = (RelativeLayout) findView(R.id.update_password_layout);
 
 		if(SamchatGlobal.getmode()== ModeEnum.CUSTOMER_MODE){
 			switchMode(ModeEnum.CUSTOMER_MODE);
@@ -178,6 +205,40 @@ public class SamchatSettingFragment extends TFragment {
 			switchMode(ModeEnum.SP_MODE);
 		}
     }
+
+	private void setupSettingPanel(){
+		findViews();
+		setupCreateSPClick();
+		setupUpdatePasswordClick();
+		
+		
+	}
+
+/**********************************Setup Create Service Account View*******************************/
+	private void setupCreateSPClick(){
+		create_sp_layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				SamchatCreateSPStepOneActivity.start(getActivity());
+			}
+		});
+	}
+
+/**********************************Reset Password  View*******************************/
+	private void setupUpdatePasswordClick(){
+		update_password_layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				SamchatUpdatePasswordActivity.start(getActivity());
+			}
+		});
+	}
+
+/*******************************************************************************************/
+
+
+
+/**********************************Data Flow Control*********************************************************/
 
 
 }

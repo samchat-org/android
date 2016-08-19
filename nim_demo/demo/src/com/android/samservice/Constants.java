@@ -78,11 +78,17 @@ public class Constants{
 	public static String FG_PIC_FOLDER = "/fgfolder";
 	public static String FG_PIC="/fgpic";
 
+	/****************************code request from which page***********************************************/
+	public static final int FROM_SIGNUP = 0;
+	public static final int FROM_FORGETPWD = 1;
+
 
 	/****************************Broadcast***********************************************/
 	public static final String BROADCAST_SWITCH_MODE = "com.android.samchat.switchmode";
 	public static final String BROADCAST_SIGN_IN_ALREADY = "com.android.samchat.signinalready";
 	public static final String BROADCAST_SIGN_UP_ALREADY = "com.android.samchat.signupalready";
+	public static final String BROADCAST_FINDPWD_ALREADY = "com.android.samchat.findpwdalready";
+	public static final String BROADCAST_CREATE_SP_SUCCESS = "com.android.samchat.createspsuccess";
 
 	/****************************Message From***********************************************/
 	public static final String MSG_FROM = "msg_from";
