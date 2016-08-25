@@ -1,8 +1,14 @@
 package com.android.samchat.fragment;
 
 import android.os.Bundle;
+
+import com.android.samchat.activity.SamchatRequestDetailsActivity;
+import com.android.samchat.service.SamDBManager;
+import com.android.samservice.Constants;
+import com.android.samservice.QuestionInfo;
 import com.netease.nim.demo.R;
 import com.netease.nim.demo.main.model.MainTab;
+import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.demo.main.fragment.MainTabFragment;
 import com.android.samchat.callback.SendQuestionCallback;
@@ -38,11 +44,17 @@ public class SamchatRequestListFragment extends MainTabFragment {
 			@Override
 			public void onSendQuestionLoaded() {
 				//all send questions of current user loaded
+				
 			}
 
 			@Override
 			public void onItemClick(SendQuestion sq){
-
+				QuestionInfo qinfo = new QuestionInfo();
+				qinfo.setquestion(sq.getquestion());
+				qinfo.setquestion_id(sq.getquestion_id());
+				qinfo.setdatetime(sq.getdatetime());
+				qinfo.setaddress(sq.getaddress());
+				SamchatRequestDetailsActivity.start(getActivity(),  qinfo);
 			}
 
 			@Override
@@ -65,7 +77,12 @@ public class SamchatRequestListFragment extends MainTabFragment {
 
 			@Override
 			public void onItemClick(ReceivedQuestion rq){
-
+				if(rq.getstatus() == Constants.QUESTION_NOT_RESPONSED ){
+					SamDBManager.getInstance().asyncInsertReceivedQuestionMessage(rq);
+					SessionHelper.startP2PSessionWithReceiveQuestion(getActivity(),""+rq.getsender_unique_id(), rq.getquestion_id());
+				}else{
+					SessionHelper.startP2PSession(getActivity(), ""+rq.getsender_unique_id());
+				}
 			}
 
 			@Override
@@ -83,6 +100,8 @@ public class SamchatRequestListFragment extends MainTabFragment {
 	public void onCurrentTabClicked() {
 
 	}
+
+	
 }
 
 

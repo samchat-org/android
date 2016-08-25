@@ -102,6 +102,7 @@
     <string name="samchat_not_follow_error">You have not followed this Service Provider</string>
     <string name="samchat_not_add_contact_error">You have not add this user into your contact</string>
 
+
     <string name="samchat_verifying">Verifying</string>
 
     <string name="samchat_enter_username">Enter a username</string>
@@ -129,4 +130,19 @@
     <string name="samchat_updating">Updating</string>
     <string name="samchat_old_password">Old password</string>
     <string name="samchat_new_password">New password</string>
+
+    <string name="samchat_send_question_too_offten">Send question too offten</string>
+
+    <string name="samchat_my_qrcode">My QR code</string>
+    <string name="samchat_samchat_id">samchat id:</string>
+    <string name="samchat_phone_id">phone:</string>
+    <string name="samchat_qr_bussiness_card">QR Bussiness Card</string>
+
+    <string name="samchat_new_request">New Request</string>
+    <string name="samchat_your_request">Your Request</string>
+    <string name="samchat_send">Send</string>
+    <string name="samchat_request_hint">What do you need help today ?</string>
+    <string name="samchat_current_loaction">Current location</string>
+    <string name="samchat_request_details">Request Details</string>
+    <string name="samchat_new_response">New Response</string>
 </resources>

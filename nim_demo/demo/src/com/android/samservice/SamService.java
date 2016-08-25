@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
 import android.os.HandlerThread;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,7 +37,7 @@ import com.netease.nim.demo.config.preference.Preferences;
 import com.igexin.sdk.PushManager;
 import com.android.samchat.test.TestCase;
 import com.android.samchat.cache.SamchatUserInfoCache;
-
+import com.android.samchat.service.SamDBManager;
 public class SamService{
 	public static final String TAG="SamService";
 
@@ -283,18 +284,10 @@ public class SamService{
 				store_current_token(hcc.token_id+siobj.deviceid);
 				LogUtil.e("test","save token "+(hcc.token_id+siobj.deviceid));
 				initDao(StringUtil.makeMd5(""+hcc.userinfo.getunique_id()));
-				if(hcc.userinfo.getusertype() == Constants.SAM_PROS){
-					if(dao.update_SamProsUser_db((SamProsUser)hcc.userinfo) == -1){
-						samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
-					}else{
-						samobj.callback.onSuccess(hcc,0);
-					}
+				if(dao.update_ContactUser_db(hcc.userinfo) == -1){
+					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
 				}else{
-					if(dao.update_ContactUser_db(hcc.userinfo) == -1){
-						samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
-					}else{
-						samobj.callback.onSuccess(hcc,0);
-					}
+					samobj.callback.onSuccess(hcc,0);
 				}
 			}else{
 				samobj.callback.onFailed(hcc.ret);
@@ -398,7 +391,7 @@ public class SamService{
 	}
 
 /***************************************create-sam-pros*******************************************************/
-	public void create_sam_pros(SamProsUser sam_pros,SMCallBack callback ){
+	public void create_sam_pros(ContactUser sam_pros,SMCallBack callback ){
 		CreateSamProsCoreObj samobj = new CreateSamProsCoreObj(callback);
 		samobj.init(get_current_token(),  sam_pros);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_CREATE_SAM_PROS, samobj);
@@ -418,7 +411,7 @@ public class SamService{
 			if(hcc.ret == 0){
 				set_current_user(hcc.userinfo);
 				SamchatUserInfoCache.getInstance().addUser(hcc.userinfo.getunique_id(), hcc.userinfo);
-				if(dao.update_SamProsUser_db((SamProsUser)hcc.userinfo) == -1){
+				if(dao.update_ContactUser_db(hcc.userinfo) == -1){
 					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
 				}else{
 					samobj.callback.onSuccess(hcc,0);
@@ -724,7 +717,7 @@ public class SamService{
 
 
 /***************************************follow/unfollow*******************************************************/
-	public void follow(boolean isFollow,SamProsUser sam_pros, SMCallBack callback){
+	public void follow(boolean isFollow,ContactUser sam_pros, SMCallBack callback){
 		FollowCoreObj samobj = new FollowCoreObj(callback);
 		samobj.init( isFollow, get_current_token(), sam_pros);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_PUBLIC_FOLLOW, samobj);
@@ -743,7 +736,7 @@ public class SamService{
 		}else if(http_ret){
 			if(hcc.ret == 0){
 				if(fcobj.isFollow){
-					dao.update_SamProsUser_db(fcobj.sam_pros);
+					dao.update_ContactUser_db(fcobj.sam_pros);
 					if(dao.update_FollowList_db(new FollowedSamPros(hcc.userinfo.getunique_id(),hcc.userinfo.getusername())) == -1){
 						samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
 					}else{
@@ -784,7 +777,7 @@ public class SamService{
 	}
 
 /***************************************block/unblock*******************************************************/
-	public void block(boolean isBlock, SamProsUser sam_pros, SMCallBack callback){
+	public void block(boolean isBlock, ContactUser sam_pros, SMCallBack callback){
 		BlockCoreObj samobj = new BlockCoreObj(callback);
 		samobj.init( isBlock, get_current_token(),  sam_pros);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_PUBLIC_BLOCK, samobj);
@@ -837,7 +830,7 @@ public class SamService{
 	}
 
 /***************************************favourite/unfavourite*******************************************************/
-	public void favourite(boolean isFavourite, SamProsUser sam_pros, SMCallBack callback){
+	public void favourite(boolean isFavourite, ContactUser sam_pros, SMCallBack callback){
 		FavouriteCoreObj samobj = new FavouriteCoreObj(callback);
 		samobj.init(isFavourite, get_current_token(), sam_pros);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_PUBLIC_FAVOURITE, samobj);
@@ -1109,18 +1102,10 @@ public class SamService{
 			return;
 		}else if(http_ret){
 			if(hcc.ret == 0){
-				if(hcc.userinfo.getusertype() == Constants.SAM_PROS){
-					if(dao.update_SamProsUser_db((SamProsUser)hcc.userinfo) == -1){
-						samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
-					}else{
-						samobj.callback.onSuccess(hcc,0);
-					}
+				if(dao.update_ContactUser_db(hcc.userinfo) == -1){
+					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
 				}else{
-					if(dao.update_ContactUser_db(hcc.userinfo) == -1){
-						samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
-					}else{
-						samobj.callback.onSuccess(hcc,0);
-					}
+					samobj.callback.onSuccess(hcc,0);
 				}
 			}else{
 				samobj.callback.onFailed(hcc.ret);
@@ -1167,18 +1152,10 @@ public class SamService{
 			return;
 		}else if(http_ret){
 			if(hcc.ret == 0){
-				if(hcc.userinfo.getusertype() == Constants.SAM_PROS){
-					if(dao.update_SamProsUser_db((SamProsUser)hcc.userinfo) == -1){
-						samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
-					}else{
-						samobj.callback.onSuccess(hcc,0);
-					}
+				if(dao.update_ContactUser_db(hcc.userinfo) == -1){
+					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
 				}else{
-					if(dao.update_ContactUser_db(hcc.userinfo) == -1){
-						samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
-					}else{
-						samobj.callback.onSuccess(hcc,0);
-					}
+					samobj.callback.onSuccess(hcc,0);
 				}
 			}else{
 				samobj.callback.onFailed(hcc.ret);
@@ -1273,7 +1250,7 @@ public class SamService{
 			if(hcc.ret == 0){
 				String service_category = null;
 				if(opobj.user.getusertype() == Constants.SAM_PROS){
-					service_category = ((SamProsUser)opobj.user).getservice_category();
+					service_category = (opobj.user).getservice_category();
 				}
 				Contact user = new Contact(opobj.user.getunique_id(),opobj.user.getusername(),
 																	opobj.user.getavatar(),service_category);
@@ -1284,18 +1261,10 @@ public class SamService{
 					dao.update_ContactList_db(user, true);
 				}
 				
-				if(hcc.userinfo.getusertype() == Constants.SAM_PROS){
-					if(dao.update_SamProsUser_db((SamProsUser)hcc.userinfo) == -1){
-						samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
-					}else{
-						samobj.callback.onSuccess(hcc,0);
-					}
+				if(dao.update_ContactUser_db(hcc.userinfo) == -1){
+					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
 				}else{
-					if(dao.update_ContactUser_db(hcc.userinfo) == -1){
-						samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
-					}else{
-						samobj.callback.onSuccess(hcc,0);
-					}
+					samobj.callback.onSuccess(hcc,0);
 				}
 			}else{
 				samobj.callback.onFailed(hcc.ret);
@@ -1401,7 +1370,7 @@ public class SamService{
 		if(basicuserinfos.getcount() > 0){
 			for(BasicUserInfo userinfo:basicuserinfos.getuserinfos()){
 				if(userinfo.gettype() == Constants.SAM_PROS){
-					if(dao.update_SamProsUser_db_by_basicinfo(userinfo) == -1){
+					if(dao.update_ContactUser_db_by_basicinfo(userinfo) == -1){
 						isDbError = true;
 					}
 				}else{
@@ -1468,7 +1437,7 @@ public class SamService{
 		boolean isDbError = false;
 		if(followusers.getcount() > 0){
 			for(BasicUserInfo userinfo:followusers.getusers()){
-				if(dao.update_SamProsUser_db_by_basicinfo(userinfo) == -1){
+				if(dao.update_ContactUser_db_by_basicinfo(userinfo) == -1){
 					isDbError = true;
 				}
 			}
@@ -1630,15 +1599,6 @@ public class SamService{
     }
 
 /********************************************** HTTP PUSH  ********************************************************/
-	private void sendBroadcastForReceivedQuestion(ContactUser asker, ReceivedQuestion rq, boolean isDBError){
-
-	}
-
-	private void sendBroadcastForReceivedAdv(Advertisement adv, boolean isDBError){
-
-	}
-
-
 	public void handlePushCmd(String jsonString){
 		HttpCommClient hcc = new HttpCommClient();
 		int category = hcc.parsePushJson(jsonString);
@@ -1646,22 +1606,7 @@ public class SamService{
 
 		switch(category){
 			case Constants.PUSH_CATEGORY_QUESTION:
-				if(hcc.userinfo.getusertype() == Constants.SAM_PROS){
-					if(dao.update_SamProsUser_db((SamProsUser)hcc.userinfo) == -1){
-						isDBError = true;
-					}
-				}else{
-					if(dao.update_ContactUser_db(hcc.userinfo) == -1){
-						isDBError = true;
-					}
-				}
-
-				if(dao.update_ReceivedQuestion_db(hcc.rq) == -1){
-					isDBError = true;
-				}
-
-				sendBroadcastForReceivedQuestion(hcc.userinfo, hcc.rq, isDBError);
-				
+				SamDBManager.getInstance().handleReceivedQuestion(hcc);
 			break;
 
 			case Constants.PUSH_CATEGORY_ADV:
@@ -1669,7 +1614,7 @@ public class SamService{
 					isDBError = true;
 				}
 
-				sendBroadcastForReceivedAdv(hcc.adv,  isDBError);
+				//sendBroadcastForReceivedAdv(hcc.adv,  isDBError);
 				
 			break;
 
@@ -1689,7 +1634,10 @@ public class SamService{
 
 /********************************************** DB END  ********************************************************/
 	
-
+	public void sendbroadcast(Intent intent){
+		LocalBroadcastManager manager = LocalBroadcastManager.getInstance(DemoCache.getContext());
+		manager.sendBroadcast(intent);
+	}
 
 	public static synchronized SamService getInstance(){
 		if(mSamService == null){
@@ -1830,14 +1778,8 @@ public class SamService{
 		
 		if(users.getcount()>0){
 			for(ContactUser user: users.getusers()){
-				if(user.getusertype() == Constants.SAM_PROS){
-					if(dao.update_SamProsUser_db_if_existed((SamProsUser)user) == -1){
-						isDbError = true;
-					}
-				}else{
-					if(dao.update_ContactUser_db_if_existed(user) == -1){
-						isDbError = true;
-					}
+				if(dao.update_ContactUser_db_if_existed(user) == -1){
+					isDbError = true;
 				}
 			}
 		}
@@ -1850,14 +1792,8 @@ public class SamService{
 		
 		if(users.getcount()>0){
 			for(ContactUser user: users.getusers()){
-				if(user.getusertype() == Constants.SAM_PROS){
-					if(dao.update_SamProsUser_db((SamProsUser)user) == -1){
-						isDbError = true;
-					}
-				}else{
-					if(dao.update_ContactUser_db(user) == -1){
-						isDbError = true;
-					}
+				if(dao.update_ContactUser_db(user) == -1){
+					isDbError = true;
 				}
 			}
 		}
@@ -1868,15 +1804,10 @@ public class SamService{
 	private boolean syncUpdateUserInfo(ContactUser user){
 		boolean isDbError = false;
 		
-		if(user.getusertype() == Constants.SAM_PROS){
-            if(dao.update_SamProsUser_db((SamProsUser)user) == -1){
-                isDbError = true;
-            }
-        }else{
-            if(dao.update_ContactUser_db(user) == -1){
-                isDbError = true;
-            }
-        }
+		 if(dao.update_ContactUser_db(user) == -1){
+			isDbError = true;
+		}
+		 
 		return isDbError;
 	}
 

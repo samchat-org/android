@@ -26,6 +26,7 @@ public abstract class BaseMessageActivity extends UI {
 
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
     private int mode;
+    private long question_id;
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
     protected String sessionId;
 
@@ -73,6 +74,7 @@ public abstract class BaseMessageActivity extends UI {
         customization = (SessionCustomization) getIntent().getSerializableExtra(Extras.EXTRA_CUSTOMIZATION);
         /*SAMC_BEGIN(support mode setting for p2p activity)*/
         mode = getIntent().getIntExtra(Extras.EXTRA_MODE,0);
+        question_id = getIntent().getLongExtra(Extras.EXTRA_QUESTIONID,0);
         /*SAMC_BEGIN(support mode setting for p2p activity)*/
 
         if (customization != null) {

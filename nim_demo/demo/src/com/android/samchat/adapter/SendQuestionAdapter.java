@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
 
 public class SendQuestionAdapter extends BaseAdapter{
 	static private String TAG = "SendQuestionAdapter";
@@ -159,8 +160,9 @@ public class SendQuestionAdapter extends BaseAdapter{
 			int index = positionToIndex(position);
 			holder.request.setText(items.get(index).getquestion());
 			long showtime = items.get(index).getlatest_answer_time()==0?items.get(index).getdatetime():items.get(index).getlatest_answer_time();
-			holder.date.setText(TimeUtil.getDateString(showtime));
+			holder.date.setText(TimeUtil.getTimeShowString(showtime,false));
 			holder.location.setText(items.get(index).getaddress());
+			holder.number.setText(items.get(index).getunread()+" "+ mContext.getString(R.string.samchat_new_response));
 			break;
 		case TYPE_LABEL_ACTIVE:
 			holder.label.setText(mContext.getString(R.string.active_requests));

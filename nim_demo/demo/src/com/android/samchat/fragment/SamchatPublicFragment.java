@@ -41,8 +41,8 @@ import com.android.samservice.info.FollowUser;
 import com.android.samchat.adapter.FollowedSPAdapter;
 import com.android.samchat.callback.CustomerPublicCallback;
 import com.android.samservice.info.FollowedSamPros;
-import com.android.samservice.info.SamProsUser;
 import com.netease.nim.uikit.contact.core.query.TextComparator;
+import com.android.samservice.info.ContactUser;
 /**
  * Main Fragment in SamchatPublicListFragment
  */
@@ -196,7 +196,7 @@ public class SamchatPublicFragment extends TFragment {
 				LogUtil.e("test","query follow list sps:"+sps.size());
 				loadedFollowSPs = new ArrayList<FollowUser>();
 				for(FollowedSamPros sp : sps){
-					SamProsUser sampros = SamService.getInstance().getDao().query_SamProsUser_db_by_unique_id(sp.getunique_id());
+					ContactUser sampros = SamService.getInstance().getDao().query_ContactUser_db_by_unique_id(sp.getunique_id());
 					if(sampros != null){
 						FollowUser fuser = new FollowUser(sp.getfavourite_tag(),sp.getblock_tag());
 						fuser.setunique_id(sampros.getunique_id());

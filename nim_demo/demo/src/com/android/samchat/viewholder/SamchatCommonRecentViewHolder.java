@@ -59,8 +59,10 @@ public class SamchatCommonRecentViewHolder extends SamchatRecentViewHolder {
 		}else if(session.getrecent_msg_type() == NimConstants.MSG_TYPE_SQ){
 
 		}else if(session.getrecent_msg_type() == NimConstants.MSG_TYPE_RQ){
+			return session.getrecent_msg_content();
+		}else if(session.getrecent_msg_type() == NimConstants.MSG_TYPE_SEND_ADV){
 
-		}else if(session.getrecent_msg_type() == NimConstants.MSG_TYPE_ADV){
+		}else if(session.getrecent_msg_type() == NimConstants.MSG_TYPE_RCVD_ADV){
 
 		}
         return "";

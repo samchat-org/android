@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.karics.library.zxing.android.CaptureActivity;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import java.util.ArrayList;
@@ -41,7 +42,6 @@ import com.android.samservice.info.FollowUser;
 import com.android.samchat.adapter.FollowedSPAdapter;
 import com.android.samchat.callback.CustomerPublicCallback;
 import com.android.samservice.info.FollowedSamPros;
-import com.android.samservice.info.SamProsUser;
 import com.netease.nim.uikit.contact.core.query.TextComparator;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import android.widget.RelativeLayout;
@@ -50,6 +50,8 @@ import com.netease.nim.demo.DemoCache;
 import android.view.View.OnClickListener;
 import com.android.samchat.activity.SamchatCreateSPStepOneActivity;
 import com.android.samchat.activity.SamchatUpdatePasswordActivity;
+import com.zbar.scan.ScanCaptureAct;
+import com.android.samchat.activity.SamchatQRCodeActivity;
 /**
  * Main Fragment in SamchatSettingListFragment
  */
@@ -208,10 +210,21 @@ public class SamchatSettingFragment extends TFragment {
 
 	private void setupSettingPanel(){
 		findViews();
+		setupQRCodeClick();
 		setupCreateSPClick();
 		setupUpdatePasswordClick();
-		
-		
+	}
+
+/**********************************Setup QR Scan View*******************************/
+	private void setupQRCodeClick(){
+		qr_layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				//ScanCaptureAct.start(getActivity());
+				//CaptureActivity.start(getActivity());
+				SamchatQRCodeActivity.start(getActivity(),SamchatGlobal.getmode().ordinal());
+			}
+		});
 	}
 
 /**********************************Setup Create Service Account View*******************************/

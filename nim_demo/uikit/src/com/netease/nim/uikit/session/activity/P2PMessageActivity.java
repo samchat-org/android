@@ -28,11 +28,12 @@ public class P2PMessageActivity extends BaseMessageActivity {
 
     private boolean isResume = false;
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
-    public static void start(Context context, String contactId, SessionCustomization customization,int mode) {
+    public static void start(Context context, String contactId, SessionCustomization customization,int mode, long question_id) {
         Intent intent = new Intent();
         intent.putExtra(Extras.EXTRA_ACCOUNT, contactId);
         intent.putExtra(Extras.EXTRA_CUSTOMIZATION, customization);
         intent.putExtra(Extras.EXTRA_MODE,mode);
+        intent.putExtra(Extras.EXTRA_QUESTIONID,question_id);
         intent.setClass(context, P2PMessageActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 

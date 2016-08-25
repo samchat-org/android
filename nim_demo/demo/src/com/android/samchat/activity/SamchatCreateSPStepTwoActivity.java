@@ -62,9 +62,8 @@ import android.graphics.Typeface;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import android.widget.ImageView;
-import com.android.samservice.info.SamProsUser;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
-
+import com.android.samservice.info.ContactUser;
 public class SamchatCreateSPStepTwoActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatCreateSPStepTwoActivity.class.getSimpleName();
 
@@ -75,7 +74,7 @@ public class SamchatCreateSPStepTwoActivity extends UI implements OnKeyListener 
 	private EditText email_edittext;
 	private EditText address_edittext;
 
-	private SamProsUser info;
+	private ContactUser info;
 	private String cellphone=null;
 	private String email=null;
 	private String address=null;
@@ -110,7 +109,7 @@ public class SamchatCreateSPStepTwoActivity extends UI implements OnKeyListener 
 	    broadcastManager.unregisterReceiver(broadcastReceiver);
 	}
 
-	public static void start(Context context,SamProsUser sp) {
+	public static void start(Context context,ContactUser sp) {
 		Intent intent = new Intent(context, SamchatCreateSPStepTwoActivity.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		Bundle bundle = new Bundle();
@@ -153,7 +152,7 @@ public class SamchatCreateSPStepTwoActivity extends UI implements OnKeyListener 
 	}
 
 	private void onParseIntent() {
-		info = (SamProsUser)getIntent().getSerializableExtra("info");
+		info = (ContactUser)getIntent().getSerializableExtra("info");
 	}
 
 	private void setupPanel() {
@@ -189,9 +188,9 @@ public class SamchatCreateSPStepTwoActivity extends UI implements OnKeyListener 
 				if(isCreating){
 					return;
 				}
-				info.setphone_sampros(cellphone);
-				info.setemail_sampros(email);
-				info.setaddress_sampros(address);
+				info.setphone_sp(cellphone);
+				info.setemail_sp(email);
+				info.setaddress_sp(address);
 
 				isCreating = true;
 				createSPAccount();

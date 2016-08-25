@@ -30,7 +30,7 @@ public class MsgSession implements Serializable
 		this.mode = ModeEnum.valueOfType(ModeEnum.CUSTOMER_MODE);
 		this.msg_table_name = null;
 		this.total_unread = 0;
-		this.recent_msg_type = Constants.MSG_TYPE_IM;
+		this.recent_msg_type = NimConstants.MSG_TYPE_IM;
 		this.recent_msg_uuid = null;
 		this.recent_msg_subtype = NimConstants.MSG_SUBTYPE_DEFAULT;
 		this.recent_msg_content = null;
@@ -44,7 +44,7 @@ public class MsgSession implements Serializable
 		this.mode = mode;
 		this.msg_table_name = msg_table_name;
 		this.total_unread = 0;
-		this.recent_msg_type = Constants.MSG_TYPE_IM;
+		this.recent_msg_type = NimConstants.MSG_TYPE_IM;
 		this.recent_msg_uuid = null;
 		this.recent_msg_subtype = NimConstants.MSG_SUBTYPE_DEFAULT;
 		this.recent_msg_content = null;

@@ -2,8 +2,10 @@ package com.netease.nim.demo.main.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -12,6 +14,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.android.samchat.receiver.PushReceiver;
 import com.netease.nim.demo.R;
 import com.netease.nim.demo.avchat.AVChatProfile;
 import com.netease.nim.demo.avchat.activity.AVChatActivity;
@@ -417,6 +420,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 			} else {
 				if (code == StatusCode.LOGINED) {
 					LogUtil.ui("SDK auto login succeed");
+					initSamAutoLogin();
 					initGeTui();
 				} 
 			}
@@ -426,13 +430,23 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	@Override
 	public void onDestroy() {
 		registerObservers(false);
+		if(isGetuInited){
+			LogUtil.e("test","stop getui service");
+			//PushManager.getInstance().turnOffPush(DemoCache.getContext());
+			PushManager.getInstance().stopService(DemoCache.getContext());
+			//registerGetuiReceiver(false);
+			isGetuInited = false;
+			//LogUtil.e("test","isPushTurnOn:"+PushManager.getInstance().isPushTurnedOn(DemoCache.getContext()));
+		}
 		super.onDestroy();
 	}
 
 	private void initGeTui(){
 		if(!isGetuInited){
 			LogUtil.e("test","init getui service");
+			//registerGetuiReceiver(true);
 			PushManager.getInstance().initialize(getApplicationContext());
+			//PushManager.getInstance().turnOnPush(DemoCache.getContext());
 			isGetuInited = true;
 		}
 	}
@@ -498,7 +512,9 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 		switch_icon.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				switchMode();
+				if(SamService.getInstance().get_current_user().getusertype() == Constants.SAM_PROS){
+					switchMode();
+				}
 			}
 		});
 		
@@ -571,6 +587,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 		List<IMMessage> ims = new ArrayList<IMMessage>(1);
 		ims.add(msg);
 		SamDBManager.getInstance().asyncStoreRecvCustomerMessages(ims);
+	}
+
+	public void asyncUpdateReceivedQuestionStatusToResponse(long question_id){
+		SamDBManager.getInstance().asyncUpdateReceivedQuestionStatusToResponse(question_id);
 	}
 	
 /*SAMC_END(...)*/

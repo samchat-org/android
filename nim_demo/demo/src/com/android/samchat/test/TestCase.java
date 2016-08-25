@@ -30,8 +30,8 @@ import java.util.Comparator;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.android.samservice.Constants;
 import com.android.samservice.info.FollowedSamPros;
-import com.android.samservice.info.SamProsUser;
 import com.android.samservice.info.Contact;
+import com.android.samservice.info.ContactUser;
 
 /**
  * Main Fragment in SamchatRequestListFragment
@@ -39,6 +39,7 @@ import com.android.samservice.info.Contact;
 public class TestCase{
 	static public void testInitDB(){
 	//SendQuestion DB
+	/*
 		if(TestPreferences.getUserTest() == null || Long.valueOf(TestPreferences.getUserTest())%3 == 0){
 			SamService.getInstance().getDao().delete_SendQuestion_db_ALL();
 			SendQuestion question1 = new SendQuestion(1L, "test question 1", System.currentTimeMillis(),"Bay Area");
@@ -133,7 +134,7 @@ public class TestCase{
 		}
 
 		createFollowList();
-		createContactList();
+		createContactList();*/
 	}
 
 	public static void createFollowList(){
@@ -141,7 +142,7 @@ public class TestCase{
 		SamService.getInstance().getDao().add_FollowList_db(new FollowedSamPros(100L,"SP100"));
 		SamService.getInstance().getDao().add_FollowList_db(new FollowedSamPros(101L,"SP101"));
 		SamService.getInstance().getDao().add_FollowList_db(new FollowedSamPros(102L,"SP102"));
-		SamProsUser SP100 = new SamProsUser();
+		ContactUser SP100 = new ContactUser();
 		SP100.setunique_id(100L);
 		SP100.setusername("SP100");
 		SP100.setavatar(null);
@@ -153,9 +154,9 @@ public class TestCase{
 		SP100.setcompany_name("Samchat");
 		SP100.setservice_category("IT");
 		SP100.setservice_description("Bridge for USA and CHINA");
-		SamService.getInstance().getDao().update_SamProsUser_db(SP100);
+		SamService.getInstance().getDao().update_ContactUser_db(SP100);
 
-		SamProsUser SP101 = new SamProsUser();
+		ContactUser SP101 = new ContactUser();
 		SP101.setunique_id(101L);
 		SP101.setusername("SP101");
 		SP101.setavatar(null);
@@ -167,9 +168,9 @@ public class TestCase{
 		SP101.setcompany_name("Samchat");
 		SP101.setservice_category("IT");
 		SP101.setservice_description("Bridge for USA and CHINA");
-		SamService.getInstance().getDao().update_SamProsUser_db(SP101);
+		SamService.getInstance().getDao().update_ContactUser_db(SP101);
 
-		SamProsUser SP102 = new SamProsUser();
+		ContactUser SP102 = new ContactUser();
 		SP102.setunique_id(102L);
 		SP102.setusername("SP102");
 		SP102.setavatar(null);
@@ -181,7 +182,7 @@ public class TestCase{
 		SP102.setcompany_name("Samchat");
 		SP102.setservice_category("IT");
 		SP102.setservice_description("Bridge for USA and CHINA");
-		SamService.getInstance().getDao().update_SamProsUser_db(SP102);
+		SamService.getInstance().getDao().update_ContactUser_db(SP102);
 
 	}
 
@@ -189,7 +190,7 @@ public class TestCase{
 		SamService.getInstance().getDao().delete_ContactList_db_all(false);
 		Contact user = new Contact(2000L,"aser2000",null,"leagal cosultant");
 		SamService.getInstance().getDao().update_ContactList_db(user, false);
-		SamProsUser user2000 = new SamProsUser();
+		ContactUser user2000 = new ContactUser();
 		user2000.setunique_id(2000L);
 		user2000.setusername("aser2000");
 		user2000.setavatar(null);
@@ -201,11 +202,11 @@ public class TestCase{
 		user2000.setcompany_name("Samchat");
 		user2000.setservice_category("leagal cosultant");
 		user2000.setservice_description("Bridge for USA and CHINA");
-		SamService.getInstance().getDao().update_SamProsUser_db(user2000);
+		SamService.getInstance().getDao().update_ContactUser_db(user2000);
 		
 		user = new Contact(2001L,"bser2001",null,"doctor");
 		SamService.getInstance().getDao().update_ContactList_db(user, false);
-		SamProsUser user2001 = new SamProsUser();
+		ContactUser user2001 = new ContactUser();
 		user2001.setunique_id(2001L);
 		user2001.setusername("bser2001");
 		user2001.setavatar(null);
@@ -217,11 +218,11 @@ public class TestCase{
 		user2001.setcompany_name("Samchat");
 		user2001.setservice_category("doctor");
 		user2001.setservice_description("Bridge for USA and CHINA");
-		SamService.getInstance().getDao().update_SamProsUser_db(user2001);
+		SamService.getInstance().getDao().update_ContactUser_db(user2001);
 		
 		user = new Contact(2002L,"eser2002",null,"chinese teacher");
 		SamService.getInstance().getDao().update_ContactList_db(user, false);
-		SamProsUser user2002 = new SamProsUser();
+		ContactUser user2002 = new ContactUser();
 		user2002.setunique_id(2002L);
 		user2002.setusername("eser2002");
 		user2002.setavatar(null);
@@ -233,11 +234,11 @@ public class TestCase{
 		user2002.setcompany_name("Samchat");
 		user2002.setservice_category("chinese teacher");
 		user2002.setservice_description("Bridge for USA and CHINA");
-		SamService.getInstance().getDao().update_SamProsUser_db(user2002);
+		SamService.getInstance().getDao().update_ContactUser_db(user2002);
 		
 		user = new Contact(2003L,"dser2003",null,"english teacher");
 		SamService.getInstance().getDao().update_ContactList_db(user, false);
-		SamProsUser user2003 = new SamProsUser();
+		ContactUser user2003 = new ContactUser();
 		user2003.setunique_id(2003L);
 		user2003.setusername("dser2003");
 		user2003.setavatar(null);
@@ -249,11 +250,11 @@ public class TestCase{
 		user2003.setcompany_name("Samchat");
 		user2003.setservice_category("english teacher");
 		user2003.setservice_description("Bridge for USA and CHINA");
-		SamService.getInstance().getDao().update_SamProsUser_db(user2003);
+		SamService.getInstance().getDao().update_ContactUser_db(user2003);
 		
 		user = new Contact(2004L,"cser2004",null,"piano teacher");
 		SamService.getInstance().getDao().update_ContactList_db(user, false);
-		SamProsUser user2004 = new SamProsUser();
+		ContactUser user2004 = new ContactUser();
 		user2004.setunique_id(2004L);
 		user2004.setusername("cser2004");
 		user2004.setavatar(null);
@@ -265,12 +266,12 @@ public class TestCase{
 		user2004.setcompany_name("Samchat");
 		user2004.setservice_category("piano teacher");
 		user2004.setservice_description("Bridge for USA and CHINA");
-		SamService.getInstance().getDao().update_SamProsUser_db(user2004);
+		SamService.getInstance().getDao().update_ContactUser_db(user2004);
 
 		for(int i=0;i<10;i++){
 			user = new Contact(3000L+i,"iser300"+i,null,"piano teacher");
 			SamService.getInstance().getDao().update_ContactList_db(user, false);
-			SamProsUser suser = new SamProsUser();
+			ContactUser suser = new ContactUser();
 			suser.setunique_id(3000L+i);
 			suser.setusername("iser300"+i);
 			suser.setavatar(null);
@@ -282,12 +283,12 @@ public class TestCase{
 			suser.setcompany_name("Samchat");
 			suser.setservice_category("piano teacher");
 			suser.setservice_description("Bridge for USA and CHINA");
-			SamService.getInstance().getDao().update_SamProsUser_db(suser);
+			SamService.getInstance().getDao().update_ContactUser_db(suser);
 		}
 		for(int i=0;i<10;i++){
 			user = new Contact(4000L+i,"fser400"+i,null,"piano teacher");
 			SamService.getInstance().getDao().update_ContactList_db(user, false);
-			SamProsUser suser = new SamProsUser();
+			ContactUser suser = new ContactUser();
 			suser.setunique_id(4000L+i);
 			suser.setusername("fser400"+i);
 			suser.setavatar(null);
@@ -299,13 +300,13 @@ public class TestCase{
 			suser.setcompany_name("Samchat");
 			suser.setservice_category("piano teacher");
 			suser.setservice_description("Bridge for USA and CHINA");
-			SamService.getInstance().getDao().update_SamProsUser_db(suser);
+			SamService.getInstance().getDao().update_ContactUser_db(suser);
 		}
 
 		for(int i=0;i<10;i++){
 			user = new Contact(5000L+i,"董500"+i,null,"piano teacher");
 			SamService.getInstance().getDao().update_ContactList_db(user, false);
-			SamProsUser suser = new SamProsUser();
+			ContactUser suser = new ContactUser();
 			suser.setunique_id(5000L+i);
 			suser.setusername("董500"+i);
 			suser.setavatar(null);
@@ -317,13 +318,13 @@ public class TestCase{
 			suser.setcompany_name("Samchat");
 			suser.setservice_category("piano teacher");
 			suser.setservice_description("Bridge for USA and CHINA");
-			SamService.getInstance().getDao().update_SamProsUser_db(suser);
+			SamService.getInstance().getDao().update_ContactUser_db(suser);
 		}
 
 		for(int i=0;i<10;i++){
 			user = new Contact(6000L+i,"陈600"+i,null,"piano teacher");
 			SamService.getInstance().getDao().update_ContactList_db(user, false);
-			SamProsUser suser = new SamProsUser();
+			ContactUser suser = new ContactUser();
 			suser.setunique_id(6000L+i);
 			suser.setusername("陈600"+i);
 			suser.setavatar(null);
@@ -335,7 +336,7 @@ public class TestCase{
 			suser.setcompany_name("Samchat");
 			suser.setservice_category("piano teacher");
 			suser.setservice_description("Bridge for USA and CHINA");
-			SamService.getInstance().getDao().update_SamProsUser_db(suser);
+			SamService.getInstance().getDao().update_ContactUser_db(suser);
 		}
 
 	}

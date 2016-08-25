@@ -32,6 +32,7 @@ public interface Extras {
     String EXTRA_BACK_TO_CLASS = "backToClass";
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
     String EXTRA_MODE="mode";
+    String EXTRA_QUESTIONID="questionID";
     /*SAMC_END(support mode setting for p2p activity)*/
 
     //图片选自器

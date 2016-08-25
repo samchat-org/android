@@ -1,16 +1,24 @@
 package com.android.samchat.cache;
 
+import android.content.Intent;
+import android.os.Bundle;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
+
+import com.android.samservice.HttpCommClient;
 import com.android.samservice.info.ContactUser;
 import com.android.samservice.SamService;
 import java.util.Collection;
-import com.android.samservice.info.SamProsUser;
 import com.android.samservice.Constants;
+import com.android.samservice.TypeEnum;
+import com.android.samservice.SMCallBack;
+import com.android.samservice.info.MultipleUserProfile;
+
 
 public class SamchatUserInfoCache {
 	public static SamchatUserInfoCache getInstance() {
@@ -19,8 +27,8 @@ public class SamchatUserInfoCache {
 
 	private Map<Long,ContactUser> userInfoMap = new ConcurrentHashMap<>();
 
-	private SamProsUser findSP(List<SamProsUser> users, long unique_id){
-		for(SamProsUser user:users){
+	private ContactUser findSP(List<ContactUser> users, long unique_id){
+		for(ContactUser user:users){
 			if(user.getunique_id() == unique_id){
 				return user;
 			}
@@ -30,25 +38,9 @@ public class SamchatUserInfoCache {
 
 	public void buildCache(){
 		List<ContactUser> users = SamService.getInstance().getDao().query_ContactUser_db_All();
-		List<SamProsUser> spusers = SamService.getInstance().getDao().query_SamProsUser_db_All();
+
 		for(ContactUser user : users){
-			if(user.getusertype() == Constants.USER){
-				userInfoMap.put(user.getunique_id(),user);
-			}else{
-				SamProsUser sp = findSP(spusers, user.getunique_id());
-				if(sp!=null){
-					SamProsUser usersp = new SamProsUser(user);
-					usersp.setid_sampros(sp.getid_sampros());
-					usersp.setcompany_name(sp.getcompany_name());
-					usersp.setservice_category(sp.getservice_category());
-					usersp.setservice_description(sp.getservice_description());
-					usersp.setcountrycode_sampros(sp.getcountrycode_sampros());
-					usersp.setphone_sampros(sp.getphone_sampros());
-					usersp.setemail_sampros(sp.getemail_sampros());
-					usersp.setaddress_sampros(sp.getaddress_sampros());
-					userInfoMap.put(user.getunique_id(),usersp);
-				}
-			}
+			userInfoMap.put(user.getunique_id(),user);
 		}
 	}
 
@@ -72,8 +64,32 @@ public class SamchatUserInfoCache {
         return user;
 	}
 
-	public void getUserByUniqueIDFromRemote(Long unique_id){
-		
+	public void getUserByUniqueIDFromRemote(final Long unique_id){
+		SamService.getInstance().query_user_precise(TypeEnum.UNIQUE_ID, null, unique_id, null, 
+			new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					MultipleUserProfile users = ((HttpCommClient)obj).users;
+					if(users.getcount() > 0){
+						ContactUser user = users.getusers().get(0);
+						addUser( unique_id,  user);
+						Intent intent = new Intent();
+						intent.setAction(Constants.BROADCAST_USER_INFO_UPDATE);
+						Bundle bundle = new Bundle();
+						bundle.putSerializable("user", user);
+						intent.putExtras(bundle);
+						SamService.getInstance().sendbroadcast(intent);
+					}
+
+				}
+
+				@Override
+				public void onFailed(int code) {}
+
+				@Override
+				public void onError(int code) {}
+
+				});
 	}
 
 	public void addUser(Long unique_id, ContactUser user){

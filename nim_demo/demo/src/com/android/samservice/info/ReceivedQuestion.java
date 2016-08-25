@@ -5,13 +5,14 @@ import java.io.Serializable;
 import com.android.samservice.Constants;
 
 	/*
-	id(primary) | question_id | question | sender_unique_id | status | datetime | address
+	id(primary) | question_id | question | sender_unique_id | sender_username | status | datetime | address
 	*/
 public class ReceivedQuestion implements Serializable
 {
 	private long id;
 	private long question_id;
 	private long sender_unique_id;
+	private String sender_username;
 	private String question;
 	private int status;
 	private long datetime;
@@ -21,16 +22,18 @@ public class ReceivedQuestion implements Serializable
 		this.id = 0;
 		this.question_id = 0;
 		this.sender_unique_id = 0;
+		this.sender_username = null;
 		this.question = null;
 		this.status = Constants.QUESTION_NOT_RESPONSED;
 		this.datetime = 0;
 		this.address = null;
 	}
 
-	public ReceivedQuestion(long question_id, long sender_unique_id, String question, long datetime,String address){
+	public ReceivedQuestion(long question_id, long sender_unique_id, String sender_username,String question, long datetime,String address){
 		this.id = 0;
 		this.question_id = question_id;
 		this.sender_unique_id = sender_unique_id;
+		this.sender_username = sender_username;
 		this.question = question;
 		this.status = Constants.QUESTION_NOT_RESPONSED;
 		this.datetime = datetime;
@@ -63,6 +66,13 @@ public class ReceivedQuestion implements Serializable
 	}
 	public void setsender_unique_id(long sender_unique_id){
 		this.sender_unique_id = sender_unique_id;
+	}
+
+	public String getsender_username(){
+		return sender_username;
+	}
+	public void setsender_username(String sender_username){
+		this.sender_username = sender_username;
 	}
 
 	public String getquestion(){

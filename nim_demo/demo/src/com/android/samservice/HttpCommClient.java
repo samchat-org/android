@@ -33,13 +33,12 @@ import com.android.samservice.info.FollowUser;
 import com.android.samservice.info.MultipleFollowUser;
 import com.android.samservice.info.MultipleSyncAdv;
 import com.android.samservice.info.MultipleUserProfile;
-import com.android.samservice.info.SamProsUser;
 import com.android.samservice.info.MultiplePlacesInfo;
 import com.android.samservice.info.BasicUserInfo;
 import com.android.samservice.info.PlacesInfo;
 import com.android.samservice.info.MultipleBasicUserInfo;
 import com.android.samservice.info.ReceivedQuestion;
-
+import com.android.samservice.info.ContactUser;
 public class HttpCommClient {
 	public static final String TAG="HttpCommClient";
 	
@@ -65,6 +64,7 @@ public class HttpCommClient {
 	public static final String URL_findpwdUpdate="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_findpwdUpdate.do";
 	public static final String URL_pwdUpdate="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_pwdUpdate.do";
 
+	public static final String URL_questionSend="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_question_question.do";
 	
 	public static final int CONNECTION_TIMEOUT = 20000;
 	public static final int HTTP_TIMEOUT = 10000;
@@ -237,12 +237,8 @@ public class HttpCommClient {
 	private void parseUsersJson(MultipleUserProfile users,JSONArray jsonUsers) throws JSONException{
 		for (int i = 0; i < jsonUsers.length(); i++) {
 			JSONObject user = (JSONObject) jsonUsers.get(i);
-			ContactUser ui = null;
-			if(user.getInt("type") == Constants.SAM_PROS){
-				ui = new SamProsUser();
-			}else{
-				ui = new ContactUser();
-			}
+			ContactUser ui = new ContactUser();;
+			
 			ui.setunique_id(user.getLong("id"));
 			ui.setusername(user.getString("username"));
 			ui.setusertype(user.getInt("type"));
@@ -256,15 +252,14 @@ public class HttpCommClient {
 
 			if(ui.getusertype() == Constants.SAM_PROS){
 				JSONObject sam_pros = user.getJSONObject("sam_pros_info");
-				((SamProsUser)ui).setcompany_name(sam_pros.getString("company_name"));
-				((SamProsUser)ui).setservice_category(sam_pros.getString("service_category"));
-				((SamProsUser)ui).setservice_description(sam_pros.getString("service_description"));
-				((SamProsUser)ui).setcountrycode_sampros(getCountryCode(sam_pros));
-				((SamProsUser)ui).setphone_sampros(getPhone(sam_pros));
-				((SamProsUser)ui).setemail_sampros(getEmail(sam_pros));
-				((SamProsUser)ui).setaddress_sampros(getAddress(sam_pros));
-				//((SamProsUser)ui).setavatar_sampros(getAvatarThumb(sam_pros));
-				//((SamProsUser)ui).setavatar_original_sampros(getAvatarOrigin(sam_pros));
+				ui.setcompany_name(sam_pros.getString("company_name"));
+				ui.setservice_category(sam_pros.getString("service_category"));
+				ui.setservice_description(sam_pros.getString("service_description"));
+				ui.setcountrycode_sp(getCountryCode(sam_pros));
+				ui.setphone_sp(getPhone(sam_pros));
+				ui.setemail_sp(getEmail(sam_pros));
+				ui.setaddress_sp(getAddress(sam_pros));
+				
 			}
 			users.adduser(ui);				
 		}
@@ -272,35 +267,10 @@ public class HttpCommClient {
 	}
 
 	private ContactUser parseUserJson(JSONObject user) throws JSONException{
-		ContactUser ui = null;
-		if(user.getInt("type") == Constants.SAM_PROS){
-			ui = new SamProsUser();
-		}else{
-			ui = new ContactUser();
-		}
+		ContactUser ui = new ContactUser();
 		ui.setunique_id(user.getLong("id"));
 		ui.setusername(user.getString("username"));
-		ui.setusertype(user.getInt("type"));
 		ui.setlastupdate(user.getLong("lastupdate"));
-		ui.setavatar(getAvatarThumb(user));
-		ui.setavatar_original(getAvatarOrigin(user));
-		ui.setcountrycode(user.getString("countrycode"));
-		ui.setcellphone(user.getString("cellphone"));
-		ui.setemail(getEmail(user));
-		ui.setaddress(getAddress(user));
-
-		if(ui.getusertype() == Constants.SAM_PROS){
-			JSONObject sam_pros = user.getJSONObject("sam_pros_info");
-			((SamProsUser)ui).setcompany_name(sam_pros.getString("company_name"));
-			((SamProsUser)ui).setservice_category(sam_pros.getString("service_category"));
-			((SamProsUser)ui).setservice_description(sam_pros.getString("service_description"));
-			((SamProsUser)ui).setcountrycode_sampros(getCountryCode(sam_pros));
-			((SamProsUser)ui).setphone_sampros(getPhone(sam_pros));
-			((SamProsUser)ui).setemail_sampros(getEmail(sam_pros));
-			((SamProsUser)ui).setaddress_sampros(getAddress(sam_pros));
-			//((SamProsUser)ui).setavatar_sampros(getAvatarThumb(sam_pros));
-			//((SamProsUser)ui).setavatar_original_sampros(getAvatarOrigin(sam_pros));
-		}
 
 		return ui;
 	}
@@ -313,6 +283,7 @@ public class HttpCommClient {
 		rq.setstatus(Constants.QUESTION_NOT_RESPONSED);
 		rq.setaddress(body.getString("address"));
 		rq.setsender_unique_id(body.getJSONObject("user").getLong("id"));
+		rq.setsender_username(body.getJSONObject("user").getString("username"));
 
 		return rq;
 	}
@@ -569,11 +540,7 @@ public class HttpCommClient {
 				if(isRetOK()){
 					token_id = obj.getString("token");
 					JSONObject user = obj.getJSONObject("user");
-					if(user.getInt("type") == Constants.SAM_PROS){
-						userinfo = new SamProsUser();
-					}else{
-						userinfo = new ContactUser();
-					}
+					userinfo = new ContactUser();
 					userinfo.setunique_id(user.getLong("id"));
 					userinfo.setusername(user.getString("username"));
 					userinfo.setusertype(user.getInt("type"));
@@ -587,15 +554,13 @@ public class HttpCommClient {
 
 					if(userinfo.getusertype() == Constants.SAM_PROS){
 						JSONObject sam_pros = user.getJSONObject("sam_pros_info");
-						((SamProsUser)userinfo).setcompany_name(sam_pros.getString("company_name"));
-						((SamProsUser)userinfo).setservice_category(sam_pros.getString("service_category"));
-						((SamProsUser)userinfo).setservice_description(sam_pros.getString("service_description"));
-						((SamProsUser)userinfo).setcountrycode_sampros(getCountryCode(sam_pros));
-						((SamProsUser)userinfo).setphone_sampros(getPhone(sam_pros));
-						((SamProsUser)userinfo).setemail_sampros(getEmail(sam_pros));
-						((SamProsUser)userinfo).setaddress_sampros(getAddress(sam_pros));
-						//((SamProsUser)userinfo).setavatar_sampros(getAvatarThumb(sam_pros));
-						//((SamProsUser)userinfo).setavatar_original_sampros(getAvatarOrigin(sam_pros));
+						userinfo.setcompany_name(sam_pros.getString("company_name"));
+						userinfo.setservice_category(sam_pros.getString("service_category"));
+						userinfo.setservice_description(sam_pros.getString("service_description"));
+						userinfo.setcountrycode_sp(getCountryCode(sam_pros));
+						userinfo.setphone_sp(getPhone(sam_pros));
+						userinfo.setemail_sp(getEmail(sam_pros));
+						userinfo.setaddress_sp(getAddress(sam_pros));
 					}
 				}
 				
@@ -769,21 +734,21 @@ public class HttpCommClient {
 			}
 			body.putOpt("service_category",cspobj.sam_pros.getservice_category());
 			body.putOpt("service_description",cspobj.sam_pros.getservice_description());
-			if(cspobj.sam_pros.getcountrycode_sampros() != null){
-				body.putOpt("countrycode",cspobj.sam_pros.getcountrycode_sampros());
+			if(cspobj.sam_pros.getcountrycode_sp() != null){
+				body.putOpt("countrycode",cspobj.sam_pros.getcountrycode_sp());
 			}
 
-			if(cspobj.sam_pros.getphone_sampros() != null){
-				body.putOpt("phone",cspobj.sam_pros.getphone_sampros());
+			if(cspobj.sam_pros.getphone_sp() != null){
+				body.putOpt("phone",cspobj.sam_pros.getphone_sp());
 			}
 
-			if(cspobj.sam_pros.getemail_sampros() != null){
-				body.putOpt("email",cspobj.sam_pros.getemail_sampros());
+			if(cspobj.sam_pros.getemail_sp() != null){
+				body.putOpt("email",cspobj.sam_pros.getemail_sp());
 			}
 
-			if(cspobj.sam_pros.getaddress_sampros() != null){
+			if(cspobj.sam_pros.getaddress_sp() != null){
 				JSONObject location = new JSONObject();
-				location.putOpt("address",cspobj.sam_pros.getaddress_sampros());
+				location.putOpt("address",cspobj.sam_pros.getaddress_sp());
 				body.put("location",location);
 			}
 
@@ -827,18 +792,16 @@ public class HttpCommClient {
 
 				if(isRetOK()){
 					JSONObject user = obj.getJSONObject("user");
-					userinfo = new SamProsUser(cspobj.sam_pros);
+					userinfo = new ContactUser(cspobj.sam_pros);
 					userinfo.setlastupdate(user.getLong("lastupdate"));
 					userinfo.setusertype(user.getInt("type"));
-					((SamProsUser)userinfo).setcompany_name(cspobj.sam_pros.getcompany_name());
-					((SamProsUser)userinfo).setservice_category(cspobj.sam_pros.getservice_category());
-					((SamProsUser)userinfo).setservice_description(cspobj.sam_pros.getservice_description());
-					((SamProsUser)userinfo).setcountrycode_sampros(cspobj.sam_pros.getcountrycode_sampros());
-					((SamProsUser)userinfo).setphone_sampros(cspobj.sam_pros.getphone_sampros());
-					((SamProsUser)userinfo).setemail_sampros(cspobj.sam_pros.getemail_sampros());
-					((SamProsUser)userinfo).setaddress_sampros(cspobj.sam_pros.getaddress_sampros());
-					//((SamProsUser)userinfo).setavatar_sampros(getAvatarThumb(sam_pros));
-					//((SamProsUser)userinfo).setavatar_original_sampros(getAvatarOrigin(sam_pros));
+					userinfo.setcompany_name(cspobj.sam_pros.getcompany_name());
+					userinfo.setservice_category(cspobj.sam_pros.getservice_category());
+					userinfo.setservice_description(cspobj.sam_pros.getservice_description());
+					userinfo.setcountrycode_sp(cspobj.sam_pros.getcountrycode_sp());
+					userinfo.setphone_sp(cspobj.sam_pros.getphone_sp());
+					userinfo.setemail_sp(cspobj.sam_pros.getemail_sp());
+					userinfo.setaddress_sp(cspobj.sam_pros.getaddress_sp());
 					
 				}
 				
@@ -1172,7 +1135,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructSendQuestionJson(sqobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_questionSend,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -1187,6 +1150,10 @@ public class HttpCommClient {
 					qinfo = new QuestionInfo(sqobj.question);
 					qinfo.question_id = obj.getLong("question_id");
 					qinfo.datetime = obj.getLong("datetime");
+					qinfo.latitude = sqobj.latitude;
+					qinfo.longitude = sqobj.longitude;
+					qinfo.address = sqobj.address;
+					qinfo.place_id = sqobj.place_id;
 				}
 				
 				return true;
@@ -1592,7 +1559,7 @@ public class HttpCommClient {
 			if(qupobj.type == TypeEnum.CELLPHONE){
 				param.putOpt("cellphone",qupobj.cellphone);
 			}else if(qupobj.type == TypeEnum.UNIQUE_ID){
-				param.putOpt("email",qupobj.unique_id);
+				param.putOpt("unique_id",qupobj.unique_id);
 			}else if(qupobj.type == TypeEnum.USERNAME){
 				param.putOpt("username",qupobj.username);
 			}else{
@@ -1907,26 +1874,26 @@ public class HttpCommClient {
 
 			if(epobj.user.getusertype() == Constants.SAM_PROS){
 				JSONObject sam_pros_info = new JSONObject();
-				if(((SamProsUser)epobj.user).getcompany_name() != null){
-					sam_pros_info.putOpt("company_name",((SamProsUser)epobj.user).getcompany_name());
+				if(epobj.user.getcompany_name() != null){
+					sam_pros_info.putOpt("company_name",epobj.user.getcompany_name());
 				}
-				if(((SamProsUser)epobj.user).getservice_category() != null){
-					sam_pros_info.putOpt("service_category",((SamProsUser)epobj.user).getservice_category());
+				if(epobj.user.getservice_category() != null){
+					sam_pros_info.putOpt("service_category",epobj.user.getservice_category());
 				}
-				if(((SamProsUser)epobj.user).getservice_description() != null){
-					sam_pros_info.putOpt("service_description",((SamProsUser)epobj.user).getservice_description());
+				if(epobj.user.getservice_description() != null){
+					sam_pros_info.putOpt("service_description",epobj.user.getservice_description());
 				}
-				if(((SamProsUser)epobj.user).getcountrycode_sampros() != null){
-					sam_pros_info.putOpt("countrycode",((SamProsUser)epobj.user).getcountrycode_sampros());
+				if(epobj.user.getcountrycode_sp() != null){
+					sam_pros_info.putOpt("countrycode",epobj.user.getcountrycode_sp());
 				}
-				if(((SamProsUser)epobj.user).getphone_sampros() != null){
-					sam_pros_info.putOpt("phone",((SamProsUser)epobj.user).getphone_sampros());
+				if(epobj.user.getphone_sp() != null){
+					sam_pros_info.putOpt("phone",epobj.user.getphone_sp());
 				}
-				if(((SamProsUser)epobj.user).getemail_sampros() != null){
-					sam_pros_info.putOpt("email",((SamProsUser)epobj.user).getemail_sampros());
+				if(epobj.user.getemail_sp() != null){
+					sam_pros_info.putOpt("email",epobj.user.getemail_sp());
 				}
-				if(((SamProsUser)epobj.user).getaddress_sampros() != null){
-					sam_pros_info.putOpt("address",((SamProsUser)epobj.user).getaddress_sampros());
+				if(epobj.user.getaddress_sp() != null){
+					sam_pros_info.putOpt("address",epobj.user.getaddress_sp());
 				}
 				user.put("sam_pros_info",sam_pros_info);
 			}
@@ -2626,7 +2593,7 @@ public class HttpCommClient {
 			long dest_id;
 			switch(category){
 				case Constants.PUSH_CATEGORY_QUESTION:
-                dest_id = body.getLong("dest_id");
+					dest_id = body.getLong("dest_id");
 					if(dest_id != SamService.getInstance().get_current_user().getunique_id()){
 						return Constants.PUSH_CATEGORY_UNKONW;
 					}

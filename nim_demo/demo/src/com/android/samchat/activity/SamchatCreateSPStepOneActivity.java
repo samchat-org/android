@@ -61,7 +61,7 @@ import android.content.IntentFilter;
 import android.graphics.Typeface;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import com.android.samservice.info.SamProsUser;
+import com.android.samservice.info.ContactUser;
 public class SamchatCreateSPStepOneActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatCreateSPStepOneActivity.class.getSimpleName();
 
@@ -182,7 +182,7 @@ public class SamchatCreateSPStepOneActivity extends UI implements OnKeyListener 
 			@Override
 			public void onClick(View arg0) {
 				LogUtil.e("test","next click");
-				SamProsUser sp = new SamProsUser(SamService.getInstance().get_current_user());
+				ContactUser sp = new ContactUser(SamService.getInstance().get_current_user());
 				sp.setcompany_name(company_name);
 				sp.setservice_category(service_category);
 				sp.setservice_description(service_description);

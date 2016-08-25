@@ -60,6 +60,11 @@
     <!-- 接受SDK消息广播权限， 第三方APP接入时，请将com.netease.nim.demo替换为自己的包名 -->
     <uses-permission android:name="com.netease.nim.demo.permission.RECEIVE_MSG" />
 
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:name=".NimApplication"
         android:allowBackup="true"
@@ -77,7 +82,7 @@
             android:name="PUSH_APPSECRET"
             android:value="ovHqi2uWuw5pvqYJf5QgO6"/>
 
-        <!-- 配置SDK核⼼服务 -->
+        <!-- 配置SDK核⼼服务-->
         <receiver
             android:name="com.android.samchat.receiver.PushReceiver"
             android:exported="false">
@@ -85,6 +90,7 @@
                 <action android:name="com.igexin.sdk.action.e56px9TMay6OJRDrwE21P9" />
             </intent-filter>
         </receiver>
+
 
         <service
             android:name="com.igexin.sdk.PushService"
@@ -259,6 +265,33 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity
+            android:name="com.zbar.scan.ScanCaptureAct"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity
+            android:name="com.karics.library.zxing.android.CaptureActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity
+            android:name="com.android.samchat.activity.SamchatQRCodeActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity
+            android:name="com.android.samchat.activity.SamchatNewRequestActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity
+            android:name="com.android.samchat.activity.SamchatRequestDetailsActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+
 
 
 

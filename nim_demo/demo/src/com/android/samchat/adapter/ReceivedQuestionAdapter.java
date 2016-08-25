@@ -165,7 +165,7 @@ public class ReceivedQuestionAdapter extends BaseAdapter{
 			int index = positionToIndex(position);
 			holder.request.setText(items.get(index).getquestion());
 			long showtime = items.get(index).getdatetime();
-			holder.date.setText(TimeUtil.getDateString(showtime));
+			holder.date.setText(TimeUtil.getTimeShowString(showtime,false));
 			holder.location.setText(items.get(index).getaddress());
 			holder.username.setText(items.get(index).getsender_unique_id()+"");
 			break;

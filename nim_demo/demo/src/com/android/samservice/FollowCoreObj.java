@@ -1,16 +1,16 @@
 package com.android.samservice;
-import com.android.samservice.info.SamProsUser;
+import com.android.samservice.info.ContactUser;
 
 public class FollowCoreObj extends SamCoreObj{
 	public String token;
 	public boolean isFollow;
-	public SamProsUser sam_pros;
+	public ContactUser sam_pros;
 
 	public FollowCoreObj(SMCallBack callback){
 		super(callback);
 	}
 
-	public void init(boolean isFollow, String token, SamProsUser sam_pros){
+	public void init(boolean isFollow, String token, ContactUser sam_pros){
 		this.isFollow = isFollow;
 		this.token = token;
 		this.sam_pros = sam_pros;

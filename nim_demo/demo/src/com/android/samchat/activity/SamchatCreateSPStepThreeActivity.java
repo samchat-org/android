@@ -61,7 +61,6 @@ import android.content.IntentFilter;
 import android.graphics.Typeface;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import com.android.samservice.info.SamProsUser;
 public class SamchatCreateSPStepThreeActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatCreateSPStepThreeActivity.class.getSimpleName();
 

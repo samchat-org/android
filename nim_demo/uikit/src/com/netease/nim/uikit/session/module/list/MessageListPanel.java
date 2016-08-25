@@ -243,7 +243,7 @@ public class MessageListPanel implements TAdapterDelegate {
                  return false;
              }
 			
-            int msg_from = (int)content.get("msg_from");
+            int msg_from = (int)content.get(NimConstants.MSG_FROM);
             if(msg_from != container.mode){
                 return true;
             }else{
@@ -255,7 +255,7 @@ public class MessageListPanel implements TAdapterDelegate {
                  return false;
             }
 			
-            int msg_from = (int)content.get("msg_from");
+            int msg_from = (int)content.get(NimConstants.MSG_FROM);
             if(msg_from == container.mode){
                 return true;
             }else{
@@ -1097,7 +1097,7 @@ public class MessageListPanel implements TAdapterDelegate {
         if(sessionTypeEnum == SessionTypeEnum.P2P){  
             /*SAMC_BEGIN(add local and remote tag)*/
             Map<String, Object> msg_from = new HashMap<>(1);
-            msg_from.put("msg_from",new Integer(container.mode));
+            msg_from.put(NimConstants.MSG_FROM,new Integer(container.mode));
             message.setRemoteExtension(msg_from);
 
             CustomMessageConfig config = message.getConfig();

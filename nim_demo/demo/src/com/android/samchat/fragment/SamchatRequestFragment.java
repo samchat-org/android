@@ -1,5 +1,6 @@
 package com.android.samchat.fragment;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,7 +13,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.samchat.service.SamDBManager;
 import com.netease.nim.demo.main.activity.MainActivity;
+import com.netease.nim.uikit.NIMCallback;
+import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +33,8 @@ import com.android.samchat.adapter.SendQuestionAdapter;
 import com.android.samchat.SamchatGlobal;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Map;
+
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.android.samservice.Constants;
 import android.content.BroadcastReceiver;
@@ -37,10 +43,21 @@ import com.android.samchat.type.ModeEnum;
 import android.content.IntentFilter;
 import android.content.Context;
 import android.content.Intent;
+import com.android.samchat.activity.SamchatNewRequestActivity;
+import com.netease.nim.uikit.session.sam_message.SamchatObserver;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.Observer;
+import com.netease.nimlib.sdk.msg.MsgServiceObserve;
+import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
+import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
+
+import android.view.View.OnClickListener;
 /**
  * Main Fragment in SamchatRequestListFragment
  */
 public class SamchatRequestFragment extends TFragment {
+	public static final int REQUEST_CODE_NEW_QUESTION = 0x1000;
 	/*customer mode*/
 	//view
 	private LinearLayout customer_request_layout;
@@ -80,6 +97,7 @@ public class SamchatRequestFragment extends TFragment {
 		broadcastManager = LocalBroadcastManager.getInstance(getActivity());
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Constants.BROADCAST_SWITCH_MODE);
+		filter.addAction(Constants.BROADCAST_CUSTOMER_ITEMS_UPDATE);
 
 		broadcastReceiver = new BroadcastReceiver() {
 			@Override
@@ -94,9 +112,28 @@ public class SamchatRequestFragment extends TFragment {
 						sp_request_layout.setVisibility(View.GONE);
 					}
 					((MainActivity)getActivity()).dimissSwitchProgress();
-				}
+				}else if(intent.getAction().equals(Constants.BROADCAST_CUSTOMER_ITEMS_UPDATE)){
+					SamDBManager.getInstance().asyncQuerySendQuestion(new NIMCallback(){
+					@Override
+					public void onResult(Object obj1, Object obj2, int code) {
+						if(obj1 == null){
+							return;
+						}
+						final List<SendQuestion> sqs = (List<SendQuestion>)obj1;
+						getHandler().postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								if(isAdded()){
+									loadedSendQuestions = sqs;
+									onSendQuestionsLoaded();
+								}
+							}
+						},0);
+					}
+				});
 			}
-		};
+		}
+	};
 		
 		broadcastManager.registerReceiver(broadcastReceiver, filter);
 	}
@@ -112,20 +149,36 @@ public class SamchatRequestFragment extends TFragment {
 	}
 
 	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		LogUtil.e("test", "requestCode:"+requestCode+"data:"+data);
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == REQUEST_CODE_NEW_QUESTION && resultCode == Activity.RESULT_OK) {
+			if (data != null) {
+				SendQuestion sq = (SendQuestion)data.getSerializableExtra("send_question");
+				updateSendQuestionItems(sq);
+				refreshSendQuestionList();
+			}
+		}
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.samchat_request_fragment_layout, container, false);
 	}
 
     @Override
     public void onDestroyView(){
-        unregisterBroadcastReceiver();
-        super.onDestroyView();
+		unregisterBroadcastReceiver();
+		registerObservers(false);
+		super.onDestroyView();
     }
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		findViews();
+		
+		setupPanel();
+		
 		initSendQuestionList();
 		initRcvdQuestionList();
 		
@@ -133,6 +186,7 @@ public class SamchatRequestFragment extends TFragment {
 		LoadRcvdQuestions(true);
 
 		registerBroadcastReceiver();
+		registerObservers(true);
 		
 	}
 
@@ -159,6 +213,21 @@ public class SamchatRequestFragment extends TFragment {
 		}
     }
 
+	private void setupPanel(){
+		findViews();
+
+		setupMakeNewServiceRequestClick();
+	}
+
+	private void setupMakeNewServiceRequestClick(){
+		make_new_service_request.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				SamchatNewRequestActivity.startActivityForResult(getActivity(),SamchatRequestFragment.this, REQUEST_CODE_NEW_QUESTION);
+			}
+		});
+	}
+
 	private void initSendQuestionList(){
 		sendquestions = new ArrayList<SendQuestion>();
 		sqadapter = new SendQuestionAdapter(getActivity(),sendquestions);
@@ -182,8 +251,6 @@ public class SamchatRequestFragment extends TFragment {
 		});
 		
 	}
-
-	
 
 	private List<SendQuestion> loadedSendQuestions;
 	private void LoadSendQuestions(boolean delay){
@@ -275,6 +342,22 @@ public class SamchatRequestFragment extends TFragment {
 			return time == 0 ? 0 : (time > 0 ? -1 : 1);
 		}
 	};
+
+	private void updateSendQuestionItems(SendQuestion sq){
+		int index = -1;
+		for(int i = 0; i<sendquestions.size();i++){
+			if(sendquestions.get(i).getquestion_id() == sq.getquestion_id()){
+				index = i;
+				break;
+			}
+		}
+		
+		if(index >= 0){
+			sendquestions.remove(index);
+		}
+
+		sendquestions.add(sq);
+	}
 
 /*************************************Service Provide Mode***************************/
 	private void initRcvdQuestionList(){
@@ -385,6 +468,70 @@ public class SamchatRequestFragment extends TFragment {
 				long time = o1Time - o2Time;
 				return time == 0 ? 0 : (time > 0 ? -1 : 1);
 			}
+		}
+	};
+
+	private void updateReceivedQuestionItems(ReceivedQuestion rq){
+		int index = -1;
+		for(int i = 0; i<rcvdquestions.size();i++){
+			if(rcvdquestions.get(i).getquestion_id() == rq.getquestion_id()){
+				index = i;
+				break;
+			}
+		}
+		
+		if(index >= 0){
+			rcvdquestions.remove(index);
+		}
+
+		rcvdquestions.add(rq);
+	}
+
+
+/*************************************Observers*******************************************************/
+	private void registerObservers(boolean register) {
+		MsgServiceObserve service = NIMClient.getService(MsgServiceObserve.class);
+		service.observeMsgStatus(statusObserver, register);
+		SamDBManager.getInstance().registerReceivedQuestionObserver(receviedQuestionObserver,  register);
+		SamDBManager.getInstance().registerSendQuestionUnreadClearObserver(sendQuestionUnreadClearObserver,register);
+	}
+
+	SamchatObserver< ReceivedQuestion> receviedQuestionObserver = new SamchatObserver < ReceivedQuestion >(){
+		@Override
+		public void onEvent(final ReceivedQuestion rq){
+			getActivity().runOnUiThread(new Runnable() {
+           	@Override
+            	public void run() {
+					updateReceivedQuestionItems(rq);
+					refreshRcvdQuestionList();
+				}
+			});
+		}
+	};
+
+	Observer<IMMessage> statusObserver = new Observer<IMMessage>() {
+		@Override
+		public void onEvent(IMMessage message){
+			if(message.	getDirect() == MsgDirectionEnum.Out && message.getStatus() == MsgStatusEnum.success){
+				Map<String, Object> content = message.getRemoteExtension();
+				if(content != null && content.containsKey(NimConstants.QUEST_ID)){
+					String quest_id = (String)content.get(NimConstants.QUEST_ID);
+					SamDBManager.getInstance().asyncUpdateReceivedQuestionStatusToResponse(Long.valueOf(quest_id));
+				}
+			}
+		}
+	};
+
+	SamchatObserver< SendQuestion> sendQuestionUnreadClearObserver = new SamchatObserver < SendQuestion >(){
+		@Override
+		public void onEvent(final SendQuestion sq){
+			getActivity().runOnUiThread(new Runnable() {
+           	@Override
+            	public void run() {
+					updateSendQuestionItems(sq);
+					refreshSendQuestionList();
+				}
+			});
 		}
 	};
  

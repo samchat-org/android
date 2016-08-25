@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import com.netease.nim.uikit.session.SessionCustomization;
@@ -23,6 +24,8 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.MsgServiceObserve;
+import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
+import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.MessageReceipt;
@@ -56,6 +59,7 @@ public class MessageFragment extends TFragment implements ModuleProxy {
 
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
     protected int mode = 0;
+    protected long question_id = 0;
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
 
     // modules
@@ -132,6 +136,7 @@ public class MessageFragment extends TFragment implements ModuleProxy {
     private void parseIntent() {
 		  /*SAMC_BEGIN(support mode setting for p2p activity)*/
         mode = getArguments().getInt(Extras.EXTRA_MODE,0);
+        question_id = getArguments().getLong(Extras.EXTRA_QUESTIONID,0);
         /*SAMC_END(support mode setting for p2p activity)*/
         sessionId = getArguments().getString(Extras.EXTRA_ACCOUNT);
         sessionType = (SessionTypeEnum) getArguments().getSerializable(Extras.EXTRA_TYPE);
@@ -181,10 +186,27 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         }else{
             NimUIKit.getCallback().registerIncomingMsgObserver(P2PincomingMsgObserver, register);
             NimUIKit.getCallback().registerSendCustomerMsgObserver(P2PSendCustomerMsgObserver,register);
+            service.observeMsgStatus(statusObserver, register);
         }
         /*SAMC_END(support mode setting for p2p activity)*/
         service.observeMessageReceipt(messageReceiptObserver, register);
     }
+
+    Observer<IMMessage> statusObserver = new Observer<IMMessage>() {
+		@Override
+		public void onEvent(IMMessage message){
+			if(message.	getDirect() == MsgDirectionEnum.Out && message.getStatus() == MsgStatusEnum.success){
+				Map<String, Object> content = message.getRemoteExtension();
+				if(content != null && content.containsKey(NimConstants.QUEST_ID)){
+					String quest_id = (String)content.get(NimConstants.QUEST_ID);
+					if(quest_id.equals(""+question_id)){
+                        NimUIKit.getCallback().asyncUpdateReceivedQuestionStatusToResponse(Long.valueOf(quest_id));
+							question_id = 0;
+					}
+				}
+			}
+		}
+	};
 
     SamchatObserver <  IMMessage > P2PSendCustomerMsgObserver = new SamchatObserver <  IMMessage >(){
 		@Override
@@ -252,8 +274,11 @@ public class MessageFragment extends TFragment implements ModuleProxy {
 
         /*SAMC_BEGIN(add local and remote tag)*/
         if(sessionType == SessionTypeEnum.P2P){
-            Map<String, Object> msg_from = new HashMap<>(1);
-            msg_from.put("msg_from",new Integer(mode));
+            Map<String, Object> msg_from = new HashMap<>();
+            msg_from.put(NimConstants.MSG_FROM,new Integer(mode));
+            if(question_id > 0){
+                msg_from.put(NimConstants.QUEST_ID,new String(""+question_id));
+            }
             message.setRemoteExtension(msg_from);
 
             CustomMessageConfig config = message.getConfig();
@@ -275,8 +300,8 @@ public class MessageFragment extends TFragment implements ModuleProxy {
                    getHandler().postDelayed(new Runnable() {
                        @Override
                        public void run() {
-                       	// send message to server and save to db
-                        	NIMClient.getService(MsgService.class).sendMessage(msg, false);
+                       	  // send message to server and save to db
+                          NIMClient.getService(MsgService.class).sendMessage(msg, false);
                           messageListPanel.onMsgSend(msg);
                        }
                     },0);

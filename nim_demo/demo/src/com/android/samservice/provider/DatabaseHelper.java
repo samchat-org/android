@@ -15,7 +15,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	public static final String TAG = "DatabaseHelper";
 	
 	public static final String TABLE_NAME_CONTACT_USER = "ContactUserTable";
-	public static final String TABLE_NAME_SAMPROS_USER = "SamProsTable";
 	public static final String TABLE_NAME_SEND_QUESTION = "SendQuestionTable";
 	public static final String TABLE_NAME_RECEIVED_QUESTION = "ReceivedQuestionTable";
 	public static final String TABLE_NAME_CONTACT_LIST = "ContactListTable";
@@ -38,6 +37,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	private void createContactUserTable(SQLiteDatabase db){
 	/*
 	id(primary) | unique_id | username | usertype | lastupdate | avatar | avatar_original | countrycode |cellphone | email | address
+						| company_name | service_category | service_description |countrycode_sp | phone_sp | email_sp | address_sp 
 	*/
 		StringBuffer sBuffer = new StringBuffer();
 		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_CONTACT_USER + "] (");
@@ -51,39 +51,22 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		sBuffer.append("[countrycode] TEXT ,");
 		sBuffer.append("[cellphone] TEXT ,");
 		sBuffer.append("[email] TEXT ,");
-		sBuffer.append("[address] TEXT )");
+		sBuffer.append("[address] TEXT,");
+
+		sBuffer.append("[company_name] TEXT,");
+		sBuffer.append("[service_category] TEXT,");
+		sBuffer.append("[service_description] TEXT,");
+		sBuffer.append("[countrycode_sp] TEXT,");
+		sBuffer.append("[phone_sp] TEXT,");
+		sBuffer.append("[email_sp] TEXT,");
+		sBuffer.append("[address_sp] TEXT)");
 		
 		db.execSQL(sBuffer.toString());
 	}
 
-	private void createSamProsUserTable(SQLiteDatabase db){
-	/*
-	id(primary) | lastupdate | unique_id | company_name | service_category | service_description 
-	               | countrycode | phone | email | address |
-	//avatar | avatar_original
-	*/
-		StringBuffer sBuffer = new StringBuffer();
-		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_SAMPROS_USER + "] (");
-		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
-		sBuffer.append("[lastupdate] INTEGER, ");
-		sBuffer.append("[unique_id] INTEGER, ");
-		sBuffer.append("[company_name] TEXT ,");
-		sBuffer.append("[service_category] TEXT ,");
-		sBuffer.append("[service_description] TEXT ,");
-
-		sBuffer.append("[countrycode] TEXT ,");
-		sBuffer.append("[phone] TEXT ,");
-		sBuffer.append("[email] TEXT ,");
-		sBuffer.append("[address] TEXT )");
-		//sBuffer.append("[avatar] TEXT ,");
-		//sBuffer.append("[avatar_original] TEXT )");
-		db.execSQL(sBuffer.toString());
-	
-	}
-
 	private void createSendQuestionTable(SQLiteDatabase db){
 	/*
-	id(primary) | question_id | question | address | status | datetime | latest_answer_time
+	id(primary) | question_id | question | address | status | datetime | latest_answer_time | sp_ids |unread
 	*/
 		StringBuffer sBuffer = new StringBuffer();
 		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_SEND_QUESTION + "] (");
@@ -93,13 +76,15 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		sBuffer.append("[address] TEXT ,");
 		sBuffer.append("[status] INTEGER ,");
 		sBuffer.append("[datetime] INTEGER ,");
-		sBuffer.append("[latest_answer_time] INTEGER)");
+		sBuffer.append("[latest_answer_time] INTEGER,");
+		sBuffer.append("[sp_ids] TEXT,");
+		sBuffer.append("[unread] INTEGER )");
 		db.execSQL(sBuffer.toString());
 	}
 
 	private void createReceivedQuestionTable(SQLiteDatabase db){
 	/*
-	id(primary) | question_id | question | sender_unique_id | status | datetime |address
+	id(primary) | question_id | question | sender_unique_id |sender_username | status | datetime |address
 	*/
 		StringBuffer sBuffer = new StringBuffer();
 		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_RECEIVED_QUESTION + "] (");
@@ -107,6 +92,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		sBuffer.append("[question_id] INTEGER, ");
 		sBuffer.append("[question] TEXT ,");
 		sBuffer.append("[sender_unique_id] INTEGER ,");
+		sBuffer.append("[sender_username] TEXT ,");
 		sBuffer.append("[status] INTEGER ,");
 		sBuffer.append("[datetime] INTEGER ,");
 		sBuffer.append("[address] TEXT )");
@@ -224,13 +210,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	public void createMsgTable(SQLiteDatabase db,String table_name){
 	/*
-	id(primary) | type | uuid
+	id(primary) | type | uuid | data_id
 	*/
 		StringBuffer sBuffer = new StringBuffer();
 		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + table_name+ "] (");
 		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
 		sBuffer.append("[type] INTEGER ,");
-		sBuffer.append("[uuid] TEXT )");
+		sBuffer.append("[uuid] TEXT,");
+		sBuffer.append("[data_id] INTEGER )");
 		db.execSQL(sBuffer.toString());
 	}
 	
@@ -240,7 +227,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		SamLog.i(TAG,"onCreate");
 		if(dbname.equals(DBManager.USERINFO_DB_NAME)){
 			createContactUserTable(db);
-			createSamProsUserTable(db);
 			createContactListTable(db);
 			createCustomerListTable(db);
 			createFollowListTable(db);
@@ -265,7 +251,6 @@ public class DatabaseHelper extends SQLiteOpenHelper
 	{
 		if(dbname.equals(DBManager.USERINFO_DB_NAME)){
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CONTACT_USER);
-			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_SAMPROS_USER);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CONTACT_LIST);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_FOLLOW_LIST);
 		}else if(dbname.equals(DBManager.QUESTION_DB_NAME)){

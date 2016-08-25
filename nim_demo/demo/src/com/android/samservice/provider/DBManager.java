@@ -211,6 +211,7 @@ public class DBManager
 		
 		cv.put("type",msg.gettype());
 		cv.put("uuid",msg.getuuid());
+		cv.put("data_id",msg.getdata_id());
 
 		return message_db.insert(table,null,cv);
 	}
@@ -219,8 +220,8 @@ public class DBManager
 		message_db.beginTransaction();
 		try{
 			for(Message msg : msgs){
-				String rawSQL = "INSERT INTO "+table+"(type,uuid) VALUES (?,?)";
-				Object [] bindArgs={new Integer(msg.gettype()),new String(msg.getuuid())};
+				String rawSQL = "INSERT INTO "+table+"(type,uuid,data_id) VALUES (?,?,?)";
+				Object [] bindArgs={new Integer(msg.gettype()),new String(msg.getuuid()),new Long(msg.getdata_id())};
 				message_db.execSQL(rawSQL, bindArgs);
 			}
 			message_db.setTransactionSuccessful();
@@ -244,6 +245,7 @@ public class DBManager
 			msg.setid(c.getLong(c.getColumnIndex("id")));
 			msg.settype(c.getInt(c.getColumnIndex("type")));
 			msg.setuuid(c.getString(c.getColumnIndex("uuid")));
+			msg.setdata_id(c.getLong(c.getColumnIndex("data_id")));
 
 			msgs.add(0,msg);
 		}
@@ -271,6 +273,7 @@ public class DBManager
 			msg.setid(c.getLong(c.getColumnIndex("id")));
 			msg.settype(c.getInt(c.getColumnIndex("type")));
 			msg.setuuid(c.getString(c.getColumnIndex("uuid")));
+			msg.setdata_id(c.getLong(c.getColumnIndex("data_id")));
 
 			msgs.add(0,msg);
 		}
@@ -292,6 +295,25 @@ public class DBManager
 			msg.setid(c.getLong(c.getColumnIndex("id")));
 			msg.settype(c.getInt(c.getColumnIndex("type")));
 			msg.setuuid(c.getString(c.getColumnIndex("uuid")));
+			msg.setdata_id(c.getLong(c.getColumnIndex("data_id")));
+		}
+
+		c.close();
+
+		return msg;
+	}
+
+	public Message queryMessageByTypeAndDataID(String table, int type, long data_id){
+		Message msg = null;
+
+      Cursor c = message_db.query(table, null, "type = ? and data_id=?", new String[]{""+type,""+data_id}, null, null, null);
+
+		while(c.moveToNext()){
+			msg = new Message();
+			msg.setid(c.getLong(c.getColumnIndex("id")));
+			msg.settype(c.getInt(c.getColumnIndex("type")));
+			msg.setuuid(c.getString(c.getColumnIndex("uuid")));
+			msg.setdata_id(c.getLong(c.getColumnIndex("data_id")));
 		}
 
 		c.close();
@@ -329,6 +351,13 @@ public class DBManager
 		cv.put("cellphone",user.getcellphone());
 		cv.put("email",user.getemail());
 		cv.put("address",user.getaddress());
+		cv.put("company_name",user.getcompany_name());
+		cv.put("service_category",user.getservice_category());
+		cv.put("service_description",user.getservice_description());
+		cv.put("countrycode_sp",user.getcountrycode_sp());
+		cv.put("phone_sp",user.getphone_sp());
+		cv.put("email_sp",user.getemail_sp());
+		cv.put("address_sp",user.getaddress_sp());
 
 		return userinfo_db.insert(table,null,cv);
 		
@@ -349,9 +378,48 @@ public class DBManager
 		cv.put("cellphone",user.getcellphone());
 		cv.put("email",user.getemail());
 		cv.put("address",user.getaddress());
+		cv.put("company_name",user.getcompany_name());
+		cv.put("service_category",user.getservice_category());
+		cv.put("service_description",user.getservice_description());
+		cv.put("countrycode_sp",user.getcountrycode_sp());
+		cv.put("phone_sp",user.getphone_sp());
+		cv.put("email_sp",user.getemail_sp());
+		cv.put("address_sp",user.getaddress_sp());
+
 
 		String whereClause = "id=?";
 		String [] whereArgs = {""+id+""};
+
+		return userinfo_db.update(table,cv,whereClause,whereArgs);
+		
+	}
+
+	public long updateContactUserByUniqueId(long unique_id, ContactUser user)
+	{
+		String table = DatabaseHelper.TABLE_NAME_CONTACT_USER;
+
+		ContentValues cv = new ContentValues();
+		cv.put("unique_id",user.getunique_id());
+		cv.put("username",user.getusername());
+		cv.put("usertype",user.getusertype());
+		cv.put("lastupdate",user.getlastupdate());
+		cv.put("avatar",user.getavatar());
+		cv.put("avatar_original",user.getavatar_original());
+		cv.put("countrycode",user.getcountrycode());
+		cv.put("cellphone",user.getcellphone());
+		cv.put("email",user.getemail());
+		cv.put("address",user.getaddress());
+		cv.put("company_name",user.getcompany_name());
+		cv.put("service_category",user.getservice_category());
+		cv.put("service_description",user.getservice_description());
+		cv.put("countrycode_sp",user.getcountrycode_sp());
+		cv.put("phone_sp",user.getphone_sp());
+		cv.put("email_sp",user.getemail_sp());
+		cv.put("address_sp",user.getaddress_sp());
+
+
+		String whereClause = "unique_id=?";
+		String [] whereArgs = {""+unique_id+""};
 
 		return userinfo_db.update(table,cv,whereClause,whereArgs);
 		
@@ -392,6 +460,14 @@ public class DBManager
 			user.setcellphone(c.getString(c.getColumnIndex("cellphone")));
 			user.setemail(c.getString(c.getColumnIndex("email")));
 			user.setaddress(c.getString(c.getColumnIndex("address")));
+			user.setcompany_name(c.getString(c.getColumnIndex("company_name")));
+			user.setservice_category(c.getString(c.getColumnIndex("service_category")));
+			user.setservice_description(c.getString(c.getColumnIndex("service_description")));
+			user.setcountrycode_sp(c.getString(c.getColumnIndex("countrycode_sp")));
+			user.setphone_sp(c.getString(c.getColumnIndex("phone_sp")));
+			user.setemail_sp(c.getString(c.getColumnIndex("email_sp")));
+			user.setaddress_sp(c.getString(c.getColumnIndex("address_sp")));
+
 		}
 
 		c.close();
@@ -420,6 +496,13 @@ public class DBManager
 			user.setcellphone(c.getString(c.getColumnIndex("cellphone")));
 			user.setemail(c.getString(c.getColumnIndex("email")));
 			user.setaddress(c.getString(c.getColumnIndex("address")));
+			user.setcompany_name(c.getString(c.getColumnIndex("company_name")));
+			user.setservice_category(c.getString(c.getColumnIndex("service_category")));
+			user.setservice_description(c.getString(c.getColumnIndex("service_description")));
+			user.setcountrycode_sp(c.getString(c.getColumnIndex("countrycode_sp")));
+			user.setphone_sp(c.getString(c.getColumnIndex("phone_sp")));
+			user.setemail_sp(c.getString(c.getColumnIndex("email_sp")));
+			user.setaddress_sp(c.getString(c.getColumnIndex("address_sp")));
 
 			name += ":"+user.getusername()+":";
 		}
@@ -453,6 +536,13 @@ public class DBManager
 			user.setcellphone(c.getString(c.getColumnIndex("cellphone")));
 			user.setemail(c.getString(c.getColumnIndex("email")));
 			user.setaddress(c.getString(c.getColumnIndex("address")));
+			user.setcompany_name(c.getString(c.getColumnIndex("company_name")));
+			user.setservice_category(c.getString(c.getColumnIndex("service_category")));
+			user.setservice_description(c.getString(c.getColumnIndex("service_description")));
+			user.setcountrycode_sp(c.getString(c.getColumnIndex("countrycode_sp")));
+			user.setphone_sp(c.getString(c.getColumnIndex("phone_sp")));
+			user.setemail_sp(c.getString(c.getColumnIndex("email_sp")));
+			user.setaddress_sp(c.getString(c.getColumnIndex("address_sp")));
 
 			name += ":"+user.getusername()+":";
 		}
@@ -486,144 +576,15 @@ public class DBManager
 			user.setcellphone(c.getString(c.getColumnIndex("cellphone")));
 			user.setemail(c.getString(c.getColumnIndex("email")));
 			user.setaddress(c.getString(c.getColumnIndex("address")));
+			user.setcompany_name(c.getString(c.getColumnIndex("company_name")));
+			user.setservice_category(c.getString(c.getColumnIndex("service_category")));
+			user.setservice_description(c.getString(c.getColumnIndex("service_description")));
+			user.setcountrycode_sp(c.getString(c.getColumnIndex("countrycode_sp")));
+			user.setphone_sp(c.getString(c.getColumnIndex("phone_sp")));
+			user.setemail_sp(c.getString(c.getColumnIndex("email_sp")));
+			user.setaddress_sp(c.getString(c.getColumnIndex("address_sp")));
 
 			users.add(user);
-		}
-
-		c.close();
-
-		return users;
-	}
-
-/******************************SamProsUser DB**********************************************/
-	public long addSamProsUser(SamProsUser user){
-		String table = DatabaseHelper.TABLE_NAME_SAMPROS_USER;
-
-		ContentValues cv = new ContentValues();
-		cv.put("unique_id",user.getunique_id());
-		cv.put("company_name",user.getcompany_name());
-		cv.put("service_category",user.getservice_category());
-		cv.put("service_description",user.getservice_description());
-		cv.put("countrycode",user.getcountrycode_sampros());
-		cv.put("phone",user.getphone_sampros());
-		cv.put("email",user.getemail_sampros());
-		cv.put("address",user.getaddress_sampros());
-		//cv.put("avatar",user.getavatar_sampros());
-		//cv.put("avatar_original",user.getavatar_original_sampros());
-
-		return userinfo_db.insert(table,null,cv);
-	}
-
-	public long updateSamProsUser(long id, SamProsUser user)
-	{
-		String table = DatabaseHelper.TABLE_NAME_SAMPROS_USER;
-
-		ContentValues cv = new ContentValues();
-		cv.put("unique_id",user.getunique_id());
-		cv.put("company_name",user.getcompany_name());
-		cv.put("service_category",user.getservice_category());
-		cv.put("service_description",user.getservice_description());
-		cv.put("countrycode",user.getcountrycode_sampros());
-		cv.put("phone",user.getphone_sampros());
-		cv.put("email",user.getemail_sampros());
-		cv.put("address",user.getaddress_sampros());
-		//cv.put("avatar",user.getavatar_sampros());
-		//cv.put("avatar_original",user.getavatar_original_sampros());
-
-		String whereClause = "id=?";
-		String [] whereArgs = {""+id+""};
-
-		return userinfo_db.update(table,cv,whereClause,whereArgs);
-	}
-
-	public SamProsUser querySamProsUserByUniqueID(long unique_id){
-		ContactUser user = queryContactUserByUniqueID(unique_id);
-		if(user == null){
-			return null;
-		}
-
-		String table = DatabaseHelper.TABLE_NAME_SAMPROS_USER;
-		String name = null;
-		SamProsUser sam_pros_user = null;
-		Cursor c = userinfo_db.query(table,null,"unique_id=?",new String[]{""+unique_id},null,null,null);
-
-		while(c.moveToNext()){
-			sam_pros_user = new SamProsUser(user);
-			sam_pros_user.setid_sampros(c.getLong(c.getColumnIndex("id")));
-			sam_pros_user.setunique_id(c.getLong(c.getColumnIndex("unique_id")));
-			sam_pros_user.setcompany_name(c.getString(c.getColumnIndex("company_name")));
-			sam_pros_user.setservice_category(c.getString(c.getColumnIndex("service_category")));
-			sam_pros_user.setservice_description(c.getString(c.getColumnIndex("service_description")));
-			sam_pros_user.setcountrycode_sampros(c.getString(c.getColumnIndex("countrycode")));
-			sam_pros_user.setphone_sampros(c.getString(c.getColumnIndex("phone")));
-			sam_pros_user.setemail_sampros(c.getString(c.getColumnIndex("email")));
-			sam_pros_user.setaddress_sampros(c.getString(c.getColumnIndex("address")));
-			//sam_pros_user.setavatar_sampros(c.getString(c.getColumnIndex("avatar")));
-			//sam_pros_user.setavatar_original_sampros(c.getString(c.getColumnIndex("avatar_original")));
-		
-			name += ":"+sam_pros_user.getusername()+":";
-		}
-
-		c.close();
-
-		if(c.getCount()>1){
-			throw new RuntimeException("code error:"+c.getCount()+" sam_pros_user is found in db by unique_id:"+unique_id+" name"+name);
-		}
-		
-		return sam_pros_user;
-	}
-
-	public SamProsUser queryOnlySamProsUserByUniqueID(long unique_id){
-		String table = DatabaseHelper.TABLE_NAME_SAMPROS_USER;
-		String name = null;
-		SamProsUser sam_pros_user = null;
-		Cursor c = userinfo_db.query(table,null,"unique_id=?",new String[]{""+unique_id},null,null,null);
-
-		while(c.moveToNext()){
-			sam_pros_user = new SamProsUser();
-			sam_pros_user.setid_sampros(c.getLong(c.getColumnIndex("id")));
-			sam_pros_user.setunique_id(c.getLong(c.getColumnIndex("unique_id")));
-			sam_pros_user.setcompany_name(c.getString(c.getColumnIndex("company_name")));
-			sam_pros_user.setservice_category(c.getString(c.getColumnIndex("service_category")));
-			sam_pros_user.setservice_description(c.getString(c.getColumnIndex("service_description")));
-			sam_pros_user.setcountrycode_sampros(c.getString(c.getColumnIndex("countrycode")));
-			sam_pros_user.setphone_sampros(c.getString(c.getColumnIndex("phone")));
-			sam_pros_user.setemail_sampros(c.getString(c.getColumnIndex("email")));
-			sam_pros_user.setaddress_sampros(c.getString(c.getColumnIndex("address")));
-			//sam_pros_user.setavatar_sampros(c.getString(c.getColumnIndex("avatar")));
-			//sam_pros_user.setavatar_original_sampros(c.getString(c.getColumnIndex("avatar_original")));
-			name += ":"+sam_pros_user.getusername()+":";
-		}
-
-		c.close();
-
-		if(c.getCount()>1){
-			throw new RuntimeException("code error:"+c.getCount()+" sam_pros_user is found in db by unique_id:"+unique_id+" name"+name);
-		}
-		
-		return sam_pros_user;
-	}
-
-	public List<SamProsUser> querySamProsUserAll(){
-		String table = DatabaseHelper.TABLE_NAME_SAMPROS_USER;
-		SamProsUser sam_pros_user = null;
-		List<SamProsUser> users = new ArrayList<SamProsUser>();
-		
-		Cursor c = userinfo_db.query(table,null,null,null,null,null,null);
-
-		while(c.moveToNext()){
-			sam_pros_user = new SamProsUser();
-			sam_pros_user.setid_sampros(c.getLong(c.getColumnIndex("id")));
-			sam_pros_user.setunique_id(c.getLong(c.getColumnIndex("unique_id")));
-			sam_pros_user.setcompany_name(c.getString(c.getColumnIndex("company_name")));
-			sam_pros_user.setservice_category(c.getString(c.getColumnIndex("service_category")));
-			sam_pros_user.setservice_description(c.getString(c.getColumnIndex("service_description")));
-			sam_pros_user.setcountrycode_sampros(c.getString(c.getColumnIndex("countrycode")));
-			sam_pros_user.setphone_sampros(c.getString(c.getColumnIndex("phone")));
-			sam_pros_user.setemail_sampros(c.getString(c.getColumnIndex("email")));
-			sam_pros_user.setaddress_sampros(c.getString(c.getColumnIndex("address")));
-
-			users.add(sam_pros_user);
 		}
 
 		c.close();
@@ -644,6 +605,8 @@ public class DBManager
 		cv.put("status",question.getstatus());
 		cv.put("datetime",question.getdatetime());
 		cv.put("latest_answer_time",question.getlatest_answer_time());
+		cv.put("sp_ids",question.getsp_ids());
+		cv.put("unread",question.getunread());
 
 		return question_db.insert(table,null,cv);
 	}
@@ -660,11 +623,39 @@ public class DBManager
 		cv.put("status",question.getstatus());
 		cv.put("datetime",question.getdatetime());
 		cv.put("latest_answer_time",question.getlatest_answer_time());
+		cv.put("sp_ids",question.getsp_ids());
+		cv.put("unread",question.getunread());
 
 		String whereClause = "id=?";
 		String [] whereArgs = {""+id+""};
 
 		return question_db.update(table,cv,whereClause,whereArgs);
+	}
+
+	public long updateSendQuestionSPIDS(long question_id, String sp_ids){
+		String table = DatabaseHelper.TABLE_NAME_SEND_QUESTION;
+
+		ContentValues cv = new ContentValues();
+		
+		cv.put("sp_ids",sp_ids);
+
+		String whereClause = "question_id=?";
+		String [] whereArgs = {""+question_id+""};
+
+		return userinfo_db.update(table,cv,whereClause,whereArgs);
+	}
+
+	public long updateSendQuestionUnread(long question_id, int unread){
+		String table = DatabaseHelper.TABLE_NAME_SEND_QUESTION;
+
+		ContentValues cv = new ContentValues();
+		
+		cv.put("unread",unread);
+
+		String whereClause = "question_id=?";
+		String [] whereArgs = {""+question_id+""};
+
+		return userinfo_db.update(table,cv,whereClause,whereArgs);
 	}
 
 	public SendQuestion querySendQuestionByQuestionID(long question_id){
@@ -677,11 +668,14 @@ public class DBManager
 		while(c.moveToNext()){
 			question = new SendQuestion();	
 			question.setid(c.getLong(c.getColumnIndex("id")));
+			question.setquestion_id(c.getLong(c.getColumnIndex("question_id")));
 			question.setquestion(c.getString(c.getColumnIndex("question")));
 			question.setaddress(c.getString(c.getColumnIndex("address")));
 			question.setstatus( c.getInt(c.getColumnIndex("status")));
 			question.setdatetime(c.getLong(c.getColumnIndex("datetime")));
 			question.setlatest_answer_time(c.getLong(c.getColumnIndex("latest_answer_time")));
+			question.setsp_ids(c.getString(c.getColumnIndex("sp_ids")));
+			question.setunread(c.getInt(c.getColumnIndex("unread")));
 
 			name += ":"+question.getquestion_id()+":";
 		}
@@ -705,11 +699,14 @@ public class DBManager
 		while(c.moveToNext()){
 			question = new SendQuestion();	
 			question.setid(c.getLong(c.getColumnIndex("id")));
+			question.setquestion_id(c.getLong(c.getColumnIndex("question_id")));
 			question.setquestion(c.getString(c.getColumnIndex("question")));
 			question.setaddress(c.getString(c.getColumnIndex("address")));
 			question.setstatus( c.getInt(c.getColumnIndex("status")));
 			question.setdatetime(c.getLong(c.getColumnIndex("datetime")));
 			question.setlatest_answer_time(c.getLong(c.getColumnIndex("latest_answer_time")));
+			question.setsp_ids(c.getString(c.getColumnIndex("sp_ids")));
+			question.setunread(c.getInt(c.getColumnIndex("unread")));
 
 			questions.add(question);
 		}
@@ -734,6 +731,7 @@ public class DBManager
 		cv.put("question_id",question.getquestion_id());
 		cv.put("question",question.getquestion());
 		cv.put("sender_unique_id",question.getsender_unique_id());
+		cv.put("sender_username",question.getsender_username());
 		cv.put("status",question.getstatus());
 		cv.put("datetime",question.getdatetime());
 		cv.put("address",question.getaddress());
@@ -750,6 +748,7 @@ public class DBManager
 		cv.put("question_id",question.getquestion_id());
 		cv.put("question",question.getquestion());
 		cv.put("sender_unique_id",question.getsender_unique_id());
+		cv.put("sender_username",question.getsender_username());
 		cv.put("status",question.getstatus());
 		cv.put("datetime",question.getdatetime());
 		cv.put("address",question.getaddress());
@@ -770,8 +769,10 @@ public class DBManager
 		while(c.moveToNext()){
 			question = new ReceivedQuestion();	
 			question.setid(c.getLong(c.getColumnIndex("id")));
+			question.setquestion_id(c.getLong(c.getColumnIndex("question_id")));
 			question.setquestion(c.getString(c.getColumnIndex("question")));
 			question.setsender_unique_id(c.getLong(c.getColumnIndex("sender_unique_id")));
+			question.setsender_username(c.getString(c.getColumnIndex("sender_username")));
 			question.setstatus( c.getInt(c.getColumnIndex("status")));
 			question.setdatetime(c.getLong(c.getColumnIndex("datetime")));
 			question.setaddress(c.getString(c.getColumnIndex("address")));
@@ -798,8 +799,10 @@ public class DBManager
 		while(c.moveToNext()){
 			question = new ReceivedQuestion();	
 			question.setid(c.getLong(c.getColumnIndex("id")));
+			question.setquestion_id(c.getLong(c.getColumnIndex("question_id")));
 			question.setquestion(c.getString(c.getColumnIndex("question")));
 			question.setsender_unique_id(c.getLong(c.getColumnIndex("sender_unique_id")));
+			question.setsender_username(c.getString(c.getColumnIndex("sender_username")));
 			question.setstatus( c.getInt(c.getColumnIndex("status")));
 			question.setdatetime(c.getLong(c.getColumnIndex("datetime")));
 			question.setaddress(c.getString(c.getColumnIndex("address")));
@@ -834,8 +837,10 @@ public class DBManager
 		while(c.moveToNext()){
 			question = new ReceivedQuestion();	
 			question.setid(c.getLong(c.getColumnIndex("id")));
+			question.setquestion_id(c.getLong(c.getColumnIndex("question_id")));
 			question.setquestion(c.getString(c.getColumnIndex("question")));
 			question.setsender_unique_id(c.getLong(c.getColumnIndex("sender_unique_id")));
+			question.setsender_username(c.getString(c.getColumnIndex("sender_username")));
 			question.setstatus( c.getInt(c.getColumnIndex("status")));
 			question.setdatetime(c.getLong(c.getColumnIndex("datetime")));
 			question.setaddress(c.getString(c.getColumnIndex("address")));

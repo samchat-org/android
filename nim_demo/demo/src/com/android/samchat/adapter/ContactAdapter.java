@@ -20,7 +20,7 @@ import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import android.widget.LinearLayout;
 
 public class ContactAdapter extends BaseAdapter{
-	static private String TAG = "ContactAdapter";
+	static private String TAG = "SamchatContactAdapter";
 	
 	private final int TYPE_CONTACT = 0;
 	private final int TYPE_MAX = TYPE_CONTACT + 1;

@@ -52,11 +52,6 @@ public class Constants{
 	public static final int MSG_READ = 0;
 	public static final int MSG_UNREAD = 1;
 
-	public static final int MSG_TYPE_IM = 0;
-	public static final int MSG_TYPE_SQ = 1; 
-	public static final int MSG_TYPE_RQ = 2; 
-	public static final int MSG_TYPE_ADV = 3; 
-
 	/****************************Avatar update of type***********************************************/
 	public static final int AVATAR_UPDATE_USER = 0;
 	public static final int AVATAR_UPDATE_SAM_PROS = 1;
@@ -82,6 +77,8 @@ public class Constants{
 	public static final int FROM_SIGNUP = 0;
 	public static final int FROM_FORGETPWD = 1;
 
+	public static final int FROM_CUSTOMER_ACTIVITY_LAUNCH = 0;
+	public static final int FROM_SP_ACTIVITY_LAUNCH = 1;
 
 	/****************************Broadcast***********************************************/
 	public static final String BROADCAST_SWITCH_MODE = "com.android.samchat.switchmode";
@@ -89,12 +86,15 @@ public class Constants{
 	public static final String BROADCAST_SIGN_UP_ALREADY = "com.android.samchat.signupalready";
 	public static final String BROADCAST_FINDPWD_ALREADY = "com.android.samchat.findpwdalready";
 	public static final String BROADCAST_CREATE_SP_SUCCESS = "com.android.samchat.createspsuccess";
+	public static final String BROADCAST_CUSTOMER_ITEMS_UPDATE = "com.android.samchat.customeritemsupdate";
+	public static final String BROADCAST_USER_INFO_UPDATE = "com.android.samchat.userinfoupdate";
 
 	/****************************Message From***********************************************/
 	public static final String MSG_FROM = "msg_from";
 	public static final int FROM_CUSTOMER = 0;
 	public static final int FROM_SP = 1;
-	public static final String MSG_TO = "msg_to";
+
+
 
 	/****************************Start Activity Confirm ID***********************************************/
 	public static final String CONFIRM_COUNTRYCODE = "countrycode";
@@ -152,6 +152,7 @@ public class Constants{
 	public static final int RET_FOLLOW_MAXIUM_ERROR = -506;
 	public static final int RET_HAVE_NOT_FOLLOW_ERROR = -507;
 	public static final int RET_HAVE_NOT_ADD_CONTACT_ERROR = -508;
+	public static final int RET_SEND_QUESTION_TOO_OFFTEN = -509;
 	
 	/****************************Longitude/Latitude null value***********************************************/
 	public static final double CONSTANTS_LONGITUDE_LATITUDE_NULL = -400;

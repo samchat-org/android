@@ -64,8 +64,15 @@ public class SamDBDao{
 			||!stringEquals(old.getcountrycode(),now.getcountrycode())
 			||!stringEquals(old.getcellphone(),now.getcellphone())
 			||!stringEquals(old.getemail(),now.getemail())
-			||!stringEquals(old.getaddress(),now.getaddress())){
-
+			||!stringEquals(old.getaddress(),now.getaddress())
+			||!stringEquals(old.getcompany_name(),now.getcompany_name())
+			||!stringEquals(old.getservice_category(),now.getservice_category())
+			||!stringEquals(old.getservice_description(),now.getservice_description())
+			||!stringEquals(old.getcountrycode_sp(),now.getcountrycode_sp())
+			||!stringEquals(old.getphone_sp(),now.getphone_sp())
+			||!stringEquals(old.getemail_sp(),now.getemail_sp())
+			||!stringEquals(old.getaddress_sp(),now.getaddress_sp())
+		){
 			return true;
 		}else{
 			return false;
@@ -76,7 +83,12 @@ public class SamDBDao{
 		if(!stringEquals(old.getusername(),now.getusername())
 			||old.getusertype() != now.gettype()
 			||!stringEquals(old.getavatar(),now.getavatar_thumb())
-			||!stringEquals(old.getavatar_original(),now.getavatar_original())){
+			||!stringEquals(old.getavatar_original(),now.getavatar_original())
+			||old.getunique_id()!=now.getunique_id()
+			||!stringEquals(old.getcompany_name(),now.getcompany_name())
+			||!stringEquals(old.getservice_category(),now.getservice_category())
+			||!stringEquals(old.getservice_description(),now.getservice_description())
+		){
 			return true;
 		}else{
 			return false;
@@ -151,6 +163,9 @@ public class SamDBDao{
 				cuser.setusertype(user.gettype());
 				cuser.setavatar(user.getavatar_thumb());
 				cuser.setavatar_original(user.getavatar_original());
+				cuser.setcompany_name(user.getcompany_name());
+				cuser.setservice_category(user.getservice_category());
+				cuser.setservice_description(user.getservice_description());
 				ret = dbHandle.addContactUser(cuser);
 			}else if(compareContactUserByBasicUserInfo(tuser, user)){
 				tuser.setunique_id(user.getunique_id());
@@ -158,6 +173,9 @@ public class SamDBDao{
 				tuser.setusertype(user.gettype());
 				tuser.setavatar(user.getavatar_thumb());
 				tuser.setavatar_original(user.getavatar_original());
+				tuser.setcompany_name(user.getcompany_name());
+				tuser.setservice_category(user.getservice_category());
+				tuser.setservice_description(user.getservice_description());
 				if(dbHandle.updateContactUser(tuser.getid(), tuser) != 0){
 					ret = tuser.getid();
 				}else{
@@ -194,133 +212,6 @@ public class SamDBDao{
 		}
 	}
 
-/********************************************SamProsUser DB******************************************************************/
-	private boolean compareSamProsUser(SamProsUser old, SamProsUser now){
-		if(!stringEquals(old.getcompany_name(),now.getcompany_name())
-			||!stringEquals(old.getservice_category(),now.getservice_category())
-			||!stringEquals(old.getservice_description(),now.getservice_description())
-			||!stringEquals(old.getcountrycode_sampros(),now.getcountrycode_sampros())
-			||!stringEquals(old.getphone_sampros(),now.getphone_sampros())
-			||!stringEquals(old.getemail_sampros(),now.getemail_sampros())
-			||!stringEquals(old.getaddress_sampros(),now.getaddress_sampros())){
-			return true;
-		}else{
-			return false;
-		}
-
-	}
-
-	private boolean compareSamProsUserByBasicUserInfo(SamProsUser old, BasicUserInfo now){
-		if(!stringEquals(old.getcompany_name(),now.getcompany_name())
-			||!stringEquals(old.getservice_category(),now.getservice_category())
-			||!stringEquals(old.getservice_description(),now.getservice_description())
-		){
-			return true;
-		}else{
-			return false;
-		}
-
-	}
-
-	public long update_SamProsUser_db(SamProsUser user){
-		long ret;
-
-		synchronized(dbLock_userinfo){
-			SamProsUser tuser = dbHandle.queryOnlySamProsUserByUniqueID(user.getunique_id());
-			if(tuser ==null){
-				ret = dbHandle.addSamProsUser(user);
-			}else if(compareSamProsUser(tuser, user)){
-				if(dbHandle.updateSamProsUser(tuser.getid(), user) != 0){
-					ret = tuser.getid();
-				}else{
-					ret = -1;
-				}
-			}else{
-				ret = tuser.getid();
-			}	
-		}
-
-		if(ret != -1 && (update_ContactUser_db(user) != -1)){
-			return ret;
-		}else{
-			return -1;
-		}
-		
-	}
-
-	public long update_SamProsUser_db_by_basicinfo(BasicUserInfo user){
-		long ret;
-
-		synchronized(dbLock_userinfo){
-			SamProsUser tuser = dbHandle.queryOnlySamProsUserByUniqueID(user.getunique_id());
-			if(tuser ==null){
-				SamProsUser cuser = new SamProsUser();
-				cuser.setunique_id(user.getunique_id());
-				cuser.setcompany_name(user.getcompany_name());
-				cuser.setservice_category(user.getservice_category());
-				cuser.setservice_description(user.getservice_description());
-				ret = dbHandle.addSamProsUser(cuser);
-			}else if(compareSamProsUserByBasicUserInfo(tuser, user)){
-				tuser.setunique_id(user.getunique_id());
-				tuser.setcompany_name(user.getcompany_name());
-				tuser.setservice_category(user.getservice_category());
-				tuser.setservice_description(user.getservice_description());
-				if(dbHandle.updateSamProsUser(tuser.getid(), tuser) != 0){
-					ret = tuser.getid();
-				}else{
-					ret = -1;
-				}
-			}else{
-				ret = tuser.getid();
-			}	
-		}
-
-		if(ret != -1 && (update_ContactUser_db_by_basicinfo(user) != -1)){
-			return ret;
-		}else{
-			return -1;
-		}
-		
-	}
-
-	public long update_SamProsUser_db_if_existed(SamProsUser user){
-		long ret;
-
-		synchronized(dbLock_userinfo){
-			SamProsUser tuser = dbHandle.queryOnlySamProsUserByUniqueID(user.getunique_id());
-			if(tuser == null){
-				return 0;
-			}else if(compareSamProsUser(tuser, user)){
-				if(dbHandle.updateSamProsUser(tuser.getid(), user) != 0){
-					ret = tuser.getid();
-				}else{
-					ret = -1;
-				}
-			}else{
-				ret = tuser.getid();
-			}	
-		}
-
-		if(ret != -1 && (update_ContactUser_db(user) != -1)){
-			return ret;
-		}else{
-			return -1;
-		}
-		
-	}
-
-	public SamProsUser query_SamProsUser_db_by_unique_id(long unique_id){
-		synchronized(dbLock_userinfo){
-			return dbHandle.querySamProsUserByUniqueID(unique_id);
-		}
-	}
-
-	public  List<SamProsUser> query_SamProsUser_db_All(){
-		synchronized(dbLock_userinfo){
-			return dbHandle.querySamProsUserAll();
-		}
-	}
-
 /********************************************SendQuestion DB******************************************************************/
 	private boolean compareSendQuestion(SendQuestion old, SendQuestion now){
 		if(old.getquestion_id() != now.getquestion_id()
@@ -328,7 +219,9 @@ public class SamDBDao{
 			||old.getstatus() != now.getstatus()
 			||old.getdatetime() != now.getdatetime()
 			||old.getlatest_answer_time() != now.getlatest_answer_time()
-			||!stringEquals(old.getquestion(),now.getquestion())){
+			||!stringEquals(old.getquestion(),now.getquestion())
+			||!stringEquals(old.getsp_ids(),now.getsp_ids())
+			||old.getunread() != now.getunread()){
 			return true;
 		}else{
 			return false;
@@ -351,6 +244,30 @@ public class SamDBDao{
 			}else{
 				ret = sq.getid();
 			}	
+		}
+		return ret;
+	}
+
+	public long update_SendQuestion_dbUnread(long question_id, int unread){
+		long ret;
+
+		synchronized(dbLock_question){
+			ret = dbHandle.updateSendQuestionUnread( question_id,  unread);
+		}
+		return ret;
+	}
+
+	public long add_SendQuestion_db_sp_ids(long question_id,String sp_id){
+		long ret;
+		synchronized(dbLock_question){
+			SendQuestion sq = dbHandle.querySendQuestionByQuestionID(question_id);
+			if(sq == null){
+				ret = -1;
+			}else if(sq.getsp_ids() == null){
+				ret = dbHandle.updateSendQuestionSPIDS( question_id, sp_id);
+			}else{
+				ret = dbHandle.updateSendQuestionSPIDS( question_id, sq.getsp_ids()+":"+sp_id);
+			}
 		}
 		return ret;
 	}
@@ -378,6 +295,7 @@ public class SamDBDao{
 		if(old.getquestion_id() != now.getquestion_id()
 			||old.getstatus() != now.getstatus()
 			||old.getsender_unique_id() != now.getsender_unique_id()
+			||!stringEquals(old.getsender_username(),now.getsender_username())
 			||old.getdatetime() != now.getdatetime()
 			||!stringEquals(old.getaddress(),now.getaddress())
 			||!stringEquals(old.getquestion(),now.getquestion())){
@@ -796,6 +714,12 @@ public class SamDBDao{
 	public Message query_Message_db_by_uuid(String table, String uuid){
 		synchronized(dbLock_msg){
 			return dbHandle.queryMessageByUuid( table, uuid);
+		}
+	}
+
+	public Message query_Message_db_by_type_data_id(String table, int type , long data_id){
+		synchronized(dbLock_msg){
+			return dbHandle.queryMessageByTypeAndDataID( table, type, data_id);
 		}
 	}
 

@@ -41,7 +41,6 @@ import com.android.samservice.info.FollowUser;
 import com.android.samchat.adapter.FollowedSPAdapter;
 import com.android.samchat.callback.CustomerPublicCallback;
 import com.android.samservice.info.FollowedSamPros;
-import com.android.samservice.info.SamProsUser;
 import com.netease.nim.uikit.contact.core.query.TextComparator;
 import com.android.samservice.info.Contact;
 import com.android.samchat.adapter.ContactAdapter;

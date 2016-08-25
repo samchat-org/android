@@ -79,6 +79,9 @@ public class ErrorString{
 			case Constants.RET_HAVE_NOT_ADD_CONTACT_ERROR:
 				reminder = activity.getString(R.string.samchat_not_add_contact_error);
 				break;
+			case Constants.RET_SEND_QUESTION_TOO_OFFTEN:
+				reminder = activity.getString(R.string.samchat_send_question_too_offten);
+				break;
 			default:
 				reminder = activity.getString(R.string.samchat_default_error);
 				break;

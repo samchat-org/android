@@ -27,6 +27,7 @@ import com.android.samservice.info.MsgSession;
 import com.android.samchat.adapter.SamchatRecentContactAdapter;
 import com.android.samchat.type.ModeEnum;
 import com.android.samservice.SamService;
+import com.netease.nim.uikit.NimConstants;
 
 public abstract class SamchatRecentViewHolder extends TViewHolder implements OnClickListener {
 
@@ -77,11 +78,34 @@ public abstract class SamchatRecentViewHolder extends TViewHolder implements OnC
     private void updateBackground() {
         topLine.setVisibility(isFirstItem() ? View.GONE : View.VISIBLE);
         bottomLine.setVisibility(isLastItem() ? View.VISIBLE : View.GONE);
-        if ((recent.getTag() & RecentContactsFragment.RECENT_TAG_STICKY) == 0) {
+        /*SAMC_BEGIN(support multiple mode)*/
+        if(getAdapter() instanceof SamchatRecentContactAdapter){
+           if(((SamchatRecentContactAdapter)getAdapter()).getmode() == 0){
+               //customer mode
+                if ((recent.getTag() & NimConstants.RECENT_TAG_STICKY_CUSTOMER_ROLE) == 0) {
+                    view.setBackgroundResource(R.drawable.nim_list_item_selector);
+                } else {
+                     view.setBackgroundResource(R.drawable.nim_recent_contact_sticky_selecter);
+                }
+           }else{
+                //sp mode
+                if ((recent.getTag() & NimConstants.RECENT_TAG_STICKY_SP_ROLE) == 0) {
+                    view.setBackgroundResource(R.drawable.nim_list_item_selector);
+                } else {
+                     view.setBackgroundResource(R.drawable.nim_recent_contact_sticky_selecter);
+                }
+
+           }
+        }
+
+        /*if ((recent.getTag() & RecentContactsFragment.RECENT_TAG_STICKY) == 0) {
             view.setBackgroundResource(R.drawable.nim_list_item_selector);
         } else {
             view.setBackgroundResource(R.drawable.nim_recent_contact_sticky_selecter);
-        }
+        }*/
+
+        /*SAMC_END(support multiple mode)*/
+        
     }
 
     protected void loadPortrait() {
