@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.android.samservice.Constants;
 
 	/*
-	id(primary) | unique_id | username | favourite_tag | block_tag
+	id(primary) | unique_id | username | favourite_tag | block_tag | avatar | service_category
 	*/
 public class FollowedSamPros implements Serializable
 {
@@ -14,6 +14,9 @@ public class FollowedSamPros implements Serializable
 	private String username;
 	private int favourite_tag;
 	private int block_tag;
+	private String avatar;
+	private String service_category;
+	private long lastupdate; //not stored in db, just used when sync user
 
 	public FollowedSamPros(){
 		this.id = 0;
@@ -21,6 +24,9 @@ public class FollowedSamPros implements Serializable
 		this.username = null;
 		this.favourite_tag = Constants.NO_TAG;
 		this.block_tag = Constants.NO_TAG;
+		this.avatar = null;
+		this.service_category = null;
+		this.lastupdate = 0;
 	}
 
 	public FollowedSamPros(long unqiue_id, String username){
@@ -29,6 +35,9 @@ public class FollowedSamPros implements Serializable
 		this.username = username;
 		this.favourite_tag = Constants.NO_TAG;
 		this.block_tag = Constants.NO_TAG;
+		this.avatar = null;
+		this.service_category = null;
+		this.lastupdate = 0;
 	}
 
 	public FollowedSamPros(long unqiue_id, String username, int favourite_tag, int block_tag){
@@ -37,6 +46,20 @@ public class FollowedSamPros implements Serializable
 		this.username = username;
 		this.favourite_tag = favourite_tag;
 		this.block_tag = block_tag;
+		this.avatar = null;
+		this.service_category = null;
+		this.lastupdate = 0;
+	}
+
+	public FollowedSamPros(long unqiue_id, String username, int favourite_tag, int block_tag, String avatar, String service_category){
+		this.id = 0;
+		this.unique_id = unqiue_id;
+		this.username = username;
+		this.favourite_tag = favourite_tag;
+		this.block_tag = block_tag;
+		this.avatar = avatar;
+		this.service_category = service_category;
+		this.lastupdate = 0;
 	}
 
 	public long getid(){
@@ -74,4 +97,25 @@ public class FollowedSamPros implements Serializable
 		this.block_tag = block_tag;
 	}
 
+	public String getavatar(){
+		return avatar;
+	}
+	public void setavatar(String avatar){
+		this.avatar = avatar;
+	}
+
+	public String getservice_category(){
+		return service_category;
+	}
+	public void setservice_category(String service_category){
+		this.service_category = service_category;
+	}
+
+	public long getlastupdate(){
+		return lastupdate;
+	}
+	public void setlastupdate(long lastupdate){
+		this.lastupdate = lastupdate;
+	}
+	
 }

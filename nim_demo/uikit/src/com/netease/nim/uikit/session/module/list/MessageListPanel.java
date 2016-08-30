@@ -276,7 +276,7 @@ public class MessageListPanel implements TAdapterDelegate {
                     items.add(message);
                     addedListItems.add(message);
                     needRefresh = true;
-					}else if(isMyMode(message)){
+					}else if(isMyMode(message) && getItemIndex(message.getUuid()) == -1){
                     items.add(message);
                     addedListItems.add(message);
                     needRefresh = true;

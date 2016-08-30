@@ -145,4 +145,15 @@
     <string name="samchat_current_loaction">Current location</string>
     <string name="samchat_request_details">Request Details</string>
     <string name="samchat_new_response">New Response</string>
+
+    <string name="samchat_public_search">Public Search</string>
+    <string name="samchat_search">Search</string>
+    <string name="samchat_public_search_hint">Search by keywords,usrname,phone no</string>
+    <string name="samchat_searching">Searching...</string>
+
+    <string name="samchat_chat">Chat Now</string>
+    <string name="samchat_follow">Follow</string>
+    <string name="samchat_unfollow">UnFollow</string>
+
+    <string name="samchat_processing">Processing</string>
 </resources>

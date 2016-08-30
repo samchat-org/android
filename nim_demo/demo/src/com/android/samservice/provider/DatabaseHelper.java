@@ -129,7 +129,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	private void createFollowListTable(SQLiteDatabase db){
 	/*
-	id(primary) | unique_id | username | favourite_tag | block_tag
+	id(primary) | unique_id | username | favourite_tag | block_tag |avatar | service_category
 	*/
 		StringBuffer sBuffer = new StringBuffer();
 		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_FOLLOW_LIST + "] (");
@@ -137,7 +137,9 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		sBuffer.append("[unique_id] INTEGER, ");
 		sBuffer.append("[username] TEXT ,");
 		sBuffer.append("[favourite_tag] INTEGER ,");
-		sBuffer.append("[block_tag] INTEGER )");
+		sBuffer.append("[block_tag] INTEGER,");
+		sBuffer.append("[avatar] TEXT ,");
+		sBuffer.append("[service_category] TEXT )");
 		db.execSQL(sBuffer.toString());
 	}
 

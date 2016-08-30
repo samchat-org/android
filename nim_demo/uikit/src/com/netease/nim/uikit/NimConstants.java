@@ -18,6 +18,7 @@ public class NimConstants{
 
 	
 	public static final String QUEST_ID = "quest_id";
+	public static final String SQ_QUEST_ID = "sq_quest_id";
 
 	public static final String MSG_TYPE="msg_type";
 

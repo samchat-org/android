@@ -76,7 +76,7 @@ public class HeadImageView extends CircleImageView {
      * @param account
      * @param thumbSize 缩略图的宽、高
      */
-    private void loadBuddyAvatar(final String account, final int thumbSize) {
+    public void loadBuddyAvatar(final String account, final int thumbSize) {
         // 先显示默认头像
         setImageResource(NimUIKit.getUserInfoProvider().getDefaultIconResId());
 

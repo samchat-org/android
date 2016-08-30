@@ -44,9 +44,11 @@ public class SamchatDataCacheManager {
 		clearDataCache();
 
 		// build data cache
+		SamchatUserInfoCache.getInstance().buildCache();
 		ContactDataCache.getInstance().buildCache();
 		CustomerDataCache.getInstance().buildCache();
-		SamchatUserInfoCache.getInstance().buildCache();
+		FollowDataCache.getInstance().buildCache();
+		
 
         // build self avatar cache
         //List<String> accounts = new ArrayList<>(1);
@@ -55,6 +57,7 @@ public class SamchatDataCacheManager {
     }
 
 	public static void clearDataCache() {
+		FollowDataCache.getInstance().clearCache();
 		ContactDataCache.getInstance().clearCache();
 		CustomerDataCache.getInstance().clearCache();
 		SamchatUserInfoCache.getInstance().clearCache();

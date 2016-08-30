@@ -127,6 +127,10 @@ public class SamDBManager{
 		}
 	}
 
+	public void clearUserTable(long unique_id){
+
+	}
+
 	public void handleReceivedQuestion(HttpCommClient hcc){
 		final ReceivedQuestion rq = hcc.rq;
 		//only unique_id/username/lastupdate in userinfo
@@ -182,63 +186,26 @@ public class SamDBManager{
 		}
 		return msgs;
 	}
-
-	//Message: message db
-	//IMMessage: yunxin message
-
-	//create message from IMMessage and appendix sendquestion/sendadv im if needed
-	private boolean isSendQuestionExisted(List<AdvancedMessage>amsgs, long question_id, String session_id){
-		for(AdvancedMessage am:amsgs){
-			if(am.getmsg().gettype() == NimConstants.MSG_TYPE_SQ && am.getmsg().getdata_id() == question_id){
-				return true;
-			}
-		}
-
-		MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(session_id, ModeEnum.CUSTOMER_MODE.ordinal());
-		if(session == null){
-			return false;
-		}
-
-		Message msg = SamService.getInstance().getDao().query_Message_db_by_type_data_id(session.getmsg_table_name(),NimConstants.MSG_TYPE_SQ, question_id);
-		if(msg != null){
-			return true;
-		}else{
-			return false;
-		}
-	}
 	
-	private List<AdvancedMessage> createAdvancedMessages(String session,List<IMMessage> messages){
+	private List<Message> createMessages(List<IMMessage> messages){
 		if(messages ==  null || messages.size() == 0){
 			return null;
 		}
 		
-		List<AdvancedMessage> amsgs = new ArrayList<AdvancedMessage>();
+		List<Message> msgs = new ArrayList<Message>();
 		for(IMMessage im : messages){
 			Map<String, Object> content = im.getRemoteExtension();
-			if(content != null && content.containsKey(NimConstants.QUEST_ID)){
-				String quest_id = (String)content.get(NimConstants.QUEST_ID);
-				SendQuestion sq = SamService.getInstance().getDao().query_SendQuestion_db_by_question_id(Long.valueOf(quest_id));
-				if(sq != null){
-					if(!isSendQuestionExisted(amsgs,sq.getquestion_id(),im.getSessionId())){
-						IMMessage sqim = SAMMessageBuilder.createSendQuestionMessage(sq,im);
-						NIMClient.getService(MsgService.class).saveMessageToLocal(sqim, false);
-						Message sqmsg = new Message(NimConstants.MSG_TYPE_SQ,sqim.getUuid(),sq.getquestion_id());
-						amsgs.add(new AdvancedMessage(sqmsg,sqim));
-					}
-
-					Message msg = new Message(NimConstants.MSG_TYPE_IM, im.getUuid());
-					amsgs.add(new AdvancedMessage(msg,im));
-				}else{
-					Message msg = new Message(NimConstants.MSG_TYPE_IM, im.getUuid());
-					amsgs.add(new AdvancedMessage(msg,im));
-				}
+			if(content != null && content.containsKey(NimConstants.SQ_QUEST_ID)){
+				String data_id = (String)content.get(NimConstants.SQ_QUEST_ID);
+				Message msg= new Message(NimConstants.MSG_TYPE_SQ,im.getUuid(),Long.valueOf(data_id));
+				msgs.add(msg);
 			}else{
 				Message msg = new Message(NimConstants.MSG_TYPE_IM, im.getUuid());
-				amsgs.add(new AdvancedMessage(msg,im));
+				msgs.add(msg);
 			}
 			
 		}
-		return amsgs;
+		return msgs;
 	}
 
 	//Message: message db
@@ -786,13 +753,11 @@ public class SamDBManager{
 
 	}
 
-	private void handleQuestId(List<IMMessage> ims){
+	private List<AdvancedMessage> handleQuestId(List<IMMessage> ims){
+        List<AdvancedMessage> result = new ArrayList<>();
 		if(ims == null || ims.size() == 0){
-			return;
+			return result;
 		}
-
-		List<SendQuestion> sqs = new ArrayList<SendQuestion>();
-
 		for(IMMessage m:ims){
 			Map<String, Object> content = m.getRemoteExtension();
 			if(content != null && content.containsKey(NimConstants.QUEST_ID)){
@@ -805,12 +770,43 @@ public class SamDBManager{
 				if(sq.getsp_ids() == null){
 					sq.setsp_ids(m.getSessionId());
 					sq.setunread(sq.getunread()+1);
+					result.add(new AdvancedMessage(null, m, sq));
 				}else if(!isIdExisted(sq.getsp_ids(),m.getSessionId())){
 					sq.setsp_ids(sq.getsp_ids()+":"+m.getSessionId());
 					sq.setunread(sq.getunread()+1);
+					result.add(new AdvancedMessage(null, m, sq));
 				}
 				sq.setlatest_answer_time(m.getTime());
 				SamService.getInstance().getDao().update_SendQuestion_db(sq);
+			}
+		}
+
+		return result;
+	}
+
+	private void saveSQimsToMsgDB(final MsgSession changedSession, final List<IMMessage> ims_customer_mode){
+		for(IMMessage im: ims_customer_mode){
+			Map<String, Object> content = im.getRemoteExtension();
+			if(content != null && content.containsKey(NimConstants.SQ_QUEST_ID)){
+				NIMClient.getService(MsgService.class).saveMessageToLocal(im, false).setCallback(new RequestCallback<Void>() {
+           		@Override
+           		public void onSuccess(Void a) {
+						//call session changed observer
+						callMsgServiceObserverCallback(changedSession);
+						//call incoming IMMessage observer
+						callIncomingMsgObserverCallback(ims_customer_mode);
+					}
+
+					@Override
+					public void onFailed(int code) {
+
+					}
+
+					@Override
+					public void onException(Throwable exception) {
+
+					}
+				});
 			}
 		}
 	}
@@ -846,33 +842,54 @@ public class SamDBManager{
 						}
 			
 						/*parse question id if existed*/
-						handleQuestId(valid_ims);
+						List<AdvancedMessage> ammsgs = handleQuestId(valid_ims);
+						boolean sq_im_existed = false;
+						/*insert send question IMMessage into yunxin msg db*/
+						int index = -1;
+						for(AdvancedMessage am : ammsgs){
+							index = -1;
+							for(int i=0; i<valid_ims.size();i++){
+								if(am.getim().getUuid().equals(valid_ims.get(i).getUuid())){
+										index = i;
+										break;
+								}
+							}
+							if(index > -1){
+								valid_ims.add(index,SAMMessageBuilder.createSendQuestionMessage(am.getsq(), am.getim()));
+								sq_im_existed = true;
+							}
+						}
 						
-						List<AdvancedMessage> amsgs = createAdvancedMessages(sessionId, valid_ims);
 						List<Message> msgs_customer_mode = new ArrayList<Message>();
 						List<IMMessage> ims_customer_mode = new ArrayList<IMMessage>();
 						List<Message> msgs_sp_mode = new ArrayList<Message>();
 						List<IMMessage> ims_sp_mode = new ArrayList<IMMessage>();
 
-						for(int i=0;i<amsgs.size();i++){
-							Map<String, Object> content = amsgs.get(i).getim().getRemoteExtension();
+						List<Message> dbmsgs = createMessages(valid_ims);
+
+						for(int i=0;i<valid_ims.size();i++){
+							Map<String, Object> content = valid_ims.get(i).getRemoteExtension();
 							int msg_from = (int)content.get(Constants.MSG_FROM);
 							int mode = (msg_from == Constants.FROM_CUSTOMER ? ModeEnum.SP_MODE.ordinal():ModeEnum.CUSTOMER_MODE.ordinal());
 							if(mode == ModeEnum.CUSTOMER_MODE.ordinal()){
-								ims_customer_mode.add(amsgs.get(i).getim());
-								msgs_customer_mode.add(amsgs.get(i).getmsg());
+								ims_customer_mode.add(valid_ims.get(i));
+								msgs_customer_mode.add(dbmsgs.get(i));
 							}else{
-								ims_sp_mode.add(amsgs.get(i).getim());
-								msgs_sp_mode.add(amsgs.get(i).getmsg());
+								ims_sp_mode.add(valid_ims.get(i));
+								msgs_sp_mode.add(dbmsgs.get(i));
 							}
 						}
 
 						MsgSession changedSession;
 						if(ims_customer_mode.size()>0 && (changedSession = storeRcvdMessages(sessionId,ModeEnum.CUSTOMER_MODE.ordinal(),msgs_customer_mode,ims_customer_mode,true)) != null){
-							//call session changed observer
-							callMsgServiceObserverCallback(changedSession);
-							//call incoming IMMessage observer
-							callIncomingMsgObserverCallback(ims_customer_mode);
+							if(!sq_im_existed){
+								//call session changed observer
+								callMsgServiceObserverCallback(changedSession);
+								//call incoming IMMessage observer
+								callIncomingMsgObserverCallback(ims_customer_mode);
+							}else{
+								saveSQimsToMsgDB(changedSession, ims_customer_mode);
+							}
 						}
 						if(ims_sp_mode.size()>0 && (changedSession = storeRcvdMessages(sessionId,ModeEnum.SP_MODE.ordinal(),msgs_sp_mode,ims_sp_mode,true)) != null){
 							//call session changed observer

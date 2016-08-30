@@ -28,15 +28,15 @@ import org.apache.http.message.BasicNameValuePair;
 
 import com.android.samchat.SamVendorInfo;
 import com.android.samservice.info.Advertisement;
+import com.android.samservice.info.Contact;
 import com.android.samservice.info.ContactUser;
-import com.android.samservice.info.FollowUser;
+import com.android.samservice.info.FollowedSamPros;
+import com.android.samservice.info.MultipleContact;
 import com.android.samservice.info.MultipleFollowUser;
 import com.android.samservice.info.MultipleSyncAdv;
 import com.android.samservice.info.MultipleUserProfile;
 import com.android.samservice.info.MultiplePlacesInfo;
-import com.android.samservice.info.BasicUserInfo;
 import com.android.samservice.info.PlacesInfo;
-import com.android.samservice.info.MultipleBasicUserInfo;
 import com.android.samservice.info.ReceivedQuestion;
 import com.android.samservice.info.ContactUser;
 public class HttpCommClient {
@@ -65,6 +65,12 @@ public class HttpCommClient {
 	public static final String URL_pwdUpdate="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_pwdUpdate.do";
 
 	public static final String URL_questionSend="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_question_question.do";
+
+	public static final String URL_follow="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_officialAccount_follow.do";
+	public static final String URL_block="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_ officialAccount_block.do";
+	public static final String URL_favourite="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_ officialAccount_favourite.do";
+	public static final String URL_syncFollowList="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_ officialAccount_followListQuery.do";
+	public static final String URL_queryPublic="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_officialAccount_publicQuery.do";
 	
 	public static final int CONNECTION_TIMEOUT = 20000;
 	public static final int HTTP_TIMEOUT = 10000;
@@ -80,7 +86,7 @@ public class HttpCommClient {
 	public QuestionInfo qinfo;
 	public MultiplePlacesInfo placesinfos;
 	public MultipleUserProfile users;
-	public MultipleBasicUserInfo basicuserinfos;
+	public MultipleContact contacts;
 	public MultipleFollowUser followusers;
 	public Advertisement adv;
 	public MultipleSyncAdv syncadvs;
@@ -1272,7 +1278,7 @@ public class HttpCommClient {
 			
 			JSONObject body = new JSONObject();
 			body.putOpt("opt",fcobj.isFollow?1:0);
-			body.putOpt("id", fcobj.sam_pros.getunique_id());
+			body.putOpt("id", fcobj.sp.getunique_id());
 			
 			JSONObject data = new JSONObject();
 			data.put("header", header);
@@ -1285,7 +1291,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructFollowJson(fcobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_follow,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -1298,7 +1304,7 @@ public class HttpCommClient {
 
 				if(isRetOK()){
 					JSONObject user = obj.getJSONObject("user");
-					userinfo = fcobj.sam_pros;
+					userinfo = fcobj.sp;
 					latest_lastupdate = user.getLong("lastupdate");
 				}
 				
@@ -1353,7 +1359,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructBlockJson(bcobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_block,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -1421,7 +1427,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructFavouriteJson(fcobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_favourite,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -2085,7 +2091,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructQueryPublicJson(qpobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_queryPublic,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -2296,30 +2302,24 @@ public class HttpCommClient {
 				ret = obj.getInt("ret");
 
 				if(isRetOK()){
-					basicuserinfos = new MultipleBasicUserInfo();
+					contacts = new MultipleContact();
 					int count = obj.getInt("count");
 					if(count > 0){
 						JSONArray jsonArrayX = obj.getJSONArray("users");
 						for (int i = 0; i < jsonArrayX.length(); i++) {
 							JSONObject user = (JSONObject) jsonArrayX.get(i);
-							BasicUserInfo bu = new BasicUserInfo();
-							bu.setunique_id(user.getLong("id"));
-							bu.setusername(user.getString("username"));
-							bu.settype(user.getInt("type"));
-							bu.setavatar_thumb(getAvatarThumb(user));
-							bu.setavatar_original(getAvatarOrigin(user));
-							if(bu.gettype() == Constants.SAM_PROS){
+							Contact contact = new Contact(user.getLong("id"),user.getString("username"),getAvatarThumb(user));
+							contact.setlastupdate(user.getLong("lastupdate"));
+							if(user.getInt("type") == Constants.SAM_PROS){
 								JSONObject sam_pros = user.getJSONObject("sam_pros_info");
-								bu.setcompany_name(sam_pros.getString("company_name"));
-								bu.setservice_category(sam_pros.getString("service_category"));
-								bu.setservice_description(sam_pros.getString("service_description"));
+								contact.setservice_category(sam_pros.getString("service_category"));
 							}
 
-							basicuserinfos.addBasicUserInfo(bu);
+							contacts.addcontact(contact);
 						
 						}
 
-						basicuserinfos.setcount(jsonArrayX.length());
+						contacts.setcount(jsonArrayX.length());
 					}
 					
 				}
@@ -2375,7 +2375,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructSyncFollowListJson(sflobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_syncFollowList,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -2393,21 +2393,18 @@ public class HttpCommClient {
 						JSONArray jsonArrayX = obj.getJSONArray("users");
 						for (int i = 0; i < jsonArrayX.length(); i++) {
 							JSONObject user = (JSONObject) jsonArrayX.get(i);
-							FollowUser fu = new FollowUser();
-							fu.setunique_id(user.getLong("id"));
-							fu.setusername(user.getString("username"));
-							fu.setavatar_thumb(getAvatarThumb(user));
-							fu.setavatar_original(getAvatarOrigin(user));
+							FollowedSamPros fsp = new FollowedSamPros();
+							fsp.setunique_id(user.getLong("id"));
+							fsp.setusername(user.getString("username"));
+							fsp.setavatar(getAvatarThumb(user));
+							fsp.setlastupdate(user.getLong("lastupdate"));
 
 							JSONObject sam_pros = user.getJSONObject("sam_pros_info");
-							fu.setcompany_name(sam_pros.getString("company_name"));
-							fu.setservice_category(sam_pros.getString("service_category"));
-							fu.setservice_description(sam_pros.getString("service_description"));
+							fsp.setservice_category(sam_pros.getString("service_category"));
+							fsp.setfavourite_tag(user.getInt("favourite_tag"));
+							fsp.setblock_tag(user.getInt("block_tag"));
 
-							fu.setfavourite_tag(user.getInt("favourite_tag"));
-							fu.setblock_tag(user.getInt("block_tag"));
-
-							followusers.adduser(fu);
+							followusers.addsp(fsp);
 						}
 
 						users.setcount(jsonArrayX.length());

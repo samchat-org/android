@@ -1,35 +1,26 @@
 package com.android.samchat.fragment;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ImageView;
+
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.samchat.activity.SamchatSearchPublicActivity;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import java.util.ArrayList;
 import java.util.List;
 import com.netease.nim.demo.R;
-import com.android.samchat.callback.SendQuestionCallback;
 import android.widget.LinearLayout;
-import com.android.samservice.info.SendQuestion;
-import com.android.samchat.adapter.ReceivedQuestionAdapter;
-import com.android.samservice.info.ReceivedQuestion;
-import com.android.samchat.callback.ReceivedQuestionCallback;
 import com.netease.nim.uikit.common.activity.UI;
 import com.android.samservice.SamService;
-import com.android.samchat.adapter.SendQuestionAdapter;
 import com.android.samchat.SamchatGlobal;
 import java.util.Collections;
 import java.util.Comparator;
-import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.android.samservice.Constants;
 import android.content.BroadcastReceiver;
 import android.support.v4.content.LocalBroadcastManager;
@@ -37,12 +28,13 @@ import com.android.samchat.type.ModeEnum;
 import android.content.IntentFilter;
 import android.content.Context;
 import android.content.Intent;
-import com.android.samservice.info.FollowUser;
 import com.android.samchat.adapter.FollowedSPAdapter;
 import com.android.samchat.callback.CustomerPublicCallback;
 import com.android.samservice.info.FollowedSamPros;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.contact.core.query.TextComparator;
-import com.android.samservice.info.ContactUser;
+import android.view.View.OnClickListener;
+
 /**
  * Main Fragment in SamchatPublicListFragment
  */
@@ -50,11 +42,11 @@ public class SamchatPublicFragment extends TFragment {
 	/*customer mode*/
 	//view
 	private LinearLayout customer_public_layout;
-	private TextView search;
+	private TextView search_textview;
 	private ListView customer_public_list;
 	
 	//data
-	private List<FollowUser> followedSPs;
+	private List<FollowedSamPros> followedSPs;
 	private FollowedSPAdapter fspAdapter;
 	private boolean followedSPLoaded = false;
 	private CustomerPublicCallback cpcallback;
@@ -126,6 +118,11 @@ public class SamchatPublicFragment extends TFragment {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		findViews();
+		setupSearchClick();
+		
+
+
+		
 		initFollowedSPList();
 		
 		LoadFollowedSPs(true);
@@ -141,7 +138,7 @@ public class SamchatPublicFragment extends TFragment {
 	private void findViews() {
 		//customer mode views
 		customer_public_layout = (LinearLayout) findView(R.id.customer_public_layout);
-		search = (TextView) findView(R.id.search);
+		search_textview = (TextView) findView(R.id.search);
 		customer_public_list = (ListView) findView(R.id.customer_public_list);
 		//sp mode views
 		sp_public_layout = (LinearLayout) findView(R.id.sp_public_layout);
@@ -155,15 +152,26 @@ public class SamchatPublicFragment extends TFragment {
 		}
     }
 
+	private void setupSearchClick(){
+		LogUtil.e("test","setupSearchClick");
+		search_textview.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				LogUtil.e("test","click called...");
+				SamchatSearchPublicActivity.start(getActivity());
+			}
+		});
+	}
+
 	private void initFollowedSPList(){
-		followedSPs = new ArrayList<FollowUser>();
+		followedSPs = new ArrayList<FollowedSamPros>();
 		fspAdapter = new FollowedSPAdapter(getActivity(),followedSPs);
 		customer_public_list.setAdapter(fspAdapter);
 		customer_public_list.setItemsCanFocus(true);
-		customer_public_list.setOnItemClickListener(new OnItemClickListener(){
+		customer_public_list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				if (cpcallback != null) {
-					FollowUser fsp = (FollowUser) parent.getAdapter().getItem(position);
+					FollowedSamPros fsp = (FollowedSamPros) parent.getAdapter().getItem(position);
 					if(fsp != null){
 						cpcallback.onItemClick(fsp);
 					}
@@ -179,7 +187,7 @@ public class SamchatPublicFragment extends TFragment {
 		
 	}
 
-	private List<FollowUser> loadedFollowSPs;
+	private List<FollowedSamPros> loadedFollowSPs;
 	private void LoadFollowedSPs(boolean delay){
 		if(followedSPLoaded){
 			return;
@@ -192,24 +200,7 @@ public class SamchatPublicFragment extends TFragment {
 					return;
 				}
 				
-				List<FollowedSamPros> sps= SamService.getInstance().getDao().query_FollowList_db_All();
-				LogUtil.e("test","query follow list sps:"+sps.size());
-				loadedFollowSPs = new ArrayList<FollowUser>();
-				for(FollowedSamPros sp : sps){
-					ContactUser sampros = SamService.getInstance().getDao().query_ContactUser_db_by_unique_id(sp.getunique_id());
-					if(sampros != null){
-						FollowUser fuser = new FollowUser(sp.getfavourite_tag(),sp.getblock_tag());
-						fuser.setunique_id(sampros.getunique_id());
-						fuser.setusername(sampros.getusername());
-						fuser.setavatar_thumb(sampros.getavatar());
-						fuser.setavatar_original(sampros.getavatar_original());
-						fuser.setcompany_name(sampros.getcompany_name());
-						fuser.setservice_category(sampros.getservice_category());
-						fuser.setservice_description(sampros.getservice_category());
-						loadedFollowSPs.add(fuser);
-					}
-				}
-				LogUtil.e("test","loadedFollowSPs:"+loadedFollowSPs.size());
+				loadedFollowSPs= SamService.getInstance().getDao().query_FollowList_db_All();
 				followedSPLoaded = true;
 				if(isAdded()){
 					onFollowedSPsLoaded();
@@ -242,16 +233,16 @@ public class SamchatPublicFragment extends TFragment {
 		cpcallback = callback;
 	}
 
-	private void sortFollowedSPs(List<FollowUser> list) {
+	private void sortFollowedSPs(List<FollowedSamPros> list) {
 		if (list.size() == 0) {
 			return;
 		}
 		Collections.sort(list, fspcomp);
 	}
 
-	private static Comparator<FollowUser> fspcomp = new Comparator<FollowUser>() {
+	private static Comparator<FollowedSamPros> fspcomp = new Comparator<FollowedSamPros>() {
 		@Override
-		public int compare(FollowUser o1, FollowUser o2) {
+		public int compare(FollowedSamPros o1, FollowedSamPros o2) {
 			return TextComparator.compare(o1.getusername(),o2.getusername());
 		}
 	};

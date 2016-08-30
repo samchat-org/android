@@ -15,6 +15,7 @@ public class Contact implements UserInfoProvider.UserInfo
 
 	private String PinYin;
 	private String FPinYin;
+	private long lastupdate;
 
 	public void setPinYin(String PinYin){
 		this.PinYin = PinYin;
@@ -95,6 +96,13 @@ public class Contact implements UserInfoProvider.UserInfo
 	}
 	public void setservice_category(String service_category){
 		this.service_category = service_category;
+	}
+
+	public long getlastupdate(){
+		return lastupdate;
+	}
+	public void setlastupdate(long lastupdate){
+		this.lastupdate = lastupdate;
 	}
 
 	@Override

@@ -1,11 +1,12 @@
 package com.android.samchat.callback;
-import com.android.samservice.info.FollowUser;
+
+import com.android.samservice.info.FollowedSamPros;
 
 public interface CustomerPublicCallback {
 
     void onCustomerPublicLoaded();
 
-    void onItemClick(FollowUser fsp);
+    void onItemClick(FollowedSamPros fsp);
 
     void onDelete();
 

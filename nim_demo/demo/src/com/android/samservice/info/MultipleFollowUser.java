@@ -5,11 +5,11 @@ import java.util.List;
 
 public class MultipleFollowUser{
 	private int count;
-	private List<FollowUser> users;
+	private List<FollowedSamPros> sps;
 
 	public MultipleFollowUser(){
 		count = 0;
-		users = new ArrayList<FollowUser>();
+		sps = new ArrayList<FollowedSamPros>();
 	}
 
 	public int getcount(){
@@ -19,15 +19,15 @@ public class MultipleFollowUser{
 		this.count = count;
 	}
 
-	public List<FollowUser> getusers(){
-		return users;
+	public List<FollowedSamPros> getsps(){
+		return sps;
 	}
-	public void setusers(List<FollowUser> users){
-		this.users = users;
+	public void setsps(List<FollowedSamPros> sps){
+		this.sps = sps;
 	}
 
-	public void adduser(FollowUser user){
-		this.users.add(user);
+	public void addsp(FollowedSamPros sp){
+		this.sps.add(sp);
 	}
 	
 }

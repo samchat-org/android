@@ -2,7 +2,7 @@ package com.android.samchat.fragment;
 
 import android.os.Bundle;
 
-import com.android.samservice.info.FollowUser;
+import com.android.samservice.info.FollowedSamPros;
 import com.netease.nim.demo.R;
 import com.netease.nim.demo.main.model.MainTab;
 import com.netease.nim.uikit.common.activity.UI;
@@ -44,8 +44,8 @@ public class SamchatPublicListFragment extends MainTabFragment {
 			}
 
 			@Override
-			public void onItemClick(FollowUser fsp){
-
+			public void onItemClick(FollowedSamPros fsp){
+				
 			}
 
 			@Override

@@ -33,8 +33,10 @@ public class SAMMessageBuilder{
 		im.setFromAccount(SamService.getInstance().get_current_user().getAccount());
 		im.setStatus(MsgStatusEnum.unread);
 		Map<String, Object> msg_from = new HashMap<>();
-        msg_from.put(NimConstants.MSG_FROM,new Integer(NimConstants.FROM_SP));
+		msg_from.put(NimConstants.MSG_FROM,new Integer(NimConstants.FROM_SP));
+		msg_from.put(NimConstants.SQ_QUEST_ID, ""+sq.getquestion_id());
 		im.setRemoteExtension(msg_from);
 		return im;
 	}
+
 }

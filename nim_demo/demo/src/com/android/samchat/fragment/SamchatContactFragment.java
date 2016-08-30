@@ -37,7 +37,6 @@ import com.android.samchat.type.ModeEnum;
 import android.content.IntentFilter;
 import android.content.Context;
 import android.content.Intent;
-import com.android.samservice.info.FollowUser;
 import com.android.samchat.adapter.FollowedSPAdapter;
 import com.android.samchat.callback.CustomerPublicCallback;
 import com.android.samservice.info.FollowedSamPros;

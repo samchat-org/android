@@ -13,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
-import com.android.samservice.info.FollowUser;
 import android.widget.ImageView;
 import com.android.samservice.info.Contact;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;

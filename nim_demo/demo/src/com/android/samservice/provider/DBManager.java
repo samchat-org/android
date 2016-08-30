@@ -926,11 +926,11 @@ public class DBManager
 		Cursor c = userinfo_db.query(table,null,null,null,null,null,null);
 
 		while(c.moveToNext()){
-            user = new Contact(c.getLong(c.getColumnIndex("unique_id")),
-                    c.getString(c.getColumnIndex("username")),
-                    c.getString(c.getColumnIndex("avatar")),
-                    c.getString(c.getColumnIndex("service_category")));
-            user.setid(c.getLong(c.getColumnIndex("id")));
+			user = new Contact(c.getLong(c.getColumnIndex("unique_id")),
+			c.getString(c.getColumnIndex("username")),
+			c.getString(c.getColumnIndex("avatar")),
+			c.getString(c.getColumnIndex("service_category")));
+			user.setid(c.getLong(c.getColumnIndex("id")));
 			contacts.add(user);
 		}
 
@@ -962,6 +962,8 @@ public class DBManager
 		cv.put("username",follower.getusername());
 		cv.put("favourite_tag",follower.getfavourite_tag());
 		cv.put("block_tag",follower.getblock_tag());
+		cv.put("avatar",follower.getavatar());
+		cv.put("service_category",follower.getservice_category());
 
 		return userinfo_db.insert(table,null,cv);
 	}
@@ -976,6 +978,8 @@ public class DBManager
 		cv.put("username",follower.getusername());
 		cv.put("favourite_tag",follower.getfavourite_tag());
 		cv.put("block_tag",follower.getblock_tag());
+		cv.put("avatar",follower.getavatar());
+		cv.put("service_category",follower.getservice_category());
 
 		String whereClause = "id=?";
 		String [] whereArgs = {""+id+""};
@@ -1023,6 +1027,8 @@ public class DBManager
 			follower.setusername(c.getString(c.getColumnIndex("username")));
 			follower.setfavourite_tag(c.getInt(c.getColumnIndex("favourite_tag")));
 			follower.setblock_tag( c.getInt(c.getColumnIndex("block_tag")));
+			follower.setavatar( c.getString(c.getColumnIndex("avatar")));
+			follower.setservice_category( c.getString(c.getColumnIndex("service_category")));
 
 			name += ":"+follower.getunique_id()+":";
 		}
@@ -1050,6 +1056,8 @@ public class DBManager
 			follower.setusername(c.getString(c.getColumnIndex("username")));
 			follower.setfavourite_tag(c.getInt(c.getColumnIndex("favourite_tag")));
 			follower.setblock_tag( c.getInt(c.getColumnIndex("block_tag")));
+			follower.setavatar( c.getString(c.getColumnIndex("avatar")));
+			follower.setservice_category( c.getString(c.getColumnIndex("service_category")));
 
 			followSps.add(follower);
 		}

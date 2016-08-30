@@ -88,6 +88,7 @@ public class Constants{
 	public static final String BROADCAST_CREATE_SP_SUCCESS = "com.android.samchat.createspsuccess";
 	public static final String BROADCAST_CUSTOMER_ITEMS_UPDATE = "com.android.samchat.customeritemsupdate";
 	public static final String BROADCAST_USER_INFO_UPDATE = "com.android.samchat.userinfoupdate";
+	public static final String BROADCAST_FOLLOWEDSP_UPDATE = "com.android.samchat.followedspupdate";
 
 	/****************************Message From***********************************************/
 	public static final String MSG_FROM = "msg_from";

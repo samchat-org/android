@@ -79,22 +79,6 @@ public class SamDBDao{
 		}
 	}
 
-	private boolean compareContactUserByBasicUserInfo(ContactUser old, BasicUserInfo now){
-		if(!stringEquals(old.getusername(),now.getusername())
-			||old.getusertype() != now.gettype()
-			||!stringEquals(old.getavatar(),now.getavatar_thumb())
-			||!stringEquals(old.getavatar_original(),now.getavatar_original())
-			||old.getunique_id()!=now.getunique_id()
-			||!stringEquals(old.getcompany_name(),now.getcompany_name())
-			||!stringEquals(old.getservice_category(),now.getservice_category())
-			||!stringEquals(old.getservice_description(),now.getservice_description())
-		){
-			return true;
-		}else{
-			return false;
-		}
-	}
-
 	public long update_ContactUser_db_if_existed(ContactUser user){
 		long ret;
 		synchronized(dbLock_userinfo){
@@ -149,42 +133,6 @@ public class SamDBDao{
 			}
 		}
 
-		return ret;
-	}
-
-	public long update_ContactUser_db_by_basicinfo(BasicUserInfo user){
-		long ret;
-		synchronized(dbLock_userinfo){
-			ContactUser tuser = dbHandle.queryContactUserByUniqueID(user.getunique_id());
-			if(tuser == null){
-				ContactUser cuser = new ContactUser();
-				cuser.setunique_id(user.getunique_id());
-				cuser.setusername(user.getusername());
-				cuser.setusertype(user.gettype());
-				cuser.setavatar(user.getavatar_thumb());
-				cuser.setavatar_original(user.getavatar_original());
-				cuser.setcompany_name(user.getcompany_name());
-				cuser.setservice_category(user.getservice_category());
-				cuser.setservice_description(user.getservice_description());
-				ret = dbHandle.addContactUser(cuser);
-			}else if(compareContactUserByBasicUserInfo(tuser, user)){
-				tuser.setunique_id(user.getunique_id());
-				tuser.setusername(user.getusername());
-				tuser.setusertype(user.gettype());
-				tuser.setavatar(user.getavatar_thumb());
-				tuser.setavatar_original(user.getavatar_original());
-				tuser.setcompany_name(user.getcompany_name());
-				tuser.setservice_category(user.getservice_category());
-				tuser.setservice_description(user.getservice_description());
-				if(dbHandle.updateContactUser(tuser.getid(), tuser) != 0){
-					ret = tuser.getid();
-				}else{
-					ret = -1;
-				}
-			}else{
-				ret = tuser.getid();	
-			}	
-		}
 		return ret;
 	}
 
@@ -422,7 +370,9 @@ public class SamDBDao{
 		if(old.getunique_id() != now.getunique_id()
 			||!stringEquals(old.getusername(),now.getusername())
 			||old.getfavourite_tag() != now.getfavourite_tag()
-			||old.getblock_tag() != now.getblock_tag())
+			||old.getblock_tag() != now.getblock_tag()
+			||!stringEquals(old.getavatar(),now.getavatar())
+			||!stringEquals(old.getservice_category(),now.getservice_category()))
 		{
 			return true;
 		}else{
