@@ -34,6 +34,15 @@ public class FollowDataCache {
 		return followMap.values();
 	}
 
+	public List<FollowedSamPros> getMyFollowSPsList(){
+        FollowedSamPros [] array = followMap.values().toArray(new FollowedSamPros [] {});
+        List<FollowedSamPros> list = new ArrayList<>();
+        for(FollowedSamPros sp: array){
+            list.add(sp);
+        }
+        return list;
+	}
+
 	public int getMyFollowSPCount(){
 		return followMap.size();
 	}

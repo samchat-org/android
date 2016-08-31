@@ -32,6 +32,15 @@ public class ContactDataCache {
 		return contactMap.values();
 	}
 
+	public List<Contact> getMyContactsList(){
+        Contact [] array = contactMap.values().toArray(new Contact [] {});
+        List<Contact>  list = new ArrayList<>();
+        for(Contact c : array){
+            list.add(c);
+        }
+        return list;
+	}
+
 	public int getMyContactCount(){
 		return contactMap.size();
 	}

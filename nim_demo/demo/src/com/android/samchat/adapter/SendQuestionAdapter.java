@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
@@ -146,9 +148,11 @@ public class SendQuestionAdapter extends BaseAdapter{
 			}else{
 				convertView = mInflater.inflate(R.layout.samchat_send_question_list_item,parent,false);
 				holder.request = (TextView) convertView.findViewById(R.id.request);
-				holder.number = (TextView) convertView.findViewById(R.id.number);
 				holder.date = (TextView) convertView.findViewById(R.id.date);
 				holder.location = (TextView) convertView.findViewById(R.id.location);
+				holder.sp3 = (HeadImageView) convertView.findViewById(R.id.sp3);
+				holder.sp2 = (HeadImageView) convertView.findViewById(R.id.sp2);
+				holder.sp1 = (HeadImageView) convertView.findViewById(R.id.sp1);
 			}
 			convertView.setTag(holder);
 		}else{
@@ -162,7 +166,28 @@ public class SendQuestionAdapter extends BaseAdapter{
 			long showtime = items.get(index).getlatest_answer_time()==0?items.get(index).getdatetime():items.get(index).getlatest_answer_time();
 			holder.date.setText(TimeUtil.getTimeShowString(showtime,false));
 			holder.location.setText(items.get(index).getaddress());
-			holder.number.setText(items.get(index).getunread()+" "+ mContext.getString(R.string.samchat_new_response));
+			
+			String ids = items.get(index).getsp_ids();
+			holder.sp1.setVisibility(View.GONE);
+			holder.sp2.setVisibility(View.GONE);
+			holder.sp3.setVisibility(View.GONE);
+
+			if(ids != null){
+				String []  array = ids.split(":");
+				for(int i=0; i< array.length; i++){
+					if(i == 0){
+						holder.sp1.setVisibility(View.VISIBLE);
+						holder.sp1.loadBuddyAvatar(array[i], 30);
+					}else if(i == 1){
+						holder.sp2.setVisibility(View.VISIBLE);
+						holder.sp2.loadBuddyAvatar(array[i], 30);
+					}else if(i == 2){
+						holder.sp3.setVisibility(View.VISIBLE);
+						holder.sp3.loadBuddyAvatar(array[i], 30);
+					}
+				}
+			}
+			
 			break;
 		case TYPE_LABEL_ACTIVE:
 			holder.label.setText(mContext.getString(R.string.active_requests));
@@ -192,15 +217,15 @@ public class SendQuestionAdapter extends BaseAdapter{
 	public void sethistory(int id){
 		this.history = id;
 	}
-
-
 	
 	public static class ViewHolder{
 		//send question view
 		public TextView request;
-		public TextView number;
 		public TextView date;
 		public TextView location;
+		public HeadImageView sp3;
+		public HeadImageView sp2;
+		public HeadImageView sp1;
 		//label view
 		public TextView label;
 	}

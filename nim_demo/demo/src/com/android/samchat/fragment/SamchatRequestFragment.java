@@ -63,6 +63,7 @@ public class SamchatRequestFragment extends TFragment {
 	private LinearLayout customer_request_layout;
 	private TextView make_new_service_request;
 	private ListView customer_request_list;
+	private LinearLayout welcome_board_layout;
 	
 	//data
 	private List<SendQuestion> sendquestions;
@@ -200,6 +201,7 @@ public class SamchatRequestFragment extends TFragment {
 		customer_request_layout = (LinearLayout) findView(R.id.customer_request_layout);
 		customer_request_list = (ListView) findView(R.id.customer_request_list);
 		make_new_service_request = (TextView) findView(R.id.make_new_service_request);
+		welcome_board_layout = (LinearLayout) findView(R.id.welcome_board);
 		//sp mode views
 		sp_request_layout = (LinearLayout) findView(R.id.sp_request_layout);
 		sp_request_list = (ListView) findView(R.id.sp_request_list);
@@ -297,6 +299,9 @@ public class SamchatRequestFragment extends TFragment {
 	}
 
 	private void refreshSendQuestionList(){
+		if(sendquestions!=null && sendquestions.size()>0){
+			welcome_board_layout.setVisibility(View.GONE);
+		}
 		sortSendQuestion(sendquestions);
 		notifyDataSetChangedSQ();
 	}

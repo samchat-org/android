@@ -3,6 +3,11 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/grey"/>
+
     <LinearLayout
         android:id="@+id/customer_public_layout"
         android:layout_width="match_parent"
@@ -24,16 +29,16 @@
             android:gravity="center"/>
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/grey"/>
+            android:layout_height="1px"
+            android:background="@color/color_grey_999999"/>
         <ListView
             android:id="@+id/customer_public_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:divider="@null">
+            android:divider="@color/color_grey_999999"
+            android:dividerHeight="1px"
+            android:scrollbars="none">
         </ListView>
     </LinearLayout>
 

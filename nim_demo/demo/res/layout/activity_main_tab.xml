@@ -4,7 +4,8 @@
     android:id="@+id/welcome_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/GreyWhite">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/app_bar_layout"
@@ -19,7 +20,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
+                android:background="@null"
                 app:titleTextAppearance="@style/Toolbar.TitleText" />
             <FrameLayout
                 android:layout_width="wrap_content"

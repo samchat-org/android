@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.android.samservice.info.ReceivedQuestion;
+import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 
@@ -153,7 +154,7 @@ public class ReceivedQuestionAdapter extends BaseAdapter{
 				holder.request = (TextView) convertView.findViewById(R.id.request);
 				holder.date = (TextView) convertView.findViewById(R.id.date);
 				holder.location = (TextView) convertView.findViewById(R.id.location);
-				holder.username = (TextView) convertView.findViewById(R.id.username);
+				holder.avatar = (HeadImageView) convertView.findViewById(R.id.avatar);
 			}
 			convertView.setTag(holder);
 		}else{
@@ -167,7 +168,7 @@ public class ReceivedQuestionAdapter extends BaseAdapter{
 			long showtime = items.get(index).getdatetime();
 			holder.date.setText(TimeUtil.getTimeShowString(showtime,false));
 			holder.location.setText(items.get(index).getaddress());
-			holder.username.setText(items.get(index).getsender_unique_id()+"");
+			holder.avatar.loadBuddyAvatar(""+items.get(index).getsender_unique_id(),30);
 			break;
 		case TYPE_LABEL_NEW:
 			holder.label.setText(mContext.getString(R.string.rq_new));
@@ -196,10 +197,10 @@ public class ReceivedQuestionAdapter extends BaseAdapter{
 	
 	public static class ViewHolder{
 		//received question view
+		public HeadImageView avatar;
 		public TextView request;
 		public TextView date;
 		public TextView location;
-		public TextView username;
 		//label view
 		public TextView label;
 	}

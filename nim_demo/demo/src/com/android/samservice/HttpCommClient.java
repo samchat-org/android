@@ -67,10 +67,13 @@ public class HttpCommClient {
 	public static final String URL_questionSend="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_question_question.do";
 
 	public static final String URL_follow="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_officialAccount_follow.do";
-	public static final String URL_block="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_ officialAccount_block.do";
-	public static final String URL_favourite="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_ officialAccount_favourite.do";
-	public static final String URL_syncFollowList="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_ officialAccount_followListQuery.do";
+	public static final String URL_block="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_officialAccount_block.do";
+	public static final String URL_favourite="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_officialAccount_favourite.do";
+	public static final String URL_syncFollowList="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_officialAccount_followListQuery.do";
 	public static final String URL_queryPublic="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_officialAccount_publicQuery.do";
+	public static final String URL_queryUserFuzzy="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_queryFuzzy.do";
+	public static final String URL_queryUserPrecise="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_queryAccurate.do";
+
 	
 	public static final int CONNECTION_TIMEOUT = 20000;
 	public static final int HTTP_TIMEOUT = 10000;
@@ -1477,7 +1480,7 @@ public class HttpCommClient {
 
 	private JSONObject constructQueryUserFuzzyJson(QueryUserFuzzyCoreObj qufobj) throws JSONException{
 			JSONObject header = new JSONObject();
-			header.putOpt("action", "query");
+			header.putOpt("action", "query-fuzzy");
 			header.putOpt("token", qufobj.token);
 
 			
@@ -1500,7 +1503,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructQueryUserFuzzyJson(qufobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_queryUserFuzzy,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -1585,7 +1588,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructQueryUserPreciseJson(qupobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_queryUserPrecise,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -2407,7 +2410,7 @@ public class HttpCommClient {
 							followusers.addsp(fsp);
 						}
 
-						users.setcount(jsonArrayX.length());
+						followusers.setcount(jsonArrayX.length());
 					}
 					
 				}

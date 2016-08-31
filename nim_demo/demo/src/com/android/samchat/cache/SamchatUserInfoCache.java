@@ -65,7 +65,7 @@ public class SamchatUserInfoCache {
 	}
 
 	public void getUserByUniqueIDFromRemote(final Long unique_id){
-		SamService.getInstance().query_user_precise(TypeEnum.UNIQUE_ID, null, unique_id, null, 
+		SamService.getInstance().query_user_precise(TypeEnum.UNIQUE_ID,null, unique_id, null, true,
 			new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
@@ -94,6 +94,12 @@ public class SamchatUserInfoCache {
 
 	public void addUser(Long unique_id, ContactUser user){
 		 userInfoMap.put(unique_id, user);
+	}
+
+	public void addUsers(List<ContactUser> users){
+		for(ContactUser user : users){
+			userInfoMap.put(user.getunique_id(), user);
+		}
 	}
 	
 	static class InstanceHolder {

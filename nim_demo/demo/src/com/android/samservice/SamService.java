@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import org.apache.http.HttpStatus;
 
 import com.android.samchat.SamVendorInfo;
+import com.android.samchat.cache.ContactDataCache;
 import com.android.samchat.cache.FollowDataCache;
 import com.android.samservice.info.*;
 import com.android.samservice.provider.*;
@@ -802,6 +803,11 @@ public class SamService{
 		}else if(http_ret){
 			if(hcc.ret == 0){
 				int tag = bcobj.isBlock ? Constants.TAG : Constants.NO_TAG;
+				FollowedSamPros fsp = FollowDataCache.getInstance().getFollowSPByUniqueID(bcobj.sam_pros.getunique_id());
+				if(fsp != null){
+					fsp.setblock_tag(tag);
+				}
+				
 				if(dao.update_FollowList_db_BlockTag(hcc.userinfo.getunique_id(), tag) == -1){
 					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
 				}else{
@@ -812,6 +818,10 @@ public class SamService{
 				if(user == null || user.getlastupdate() != hcc.latest_lastupdate){
 					SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(hcc.userinfo.getunique_id());
 				}
+
+				Intent intent = new Intent();
+				intent.setAction(Constants.BROADCAST_FOLLOWEDSP_UPDATE);
+				sendbroadcast(intent);
 			}else{
 				samobj.callback.onFailed(hcc.ret);
 			}
@@ -857,6 +867,11 @@ public class SamService{
 		}else if(http_ret){
 			if(hcc.ret == 0){
 				int tag = fcobj.isFavourite? Constants.TAG : Constants.NO_TAG;
+				FollowedSamPros fsp = FollowDataCache.getInstance().getFollowSPByUniqueID(fcobj.sam_pros.getunique_id());
+				if(fsp != null){
+					fsp.setblock_tag(tag);
+				}
+				
 				if(dao.update_FollowList_db_FavouriteTag(hcc.userinfo.getunique_id(), tag) == -1){
 					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
 				}else{
@@ -867,6 +882,11 @@ public class SamService{
 				if(user == null || user.getlastupdate() != hcc.latest_lastupdate){
 					SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(hcc.userinfo.getunique_id());
 				}
+
+				Intent intent = new Intent();
+				intent.setAction(Constants.BROADCAST_FOLLOWEDSP_UPDATE);
+				sendbroadcast(intent);
+				
 			}else{
 				samobj.callback.onFailed(hcc.ret);
 			}
@@ -911,8 +931,7 @@ public class SamService{
 			return;
 		}else if(http_ret){
 			if(hcc.ret == 0){
-				boolean isDbError = syncUpdateUserInfoIfExisted(hcc.users);
-				samobj.callback.onSuccess(hcc,isDbError?Constants.DB_OPT_ERROR:0);
+				samobj.callback.onSuccess(hcc,0);
 			}else{
 				samobj.callback.onFailed(hcc.ret);
 			}
@@ -939,9 +958,9 @@ public class SamService{
 	}
 
 /***************************************query user precise*******************************************************/
-	public void query_user_precise(TypeEnum type, String cellphone, long unique_id, String username, SMCallBack callback){
+	public void query_user_precise(TypeEnum type, String cellphone, long unique_id, String username, boolean persist, SMCallBack callback){
 		QueryUserPreciseCoreObj samobj = new QueryUserPreciseCoreObj(callback);
-		samobj.init(get_current_token(),  type,  cellphone,  unique_id,  username);
+		samobj.init(get_current_token(),  type, cellphone,  unique_id,  username, persist);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_QUERY_USER_PRECISE, samobj);
 		mSamServiceHandler.sendMessage(msg);
 		startTimeOut(samobj);
@@ -957,8 +976,13 @@ public class SamService{
 			return;
 		}else if(http_ret){
 			if(hcc.ret == 0){
-				boolean isDbError = syncUpdateUserInfo(hcc.users);
-				samobj.callback.onSuccess(hcc,isDbError?Constants.DB_OPT_ERROR:0);
+				if(qupobj.persist){
+					SamchatUserInfoCache.getInstance().addUsers(hcc.users.getusers());
+					boolean isDbError = syncUpdateUserInfo(hcc.users);
+					samobj.callback.onSuccess(hcc,isDbError?Constants.DB_OPT_ERROR:0);
+				}else{
+					samobj.callback.onSuccess(hcc,0);
+				}
 			}else{
 				samobj.callback.onFailed(hcc.ret);
 			}
@@ -976,7 +1000,7 @@ public class SamService{
 	private void retry_query_user_precise(QueryUserPreciseCoreObj samobj){
 		QueryUserPreciseCoreObj  retryobj = new QueryUserPreciseCoreObj(samobj.callback);
 		
-		retryobj.init(samobj.token, samobj.type, samobj.cellphone, samobj.unique_id, samobj.username);
+		retryobj.init(samobj.token, samobj.type, samobj.cellphone, samobj.unique_id, samobj.username, samobj.persist);
 		
 		retryobj.setRetryCount(samobj.retry_count);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_QUERY_USER_PRECISE, retryobj);
@@ -985,9 +1009,9 @@ public class SamService{
 	}
 
 /***************************************read profile multiple*******************************************************/
-	public void query_user_multiple(List<Long> unique_id_list, SMCallBack callback){
+	public void query_user_multiple(List<Long> unique_id_list, boolean persist, SMCallBack callback){
 		QueryUserMultipleCoreObj samobj = new QueryUserMultipleCoreObj(callback);
-		samobj.init(get_current_token(), unique_id_list);
+		samobj.init(get_current_token(), unique_id_list,persist);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_QUERY_USER_MULT, samobj);
 		mSamServiceHandler.sendMessage(msg);
 		startTimeOut(samobj);
@@ -1003,8 +1027,13 @@ public class SamService{
 			return;
 		}else if(http_ret){
 			if(hcc.ret == 0){
-				boolean isDbError = syncUpdateUserInfo(hcc.users);
-				samobj.callback.onSuccess(hcc,isDbError?Constants.DB_OPT_ERROR:0);
+				if(qumobj.persist){
+					SamchatUserInfoCache.getInstance().addUsers(hcc.users.getusers());
+					boolean isDbError = syncUpdateUserInfo(hcc.users);
+					samobj.callback.onSuccess(hcc,isDbError?Constants.DB_OPT_ERROR:0);
+				}else{
+					samobj.callback.onSuccess(hcc,0);
+				}
 			}else{
 				samobj.callback.onFailed(hcc.ret);
 			}
@@ -1022,7 +1051,7 @@ public class SamService{
 	private void retry_query_user_multiple(QueryUserMultipleCoreObj samobj){
 		QueryUserMultipleCoreObj  retryobj = new QueryUserMultipleCoreObj(samobj.callback);
 		
-		retryobj.init(samobj.token, samobj.unique_id_list);
+		retryobj.init(samobj.token, samobj.unique_id_list,samobj.persist);
 		
 		retryobj.setRetryCount(samobj.retry_count);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_QUERY_USER_MULT,retryobj);
@@ -1191,9 +1220,7 @@ public class SamService{
 		mSamServiceHandler.sendMessageDelayed(msg, SAMSERVICE_RETRY_WAIT);
 		startTimeOutRetry(retryobj);
 	}
-
-
-
+	
 /***************************************query public*******************************************************/
 	public void query_public(String key, double latitude, double longitude, String place_id, String address, SMCallBack callback){
 		QueryPublicCoreObj samobj = new QueryPublicCoreObj(callback);
@@ -1363,7 +1390,9 @@ public class SamService{
 	private boolean syncUpdateContactList(boolean isCustomer,MultipleContact contacts){
 		boolean isDbError = false;
 		dao.delete_ContactList_db_all(isCustomer);
+		ContactDataCache.getInstance().clearCache();
 		for(Contact contact:contacts.getcontacts()){
+			ContactDataCache.getInstance().addContact(contact.getunique_id(), contact);
 			if(dao.add_ContactList_db(contact, isCustomer) == -1){
 				isDbError = true;
 			}
@@ -1434,6 +1463,7 @@ public class SamService{
 			return;
 		}else if(http_ret){
 			if(hcc.ret == 0){
+				LogUtil.e("test","sync followlist: "+hcc.followusers.getcount()+" "+ hcc.followusers.getsps());
 				boolean isDbError = syncUpdateFollowList(hcc.followusers);
 				samobj.callback.onSuccess(hcc,isDbError?Constants.DB_OPT_ERROR:0);
 				for(FollowedSamPros sp:hcc.followusers.getsps()){
@@ -1442,6 +1472,11 @@ public class SamService{
 						SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(sp.getlastupdate());
 					}
 				}
+
+				Intent intent = new Intent();
+				intent.setAction(Constants.BROADCAST_FOLLOWEDSP_UPDATE);
+				sendbroadcast(intent);
+				
 			}else{
 				samobj.callback.onFailed(hcc.ret);
 			}
@@ -1742,7 +1777,7 @@ public class SamService{
 	}
 
 	private void asyncUpdateUserInfo(ContactUser now){
-		query_user_precise(TypeEnum.UNIQUE_ID, null, now.getunique_id(), null, new SMCallBack(){
+		query_user_precise(TypeEnum.UNIQUE_ID, null, now.getunique_id(), null, true, new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {}
 
@@ -1774,6 +1809,7 @@ public class SamService{
 		
 		if(users.getcount()>0){
 			for(ContactUser user: users.getusers()){
+				SamchatUserInfoCache.getInstance().addUser(user.getunique_id(), user);
 				if(dao.update_ContactUser_db(user) == -1){
 					isDbError = true;
 				}
@@ -1796,7 +1832,9 @@ public class SamService{
 	private boolean syncUpdateFollowList(MultipleFollowUser followusers){
 		boolean isDbError = false;
 		dao.delete_FollowList_db_all();
+		FollowDataCache.getInstance().clearCache();
 		for(FollowedSamPros sp:followusers.getsps()){
+			FollowDataCache.getInstance().addFollowSP(sp.getunique_id(), sp);
 			if(dao.add_FollowList_db(sp) == -1){
 				isDbError = true;
 			}

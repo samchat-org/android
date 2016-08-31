@@ -164,7 +164,7 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		updateFollow();
 		avatar_headimageview.loadBuddyAvatar(sp.getAccount(), 90);
 		titlebar_name_textview.setText(sp.getusername());
-		
+
 	}
 
 	private void onParseIntent() {

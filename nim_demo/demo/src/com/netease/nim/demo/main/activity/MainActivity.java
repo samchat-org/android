@@ -6,12 +6,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.android.samchat.receiver.PushReceiver;
@@ -39,6 +41,7 @@ import com.netease.nim.uikit.team.helper.TeamHelper;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.NimIntent;
 import com.netease.nimlib.sdk.Observer;
+import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 
 import java.util.ArrayList;
@@ -64,7 +67,11 @@ import com.android.samservice.Constants;
 import com.android.samchat.service.SamDBManager;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
 import com.netease.nim.uikit.NIMCallback;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import com.netease.nim.uikit.session.sam_message.SamchatObserver;
 import com.netease.nim.demo.main.reminder.ReminderManager;
 import com.android.samchat.factory.UuidFactory;
@@ -98,6 +105,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
     /*SAMC_END(Getu SDK initilized tag)*/
 
     /*SAMC_BEGIN(Customized title bar)*/
+    private LinearLayout app_bar_layout;
     private ImageView switch_icon;
     private TextView switch_reminder;
     private TextView titlebar_name;
@@ -204,7 +212,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
         /*SAMC_END(tool bar customized)*/
         //setToolBar(R.id.toolbar, R.string.app_name, R.drawable.actionbar_dark_logo);
-		  setToolBar(R.id.toolbar);
+		 setToolBar(R.id.toolbar);
         titlebarInit();
         //setTitle(R.string.app_name);
         /*SAMC_END(tool bar customized)*/
@@ -219,6 +227,17 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
                 DialogMaker.dismissProgressDialog();
             }
         });
+
+        /*SAMC_BEGIN(sync samchat data including contact list, follow list, ...)*/
+        SamService.getInstance().sync_follow_list(new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {}
+				@Override
+				public void onFailed(int code) {}
+				@Override
+				public void onError(int code) {}
+		 });
+        /*SAMC_END(sync samchat data including contact list, follow list, ...)*/
 
         Log.i(TAG, "sync completed = " + syncCompleted);
         if (!syncCompleted) {
@@ -408,6 +427,27 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
 /*******************************Samchat add******************************************/
 /*SAMC_BEGIN(...)*/
+	private void logout() {
+        removeLoginState();
+        logout(this, false);
+        NIMClient.getService(AuthService.class).logout();
+    }
+
+    private void removeLoginState() {
+        Preferences.saveUserToken("");
+        Preferences.saveUserAccount("");
+    }
+    private void kickOut(StatusCode code) {
+        Preferences.saveUserToken("");
+
+        if (code == StatusCode.PWD_ERROR) {
+            LogUtil.e("Auth", "user password error");
+        } else {
+            LogUtil.i("Auth", "Kicked!");
+        }
+        logout();
+    }
+
 	private void registerObservers(boolean register) {
 		NIMClient.getService(AuthServiceObserver.class).observeOnlineStatus(onLineStatusObserver, register);
 	}
@@ -417,6 +457,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 		public void onEvent(StatusCode code) {
 			if (code.wontAutoLogin()) {
 				LogUtil.ui("SDK will not try auto login again");
+				kickOut(code);
 			} else {
 				if (code == StatusCode.LOGINED) {
 					LogUtil.ui("SDK auto login succeed");
@@ -465,6 +506,14 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	public void refreshToolBar(int position){
 		switch_icon.setImageResource(MainTab.getTabIcon(position));
 		titlebar_name.setText(MainTab.getTabTitle(position));
+
+		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+			app_bar_layout.setBackgroundColor(Color.rgb(255,255,255));
+			titlebar_name.setTextColor(getResources().getColor(R.color.color_black_b3000000));
+		}else{
+			app_bar_layout.setBackgroundColor(Color.rgb(19,36,63));
+			titlebar_name.setTextColor(getResources().getColor(R.color.color_white_ffffffff));
+		}
 	}
 
 	public void refreshTabUnreadCount(ModeEnum currentMode){
@@ -503,10 +552,13 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	}
 
 	private void titlebarInit(){
+		app_bar_layout = (LinearLayout) findViewById(R.id.app_bar_layout);
 		switch_icon = (ImageView) findViewById(R.id.switch_icon);
 		switch_reminder = (TextView) findViewById(R.id.switch_reminder);
 		titlebar_name = (TextView) findViewById(R.id.titlebar_name);
 		titlebar_right_icon = (ImageView) findViewById(R.id.titlebar_right_icon);
+
+
 
 		refreshToolBar(current_position);
 		switch_icon.setOnClickListener(new View.OnClickListener() {

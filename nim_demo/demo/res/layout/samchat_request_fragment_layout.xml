@@ -2,16 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              android:background="@color/GreyWhite">
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/grey"/>
     <LinearLayout
         android:id="@+id/customer_request_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/grey"/>
         <TextView
             android:id="@+id/make_new_service_request"
             android:layout_width="match_parent"
@@ -20,24 +21,61 @@
             android:layout_marginBottom="15dp"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
-            android:background="@drawable/samchat_text_radius_border"
+            android:background="@drawable/samchat_text_radius_border_green"
+            android:textColor="@color/color_white_ffffffff"
             android:text="@string/make_new_request"
             android:textSize="@dimen/text_size_20"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:gravity="center"/>
-        <View
+        <LinearLayout
+            android:id="@+id/welcome_board"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/grey"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:gravity="center_horizontal"
+                android:textSize="20sp"
+                android:text="@string/samchat_make_your_first_request"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/color_grey_999999"
+                android:textSize="15sp"
+                android:gravity="center"
+                android:text="@string/samchat_customer_welcome_board"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/color_grey_999999"
+                android:textSize="15sp"
+                android:gravity="center_horizontal"
+                android:text="@string/samchat_customer_welcome_get_start"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/samchat_wireless"/>
+        </LinearLayout>
         <ListView
             android:id="@+id/customer_request_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:divider="@null">
+            android:divider="@color/color_grey_999999"
+            android:dividerHeight="1px"
+            android:scrollbars="none"
+            android:background="@color/color_white_ffffffff">
         </ListView>
     </LinearLayout>
 
@@ -51,10 +89,10 @@
             android:id="@+id/sp_request_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
             android:layout_marginTop="5dp"
-            android:divider="@null">
+            android:divider="@color/color_grey_999999"
+            android:dividerHeight="1px"
+            android:scrollbars="none">
         </ListView>
     </LinearLayout>
 

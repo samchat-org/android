@@ -176,6 +176,10 @@ public class SamchatSettingFragment extends TFragment {
 	}
 
 	private void updateCrateSPLayout(){
+		if(SamService.getInstance().get_current_user() == null){
+			return;
+		}
+		
 		if(SamService.getInstance().get_current_user().getusertype() == Constants.USER
 			&& SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
 			create_sp_layout.setVisibility(View.VISIBLE);

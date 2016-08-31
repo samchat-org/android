@@ -10,6 +10,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.android.samchat.activity.SamchatSearchPublicActivity;
+import com.android.samchat.cache.FollowDataCache;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import java.util.ArrayList;
@@ -72,6 +73,7 @@ public class SamchatPublicFragment extends TFragment {
 		broadcastManager = LocalBroadcastManager.getInstance(getActivity());
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Constants.BROADCAST_SWITCH_MODE);
+		filter.addAction(Constants.BROADCAST_FOLLOWEDSP_UPDATE);
 
 		broadcastReceiver = new BroadcastReceiver() {
 			@Override
@@ -86,6 +88,9 @@ public class SamchatPublicFragment extends TFragment {
 						sp_public_layout.setVisibility(View.VISIBLE);
 					}
 					((MainActivity)getActivity()).dimissSwitchProgress();
+				}else if(intent.getAction().equals(Constants.BROADCAST_FOLLOWEDSP_UPDATE)){
+					loadedFollowSPs= FollowDataCache.getInstance().getMyFollowSPsList();
+					onFollowedSPsLoaded();
 				}
 			}
 		};
