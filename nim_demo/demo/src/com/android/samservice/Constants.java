@@ -57,7 +57,7 @@ public class Constants{
 	public static final int AVATAR_UPDATE_SAM_PROS = 1;
 
 	/****************************Http Command Config***********************************************/
-	public static final boolean POST_CMD = true;
+	public static final boolean POST_CMD = false;
 
 	/****************************Login Final Config***********************************************/
 	public static final int MIN_MPHONE_NUMBER_LENGTH = 6;
@@ -89,6 +89,8 @@ public class Constants{
 	public static final String BROADCAST_CUSTOMER_ITEMS_UPDATE = "com.android.samchat.customeritemsupdate";
 	public static final String BROADCAST_USER_INFO_UPDATE = "com.android.samchat.userinfoupdate";
 	public static final String BROADCAST_FOLLOWEDSP_UPDATE = "com.android.samchat.followedspupdate";
+	public static final String BROADCAST_CONTACTLIST_UPDATE = "com.android.samchat.contactlistupdate";
+	public static final String BROADCAST_CUSTOMERLIST_UPDATE = "com.android.samchat.customerlistupdate";
 
 	/****************************Message From***********************************************/
 	public static final String MSG_FROM = "msg_from";
@@ -154,7 +156,8 @@ public class Constants{
 	public static final int RET_HAVE_NOT_FOLLOW_ERROR = -507;
 	public static final int RET_HAVE_NOT_ADD_CONTACT_ERROR = -508;
 	public static final int RET_SEND_QUESTION_TOO_OFFTEN = -509;
-	
+	public static final int RET_NOT_SERVICE_PROVIDER_ERROR = -510;
+
 	/****************************Longitude/Latitude null value***********************************************/
 	public static final double CONSTANTS_LONGITUDE_LATITUDE_NULL = -400;
 

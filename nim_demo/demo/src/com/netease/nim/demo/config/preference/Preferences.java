@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.type.ModeEnum;
+import com.netease.nim.uikit.common.util.string.StringUtil;
+
 /**
  * Created by hzxuwen on 2015/4/13.
  */
@@ -31,7 +33,7 @@ public class Preferences {
 
 	public static int getMode() {
 		String str = getString(KEY_MODE);
-		if(str == null){
+		if(StringUtil.isEmpty(str)){
 			return ModeEnum.valueOfType(ModeEnum.CUSTOMER_MODE);
 		}
 		

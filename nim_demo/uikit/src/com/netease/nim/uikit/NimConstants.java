@@ -35,5 +35,8 @@ public class NimConstants{
 	public static final long RECENT_TAG_STICKY_CUSTOMER_ROLE = 8;
 	public static final long RECENT_TAG_STICKY_SP_ROLE = 16;
 
+
+	public static final String SESSION_ACCOUNT_ADVERTISEMENT = "999999";
+
 }
 

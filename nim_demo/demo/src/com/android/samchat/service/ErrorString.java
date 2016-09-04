@@ -82,6 +82,9 @@ public class ErrorString{
 			case Constants.RET_SEND_QUESTION_TOO_OFFTEN:
 				reminder = activity.getString(R.string.samchat_send_question_too_offten);
 				break;
+			case Constants.RET_NOT_SERVICE_PROVIDER_ERROR:
+				reminder = activity.getString(R.string.samchat_your_not_sp_error);
+				break;
 			default:
 				reminder = activity.getString(R.string.samchat_default_error);
 				break;

@@ -92,6 +92,8 @@ public class SamchatContactFragment extends TFragment {
 		broadcastManager = LocalBroadcastManager.getInstance(getActivity());
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Constants.BROADCAST_SWITCH_MODE);
+		filter.addAction(Constants.BROADCAST_CONTACTLIST_UPDATE);
+		filter.addAction(Constants.BROADCAST_CUSTOMERLIST_UPDATE);
 
 		broadcastReceiver = new BroadcastReceiver() {
 			@Override
@@ -106,6 +108,12 @@ public class SamchatContactFragment extends TFragment {
 						sp_contact_layout.setVisibility(View.VISIBLE);
 					}
 					((MainActivity)getActivity()).dimissSwitchProgress();
+				}else if(intent.getAction().equals(Constants.BROADCAST_CONTACTLIST_UPDATE)){
+					loadedContacts = new ArrayList<Contact>(ContactDataCache.getInstance().getMyContacts());
+					onContactsLoaded();
+				}else if(intent.getAction().equals(Constants.BROADCAST_CUSTOMERLIST_UPDATE)){
+					loadedCustomers= new ArrayList<Contact>(CustomerDataCache.getInstance().getMyCustomers());
+					onCustomersLoaded();
 				}
 			}
 		};

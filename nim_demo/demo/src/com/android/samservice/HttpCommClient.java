@@ -39,6 +39,8 @@ import com.android.samservice.info.MultiplePlacesInfo;
 import com.android.samservice.info.PlacesInfo;
 import com.android.samservice.info.ReceivedQuestion;
 import com.android.samservice.info.ContactUser;
+import com.netease.nim.uikit.common.util.log.LogUtil;
+
 public class HttpCommClient {
 	public static final String TAG="HttpCommClient";
 	
@@ -73,6 +75,10 @@ public class HttpCommClient {
 	public static final String URL_queryPublic="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_officialAccount_publicQuery.do";
 	public static final String URL_queryUserFuzzy="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_queryFuzzy.do";
 	public static final String URL_queryUserPrecise="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_queryAccurate.do";
+	public static final String URL_sendInviteMsg="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_common_sendInviteMsg.do";
+	public static final String URL_editProfile="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_profile_profileUpdate.do";
+	public static final String URL_writeAdvertisement="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_advertisement_advertisementWrite.do";
+
 
 	
 	public static final int CONNECTION_TIMEOUT = 20000;
@@ -1556,7 +1562,7 @@ public class HttpCommClient {
 
 	private JSONObject constructQueryUserPreciseJson(QueryUserPreciseCoreObj qupobj) throws JSONException{
 			JSONObject header = new JSONObject();
-			header.putOpt("action", "query");
+			header.putOpt("action", "query-accurate");
 			header.putOpt("token", qupobj.token);
 
 			
@@ -1641,7 +1647,7 @@ public class HttpCommClient {
 
 	private JSONObject constructQueryUserMultipleJson(QueryUserMultipleCoreObj qumobj) throws JSONException{
 			JSONObject header = new JSONObject();
-			header.putOpt("action", "query");
+			header.putOpt("action", "query-group");
 			header.putOpt("token", qumobj.token);
 			
 			JSONObject body = new JSONObject();
@@ -1718,7 +1724,7 @@ public class HttpCommClient {
 
 	private JSONObject constructQueryUserWithoutTokenJson(QueryUserWithoutTokenCoreObj quwobj) throws JSONException{
 			JSONObject header = new JSONObject();
-			header.putOpt("action", "query");
+			header.putOpt("action", "query-without-token");
 			
 			JSONObject body = new JSONObject();
 			body.putOpt("opt",4);
@@ -1803,7 +1809,7 @@ public class HttpCommClient {
 			for(PhoneNumber phone:simobj.phones){
 				JSONObject jo = new JSONObject();
 				jo.putOpt("countrycode",phone.countrycode);
-				jo.putOpt("cellphoe",phone.cellphone);
+				jo.putOpt("cellphone",phone.cellphone);
 				jsonArrayX.put(jo);
 			}
 			body.put("phones",jsonArrayX);
@@ -1820,7 +1826,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructSendInviteMsgJson(simobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_sendInviteMsg,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -1921,7 +1927,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructEditProfileJson(epobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_editProfile,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -2276,7 +2282,7 @@ public class HttpCommClient {
 			header.putOpt("token", scobj.token);
 			
 			JSONObject body = new JSONObject();
-			if(scobj.isCustomer){
+			if(!scobj.isCustomer){
 				body.putOpt("type",0);
 			}else{
 				body.putOpt("type",1);
@@ -2452,8 +2458,8 @@ public class HttpCommClient {
 			header.putOpt("token", advobj.token);
 			
 			JSONObject body = new JSONObject();
-			body.putOpt("type",advobj.adv.type);
-			body.putOpt("content",advobj.adv.content);
+			body.putOpt("type",advobj.type);
+			body.putOpt("content",advobj.content);
 			
 			JSONObject data = new JSONObject();
 			data.put("header", header);
@@ -2466,7 +2472,7 @@ public class HttpCommClient {
         try {
             JSONObject data = constructWriteAdvJson(advobj);
 
-            HttpResponse response = httpCmdStart(URL, data);
+            HttpResponse response = httpCmdStart(URL_writeAdvertisement, data);
 
             statusCode = response.getStatusLine().getStatusCode();
 
@@ -2478,7 +2484,7 @@ public class HttpCommClient {
                 ret = obj.getInt("ret");
 
                 if (isRetOK()) {
-                    adv = advobj.adv;
+                    adv = new Advertisement(advobj.type, advobj.content, advobj.sender_unique_id);
                     adv.setadv_id(obj.getLong("adv_id"));
                     adv.setpublish_timestamp(obj.getLong("publish_timestamp"));
                 }

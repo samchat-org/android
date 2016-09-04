@@ -15,6 +15,7 @@ import org.apache.http.HttpStatus;
 
 import com.android.samchat.SamVendorInfo;
 import com.android.samchat.cache.ContactDataCache;
+import com.android.samchat.cache.CustomerDataCache;
 import com.android.samchat.cache.FollowDataCache;
 import com.android.samservice.info.*;
 import com.android.samservice.provider.*;
@@ -750,7 +751,7 @@ public class SamService{
 
 				}else{
 					dao.delete_FollowList_db_by_unique_id(hcc.userinfo.getunique_id());
-					FollowDataCache.getInstance().removeFollowSP(hcc.userinfo.getunique_id());
+					FollowDataCache.getInstance().addFollowSP(hcc.userinfo.getunique_id(),null);
 					SamDBManager.getInstance().clearUserTable(hcc.userinfo.getunique_id());
 					samobj.callback.onSuccess(hcc,0);
 				}
@@ -1141,6 +1142,14 @@ public class SamService{
 			return;
 		}else if(http_ret){
 			if(hcc.ret == 0){
+				if(hcc.userinfo.getcellphone() == null){
+					hcc.userinfo.setcellphone(get_current_user().getcellphone());
+				}
+				if(hcc.userinfo.getcountrycode() == null){
+					hcc.userinfo.setcountrycode(get_current_user().getcountrycode());
+				}
+				set_current_user(hcc.userinfo);
+				SamchatUserInfoCache.getInstance().addUser(hcc.userinfo.getunique_id(), hcc.userinfo);
 				if(dao.update_ContactUser_db(hcc.userinfo) == -1){
 					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
 				}else{
@@ -1294,8 +1303,10 @@ public class SamService{
 				
 				if(opobj.type == Constants.ADD_INTO_CONTACT){
 					dao.update_ContactList_db(user, false);
+					ContactDataCache.getInstance().addContact(user.getunique_id(), user);
 				}else{
 					dao.update_ContactList_db(user, true);
+					CustomerDataCache.getInstance().addCustomer(user.getunique_id(), user);
 				}
 				
 				if(dao.update_ContactUser_db(hcc.userinfo) == -1){
@@ -1303,6 +1314,14 @@ public class SamService{
 				}else{
 					samobj.callback.onSuccess(hcc,0);
 				}
+
+				Intent intent = new Intent();
+				if(opobj.type == Constants.ADD_INTO_CONTACT){
+					intent.setAction(Constants.BROADCAST_CONTACTLIST_UPDATE);
+				}else{
+					intent.setAction(Constants.BROADCAST_CUSTOMERLIST_UPDATE);
+				}
+				sendbroadcast(intent);
 			}else{
 				samobj.callback.onFailed(hcc.ret);
 			}
@@ -1349,10 +1368,22 @@ public class SamService{
 			if(hcc.ret == 0){
 				if(opobj.type == Constants.REMOVE_OUT_CONTACT){
 					dao.delete_ContactList_db_by_unique_id(opobj.user.getunique_id(), false);
+					ContactDataCache.getInstance().addContact(opobj.user.getunique_id(), null);
 				}else{
 					dao.delete_ContactList_db_by_unique_id(opobj.user.getunique_id(), true);
+					CustomerDataCache.getInstance().addCustomer(opobj.user.getunique_id(), null);
 				}
 				samobj.callback.onSuccess(hcc,0);
+
+				Intent intent = new Intent();
+				if(opobj.type == Constants.REMOVE_OUT_CONTACT){
+					intent.setAction(Constants.BROADCAST_CONTACTLIST_UPDATE);
+				}else{
+					intent.setAction(Constants.BROADCAST_CUSTOMERLIST_UPDATE);
+				}
+				sendbroadcast(intent);
+
+				
 			}else{
 				samobj.callback.onFailed(hcc.ret);
 			}
@@ -1390,9 +1421,19 @@ public class SamService{
 	private boolean syncUpdateContactList(boolean isCustomer,MultipleContact contacts){
 		boolean isDbError = false;
 		dao.delete_ContactList_db_all(isCustomer);
-		ContactDataCache.getInstance().clearCache();
+		if(isCustomer){
+			CustomerDataCache.getInstance().clearCache();
+		}else{
+			ContactDataCache.getInstance().clearCache();
+		}
+		
 		for(Contact contact:contacts.getcontacts()){
-			ContactDataCache.getInstance().addContact(contact.getunique_id(), contact);
+			if(isCustomer){
+				CustomerDataCache.getInstance().addCustomer(contact.getunique_id(), contact);
+			}else{
+				ContactDataCache.getInstance().addContact(contact.getunique_id(), contact);
+			}
+			
 			if(dao.add_ContactList_db(contact, isCustomer) == -1){
 				isDbError = true;
 			}
@@ -1412,6 +1453,15 @@ public class SamService{
 			if(hcc.ret == 0){
 				boolean isDbError = syncUpdateContactList(scobj.isCustomer,hcc.contacts);
 				samobj.callback.onSuccess(hcc,isDbError?Constants.DB_OPT_ERROR:0);
+
+				Intent intent = new Intent();
+				if(!scobj.isCustomer){
+					intent.setAction(Constants.BROADCAST_CONTACTLIST_UPDATE);
+				}else{
+					intent.setAction(Constants.BROADCAST_CUSTOMERLIST_UPDATE);
+				}
+				sendbroadcast(intent);
+				
 				for(Contact contact:hcc.contacts.getcontacts()){
 					ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(contact.getunique_id());
 					if(user == null || user.getlastupdate() != contact.getlastupdate()){
@@ -1469,7 +1519,7 @@ public class SamService{
 				for(FollowedSamPros sp:hcc.followusers.getsps()){
 					ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(sp.getunique_id());
 					if(user == null || user.getlastupdate() != sp.getlastupdate()){
-						SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(sp.getlastupdate());
+						SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(sp.getunique_id());
 					}
 				}
 
@@ -1503,9 +1553,9 @@ public class SamService{
 	}
 
 /***************************************write advertisement*******************************************************/
-	public void write_advertisement(Advertisement adv, SMCallBack callback){
+	public void write_advertisement(int type, String content,long sender_unique_id, SMCallBack callback){
 		AdvCoreObj samobj = new AdvCoreObj(callback);
-		samobj.init(get_current_token(),adv);
+		samobj.init(get_current_token(),type,content,sender_unique_id);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_WRITE_ADV, samobj);
 		mSamServiceHandler.sendMessage(msg);
 		startTimeOut(samobj);
@@ -1543,7 +1593,7 @@ public class SamService{
 	private void retry_write_advertisement(AdvCoreObj samobj){
 		AdvCoreObj  retryobj = new AdvCoreObj(samobj.callback);
 		
-		retryobj.init(samobj.token, samobj.adv);
+		retryobj.init(samobj.token, samobj.type,samobj.content,samobj.sender_unique_id);
 		
 		retryobj.setRetryCount(samobj.retry_count);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_WRITE_ADV,retryobj);

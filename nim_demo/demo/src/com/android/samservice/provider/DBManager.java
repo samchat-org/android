@@ -234,6 +234,17 @@ public class DBManager
 		return msgs.size();
 	}
 
+	public long updateMessageDataID(String table, String uuid, long data_id){
+		ContentValues cv = new ContentValues();
+		
+		cv.put("data_id",data_id);
+
+		String whereClause = "uuid=?";
+		String [] whereArgs = {uuid};
+
+		return message_db.update(table,cv,whereClause,whereArgs);
+	}
+
 	public List<Message> queryMessages(String table, int count){
 		Message msg = null;
 		List<Message> msgs = new ArrayList<Message>();

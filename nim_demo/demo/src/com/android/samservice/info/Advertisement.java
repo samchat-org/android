@@ -27,6 +27,15 @@ public class Advertisement{
 		sender_unique_id = 0;
 	}
 
+	public Advertisement(int type, String content, long sender_unique_id){
+		this.id = 0;
+		this.adv_id = 0;
+		this.type = type;
+		this.content = content;
+		this.publish_timestamp = 0;
+		this.sender_unique_id = sender_unique_id;
+	}
+
 	public long getid(){
 		return id;
 	}

@@ -1,5 +1,6 @@
 package com.netease.nim.demo.login;
 
+import com.android.samchat.type.ModeEnum;
 import com.netease.nim.demo.DemoCache;
 import com.netease.nim.demo.chatroom.helper.ChatRoomHelper;
 import com.netease.nim.demo.config.preference.Preferences;
@@ -32,6 +33,7 @@ public class LogoutHelper {
         PushManager.getInstance().unBindAlias(DemoCache.getContext(),Preferences.getUserAlias(),true);
         PushManager.getInstance().stopService(DemoCache.getContext());
         Preferences.saveUserAlias("");
+        Preferences.saveMode(ModeEnum.CUSTOMER_MODE.ordinal());
         SamchatDataCacheManager.clearDataCache();
         /*SAMC_END(stop push service when logout)*/
     }

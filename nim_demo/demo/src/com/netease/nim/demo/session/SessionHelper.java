@@ -123,6 +123,12 @@ public class SessionHelper {
         NimUIKit.startChatting(context, tid, SessionTypeEnum.Team, getTeamCustomization(), backToClass);
     }
 
+    /*SAMC_BEGIN(adv write msg window)*/
+    public static SessionCustomization getAdvCustomization(){
+        return getP2pCustomization();
+    }
+    /*SAMC_END(adv write msg window)*/
+
     // 定制化单聊界面。如果使用默认界面，返回null即可
     private static SessionCustomization getP2pCustomization() {
         if (p2pCustomization == null) {

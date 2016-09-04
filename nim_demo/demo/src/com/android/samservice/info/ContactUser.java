@@ -83,7 +83,7 @@ public class ContactUser implements UserInfoProvider.UserInfo
 		this.countrycode = user.getcountrycode();
 		this.cellphone = user.getcellphone();
 		this.email = user.getemail();
-		this.address = user.getemail();
+		this.address = user.getaddress();
 		this.company_name = user.getcompany_name();
 		this.service_category = user.getservice_category();
 		this.service_description = user.getservice_description();

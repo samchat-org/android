@@ -50,6 +50,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
 
     <!-- SDK权限申明, 第三方APP接入时，请将com.netease.nim.demo替换为自己的包名 -->
     <!-- 和下面的uses-permission一起加入到你的AndroidManifest文件中。 -->
@@ -298,6 +299,35 @@
             android:windowSoftInputMode="adjustResize|stateHidden"/>
         <activity
             android:name="com.android.samchat.activity.SamchatContactUserSPNameCardActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity
+            android:name="com.android.samchat.activity.SamchatAddServiceProviderActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+
+        <activity
+            android:name="com.android.samchat.activity.SamchatAddCustomerActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+
+        <activity
+            android:name="com.android.samchat.activity.SamchatProfileCustomerActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+
+        <activity
+            android:name="com.android.samchat.activity.SamchatProfileServiceProviderActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
+
+        <activity
+            android:name="com.android.samchat.activity.SamchatProfileEditActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateHidden"/>

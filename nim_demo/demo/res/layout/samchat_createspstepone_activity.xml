@@ -102,6 +102,7 @@
         android:maxLines="1"
         android:textSize="18sp"
         android:hint="@string/samchat_service_category"
+        android:singleLine="true"
         android:background="@drawable/samchat_text_radius_border"/>
     <EditText
         android:id="@+id/service_description"

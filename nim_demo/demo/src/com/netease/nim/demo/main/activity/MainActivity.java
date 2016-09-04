@@ -16,6 +16,8 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.android.samchat.activity.SamchatAddCustomerActivity;
+import com.android.samchat.activity.SamchatAddServiceProviderActivity;
 import com.android.samchat.receiver.PushReceiver;
 import com.netease.nim.demo.R;
 import com.netease.nim.demo.avchat.AVChatProfile;
@@ -569,6 +571,39 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 				}
 			}
 		});
+
+		titlebar_right_icon.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+					if(current_position == MainTab.SAMCHAT_REQUEST.tabIndex){
+
+					}else if(current_position == MainTab.SAMCHAT_PUBLIC.tabIndex){
+
+					}else if(current_position == MainTab.SAMCHAT_CHAT.tabIndex){
+
+					}else if(current_position == MainTab.SAMCHAT_CONTACT.tabIndex){
+						SamchatAddServiceProviderActivity.start(MainActivity.this);
+					}else if(current_position == MainTab.SAMCHAT_SETTING.tabIndex){
+						
+					}
+				}else{
+					if(current_position == MainTab.SAMCHAT_REQUEST.tabIndex){
+
+					}else if(current_position == MainTab.SAMCHAT_PUBLIC.tabIndex){
+
+					}else if(current_position == MainTab.SAMCHAT_CHAT.tabIndex){
+
+					}else if(current_position == MainTab.SAMCHAT_CONTACT.tabIndex){
+						SamchatAddCustomerActivity.start(MainActivity.this);
+					}else if(current_position == MainTab.SAMCHAT_SETTING.tabIndex){
+
+					}
+
+				}
+				
+			}
+		});
 		
 	}
 
@@ -644,6 +679,16 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	public void asyncUpdateReceivedQuestionStatusToResponse(long question_id){
 		SamDBManager.getInstance().asyncUpdateReceivedQuestionStatusToResponse(question_id);
 	}
+	
+	public void registerSendAdvertisementObserver(SamchatObserver < IMMessage > observer, boolean register){
+		SamDBManager.getInstance().registerSendAdvertisementObserver(observer, register);
+	}
+
+    public void registerSendAdvertisementStatusObserver(SamchatObserver < IMMessage > observer, boolean register){
+        SamDBManager.getInstance().registerSendAdvertisementStatusObserver(observer, register);
+    }
+
+	
 	
 /*SAMC_END(...)*/
 }

@@ -303,6 +303,8 @@ public final class NimUIKit {
         void storeSendCustomerMessage(IMMessage msg,NIMCallback callback);
         void storeRecvCustomerMessage(IMMessage msg, NIMCallback callback);
         void asyncUpdateReceivedQuestionStatusToResponse(long question_id);
+        void registerSendAdvertisementObserver(SamchatObserver<IMMessage> observer,boolean register);
+        void registerSendAdvertisementStatusObserver(SamchatObserver<IMMessage> observer,boolean register);
     }
 
     static private NimUIKitInterface callback;

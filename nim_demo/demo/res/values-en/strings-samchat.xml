@@ -49,7 +49,6 @@
 
 
 
-
     <string name="samchat_username_or_phone">Username or phone no</string>
     <string name="samchat_enter_password">Enter your password</string>
     <string name="samchat_signin">SIGN IN</string>
@@ -73,6 +72,7 @@
 
     <string name="samchat_region">Region</string>
     <string name="samchat_top_hit">Top hit</string>
+
     <string name="China">China</string>
     <string name="USA">USA</string>
     <string name="samchat_sending">Sending...</string>
@@ -101,6 +101,7 @@
     <string name="samchat_follow_maxium_number_error">Followed Service provider has been maxium</string>
     <string name="samchat_not_follow_error">You have not followed this Service Provider</string>
     <string name="samchat_not_add_contact_error">You have not add this user into your contact</string>
+    <string name="samchat_your_not_sp_error">You are not service provider , do you want to upgrade service provider?</string>
 
     <string name="samchat_verifying">Verifying</string>
 
@@ -129,22 +130,25 @@
     <string name="samchat_updating">Updating</string>
     <string name="samchat_old_password">Old password</string>
     <string name="samchat_new_password">New password</string>
+
     <string name="samchat_send_question_too_offten">Send question too offten</string>
+
     <string name="samchat_my_qrcode">My QR code</string>
     <string name="samchat_samchat_id">samchat id:</string>
     <string name="samchat_phone_id">phone:</string>
     <string name="samchat_qr_bussiness_card">QR Bussiness Card</string>
+
     <string name="samchat_new_request">New Request</string>
     <string name="samchat_your_request">Your Request</string>
     <string name="samchat_send">Send</string>
-    <string name="samchat_request_hint">How can we help?</string>
+    <string name="samchat_request_hint">How can we help ?</string>
     <string name="samchat_current_loaction">Current location</string>
     <string name="samchat_request_details">Request Details</string>
     <string name="samchat_new_response">New Response</string>
 
     <string name="samchat_public_search">Public Search</string>
     <string name="samchat_search">Search</string>
-    <string name="samchat_public_search_hint">Search by keywords,usrname,phone no</string>
+    <string name="samchat_public_search_hint">Search by keywords,username,phone no</string>
     <string name="samchat_searching">Searching...</string>
 
     <string name="samchat_chat">Chat Now</string>
@@ -156,4 +160,25 @@
     <string name="samchat_make_your_first_request">Make your first request</string>
     <string name="samchat_customer_welcome_board">Tell us what professional services do you need or what job do you need done.</string>
     <string name="samchat_customer_welcome_get_start">Get started now</string>
+
+    <string name="samchat_add_service_provider">Add Service Provider</string>
+    <string name="samchat_invite_contacts">Invite Contacts</string>
+    <string name="samchat_invite_send">Invitation has been send</string>
+    <string name="samchat_add_sp_succeed">Add this service provider successfully</string>
+    <string name="samchat_sp_already_add">This service provider has been in your contact list</string>
+    <string name="samchat_no_sp">This user is not service provider</string>
+
+    <string name="samchat_qr_code_invalid">Invalid QR Code</string>
+
+    <string name="samchat_add_customer_succeed">Add this customer successfully</string>
+    <string name="samchat_customer_already_add">This customer has been in your customer list</string>
+
+    <string name="samchat_edit_my_profile">Edit My Profile </string>
+    <string name="samchat_my_login_info">My login information</string>
+    <string name="samchat_contact_info">My contact information</string>
+
+    <string name="samchat_edit_my_service_profile">Edit My Service Profile </string>
+
+    <string name="samchat_edit_profile">Edit Profile </string>
+    <string name="samchat_save">Save</string>
 </resources>

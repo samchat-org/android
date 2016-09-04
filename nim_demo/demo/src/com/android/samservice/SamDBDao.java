@@ -649,6 +649,16 @@ public class SamDBDao{
 		return ret;
 	}
 
+	public long updateMessageDataID(String table, String uuid, long data_id){
+		long ret;
+		synchronized(dbLock_msg){
+			ret = dbHandle.updateMessageDataID( table,  uuid,  data_id);
+		}
+		return ret;
+	}
+
+	
+
 	public List<Message> query_Messages_db_Newest(String table, int count){
 		synchronized(dbLock_msg){
 			return dbHandle.queryMessages( table,  count);

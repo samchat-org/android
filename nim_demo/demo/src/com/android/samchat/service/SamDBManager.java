@@ -5,6 +5,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samservice.info.AdvancedMessage;
+import com.android.samservice.info.Advertisement;
 import com.android.samservice.info.MsgSession;
 import java.util.List;
 import java.util.ArrayList;
@@ -53,6 +54,11 @@ public class SamDBManager{
 	private List<SamchatObserver<List<SendQuestion>>> SendQuestionAnsweredObservers;
 	//send question unread clear observer: SamchatRequestFragment of customer mode will register
 	private List<SamchatObserver<SendQuestion>> SendQuestionUnreadClearObservers;
+	//send adv observer: SamchatPublicFragment of sp mode will register
+	private List<SamchatObserver<IMMessage>> SendAdvertisementObservers;
+	//send adv status update observer: SamchatPublicFragment of sp mode will register
+	private List<SamchatObserver<IMMessage>> SendAdvertisementStatusObservers;
+	
 	//thread pool for db operation
 	private ExecutorService mFixedHttpThreadPool;
 	//single instance
@@ -73,6 +79,8 @@ public class SamDBManager{
 		ReceivedQuestionObservers = new ArrayList<SamchatObserver<ReceivedQuestion>>();
 		SendQuestionAnsweredObservers = new ArrayList<SamchatObserver<List<SendQuestion>>>();
 		SendQuestionUnreadClearObservers = new ArrayList<SamchatObserver<SendQuestion>>();
+		SendAdvertisementObservers = new ArrayList<SamchatObserver<IMMessage>>();
+		SendAdvertisementStatusObservers = new ArrayList<SamchatObserver<IMMessage>>();
 	}
 
 	private void close(){
@@ -124,6 +132,20 @@ public class SamDBManager{
 	public void callSendQuestionUnreadClearObserverCallback(SendQuestion sq){
 		for(SamchatObserver<SendQuestion> observer : SendQuestionUnreadClearObservers){
 			observer.onEvent(sq);
+		}
+	}
+
+	//call send advertisement observer one by one
+	public void callSendAdvertisementObserverCallback(IMMessage im){
+		for(SamchatObserver<IMMessage> observer : SendAdvertisementObservers){
+			observer.onEvent(im);
+		}
+	}
+
+	//call send advertisement status observer one by one
+	public void callSendAdvertisementStatusObserverCallback(IMMessage im){
+		for(SamchatObserver<IMMessage> observer : SendAdvertisementStatusObservers){
+			observer.onEvent(im);
 		}
 	}
 
@@ -620,6 +642,39 @@ public class SamDBManager{
 		});	
 	}
 
+	public void asyncStoreSendAdvertisementMessage(final Advertisement adv, final IMMessage im, final NIMCallback callback){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				Message msg = createMessage(im.getSessionId(), NimConstants.MSG_TYPE_SEND_ADV,  im, adv.getadv_id());
+				MsgSession changedSession;
+				if((changedSession = storeSendMessage(im.getSessionId(),ModeEnum.SP_MODE.ordinal(),msg,im)) != null){
+					callSendAdvertisementObserverCallback(im);
+					callback.onResult(adv, im, 0);
+				}
+			}
+		});	
+	}
+
+	public void syncUpdateSendAdvertisementMessage(final Advertisement adv, final IMMessage im){
+		if(im.getStatus() == MsgStatusEnum.success){
+			MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(NimConstants.SESSION_ACCOUNT_ADVERTISEMENT,ModeEnum.SP_MODE.ordinal());
+			if(SamService.getInstance().getDao().updateMessageDataID(session.getmsg_table_name(), im.getUuid(), adv.getadv_id())!=0){
+				NIMClient.getService(MsgService.class).updateIMMessageStatus(im);
+				callSendAdvertisementStatusObserverCallback(im);
+			}else{
+				im.setStatus(MsgStatusEnum.fail);
+				NIMClient.getService(MsgService.class).updateIMMessageStatus(im);
+				callSendAdvertisementStatusObserverCallback(im);
+			}
+		}else{
+			NIMClient.getService(MsgService.class).updateIMMessageStatus(im);
+			callSendAdvertisementStatusObserverCallback(im);
+		}
+	}
+
+
+
 	private IMMessage findMsg(List<IMMessage> messages,String uuid){
 		for(IMMessage msg:messages){
 			if(uuid.equals(msg.getUuid())){
@@ -948,6 +1003,22 @@ public class SamDBManager{
 			SendQuestionUnreadClearObservers.add(observer);
 		}else{
 			SendQuestionUnreadClearObservers.remove(observer);
+		}
+	}
+
+	synchronized public void registerSendAdvertisementObserver(SamchatObserver<IMMessage> observer,boolean register){
+		if(register){
+			SendAdvertisementObservers.add(observer);
+		}else{
+			SendAdvertisementObservers.remove(observer);
+		}
+	}
+
+	synchronized public void registerSendAdvertisementStatusObserver(SamchatObserver<IMMessage> observer,boolean register){
+		if(register){
+			SendAdvertisementStatusObservers.add(observer);
+		}else{
+			SendAdvertisementStatusObservers.remove(observer);
 		}
 	}
 

@@ -54,10 +54,6 @@ public class FollowDataCache {
 	public void addFollowSP(long unique_id,FollowedSamPros user){
         followMap.put(unique_id,user);
 	}
-
-	public void removeFollowSP(long unique_id){
-		followMap.remove(unique_id);
-	}
 	
 	static class InstanceHolder {
 		final static FollowDataCache instance = new FollowDataCache();
