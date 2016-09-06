@@ -2,6 +2,7 @@ package com.android.samchat.fragment;
 
 import android.os.Bundle;
 
+import com.android.samchat.activity.SamchatRcvdAdvertisementActivity;
 import com.android.samservice.info.FollowedSamPros;
 import com.netease.nim.demo.R;
 import com.netease.nim.demo.main.model.MainTab;
@@ -45,7 +46,7 @@ public class SamchatPublicListFragment extends MainTabFragment {
 
 			@Override
 			public void onItemClick(FollowedSamPros fsp){
-				
+				SamchatRcvdAdvertisementActivity.start(getActivity(),  fsp);
 			}
 
 			@Override

@@ -1158,26 +1158,33 @@ public class DBManager
 		write_adv_db.delete(table, null, null);
 	}
 
-/******************************Rcvd Adv **********************************************/
-	private long addRcvdAdvSession(RcvdAdvSession radvsession)
+/******************************Rcvd Adv Session**********************************************/
+	public long addRcvdAdvSession(RcvdAdvSession radvsession)
 	{
 		String table = DatabaseHelper.TABLE_NAME_RCVD_ADV_SESSION;
 
 		ContentValues cv = new ContentValues();
 		cv.put("session",radvsession.getsession());
 		cv.put("name",radvsession.getname());
+		cv.put("recent_adv_id",radvsession.getrecent_adv_id());
+		cv.put("recent_adv_type",radvsession.getrecent_adv_type());
+		cv.put("recent_adv_content",radvsession.getrecent_adv_content());
+		cv.put("recent_adv_publish_timestamp",radvsession.getrecent_adv_publish_timestamp());
 
 		return rcvd_adv_db.insert(table,null,cv);
 	}
 
-	private long updateRcvdAdvSession(long id, RcvdAdvSession radvsession)
+    public long updateRcvdAdvSession(long id, RcvdAdvSession radvsession)
 	{
 		String table = DatabaseHelper.TABLE_NAME_RCVD_ADV_SESSION;
 
 		ContentValues cv = new ContentValues();
 		cv.put("session",radvsession.getsession());
 		cv.put("name",radvsession.getname());
-
+		cv.put("recent_adv_id",radvsession.getrecent_adv_id());
+		cv.put("recent_adv_type",radvsession.getrecent_adv_type());
+		cv.put("recent_adv_content",radvsession.getrecent_adv_content());
+		cv.put("recent_adv_publish_timestamp",radvsession.getrecent_adv_publish_timestamp());
 
 		String whereClause = "id=?";
 		String [] whereArgs = {""+id+""};
@@ -1185,7 +1192,7 @@ public class DBManager
 		return rcvd_adv_db.update(table,cv,whereClause,whereArgs);
 	}
 
-	private RcvdAdvSession queryRcvdAdvSessionBySession(long session){
+    public RcvdAdvSession queryRcvdAdvSessionBySession(long session){
 		String table = DatabaseHelper.TABLE_NAME_RCVD_ADV_SESSION;
 		RcvdAdvSession radvsession = null;
 		String name = null;
@@ -1197,6 +1204,11 @@ public class DBManager
 			radvsession.setid(c.getLong(c.getColumnIndex("id")));
 			radvsession.setsession(c.getLong(c.getColumnIndex("session")));
 			radvsession.setname(c.getString(c.getColumnIndex("name")));
+			radvsession.setrecent_adv_id(c.getLong(c.getColumnIndex("recent_adv_id")));
+			radvsession.setrecent_adv_type(c.getInt(c.getColumnIndex("recent_adv_type")));
+			radvsession.setrecent_adv_content(c.getString(c.getColumnIndex("recent_adv_content")));
+			radvsession.setrecent_adv_publish_timestamp(c.getLong(c.getColumnIndex("recent_adv_publish_timestamp")));
+			
 			name += ":"+radvsession.getsession()+":";
 		}
 
@@ -1209,43 +1221,41 @@ public class DBManager
 		return radvsession;
 	}
 
-	public long addRcvdAdv(Advertisement adv)
+/******************************Rcvd Adv **********************************************/
+	public void createRcvdAdvTable(String table){
+		rcvd_adv_db_helper.createRcvdAdvTable(rcvd_adv_db, table);
+	}
+
+	public long addRcvdAdv(String table, Advertisement adv)
 	{
 		long ret;
-		RcvdAdvSession radvsession = queryRcvdAdvSessionBySession(adv.getsender_unique_id());
-		if(radvsession == null){
-			radvsession = new RcvdAdvSession();
-			radvsession.setsession(adv.getsender_unique_id());
-			radvsession.setname(StringUtil.makeMd5(""+adv.getsender_unique_id()));
-			if(addRcvdAdvSession(radvsession) == -1){
-				return -1;
-			}
-
-			rcvd_adv_db_helper.createRcvdAdvTable(rcvd_adv_db, radvsession.getname());
-		}
-
-		String table = radvsession.getname();
-
 		ContentValues cv = new ContentValues();
 		cv.put("adv_id",adv.getadv_id());
 		cv.put("type",adv.gettype());
 		cv.put("content",adv.getcontent());
 		cv.put("publish_timestamp",adv.getpublish_timestamp());
+		cv.put("response",adv.getresponse());
+		cv.put("sender_unique_id",adv.getsender_unique_id());
 
 		return rcvd_adv_db.insert(table,null,cv);
 	}
 
-	public Advertisement queryRcvdAdv(long session,long adv_id){
+	public long updateRcvdAdvResponse(String table, long adv_id, int response)
+	{
+		long ret;
+		ContentValues cv = new ContentValues();
+		
+		cv.put("response",response);
+
+		String whereClause = "adv_id=?";
+		String [] whereArgs = {""+adv_id+""};
+
+		return rcvd_adv_db.update(table,cv,whereClause,whereArgs);
+	}
+
+	public Advertisement queryRcvdAdv(String table,long adv_id){
 		Advertisement adv = null;
 		String name = null;
-		RcvdAdvSession radvsession = queryRcvdAdvSessionBySession(session);
-		
-		if(radvsession == null){
-			return adv;
-		}
-		
-		String table = radvsession.getname();
-		
 		Cursor c = rcvd_adv_db.query(table,null,"adv_id = ?",new String[]{""+adv_id},null,null,null);
 
 		while(c.moveToNext()){
@@ -1255,7 +1265,8 @@ public class DBManager
 			adv.settype(c.getInt(c.getColumnIndex("type")));
 			adv.setcontent(c.getString(c.getColumnIndex("content")));
 			adv.setpublish_timestamp(c.getLong(c.getColumnIndex("publish_timestamp")));
-			adv.setsender_unique_id(session);
+			adv.setresponse(c.getInt(c.getColumnIndex("response")));
+			adv.setsender_unique_id(c.getLong(c.getColumnIndex("sender_unique_id")));
 			name += ":"+adv.getadv_id()+":";
 		}
 
@@ -1268,14 +1279,8 @@ public class DBManager
 		return adv;
 	}
 
-	public List<Advertisement> queryRcvdAdvByCondition(long session,long timestamp, int limit){
+	public List<Advertisement> queryRcvdAdvByCondition(String table,long timestamp, int limit){
 		List<Advertisement> radvs = new ArrayList<Advertisement>();
-		RcvdAdvSession radvsession = queryRcvdAdvSessionBySession(session);
-		if(radvsession == null){
-			return radvs;
-		}
-		
-		String table = radvsession.getname();
 		Advertisement adv = null;
 
 		String selections = null;
@@ -1312,7 +1317,8 @@ public class DBManager
 			adv.settype(c.getInt(c.getColumnIndex("type")));
 			adv.setcontent(c.getString(c.getColumnIndex("content")));
 			adv.setpublish_timestamp(c.getLong(c.getColumnIndex("publish_timestamp")));
-			adv.setsender_unique_id(session);
+			adv.setresponse(c.getInt(c.getColumnIndex("response")));
+			adv.setsender_unique_id(c.getLong(c.getColumnIndex("sender_unique_id")));
 			radvs.add(adv);
 		}
 
@@ -1321,26 +1327,12 @@ public class DBManager
 		return radvs;
 	}
 
-	public void deleteRcvdAdv(long session, long adv_id){
-		RcvdAdvSession radvsession = queryRcvdAdvSessionBySession(session);
-		if(radvsession == null){
-			return;
-		}
-			
-		String table = radvsession.getname();
-		
+	public void deleteRcvdAdv(String table, long adv_id){
 		rcvd_adv_db.delete(table, "adv_id=?", new String[]{""+adv_id});	
 	}
 
-	public void deleteRcvdAdvAll(long session){
-		RcvdAdvSession radvsession = queryRcvdAdvSessionBySession(session);
-		if(radvsession == null){
-			return;
-		}
-			
-		String table = radvsession.getname();
-		
-		rcvd_adv_db.delete(table, null, null);
+	public void deleteRcvdAdvAll(String table){
+		message_db.execSQL("DROP TABLE IF EXISTS " + table);
 	}
 
     /**

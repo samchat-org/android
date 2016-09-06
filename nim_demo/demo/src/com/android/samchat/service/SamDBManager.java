@@ -10,6 +10,7 @@ import com.android.samservice.info.MsgSession;
 import java.util.List;
 import java.util.ArrayList;
 import com.android.samservice.info.Message;
+import com.android.samservice.info.RcvdAdvSession;
 import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.session.sam_message.SAMMessage;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -58,6 +59,10 @@ public class SamDBManager{
 	private List<SamchatObserver<IMMessage>> SendAdvertisementObservers;
 	//send adv status update observer: SamchatPublicFragment of sp mode will register
 	private List<SamchatObserver<IMMessage>> SendAdvertisementStatusObservers;
+	//received adv session observer: SamchatPublicFragment of customer mode will register
+	private List<SamchatObserver<RcvdAdvSession>> RcvdAdvSessionObservers;
+	//received adv observer: Advertisement fragment mode will register
+	private List<SamchatObserver<Advertisement>> RcvdAdvObservers;
 	
 	//thread pool for db operation
 	private ExecutorService mFixedHttpThreadPool;
@@ -81,6 +86,9 @@ public class SamDBManager{
 		SendQuestionUnreadClearObservers = new ArrayList<SamchatObserver<SendQuestion>>();
 		SendAdvertisementObservers = new ArrayList<SamchatObserver<IMMessage>>();
 		SendAdvertisementStatusObservers = new ArrayList<SamchatObserver<IMMessage>>();
+
+		RcvdAdvSessionObservers = new ArrayList<SamchatObserver<RcvdAdvSession>>();
+		RcvdAdvObservers = new ArrayList<SamchatObserver<Advertisement>>();
 	}
 
 	private void close(){
@@ -149,6 +157,20 @@ public class SamDBManager{
 		}
 	}
 
+	//call rcvd advertisement session observer one by one
+	public void callRcvdAdvSessionObserversObserverCallback(RcvdAdvSession session){
+		for(SamchatObserver<RcvdAdvSession> observer : RcvdAdvSessionObservers){
+			observer.onEvent(session);
+		}
+	}
+
+	//call rcvd advertisement observer one by one
+	public void callRcvdAdvObserversObserverCallback(Advertisement adv){
+		for(SamchatObserver<Advertisement> observer : RcvdAdvObservers){
+			observer.onEvent(adv);
+		}
+	}
+
 	public void clearUserTable(long unique_id){
 
 	}
@@ -191,6 +213,51 @@ public class SamDBManager{
 		});
 	}
 
+	private void updateSessionByRcvdAdv(RcvdAdvSession session, Advertisement adv){
+		session.setrecent_adv_id(adv.getadv_id());
+		session.setrecent_adv_type(adv.gettype());
+		session.setrecent_adv_content(adv.getcontent());
+		session.setrecent_adv_publish_timestamp(adv.getpublish_timestamp());
+	}
+
+
+	private RcvdAdvSession storeRcvdAdvertisement(Advertisement adv){
+		RcvdAdvSession session = SamService.getInstance().getDao().query_RcvdAdvSession_db(adv.getsender_unique_id());
+		if(session == null){
+			String table_name = "rcvdadvdb_"+StringUtil.makeMd5(""+adv.getsender_unique_id());
+			session = new RcvdAdvSession(adv.getsender_unique_id(),table_name);
+			SamService.getInstance().getDao().createRcvdAdvTable(table_name);
+		}
+
+		long rc = SamService.getInstance().getDao().add_RcvdAdv_db(session.getname(),adv);
+		if(rc != -1){
+			updateSessionByRcvdAdv(session,adv);
+			if(SamService.getInstance().getDao().update_RcvdAdvSession_db(session)!= -1){
+				return session;
+			}else{
+				return null;
+			}
+		}else{
+			return null;
+		}
+	}
+	
+	public void handleReceivedAdvertisement(HttpCommClient hcc){
+		final Advertisement adv = hcc.adv;
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				RcvdAdvSession changedSession = storeRcvdAdvertisement(adv);
+				if(changedSession != null){
+					//call rcvd adv session changed observer
+					callRcvdAdvSessionObserversObserverCallback(changedSession);
+					//call incoming adv observer
+					callRcvdAdvObserversObserverCallback(adv);
+				}
+			}
+		});
+	}
+
 
 	//Message: message db
 	//IMMessage: yunxin message
@@ -220,6 +287,10 @@ public class SamDBManager{
 			if(content != null && content.containsKey(NimConstants.SQ_QUEST_ID)){
 				String data_id = (String)content.get(NimConstants.SQ_QUEST_ID);
 				Message msg= new Message(NimConstants.MSG_TYPE_SQ,im.getUuid(),Long.valueOf(data_id));
+				msgs.add(msg);
+			}else if(content != null && content.containsKey(NimConstants.SA_ADV_ID)){
+				String data_id = (String)content.get(NimConstants.SA_ADV_ID);
+				Message msg = new Message(NimConstants.MSG_TYPE_SEND_ADV,im.getUuid(),Long.valueOf(data_id));
 				msgs.add(msg);
 			}else{
 				Message msg = new Message(NimConstants.MSG_TYPE_IM, im.getUuid());
@@ -604,7 +675,6 @@ public class SamDBManager{
 		}
 		
 		return false;
-
 	}
 
 	public void asyncInsertReceivedQuestionMessage(final ReceivedQuestion rq){
@@ -671,6 +741,76 @@ public class SamDBManager{
 			NIMClient.getService(MsgService.class).updateIMMessageStatus(im);
 			callSendAdvertisementStatusObserverCallback(im);
 		}
+	}
+
+	private boolean syncStoreReceivedAdvertisementMessage(Advertisement adv, IMMessage im){
+		Map<String, Object> content = im.getRemoteExtension();
+		int msg_from = (int)content.get(NimConstants.MSG_FROM);
+		int mode = (msg_from == Constants.FROM_CUSTOMER ? ModeEnum.SP_MODE.ordinal():ModeEnum.CUSTOMER_MODE.ordinal());
+		Message msg = createMessage(im.getSessionId(),NimConstants.MSG_TYPE_RCVD_ADV, im,adv.getadv_id());
+
+		List<IMMessage> ims = new ArrayList<IMMessage>();
+		ims.add(im);
+		List<Message> msgs = new ArrayList<Message>();
+		msgs.add(msg);
+
+		if(storeRcvdMessages(im.getSessionId(),mode,msgs,ims,false) != null){
+			return true;		
+		}
+		
+		return false;
+	}
+
+	public void asyncNoticeRcvdAdvMessage(final Advertisement adv, final IMMessage im){
+			final List<IMMessage> ims = new ArrayList<IMMessage>();
+			ims.add(im);
+			mFixedHttpThreadPool.execute(new Runnable(){
+				@Override
+				public void run(){
+					MsgSession changedSession = SamService.getInstance().getDao().query_MsgSession_db(""+adv.getsender_unique_id(), ModeEnum.CUSTOMER_MODE.ordinal());
+					if(changedSession != null){
+						//call session changed observer
+						callMsgServiceObserverCallback(changedSession);
+						//call incoming IMMessage observer
+						callIncomingMsgObserverCallback(ims);
+					}
+				}
+			});
+		}
+
+	public void asyncInsertRcvdAdvMessage(final Advertisement adv){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(""+adv.getsender_unique_id(),ModeEnum.CUSTOMER_MODE.ordinal());
+				if(session!=null && SamService.getInstance().getDao().query_Message_db_by_type_data_id(session.getmsg_table_name(), NimConstants.MSG_TYPE_RCVD_ADV, adv.getadv_id())!=null){
+					return;
+				}
+			
+				final IMMessage im = SAMMessageBuilder.createReceivedAdvertisementTextMessage(adv);
+				if(!syncStoreReceivedAdvertisementMessage(adv,im)){
+					return;
+				}
+				
+				NIMClient.getService(MsgService.class).saveMessageToLocal(im, false).setCallback(new RequestCallback<Void>() {
+           		@Override
+           		public void onSuccess(Void a) {
+           			LogUtil.e(TAG,"saveMessageToLocal successful");
+               		asyncNoticeRcvdAdvMessage(adv, im);
+            		}
+
+            		@Override
+            		public void onFailed(int code) {
+						LogUtil.e(TAG,"saveMessageToLocal failed:"+code);
+					}
+
+            		@Override
+            		public void onException(Throwable exception) {
+						LogUtil.e(TAG,"saveMessageToLocal exception:"+exception);
+					}
+        		});
+			}
+		});	
 	}
 
 
@@ -782,6 +922,23 @@ public class SamDBManager{
 		});
 	}
 
+	public void asyncUpdateReceivedAdvertisementStatusToResponse(final long unique_id, final long adv_id){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				RcvdAdvSession session = SamService.getInstance().getDao().query_RcvdAdvSession_db(unique_id);
+				if(session!=null){
+					Advertisement adv =SamService.getInstance().getDao().query_RcvdAdv_db_by_advid(session.getname(), adv_id);
+					if(adv != null){
+						adv.setresponse(Constants.ADV_RESPONSED);
+						SamService.getInstance().getDao().update_RcvdAdv_db_response(session.getname(),  adv_id, Constants.ADV_RESPONSED);
+						callRcvdAdvObserversObserverCallback(adv);
+					}
+				}
+			}
+		});
+	}
+
 
 
 	public void registerObservers(boolean register){
@@ -803,13 +960,60 @@ public class SamDBManager{
 				return true;
 			}
 		}
-
 		return false;
+	}
 
+	private List<AdvancedMessage> handleAdvId(List<IMMessage> ims){
+       List<AdvancedMessage> result = new ArrayList<>();
+		if(ims == null || ims.size() == 0){
+			return result;
+		}
+		
+		for(IMMessage m:ims){
+			Map<String, Object> content = m.getRemoteExtension();
+			if(content != null && content.containsKey(NimConstants.ADV_ID)){
+				String adv_id = (String)content.get(NimConstants.ADV_ID);
+				LogUtil.i(TAG,"find im with adv_id:"+adv_id);
+				Advertisement adv = SamService.getInstance().getDao().query_SamProsAdv_db_by_adv_id(Long.valueOf(adv_id));
+				if(adv == null){
+					continue;
+				}
+				result.add(new AdvancedMessage(null,m,adv));
+			}
+		}
+
+		return result;
+	}
+
+	private void saveSAimsToMsgDB(final MsgSession changedSession, final List<IMMessage> ims_sp_mode){
+		for(IMMessage im: ims_sp_mode){
+			Map<String, Object> content = im.getRemoteExtension();
+			if(content != null && content.containsKey(NimConstants.SA_ADV_ID)){
+				NIMClient.getService(MsgService.class).saveMessageToLocal(im, false).setCallback(new RequestCallback<Void>() {
+           		@Override
+           		public void onSuccess(Void a) {
+						//call session changed observer
+						callMsgServiceObserverCallback(changedSession);
+						//call incoming IMMessage observer
+						callIncomingMsgObserverCallback(ims_sp_mode);
+					}
+
+					@Override
+					public void onFailed(int code) {
+
+					}
+
+					@Override
+					public void onException(Throwable exception) {
+
+					}
+				});
+			}
+		}
 	}
 
 	private List<AdvancedMessage> handleQuestId(List<IMMessage> ims){
-        List<AdvancedMessage> result = new ArrayList<>();
+       List<AdvancedMessage> result = new ArrayList<>();
 		if(ims == null || ims.size() == 0){
 			return result;
 		}
@@ -895,12 +1099,32 @@ public class SamDBManager{
 						if(valid_ims.size() == 0){
 							return;
 						}
+
+						
+						/*parse advertisement if existed*/
+						List<AdvancedMessage> ammsgs = handleAdvId(valid_ims);
+						boolean adv_im_existed = false;
+						int index = -1;
+						for(AdvancedMessage am: ammsgs){
+							index = -1;
+							for(int i=0; i<valid_ims.size();i++){
+								if(am.getim().getUuid().equals(valid_ims.get(i).getUuid())){
+									index = i;
+									break;
+								}
+							}
+							if(index > -1){
+								valid_ims.add(index,SAMMessageBuilder.createSendAdvertisementTextMessage(am.getadv(), am.getim()));
+								adv_im_existed = true;
+								LogUtil.i(TAG,"find adv im message");
+							}
+						}
 			
 						/*parse question id if existed*/
-						List<AdvancedMessage> ammsgs = handleQuestId(valid_ims);
+						ammsgs = handleQuestId(valid_ims);
 						boolean sq_im_existed = false;
 						/*insert send question IMMessage into yunxin msg db*/
-						int index = -1;
+						index = -1;
 						for(AdvancedMessage am : ammsgs){
 							index = -1;
 							for(int i=0; i<valid_ims.size();i++){
@@ -935,6 +1159,8 @@ public class SamDBManager{
 							}
 						}
 
+						LogUtil.i(TAG,"ims_sp_mode ims size:"+ims_sp_mode.size());
+
 						MsgSession changedSession;
 						if(ims_customer_mode.size()>0 && (changedSession = storeRcvdMessages(sessionId,ModeEnum.CUSTOMER_MODE.ordinal(),msgs_customer_mode,ims_customer_mode,true)) != null){
 							if(!sq_im_existed){
@@ -947,10 +1173,14 @@ public class SamDBManager{
 							}
 						}
 						if(ims_sp_mode.size()>0 && (changedSession = storeRcvdMessages(sessionId,ModeEnum.SP_MODE.ordinal(),msgs_sp_mode,ims_sp_mode,true)) != null){
-							//call session changed observer
-							callMsgServiceObserverCallback(changedSession);
-							//call incoming IMMessage observer
-							callIncomingMsgObserverCallback(ims_sp_mode);
+							if(!adv_im_existed){
+								//call session changed observer
+								callMsgServiceObserverCallback(changedSession);
+								//call incoming IMMessage observer
+								callIncomingMsgObserverCallback(ims_sp_mode);
+							}else{
+								saveSAimsToMsgDB(changedSession, ims_sp_mode);
+							}
 						}
 						
 					}
@@ -1019,6 +1249,22 @@ public class SamDBManager{
 			SendAdvertisementStatusObservers.add(observer);
 		}else{
 			SendAdvertisementStatusObservers.remove(observer);
+		}
+	}
+
+	synchronized public void registerRcvdAdvSessionObserver(SamchatObserver<RcvdAdvSession> observer,boolean register){
+		if(register){
+			RcvdAdvSessionObservers.add(observer);
+		}else{
+			RcvdAdvSessionObservers.remove(observer);
+		}
+	}
+
+	synchronized public void registerRcvdAdvObserver(SamchatObserver<Advertisement> observer,boolean register){
+		if(register){
+			RcvdAdvObservers.add(observer);
+		}else{
+			RcvdAdvObservers.remove(observer);
 		}
 	}
 

@@ -173,6 +173,9 @@ public class Constants{
 	public static final int ADV_TYPE_PIC = 1;
 	public static final int ADV_TYPE_VEDIO = 2;
 
+	public static final int ADV_NOT_RESPONSED = 0;
+	public static final int ADV_RESPONSED = 1;
+
 	/****************************Contact OPT***********************************************/
 	public static final int CONTACT_OPT_ADD = 0;
 	public static final int CONTACT_OPT_REMOVE = 1;

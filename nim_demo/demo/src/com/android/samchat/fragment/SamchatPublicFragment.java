@@ -18,6 +18,7 @@ import com.android.samservice.SMCallBack;
 import com.android.samservice.info.Advertisement;
 import com.android.samservice.info.Message;
 import com.android.samservice.info.MsgSession;
+import com.android.samservice.info.RcvdAdvSession;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nim.uikit.NIMCallback;
@@ -56,6 +57,7 @@ import com.netease.nim.uikit.session.module.Container;
 import com.netease.nim.uikit.session.module.ModuleProxy;
 import com.netease.nim.uikit.session.module.input.SamchatAdvertisementInputPanel;
 import com.netease.nim.uikit.session.module.list.SamchatAdvertisementMessageListPanel;
+import com.netease.nim.uikit.session.sam_message.SamchatObserver;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.msg.MsgService;
@@ -151,11 +153,12 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		return rootView;
 	}
 
-    @Override
-    public void onDestroyView(){
-        unregisterBroadcastReceiver();
-        super.onDestroyView();
-    }
+	@Override
+	public void onDestroyView(){
+		unregisterBroadcastReceiver();
+		registerObservers(false);
+		super.onDestroyView();
+	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
@@ -168,6 +171,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		spLayoutInit();
 		
 		registerBroadcastReceiver();
+		registerObservers(true);
 	}
 
 	@Override
@@ -301,6 +305,25 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 			return TextComparator.compare(o1.getusername(),o2.getusername());
 		}
 	};
+
+
+/***********************************Observers*****************************************************/
+	private void registerObservers(boolean register) {
+		SamDBManager.getInstance().registerRcvdAdvSessionObserver(rcvdAdvSessionChangedObserver,  register);
+	}
+
+	SamchatObserver< RcvdAdvSession > rcvdAdvSessionChangedObserver = new SamchatObserver <RcvdAdvSession>(){
+		@Override
+		public void onEvent(RcvdAdvSession session){
+			getHandler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					refreshFollowedSPsList();
+				}
+			}, 0);
+		}
+	};
+
 
 /*************************************Service Provide Mode***************************/
     protected List<BaseAction> getActionList() {

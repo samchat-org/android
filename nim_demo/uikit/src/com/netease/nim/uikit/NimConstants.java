@@ -20,6 +20,9 @@ public class NimConstants{
 	public static final String QUEST_ID = "quest_id";
 	public static final String SQ_QUEST_ID = "sq_quest_id";
 
+	public static final String ADV_ID = "adv_id";
+	public static final String SA_ADV_ID = "sa_adv_id";
+
 	public static final String MSG_TYPE="msg_type";
 
 	public static final int AVCHAT_DISCONNECTED=0;

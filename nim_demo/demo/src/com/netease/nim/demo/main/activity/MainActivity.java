@@ -679,6 +679,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	public void asyncUpdateReceivedQuestionStatusToResponse(long question_id){
 		SamDBManager.getInstance().asyncUpdateReceivedQuestionStatusToResponse(question_id);
 	}
+
+	public void asyncUpdateReceivedAdvertisementStatusToResponse(long unique_id, long adv_id){
+		SamDBManager.getInstance().asyncUpdateReceivedAdvertisementStatusToResponse(unique_id,adv_id);
+	}
 	
 	public void registerSendAdvertisementObserver(SamchatObserver < IMMessage > observer, boolean register){
 		SamDBManager.getInstance().registerSendAdvertisementObserver(observer, register);

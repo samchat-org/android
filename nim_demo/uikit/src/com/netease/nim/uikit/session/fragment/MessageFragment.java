@@ -60,6 +60,7 @@ public class MessageFragment extends TFragment implements ModuleProxy {
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
     protected int mode = 0;
     protected long question_id = 0;
+    protected long adv_id=0;
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
 
     // modules
@@ -137,6 +138,7 @@ public class MessageFragment extends TFragment implements ModuleProxy {
 		  /*SAMC_BEGIN(support mode setting for p2p activity)*/
         mode = getArguments().getInt(Extras.EXTRA_MODE,0);
         question_id = getArguments().getLong(Extras.EXTRA_QUESTIONID,0);
+        adv_id = getArguments().getLong(Extras.EXTRA_ADVID,0);
         /*SAMC_END(support mode setting for p2p activity)*/
         sessionId = getArguments().getString(Extras.EXTRA_ACCOUNT);
         sessionType = (SessionTypeEnum) getArguments().getSerializable(Extras.EXTRA_TYPE);
@@ -204,6 +206,15 @@ public class MessageFragment extends TFragment implements ModuleProxy {
 							question_id = 0;
 					}
 				}
+
+				if(content != null && content.containsKey(NimConstants.ADV_ID)){
+					String advertisement_id = (String)content.get(NimConstants.ADV_ID);
+					if(advertisement_id.equals(""+adv_id)){
+                        NimUIKit.getCallback().asyncUpdateReceivedAdvertisementStatusToResponse(Long.valueOf(message.getSessionId()),Long.valueOf(adv_id));
+							adv_id = 0;
+					}
+				}
+				
 			}
 		}
 	};
@@ -278,6 +289,9 @@ public class MessageFragment extends TFragment implements ModuleProxy {
             msg_from.put(NimConstants.MSG_FROM,new Integer(mode));
             if(question_id > 0){
                 msg_from.put(NimConstants.QUEST_ID,new String(""+question_id));
+            }
+            if(adv_id > 0){
+                msg_from.put(NimConstants.ADV_ID,new String(""+adv_id));
             }
             message.setRemoteExtension(msg_from);
 

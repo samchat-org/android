@@ -114,6 +114,19 @@ public class SessionHelper {
 
     /*SAMC_END(support chat for received question)*/
 
+	/*SAMC_BEGIN(support chat for received question)*/
+    public static void startP2PSessionWithRcvdAdv(Context context, String account, long adv_id ) {
+        if (!DemoCache.getAccount().equals(account)) {
+            NimUIKit.startChattingWithRcvdAdv(context, account, adv_id,SessionTypeEnum.P2P, getP2pCustomization());
+        } else {
+            /*SAMC_BEGIN(not support chat with myself)*/
+            return;//NimUIKit.startChatting(context, account, SessionTypeEnum.P2P, getMyP2pCustomization());
+            /*SAMC_END(not support chat with myself)*/
+        }
+    }
+
+    /*SAMC_END(support chat for received question)*/
+
     public static void startTeamSession(Context context, String tid) {
         NimUIKit.startChatting(context, tid, SessionTypeEnum.Team, getTeamCustomization());
     }

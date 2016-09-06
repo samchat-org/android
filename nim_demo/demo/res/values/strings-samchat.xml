@@ -181,4 +181,7 @@
 
     <string name="samchat_edit_profile">Edit Profile </string>
     <string name="samchat_save">Save</string>
+
+    <string name="samchat_picture">Picture</string>
+
 </resources>

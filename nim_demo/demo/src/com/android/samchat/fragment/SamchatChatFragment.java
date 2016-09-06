@@ -11,6 +11,8 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.cache.FriendDataCache;
 import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
@@ -1002,7 +1004,7 @@ public class SamchatChatFragment extends TFragment{
 			boolean refreshSP = false;
 			
 			for (RecentContact msg : messages){
-				if(msg.getSessionType() == SessionTypeEnum.P2P){
+				if(msg.getSessionType() == SessionTypeEnum.P2P && !msg.getContactId().equals(NimConstants.SESSION_ACCOUNT_ADVERTISEMENT)){
 					if(isTagSet(msg, RECENT_TAG_CUSTOMER_ROLE)){
 						LogUtil.e("test","customer tag rc "+msg+ " Thread id:"+Thread.currentThread().getId());
 						updateCustomerItems(msg);

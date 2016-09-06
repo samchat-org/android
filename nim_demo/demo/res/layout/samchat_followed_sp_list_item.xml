@@ -8,7 +8,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_margin="10dp">
-        <ImageView
+        <com.netease.nim.uikit.common.ui.imageview.HeadImageView
             android:id="@+id/avatar"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -45,7 +45,6 @@
                 android:layout_height="wrap_content"
                 android:layout_alignLeft="@id/username"
                 android:layout_below="@id/service_category"
-                android:text="3333333333333333333333333333333333333333"
                 android:textSize="14sp"
                 android:textColor="@color/black"
                 android:maxLines="2"/>

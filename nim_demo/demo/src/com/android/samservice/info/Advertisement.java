@@ -16,6 +16,7 @@ public class Advertisement{
 	public int type;
 	public String content;
 	public long publish_timestamp;
+	public int response;
 	public long sender_unique_id;
 
 	public Advertisement(){
@@ -24,6 +25,7 @@ public class Advertisement{
 		type = Constants.ADV_TYPE_TEXT;
 		content = null;
 		publish_timestamp = 0;
+		response = Constants.ADV_NOT_RESPONSED;
 		sender_unique_id = 0;
 	}
 
@@ -33,6 +35,7 @@ public class Advertisement{
 		this.type = type;
 		this.content = content;
 		this.publish_timestamp = 0;
+		response = Constants.ADV_NOT_RESPONSED;
 		this.sender_unique_id = sender_unique_id;
 	}
 
@@ -69,6 +72,13 @@ public class Advertisement{
 	}
 	public void setpublish_timestamp(long publish_timestamp){
 		this.publish_timestamp = publish_timestamp;
+	}
+
+	public int getresponse(){
+		return response;
+	}
+	public void setresponse(int response){
+		this.response = response;
 	}
 
 	public long getsender_unique_id(){

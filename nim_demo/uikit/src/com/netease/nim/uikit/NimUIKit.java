@@ -114,7 +114,7 @@ public final class NimUIKit {
      */
     public static void startChatting(Context context, String id, SessionTypeEnum sessionType, SessionCustomization customization) {
         if (sessionType == SessionTypeEnum.P2P) {
-            P2PMessageActivity.start(context, id, customization,NimUIKit.getCallback().getCurrentMode(),0);
+            P2PMessageActivity.start(context, id, customization,NimUIKit.getCallback().getCurrentMode(),0,0);
         } else if (sessionType == SessionTypeEnum.Team) {
             TeamMessageActivity.start(context, id, customization, null);
         }
@@ -123,7 +123,13 @@ public final class NimUIKit {
     /*SAMC_BEGIN()*/		
     public static void startChattingWithReceiveQuestion(Context context, String id,long question_id,SessionTypeEnum sessionType,SessionCustomization customization) {
         if (sessionType == SessionTypeEnum.P2P) {
-            P2PMessageActivity.start(context, id, customization,NimUIKit.getCallback().getCurrentMode(),question_id);
+            P2PMessageActivity.start(context, id, customization,NimUIKit.getCallback().getCurrentMode(),question_id,0);
+        }
+    }
+
+    public static void startChattingWithRcvdAdv(Context context, String id,long adv_id,SessionTypeEnum sessionType,SessionCustomization customization) {
+        if (sessionType == SessionTypeEnum.P2P) {
+            P2PMessageActivity.start(context, id, customization,NimUIKit.getCallback().getCurrentMode(),0,adv_id);
         }
     }
 
@@ -303,6 +309,7 @@ public final class NimUIKit {
         void storeSendCustomerMessage(IMMessage msg,NIMCallback callback);
         void storeRecvCustomerMessage(IMMessage msg, NIMCallback callback);
         void asyncUpdateReceivedQuestionStatusToResponse(long question_id);
+        void asyncUpdateReceivedAdvertisementStatusToResponse(long unique_id, long adv_id);
         void registerSendAdvertisementObserver(SamchatObserver<IMMessage> observer,boolean register);
         void registerSendAdvertisementStatusObserver(SamchatObserver<IMMessage> observer,boolean register);
     }

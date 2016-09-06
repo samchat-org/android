@@ -1677,12 +1677,7 @@ public class SamService{
 			break;
 
 			case Constants.PUSH_CATEGORY_ADV:
-				if(dao.add_RcvdAdv_db(hcc.adv) == -1){
-					isDBError = true;
-				}
-
-				//sendBroadcastForReceivedAdv(hcc.adv,  isDBError);
-				
+				SamDBManager.getInstance().handleReceivedAdvertisement(hcc);
 			break;
 
 			default:

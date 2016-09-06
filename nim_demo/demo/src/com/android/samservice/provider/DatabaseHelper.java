@@ -159,27 +159,34 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	private void createRcvdAdvSessionTable(SQLiteDatabase db){
 	/*
-	id(primary) | session | name
+	id(primary) | session | name | recent_adv_id |recent_adv_type |recent_adv_content | recent_adv_publish_timestamp
 	*/
 		StringBuffer sBuffer = new StringBuffer();
 		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_RCVD_ADV_SESSION + "] (");
 		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
 		sBuffer.append("[session] INTEGER, ");
-		sBuffer.append("[name] TEXT )");
+		sBuffer.append("[name] TEXT,");
+		sBuffer.append("[recent_adv_id] INTEGER,");
+		sBuffer.append("[recent_adv_type] INTEGER,");
+		sBuffer.append("[recent_adv_content] TEXT,");
+		sBuffer.append("[recent_adv_publish_timestamp] INTEGER )");
+
 		db.execSQL(sBuffer.toString());
 	}
 
 	public void createRcvdAdvTable(SQLiteDatabase db,String table_name){
 	/*
-	id(primary) | adv_id | publish_timestamp | type | content
+	id(primary) | adv_id |type | content | publish_timestamp | response | sender_unique_id
 	*/
 		StringBuffer sBuffer = new StringBuffer();
 		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + table_name + "] (");
 		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
 		sBuffer.append("[adv_id] INTEGER, ");
-		sBuffer.append("[publish_timestamp] INTEGER, ");
 		sBuffer.append("[type] INTEGER, ");
-		sBuffer.append("[content] TEXT )");
+		sBuffer.append("[content] TEXT,");
+		sBuffer.append("[publish_timestamp] INTEGER, ");
+		sBuffer.append("[response] INTEGER,");
+		sBuffer.append("[sender_unique_id] INTEGER)");
 		db.execSQL(sBuffer.toString());
 	}
 

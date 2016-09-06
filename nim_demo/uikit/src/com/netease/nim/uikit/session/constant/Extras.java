@@ -33,6 +33,7 @@ public interface Extras {
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
     String EXTRA_MODE="mode";
     String EXTRA_QUESTIONID="questionID";
+    String EXTRA_ADVID="advID";
     /*SAMC_END(support mode setting for p2p activity)*/
 
     //图片选自器
