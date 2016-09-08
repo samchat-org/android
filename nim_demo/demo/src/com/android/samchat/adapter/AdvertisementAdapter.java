@@ -6,8 +6,11 @@ import java.util.List;
 import com.android.samservice.Constants;
 import com.android.samservice.info.Advertisement;
 import com.android.samservice.info.ContactUser;
+import com.netease.nim.demo.DemoCache;
 import com.netease.nim.demo.R;
 import com.android.samservice.info.SendQuestion;
+
+import android.os.Environment;
 import android.widget.BaseAdapter;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -16,6 +19,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
+import com.netease.nim.uikit.common.ui.imageview.ImageViewEx;
+import com.netease.nim.uikit.common.util.file.FileUtil;
+import com.netease.nim.uikit.common.util.storage.StorageType;
+import com.netease.nim.uikit.common.util.storage.StorageUtil;
+import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import android.widget.ImageView;
@@ -61,7 +69,7 @@ public class AdvertisementAdapter extends BaseAdapter{
 			convertView = mInflater.inflate(R.layout.samchat_advertisement_list_item,parent,false);
 			holder.date = (TextView) convertView.findViewById(R.id.date);
 			holder.content_text = (TextView) convertView.findViewById(R.id.content_text);
-			holder.content_image = (ImageView) convertView.findViewById(R.id.content_image);
+			holder.content_image = (ImageViewEx) convertView.findViewById(R.id.content_image);
 
 			convertView.setTag(holder);
 		}else{
@@ -79,7 +87,10 @@ public class AdvertisementAdapter extends BaseAdapter{
 			}else{
 				holder.content_text.setVisibility(View.GONE);
 				holder.content_image.setVisibility(View.VISIBLE);
-				
+				String extension = FileUtil.getExtensionName(adv.getcontent());
+				String MD5Path = Environment.getExternalStorageDirectory() + "/" + DemoCache.getContext().getPackageName() + "/nim/"
+								+StorageType.TYPE_THUMB_IMAGE.getStoragePath()+"/"+StringUtil.makeMd5(adv.getcontent_thumb());
+				holder.content_image.load("file://"+MD5Path);
 			}
 
 			break;
@@ -101,7 +112,7 @@ public class AdvertisementAdapter extends BaseAdapter{
 	public static class ViewHolder{
 		public TextView date;
 		public TextView content_text;
-		public ImageView content_image;
+		public ImageViewEx content_image;
 	}
 	
 	

@@ -734,9 +734,12 @@ public class SamchatAdvertisementInputPanel implements IEmoticonSelectedListener
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        LogUtil.e("test", "SamchatAdvertisementInputPanel  onActivityResult");
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
+
+		 LogUtil.e("test", "SamchatAdvertisementInputPanel  onActivityResult 2");
 
         int index = (requestCode << 16) >> 24;
         if (index != 0) {

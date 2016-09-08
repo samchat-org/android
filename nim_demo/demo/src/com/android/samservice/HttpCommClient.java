@@ -1,6 +1,9 @@
 package com.android.samservice;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -79,7 +82,8 @@ public class HttpCommClient {
 	public static final String URL_editProfile="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_profile_profileUpdate.do";
 	public static final String URL_writeAdvertisement="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_advertisement_advertisementWrite.do";
 
-
+	public static final String URL_contact="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_contact_contact.do";
+	public static final String URL_synccontact="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_contact_contactListQuery.do";
 	
 	public static final int CONNECTION_TIMEOUT = 20000;
 	public static final int HTTP_TIMEOUT = 10000;
@@ -101,7 +105,7 @@ public class HttpCommClient {
 	public MultipleSyncAdv syncadvs;
 	public long latest_lastupdate;
 	public ReceivedQuestion rq;
-
+	public byte [] data;
 	
 	
 	HttpCommClient(){
@@ -120,6 +124,7 @@ public class HttpCommClient {
 		syncadvs = null;
 		latest_lastupdate = 0;
 		rq = null;
+		data = null;
 	}
 
 	private HttpResponse httpCmdStart(String url, JSONObject jsonData)throws ClientProtocolException,IOException{
@@ -167,6 +172,17 @@ public class HttpCommClient {
 
 	private boolean isRetOK(){
 		return (ret == 0) ? true : false;
+	}
+
+	private String getContentThumb(JSONObject jo){
+		String thumb = null;
+		try{
+			thumb = jo.getString("content_thumb");
+			return thumb;
+		}catch(JSONException e){
+			SamLog.i(TAG,"no content_thumb for this adv");	
+			return null;
+		}
 	}
 
 	private String getAvatarOrigin(JSONObject jo){
@@ -310,6 +326,7 @@ public class HttpCommClient {
 		ad.setpublish_timestamp(body.getLong("publish_timestamp"));
 		ad.settype(body.getInt("type"));
 		ad.setcontent(body.getString("content"));
+		ad.setcontent_thumb(getContentThumb(body));
 
 		return ad;
 	}
@@ -2169,7 +2186,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructAddContactJson(opobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_contact,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -2299,7 +2316,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructSyncContactListJson(sflobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_synccontact,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -2460,6 +2477,9 @@ public class HttpCommClient {
 			JSONObject body = new JSONObject();
 			body.putOpt("type",advobj.type);
 			body.putOpt("content",advobj.content);
+			if(advobj.content_thumb != null){
+				body.putOpt("content_thumb",advobj.content_thumb);
+			}
 			
 			JSONObject data = new JSONObject();
 			data.put("header", header);
@@ -2484,7 +2504,7 @@ public class HttpCommClient {
                 ret = obj.getInt("ret");
 
                 if (isRetOK()) {
-                    adv = new Advertisement(advobj.type, advobj.content, advobj.sender_unique_id);
+                    adv = new Advertisement(advobj.type, advobj.content, advobj.content_thumb, advobj.sender_unique_id);
                     adv.setadv_id(obj.getLong("adv_id"));
                     adv.setpublish_timestamp(obj.getLong("publish_timestamp"));
                 }
@@ -2584,6 +2604,42 @@ public class HttpCommClient {
 			return false;
 		}
 		
+	}
+
+	private byte[] readStream(InputStream inStream) throws Exception{
+        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];   
+        int len = 0;   
+        while( (len=inStream.read(buffer)) != -1){   
+            outStream.write(buffer, 0, len);   
+        }   
+        outStream.close();   
+        inStream.close();   
+        return outStream.toByteArray();   
+    } 
+
+	public boolean download(com.android.samservice.DownloadCoreObj dlobj){
+		HttpURLConnection conn =null;
+		String path = dlobj.url;
+		try{
+			java.net.URL url = new java.net.URL(path);   
+			conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("GET");   
+			InputStream inStream = conn.getInputStream();   
+			if(conn.getResponseCode() == HttpURLConnection.HTTP_OK){   
+				data = readStream(inStream); 
+				return true;
+			}
+			return false;
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}finally{
+			try {
+				if(conn!=null) conn.disconnect();
+			} catch (Exception e) {
+			}
+		}
 	}
 
 /*******************************Http Push Parse**********************************************/

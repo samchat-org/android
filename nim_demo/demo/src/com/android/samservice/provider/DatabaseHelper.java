@@ -145,7 +145,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	private void createSamProsAdvTable(SQLiteDatabase db){
 	/*
-	id(primary) | adv_id | type | content | publish_timestamp 
+	id(primary) | adv_id | type | content | content_thumb | publish_timestamp 
 	*/
 		StringBuffer sBuffer = new StringBuffer();
 		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_SAMPROS_ADV + "] (");
@@ -153,13 +153,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		sBuffer.append("[adv_id] INTEGER, ");
 		sBuffer.append("[type] INTEGER ,");
 		sBuffer.append("[content] TEXT ,");
+		sBuffer.append("[content_thumb] TEXT ,");
 		sBuffer.append("[publish_timestamp] INTEGER )");
 		db.execSQL(sBuffer.toString());
 	}
 
 	private void createRcvdAdvSessionTable(SQLiteDatabase db){
 	/*
-	id(primary) | session | name | recent_adv_id |recent_adv_type |recent_adv_content | recent_adv_publish_timestamp
+	id(primary) | session | name | recent_adv_id |recent_adv_type |recent_adv_content |recent_adv_content_thumb |recent_adv_publish_timestamp
 	*/
 		StringBuffer sBuffer = new StringBuffer();
 		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_RCVD_ADV_SESSION + "] (");
@@ -169,6 +170,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		sBuffer.append("[recent_adv_id] INTEGER,");
 		sBuffer.append("[recent_adv_type] INTEGER,");
 		sBuffer.append("[recent_adv_content] TEXT,");
+		sBuffer.append("[recent_adv_content_thumb] TEXT,");
 		sBuffer.append("[recent_adv_publish_timestamp] INTEGER )");
 
 		db.execSQL(sBuffer.toString());
@@ -176,7 +178,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	public void createRcvdAdvTable(SQLiteDatabase db,String table_name){
 	/*
-	id(primary) | adv_id |type | content | publish_timestamp | response | sender_unique_id
+	id(primary) | adv_id |type | content |content_thumb | publish_timestamp | response | sender_unique_id
 	*/
 		StringBuffer sBuffer = new StringBuffer();
 		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + table_name + "] (");
@@ -184,6 +186,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		sBuffer.append("[adv_id] INTEGER, ");
 		sBuffer.append("[type] INTEGER, ");
 		sBuffer.append("[content] TEXT,");
+		sBuffer.append("[content_thumb] TEXT,");
 		sBuffer.append("[publish_timestamp] INTEGER, ");
 		sBuffer.append("[response] INTEGER,");
 		sBuffer.append("[sender_unique_id] INTEGER)");

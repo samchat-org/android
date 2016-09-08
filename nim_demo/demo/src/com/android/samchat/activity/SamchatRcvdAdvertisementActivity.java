@@ -264,6 +264,10 @@ public class SamchatRcvdAdvertisementActivity extends UI implements OnKeyListene
 				@Override
 				public void run() {
 					LogUtil.i(TAG,"received new adv by rcvdAdvObserver ");
+					if(user.getunique_id() != adv.getsender_unique_id()){
+						return;
+					}
+					
 					updateItems(adv);
 					refreshAdvertisementList();
 					pull_refresh_list.getRefreshableView().setSelection((adapter.getCount() - 1));

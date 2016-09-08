@@ -8,6 +8,8 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
+import com.android.samchat.callback.ContactCallback;
+import com.android.samservice.info.Contact;
 import com.netease.nim.demo.DemoCache;
 import com.netease.nim.demo.R;
 import com.netease.nim.demo.contact.activity.BlackListActivity;
@@ -50,14 +52,56 @@ public class SamchatContactListFragment extends MainTabFragment {
         addSamchatContactFragment();  
     }
 
-    private void addSamchatContactFragment() {
-        fragment = new SamchatContactFragment();
-        fragment.setContainerId(R.id.samchat_contact_fragment);
+	private void addSamchatContactFragment() {
+		fragment = new SamchatContactFragment();
+		fragment.setContainerId(R.id.samchat_contact_fragment);
 
-        UI activity = (UI) getActivity();
+		UI activity = (UI) getActivity();
 
-        // 如果是activity从堆栈恢复，FM中已经存在恢复而来的fragment，此时会使用恢复来的，而new出来这个会被丢弃掉
-        fragment = (SamchatContactFragment) activity.addFragment(fragment);
+		fragment = (SamchatContactFragment) activity.addFragment(fragment);
+		fragment.setContactCallback(new ContactCallback() {
+			@Override
+			public void onLoaded(){
+
+			}
+
+			@Override
+			public void onItemClick(Contact ui){
+				SessionHelper.startP2PSession(getActivity(), ""+ui.getunique_id());
+			}
+
+			@Override
+			public void onDelete(){
+
+			}
+
+			@Override
+			public void onAdd(){
+
+			}
+		});
+
+		fragment.setCustomerCallback(new ContactCallback() {
+			@Override
+			public void onLoaded(){
+
+			}
+
+			@Override
+			public void onItemClick(Contact ui){
+				SessionHelper.startP2PSession(getActivity(), ""+ui.getunique_id());
+			}
+
+			@Override
+			public void onDelete(){
+
+			}
+
+			@Override
+			public void onAdd(){
+
+			}
+		});
     }
 }
 

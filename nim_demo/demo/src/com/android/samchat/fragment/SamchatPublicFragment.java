@@ -14,6 +14,8 @@ import com.android.samchat.activity.SamchatSearchPublicActivity;
 import com.android.samchat.cache.FollowDataCache;
 import com.android.samchat.service.SamDBManager;
 import com.android.samservice.HttpCommClient;
+import com.android.samservice.S3Aws;
+import com.android.samservice.S3AwsClient;
 import com.android.samservice.SMCallBack;
 import com.android.samservice.info.Advertisement;
 import com.android.samservice.info.Message;
@@ -23,6 +25,7 @@ import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nim.uikit.NIMCallback;
 import com.netease.nim.uikit.NimConstants;
+import com.netease.nim.uikit.S3Callback;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,6 +50,7 @@ import com.android.samchat.adapter.FollowedSPAdapter;
 import com.android.samchat.callback.CustomerPublicCallback;
 import com.android.samservice.info.FollowedSamPros;
 import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.contact.core.query.TextComparator;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.actions.BaseAction;
@@ -68,6 +72,7 @@ import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 
 import android.view.View.OnClickListener;
+import android.widget.Toast;
 
 /**
  * Main Fragment in SamchatPublicListFragment
@@ -377,6 +382,28 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
         return true;
     }
 
+	private void uploadAdvertisementOrigin(final IMMessage im, final S3AwsClient client, final String abspath_origin, final String s3name_origin){
+		client.uploadAdvertisement(NimConstants.S3_FOLDER_ORIGIN, s3name_origin,  abspath_origin, new S3Callback(){
+			@Override
+			public void onProcess(int precent){
+				//update process bar in UI thread
+			}
+
+			@Override
+			public void onResult(int code){
+				//dismiss process bar
+				if(code == 0){
+					String url_origin = NimConstants.S3_URL+NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
+					sendAdvertisement(Constants.ADV_TYPE_PIC, url_origin, null, im);
+				}else{
+					im.setStatus(MsgStatusEnum.fail);
+					SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(null, im);
+				}
+			}
+		});
+	}
+
+
 	@Override
 	public boolean sendMessage(final IMMessage message) {
 		if (!isAllowSendMessage(message)) {
@@ -390,24 +417,51 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		message.setDirect(MsgDirectionEnum.Out);
 		message.setStatus(MsgStatusEnum.sending);
 
+		ImageAttachment attachment = (ImageAttachment)message.getAttachment();
+		if(attachment != null){
+			String s3name_orig = "orig_"+SamService.getInstance().get_current_user().getunique_id()+"_"+ TimeUtil.currentTimeMillis();
+			Map<String, Object> save_s3_origin = new HashMap<>();
+			save_s3_origin.put(NimConstants.S3_ORIG,s3name_orig);
+			message.setLocalExtension(save_s3_origin);
+		}
+
 		NIMClient.getService(MsgService.class).saveMessageToLocal(message, false).setCallback(new RequestCallback<Void>() {
 			@Override
 			public void onSuccess(Void a) {
 				//send advertisement
 				ImageAttachment attachment = (ImageAttachment)message.getAttachment();
 				if(attachment != null){
+					final String path = attachment.getPath();
+					final String s3name_orig = (String)message.getLocalExtension().get(NimConstants.S3_ORIG);
+					final S3AwsClient s3client = new S3AwsClient();
+					SamDBManager.getInstance().asyncStoreSendAdvertisementMessage(message, new NIMCallback(){
+						@Override
+						public void onResult(Object obj1, Object obj2, int code) {
+							IMMessage im = (IMMessage)obj1;
+							if(code == 0){
+								uploadAdvertisementOrigin(im,s3client,path,s3name_orig);
+							}else{
+								NIMClient.getService(MsgService.class).deleteChattingHistory(im);
+								Toast.makeText(getActivity(), getString(R.string.samchat_database_error), Toast.LENGTH_SHORT).show();
+							}
+						}
+					});
+
 					//send picture advertisment
+					
 				}else{
 					//send text advertisment
 					String text = message.getContent();
-					Advertisement adv = new Advertisement(Constants.ADV_TYPE_TEXT, text, SamService.getInstance().get_current_user().getunique_id());
-					SamDBManager.getInstance().asyncStoreSendAdvertisementMessage(adv,message, new NIMCallback(){
+					final Advertisement adv = new Advertisement(Constants.ADV_TYPE_TEXT, text, null ,SamService.getInstance().get_current_user().getunique_id());
+					SamDBManager.getInstance().asyncStoreSendAdvertisementMessage(message, new NIMCallback(){
 						@Override
 						public void onResult(Object obj1, Object obj2, int code) {
-							if(code == 0){
-								Advertisement adv = (Advertisement)obj1;
-								IMMessage im = (IMMessage)obj2;
-								sendAdvertisement(adv.gettype(),adv.getcontent(), im);
+							IMMessage im = (IMMessage)obj1;
+							if(code == 0){	
+								sendAdvertisement(adv.gettype(),adv.getcontent(), adv.getcontent_thumb(), im);
+							}else{
+								NIMClient.getService(MsgService.class).deleteChattingHistory(im);
+								Toast.makeText(getActivity(), getString(R.string.samchat_database_error), Toast.LENGTH_SHORT).show();
 							}
 						}
 					});
@@ -416,12 +470,12 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 
 			@Override
 			public void onFailed(int code) {
-
+				Toast.makeText(getActivity(), getString(R.string.samchat_database_error), Toast.LENGTH_SHORT).show();
 			}
 
 			@Override
 			public void onException(Throwable exception) {
-
+				Toast.makeText(getActivity(), getString(R.string.samchat_database_error), Toast.LENGTH_SHORT).show();
 			}
 		});
         
@@ -433,12 +487,38 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		ImageAttachment attachment = (ImageAttachment)message.getAttachment();
 		if(attachment != null){
 			//send picture advertisment
+			MsgSession session=SamService.getInstance().getDao().query_MsgSession_db(NimConstants.SESSION_ACCOUNT_ADVERTISEMENT,ModeEnum.SP_MODE.ordinal());
+			if(session == null){
+				return true;
+			}
+
+			Message msg = SamService.getInstance().getDao().query_Message_db_by_uuid(session.getmsg_table_name(), message.getUuid());
+			if(msg == null || msg.gettype() != NimConstants.MSG_TYPE_SEND_ADV || msg.getdata_id() != 0){
+				return true;
+			}
+
+			//check orig_url existed in S3 or not  first
+			Map<String, Object> content = message.getLocalExtension();
+			if(content == null){
+				return true;
+			}
+			
+			String s3name_orig = (String)content.get(NimConstants.S3_ORIG);
+			String url_origin = NimConstants.S3_URL+NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3name_orig;
+			boolean existed = false;
+			if(existed){
+				sendAdvertisement(Constants.ADV_TYPE_PIC, url_origin, null, message);
+			}else{
+				String path = attachment.getPath();
+				S3AwsClient s3client = new S3AwsClient();
+				uploadAdvertisementOrigin(message,s3client,path,s3name_orig);
+			}
 		}else{
 			MsgSession session=SamService.getInstance().getDao().query_MsgSession_db(NimConstants.SESSION_ACCOUNT_ADVERTISEMENT,ModeEnum.SP_MODE.ordinal());
 			if(session != null){
 				Message msg = SamService.getInstance().getDao().query_Message_db_by_uuid(session.getmsg_table_name(), message.getUuid());
 				if(msg != null && msg.gettype() == NimConstants.MSG_TYPE_SEND_ADV && msg.getdata_id() == 0){
-					sendAdvertisement(Constants.ADV_TYPE_TEXT, message.getContent(), message);
+					sendAdvertisement(Constants.ADV_TYPE_TEXT, message.getContent(),null, message);
 				}
 			}
 		}
@@ -464,14 +544,20 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        LogUtil.e("test", "SamchatPublic Fragment  onActivityResult");
+
         inputPanel.onActivityResult(requestCode, resultCode, data);
         messageListPanel.onActivityResult(requestCode, resultCode, data);
     }
 
 
 
-    private void sendAdvertisement(int type, String content, final IMMessage im){
-		SamService.getInstance().write_advertisement(type, content, SamService.getInstance().get_current_user().getunique_id(),new SMCallBack(){
+    private void sendAdvertisement(int type, String content, String content_thumb, final IMMessage im){
+		if(type != Constants.ADV_TYPE_TEXT){
+			content = "http://samchat.s3-website-us-west-1.amazonaws.com/timg.jpg";
+			content_thumb = "http://samchat.s3-website-us-west-1.amazonaws.com/timg_thumb.jpg";
+		}
+		SamService.getInstance().write_advertisement(type,content, content_thumb,SamService.getInstance().get_current_user().getunique_id(),new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
 					HttpCommClient hcc = (HttpCommClient) obj;

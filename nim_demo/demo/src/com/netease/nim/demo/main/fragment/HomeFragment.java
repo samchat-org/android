@@ -1,5 +1,6 @@
 package com.netease.nim.demo.main.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
@@ -16,6 +17,7 @@ import com.netease.nim.demo.main.model.MainTab;
 import com.netease.nim.demo.main.reminder.ReminderItem;
 import com.netease.nim.demo.main.reminder.ReminderManager;
 import com.netease.nim.uikit.common.fragment.TFragment;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.msg.MsgService;
@@ -248,4 +250,12 @@ public class HomeFragment extends TFragment implements OnPageChangeListener, Rem
         SystemMessageUnreadManager.getInstance().setSysMsgUnreadCount(unread);
         ReminderManager.getInstance().updateContactUnreadNum(unread);
     }
+
+
+	@Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	 LogUtil.e("test","HomeFragment onActivityResult");
+        super.onActivityResult(requestCode, resultCode, data);
+        adapter.getItem(MainTab.SAMCHAT_PUBLIC.tabIndex).onActivityResult(requestCode, resultCode, data);
+	}
 }

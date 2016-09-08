@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.android.samservice.Constants;
 
 	/*
-	id(primary) | session | name |recent_adv_id |recent_adv_type |recent_adv_content | recent_adv_publish_timestamp
+	id(primary) | session | name |recent_adv_id |recent_adv_type |recent_adv_content |rcent_adv_content_thumb| recent_adv_publish_timestamp
 	*/
 public class RcvdAdvSession implements Serializable
 {
@@ -15,6 +15,7 @@ public class RcvdAdvSession implements Serializable
 	private long recent_adv_id;
 	private int recent_adv_type;
 	private String recent_adv_content;
+	private String recent_adv_content_thumb;
 	private long recent_adv_publish_timestamp;
 
 	public RcvdAdvSession(){
@@ -24,6 +25,7 @@ public class RcvdAdvSession implements Serializable
 		this.recent_adv_id = 0;
 		this.recent_adv_type = Constants.ADV_TYPE_TEXT;
 		this.recent_adv_content = null;
+		this.recent_adv_content_thumb = null;
 		this.recent_adv_publish_timestamp = 0;
 	}
 
@@ -34,6 +36,7 @@ public class RcvdAdvSession implements Serializable
 		this.recent_adv_id = 0;
 		this.recent_adv_type = Constants.ADV_TYPE_TEXT;
 		this.recent_adv_content = null;
+		this.recent_adv_content_thumb = null;
 		this.recent_adv_publish_timestamp = 0;
 	}
 
@@ -77,6 +80,13 @@ public class RcvdAdvSession implements Serializable
 	}
 	public void setrecent_adv_content(String recent_adv_content){
 		this.recent_adv_content = recent_adv_content;
+	}
+
+	public String getrecent_adv_content_thumb(){
+		return recent_adv_content_thumb;
+	}
+	public void setrecent_adv_content_thumb(String recent_adv_content_thumb){
+		this.recent_adv_content_thumb = recent_adv_content_thumb;
 	}
 
 	public long getrecent_adv_publish_timestamp(){

@@ -1099,6 +1099,7 @@ public class DBManager
 		cv.put("adv_id",adv.getadv_id());
 		cv.put("type",adv.gettype());
 		cv.put("content",adv.getcontent());
+		cv.put("content_thumb",adv.getcontent_thumb());
 		cv.put("publish_timestamp",adv.getpublish_timestamp());
 
 		return write_adv_db.insert(table,null,cv);
@@ -1112,6 +1113,7 @@ public class DBManager
 		cv.put("adv_id",adv.getadv_id());
 		cv.put("type",adv.gettype());
 		cv.put("content",adv.getcontent());
+		cv.put("content_thumb",adv.getcontent_thumb());
 		cv.put("publish_timestamp",adv.getpublish_timestamp());
 
 		String whereClause = "id=?";
@@ -1133,6 +1135,7 @@ public class DBManager
 			adv.setadv_id(c.getLong(c.getColumnIndex("adv_id")));
 			adv.settype(c.getInt(c.getColumnIndex("type")));
 			adv.setcontent(c.getString(c.getColumnIndex("content")));
+			adv.setcontent_thumb(c.getString(c.getColumnIndex("content_thumb")));
 			adv.setpublish_timestamp(c.getLong(c.getColumnIndex("publish_timestamp")));
 			name += ":"+adv.getadv_id()+":";
 		}
@@ -1169,6 +1172,7 @@ public class DBManager
 		cv.put("recent_adv_id",radvsession.getrecent_adv_id());
 		cv.put("recent_adv_type",radvsession.getrecent_adv_type());
 		cv.put("recent_adv_content",radvsession.getrecent_adv_content());
+		cv.put("recent_adv_content_thumb",radvsession.getrecent_adv_content_thumb());
 		cv.put("recent_adv_publish_timestamp",radvsession.getrecent_adv_publish_timestamp());
 
 		return rcvd_adv_db.insert(table,null,cv);
@@ -1184,6 +1188,7 @@ public class DBManager
 		cv.put("recent_adv_id",radvsession.getrecent_adv_id());
 		cv.put("recent_adv_type",radvsession.getrecent_adv_type());
 		cv.put("recent_adv_content",radvsession.getrecent_adv_content());
+		cv.put("recent_adv_content_thumb",radvsession.getrecent_adv_content_thumb());
 		cv.put("recent_adv_publish_timestamp",radvsession.getrecent_adv_publish_timestamp());
 
 		String whereClause = "id=?";
@@ -1207,6 +1212,7 @@ public class DBManager
 			radvsession.setrecent_adv_id(c.getLong(c.getColumnIndex("recent_adv_id")));
 			radvsession.setrecent_adv_type(c.getInt(c.getColumnIndex("recent_adv_type")));
 			radvsession.setrecent_adv_content(c.getString(c.getColumnIndex("recent_adv_content")));
+			radvsession.setrecent_adv_content_thumb(c.getString(c.getColumnIndex("recent_adv_content_thumb")));
 			radvsession.setrecent_adv_publish_timestamp(c.getLong(c.getColumnIndex("recent_adv_publish_timestamp")));
 			
 			name += ":"+radvsession.getsession()+":";
@@ -1233,6 +1239,7 @@ public class DBManager
 		cv.put("adv_id",adv.getadv_id());
 		cv.put("type",adv.gettype());
 		cv.put("content",adv.getcontent());
+		cv.put("content_thumb",adv.getcontent_thumb());
 		cv.put("publish_timestamp",adv.getpublish_timestamp());
 		cv.put("response",adv.getresponse());
 		cv.put("sender_unique_id",adv.getsender_unique_id());
@@ -1264,6 +1271,7 @@ public class DBManager
 			adv.setadv_id(c.getLong(c.getColumnIndex("adv_id")));
 			adv.settype(c.getInt(c.getColumnIndex("type")));
 			adv.setcontent(c.getString(c.getColumnIndex("content")));
+			adv.setcontent_thumb(c.getString(c.getColumnIndex("content_thumb")));
 			adv.setpublish_timestamp(c.getLong(c.getColumnIndex("publish_timestamp")));
 			adv.setresponse(c.getInt(c.getColumnIndex("response")));
 			adv.setsender_unique_id(c.getLong(c.getColumnIndex("sender_unique_id")));
@@ -1316,6 +1324,7 @@ public class DBManager
 			adv.setadv_id(c.getLong(c.getColumnIndex("adv_id")));
 			adv.settype(c.getInt(c.getColumnIndex("type")));
 			adv.setcontent(c.getString(c.getColumnIndex("content")));
+			adv.setcontent_thumb(c.getString(c.getColumnIndex("content_thumb")));
 			adv.setpublish_timestamp(c.getLong(c.getColumnIndex("publish_timestamp")));
 			adv.setresponse(c.getInt(c.getColumnIndex("response")));
 			adv.setsender_unique_id(c.getLong(c.getColumnIndex("sender_unique_id")));

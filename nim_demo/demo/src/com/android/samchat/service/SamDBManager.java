@@ -1,17 +1,25 @@
 package com.android.samchat.service;
 
 import android.content.Intent;
+import android.os.Environment;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samservice.SMCallBack;
 import com.android.samservice.info.AdvancedMessage;
 import com.android.samservice.info.Advertisement;
 import com.android.samservice.info.MsgSession;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.List;
 import java.util.ArrayList;
 import com.android.samservice.info.Message;
 import com.android.samservice.info.RcvdAdvSession;
 import com.netease.nim.uikit.NimConstants;
+import com.netease.nim.uikit.common.util.file.FileUtil;
+import com.netease.nim.uikit.common.util.storage.StorageType;
+import com.netease.nim.uikit.common.util.storage.StorageUtil;
 import com.netease.nim.uikit.session.sam_message.SAMMessage;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
@@ -218,6 +226,7 @@ public class SamDBManager{
 		session.setrecent_adv_type(adv.gettype());
 		session.setrecent_adv_content(adv.getcontent());
 		session.setrecent_adv_publish_timestamp(adv.getpublish_timestamp());
+		session.setrecent_adv_content_thumb(adv.getcontent_thumb());
 	}
 
 
@@ -241,18 +250,80 @@ public class SamDBManager{
 			return null;
 		}
 	}
+
+	private boolean saveFile(String dest,byte[] data){
+		File filePath = null;
+		File file = null;
+		FileOutputStream fos = null;
+
+		try{
+			file = new File(dest);
+
+			if(!file.exists()){
+				file.createNewFile();
+			}
+  
+			fos = new FileOutputStream(file);    
+  
+			fos.write(data); 
+
+			return true;
+  
+		}catch(Exception e){
+			return false;
+			
+		}finally{
+			try{
+				if(fos!=null) fos.close();
+			}catch(Exception e){
+
+			}
+
+		}
+
+	}
 	
 	public void handleReceivedAdvertisement(HttpCommClient hcc){
 		final Advertisement adv = hcc.adv;
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				RcvdAdvSession changedSession = storeRcvdAdvertisement(adv);
-				if(changedSession != null){
-					//call rcvd adv session changed observer
-					callRcvdAdvSessionObserversObserverCallback(changedSession);
-					//call incoming adv observer
-					callRcvdAdvObserversObserverCallback(adv);
+				if(adv.gettype() == Constants.ADV_TYPE_TEXT){
+					RcvdAdvSession changedSession = storeRcvdAdvertisement(adv);
+					if(changedSession != null){
+						//call rcvd adv session changed observer
+						callRcvdAdvSessionObserversObserverCallback(changedSession);
+						//call incoming adv observer
+						callRcvdAdvObserversObserverCallback(adv);
+					}
+				}else{
+					LogUtil.i(TAG,"received adv:" + adv.getcontent_thumb());
+					SamService.getInstance().download(adv.getcontent_thumb(), new SMCallBack(){
+						@Override
+						public void onSuccess(final Object obj, final int WarningCode) {
+							LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" successfully");
+							HttpCommClient hcc = (HttpCommClient)obj;
+							String extension = FileUtil.getExtensionName(adv.getcontent_thumb());
+							String MD5Path = Environment.getExternalStorageDirectory() + "/" + DemoCache.getContext().getPackageName() + "/nim/"
+								+StorageType.TYPE_THUMB_IMAGE.getStoragePath()+"/"+StringUtil.makeMd5(adv.getcontent_thumb());
+							saveFile(MD5Path, hcc.data);
+							RcvdAdvSession changedSession = storeRcvdAdvertisement(adv);
+							if(changedSession != null){
+								//call rcvd adv session changed observer
+								callRcvdAdvSessionObserversObserverCallback(changedSession);
+								//call incoming adv observer
+								callRcvdAdvObserversObserverCallback(adv);
+							}
+						}
+						@Override
+						public void onFailed(int code) {
+							LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" failed");
+						}
+						@Override
+						public void onError(int code) {
+							LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" error");
+						}
+					});
 				}
 			}
 		});
@@ -712,18 +783,20 @@ public class SamDBManager{
 		});	
 	}
 
-	public void asyncStoreSendAdvertisementMessage(final Advertisement adv, final IMMessage im, final NIMCallback callback){
+	public void asyncStoreSendAdvertisementMessage(final IMMessage im, final NIMCallback callback){
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				Message msg = createMessage(im.getSessionId(), NimConstants.MSG_TYPE_SEND_ADV,  im, adv.getadv_id());
+				Message msg = createMessage(im.getSessionId(), NimConstants.MSG_TYPE_SEND_ADV,  im, 0L);
 				MsgSession changedSession;
 				if((changedSession = storeSendMessage(im.getSessionId(),ModeEnum.SP_MODE.ordinal(),msg,im)) != null){
 					callSendAdvertisementObserverCallback(im);
-					callback.onResult(adv, im, 0);
+					callback.onResult(im,null, 0);
+				}else{
+					callback.onResult(im,null, -1);
 				}
 			}
-		});	
+		});
 	}
 
 	public void syncUpdateSendAdvertisementMessage(final Advertisement adv, final IMMessage im){
@@ -786,8 +859,8 @@ public class SamDBManager{
 				if(session!=null && SamService.getInstance().getDao().query_Message_db_by_type_data_id(session.getmsg_table_name(), NimConstants.MSG_TYPE_RCVD_ADV, adv.getadv_id())!=null){
 					return;
 				}
-			
-				final IMMessage im = SAMMessageBuilder.createReceivedAdvertisementTextMessage(adv);
+
+				final IMMessage im = SAMMessageBuilder.createReceivedAdvertisementMessage(adv);
 				if(!syncStoreReceivedAdvertisementMessage(adv,im)){
 					return;
 				}
@@ -1069,7 +1142,23 @@ public class SamDBManager{
 			}
 		}
 	}
-	
+
+	private IMMessage findSendAdvertisementIMMessage(Advertisement adv){
+		MsgSession session=SamService.getInstance().getDao().query_MsgSession_db(NimConstants.SESSION_ACCOUNT_ADVERTISEMENT,ModeEnum.SP_MODE.ordinal());
+		if(session != null){
+			Message msg = SamService.getInstance().getDao().query_Message_db_by_type_data_id(session.getmsg_table_name(),NimConstants.MSG_TYPE_SEND_ADV,adv.getadv_id());
+			if(msg != null){
+				List<String> uuids  =  new ArrayList<>();
+				uuids.add(msg.getuuid());
+				List<IMMessage> ims = NIMClient.getService(MsgService.class).queryMessageListByUuidBlock(uuids);
+				if(ims.size()>0){
+					return ims.get(0);
+				}
+			}
+		}
+
+		return null;
+	}
 
 	Observer<List<IMMessage>> incomingP2PMessageObserver = new Observer<List<IMMessage>>() {
 		@Override
@@ -1114,8 +1203,16 @@ public class SamDBManager{
 								}
 							}
 							if(index > -1){
-								valid_ims.add(index,SAMMessageBuilder.createSendAdvertisementTextMessage(am.getadv(), am.getim()));
-								adv_im_existed = true;
+								if(am.getadv().gettype() == Constants.ADV_TYPE_TEXT){
+									valid_ims.add(index,SAMMessageBuilder.createSendAdvertisementTextMessage(am.getadv(), am.getim()));
+									adv_im_existed = true;
+								}else{
+									IMMessage sm = findSendAdvertisementIMMessage(am.getadv());
+									if(sm!=null){
+										valid_ims.add(index,SAMMessageBuilder.createSendAdvertisementImageMessage(am.getadv(),sm,am.getim()));
+										adv_im_existed = true;
+									}
+								}
 								LogUtil.i(TAG,"find adv im message");
 							}
 						}

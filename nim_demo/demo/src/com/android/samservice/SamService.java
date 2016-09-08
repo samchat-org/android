@@ -106,7 +106,8 @@ public class SamService{
 	public static final int MSG_SYNC_FOLLOW_LIST = MSG_SYNC_CONTACT_LIST + 1;
 	public static final int MSG_WRITE_ADV = MSG_SYNC_FOLLOW_LIST + 1;
 	public static final int MSG_DELETE_ADV = MSG_WRITE_ADV + 1;
-	public static final int MSG_BIND_ALIAS = MSG_DELETE_ADV + 1;
+	public static final int MSG_DOWNLOAD = MSG_DELETE_ADV + 1;
+	public static final int MSG_BIND_ALIAS = MSG_DOWNLOAD + 1;
 
 	private boolean isTimeOut(SamCoreObj samobj){
 		cancelTimeOut(samobj);
@@ -1553,9 +1554,9 @@ public class SamService{
 	}
 
 /***************************************write advertisement*******************************************************/
-	public void write_advertisement(int type, String content,long sender_unique_id, SMCallBack callback){
+	public void write_advertisement(int type, String content, String content_thumb, long sender_unique_id, SMCallBack callback){
 		AdvCoreObj samobj = new AdvCoreObj(callback);
-		samobj.init(get_current_token(),type,content,sender_unique_id);
+		samobj.init(get_current_token(),type,content, content_thumb, sender_unique_id);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_WRITE_ADV, samobj);
 		mSamServiceHandler.sendMessage(msg);
 		startTimeOut(samobj);
@@ -1593,7 +1594,7 @@ public class SamService{
 	private void retry_write_advertisement(AdvCoreObj samobj){
 		AdvCoreObj  retryobj = new AdvCoreObj(samobj.callback);
 		
-		retryobj.init(samobj.token, samobj.type,samobj.content,samobj.sender_unique_id);
+		retryobj.init(samobj.token, samobj.type,samobj.content,samobj.content_thumb, samobj.sender_unique_id);
 		
 		retryobj.setRetryCount(samobj.retry_count);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_WRITE_ADV,retryobj);
@@ -1634,6 +1635,30 @@ public class SamService{
 				samobj.callback.onError(Constants.CONNECTION_HTTP_ERROR);
 		}else{
 			samobj.callback.onError(Constants.EXCEPTION_ERROR);
+		}
+    }
+
+/***************************************downalod advertisement thum*******************************************************/
+	public void download(String url, SMCallBack callback){
+		DownloadCoreObj samobj = new DownloadCoreObj(callback);
+		samobj.init(url);
+		Message msg = mSamServiceHandler.obtainMessage(MSG_DOWNLOAD, samobj);
+		mSamServiceHandler.sendMessage(msg);
+		startTimeOut(samobj);
+	}
+
+	private void do_download(SamCoreObj samobj){
+		DownloadCoreObj dobj = (DownloadCoreObj)samobj;
+		HttpCommClient hcc = new HttpCommClient();
+
+		boolean http_ret = hcc.download(dobj);
+
+		if(isTimeOut(samobj)){
+			return;
+		}else if(http_ret){
+			samobj.callback.onSuccess(hcc,0);
+		}else{
+			samobj.callback.onError(Constants.CONNECTION_HTTP_ERROR);
 		}
     }
 
@@ -2199,6 +2224,15 @@ public class SamService{
 						@Override
 						public void run(){
 							do_delete_advertisement(msgObj);
+						}
+					});
+					break;
+
+				case MSG_DOWNLOAD:
+					mFixedHttpThreadPool.execute(new Runnable(){
+						@Override
+						public void run(){
+							do_download(msgObj);
 						}
 					});
 					break;

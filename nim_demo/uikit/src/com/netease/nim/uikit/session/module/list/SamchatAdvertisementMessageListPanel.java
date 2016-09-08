@@ -360,6 +360,7 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
 		    container.activity.runOnUiThread(new Runnable() {
                @Override
                public void run() {
+                   LogUtil.i("test","SendAdvertisementObserver: onMsgSend "+im);
                    onMsgSend(im);
 			    }
 		    });

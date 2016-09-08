@@ -1,5 +1,6 @@
 package com.android.samchat.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.android.samchat.activity.SamchatRcvdAdvertisementActivity;
@@ -13,6 +14,7 @@ import com.android.samservice.info.SendQuestion;
 import com.android.samchat.callback.ReceivedQuestionCallback;
 import com.android.samservice.info.ReceivedQuestion;
 import com.android.samchat.callback.CustomerPublicCallback;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 
 public class SamchatPublicListFragment extends MainTabFragment {
 	private SamchatPublicFragment fragment;
@@ -66,6 +68,13 @@ public class SamchatPublicListFragment extends MainTabFragment {
 	public void onCurrentTabClicked() {
 
 	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		LogUtil.e("test", "SamchatPublicListFragment Fragment  onActivityResult");
+		fragment.onActivityResult(requestCode, resultCode, data);
+    }
 }
 
 

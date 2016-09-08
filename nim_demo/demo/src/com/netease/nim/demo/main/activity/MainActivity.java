@@ -231,14 +231,9 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
         });
 
         /*SAMC_BEGIN(sync samchat data including contact list, follow list, ...)*/
-        SamService.getInstance().sync_follow_list(new SMCallBack(){
-				@Override
-				public void onSuccess(final Object obj, final int WarningCode) {}
-				@Override
-				public void onFailed(int code) {}
-				@Override
-				public void onError(int code) {}
-		 });
+        syncFollowList();
+        syncContactList();
+        syncCustomerList();
         /*SAMC_END(sync samchat data including contact list, follow list, ...)*/
 
         Log.i(TAG, "sync completed = " + syncCompleted);
@@ -398,6 +393,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	 LogUtil.e("test","MainActivity onActivityResult");
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_CODE_NORMAL) {
@@ -410,7 +406,9 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
             } else if (requestCode == REQUEST_CODE_ADVANCED) {
                 final ArrayList<String> selected = data.getStringArrayListExtra(ContactSelectActivity.RESULT_DATA);
                 TeamCreateHelper.createAdvancedTeam(MainActivity.this, selected);
-            }
+            } else{
+                mainFragment.onActivityResult( requestCode,  resultCode,  data);
+			 }
         }
 
     }
@@ -605,6 +603,41 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 			}
 		});
 		
+	}
+
+	private void syncFollowList(){
+		SamService.getInstance().sync_follow_list(new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {}
+				@Override
+				public void onFailed(int code) {}
+				@Override
+				public void onError(int code) {}
+		 });
+	}
+
+	private void syncContactList(){
+		SamService.getInstance().sync_contact_list(false, new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {}
+				@Override
+				public void onFailed(int code) {}
+				@Override
+				public void onError(int code) {}
+         });
+	}
+
+	private void syncCustomerList(){
+		if(SamService.getInstance().get_current_user().getusertype() == Constants.SAM_PROS){
+			SamService.getInstance().sync_contact_list(true, new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {}
+				@Override
+				public void onFailed(int code) {}
+				@Override
+				public void onError(int code) {}
+         });
+		}
 	}
 
 	public void startSwitchProgress(){

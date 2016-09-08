@@ -472,11 +472,12 @@ public class SamDBDao{
 	}
 
 /********************************************SamPros Adv******************************************************************/
-	private boolean compareAdvertisement(Advertisement old, Advertisement now){
+	private boolean compareSamProsAdvertisement(Advertisement old, Advertisement now){
 		if(old.getadv_id() != now.getadv_id()
 			||old.gettype() != now.gettype()
 			|| old.getpublish_timestamp() != now.getpublish_timestamp()
-			|| !stringEquals(old.getcontent(),now.getcontent())){
+			|| !stringEquals(old.getcontent(),now.getcontent())
+			|| !stringEquals(old.getcontent_thumb(),now.getcontent_thumb())){
 
 			return true;
 		}else{
@@ -498,7 +499,7 @@ public class SamDBDao{
 			Advertisement tadv = dbHandle.querySamProsAdvByAdvID(adv.getadv_id());
 			if(tadv == null){
 				ret = dbHandle.addSamProsAdv(adv);
-			}else if(compareAdvertisement(tadv, adv)){
+			}else if(compareSamProsAdvertisement(tadv, adv)){
 				if(dbHandle.updateSamProsAdv(tadv.getid(), adv) != 0){
 					ret = tadv.getid();
 				}else{
@@ -538,6 +539,7 @@ public class SamDBDao{
 			|| old.getrecent_adv_id() != now.getrecent_adv_id()
 			|| old.getrecent_adv_type() != now.getrecent_adv_type()
 			|| !stringEquals(old.getrecent_adv_content(),now.getrecent_adv_content())
+			|| !stringEquals(old.getrecent_adv_content_thumb(),now.getrecent_adv_content_thumb())
 			|| old.getrecent_adv_publish_timestamp() != now.getrecent_adv_publish_timestamp()){
 			return true;
 		}else{

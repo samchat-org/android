@@ -184,4 +184,6 @@
 
     <string name="samchat_picture">Picture</string>
 
+    <string name="samchat_database_error">Database operation failed</string>
+
 </resources>

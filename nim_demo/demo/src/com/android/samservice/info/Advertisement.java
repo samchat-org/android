@@ -15,27 +15,31 @@ public class Advertisement{
 	public long adv_id;
 	public int type;
 	public String content;
+	public String content_thumb;
 	public long publish_timestamp;
 	public int response;
 	public long sender_unique_id;
+	
 
 	public Advertisement(){
 		id = 0;
 		adv_id = 0;
 		type = Constants.ADV_TYPE_TEXT;
 		content = null;
+		content_thumb = null;
 		publish_timestamp = 0;
 		response = Constants.ADV_NOT_RESPONSED;
 		sender_unique_id = 0;
 	}
 
-	public Advertisement(int type, String content, long sender_unique_id){
+	public Advertisement(int type, String content, String content_thumb, long sender_unique_id){
 		this.id = 0;
 		this.adv_id = 0;
 		this.type = type;
 		this.content = content;
+		this.content_thumb = content_thumb;
 		this.publish_timestamp = 0;
-		response = Constants.ADV_NOT_RESPONSED;
+		this.response = Constants.ADV_NOT_RESPONSED;
 		this.sender_unique_id = sender_unique_id;
 	}
 
@@ -65,6 +69,13 @@ public class Advertisement{
 	}
 	public void setcontent(String content){
 		this.content = content;
+	}
+
+	public String getcontent_thumb(){
+		return content_thumb;
+	}
+	public void setcontent_thumb(String content_thumb){
+		this.content_thumb = content_thumb;
 	}
 
 	public long getpublish_timestamp(){
