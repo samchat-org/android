@@ -413,6 +413,16 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
         }
     }
 
+    public void onAttachmentProgressChange(IMMessage im, long currentBytes, long totalBytes) {
+        int index = getItemIndex(im.getUuid());
+        if (index >= 0 && index < items.size()) {
+            IMMessage item = items.get(index);
+            float value = (float) currentBytes / (float) totalBytes;
+            adapter.putProgress(item, value);
+            refreshViewHolderByIndex(index);
+        }
+    }
+
     /**
      * 刷新单条消息
      *

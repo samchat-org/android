@@ -189,5 +189,8 @@ public class Constants{
 	public static final int PUSH_CATEGORY_UNKONW = 0;
 	public static final int PUSH_CATEGORY_QUESTION = 1;
 	public static final int PUSH_CATEGORY_ADV = 2;
+
+	/****************************Advertisement Max Picutre pixel***********************************************/
+	public static final int ADV_PIC_MAX = 1280;
 }
 

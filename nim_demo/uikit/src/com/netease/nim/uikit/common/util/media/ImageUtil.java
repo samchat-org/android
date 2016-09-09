@@ -306,6 +306,15 @@ public class ImageUtil {
     			"temp_image_" + StringUtil.get36UUID() + "." + extension,
     			StorageType.TYPE_TEMP);
     }
+
+    /*SAMC_BEGIN()*/
+    public static String getTempAdvFilePath(String MD5, String extension) {
+    	return StorageUtil.getWritePath(
+                NimUIKit.getContext(),
+    			"temp_image_" + MD5 + "." + extension,
+    			StorageType.TYPE_TEMP);
+    }
+    /*SAMC_END()*/
     
     public static Boolean scaleImage(File srcFile, File dstFile, int dstMaxWH, CompressFormat compressFormat, int quality) {
         Boolean success = false;

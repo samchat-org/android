@@ -1,5 +1,6 @@
 package com.android.samchat.fragment;
 
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,23 +11,35 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
+import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
 import com.android.samchat.activity.SamchatSearchPublicActivity;
 import com.android.samchat.cache.FollowDataCache;
 import com.android.samchat.service.SamDBManager;
 import com.android.samservice.HttpCommClient;
-import com.android.samservice.S3Aws;
-import com.android.samservice.S3AwsClient;
 import com.android.samservice.SMCallBack;
 import com.android.samservice.info.Advertisement;
 import com.android.samservice.info.Message;
 import com.android.samservice.info.MsgSession;
 import com.android.samservice.info.RcvdAdvSession;
+import com.android.samservice.utils.S3Util;
+import com.netease.nim.demo.DemoCache;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nim.uikit.NIMCallback;
 import com.netease.nim.uikit.NimConstants;
-import com.netease.nim.uikit.S3Callback;
 import com.netease.nim.uikit.common.fragment.TFragment;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +62,11 @@ import android.content.Intent;
 import com.android.samchat.adapter.FollowedSPAdapter;
 import com.android.samchat.callback.CustomerPublicCallback;
 import com.android.samservice.info.FollowedSamPros;
+import com.netease.nim.uikit.common.util.file.FileUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nim.uikit.common.util.media.BitmapDecoder;
+import com.netease.nim.uikit.common.util.media.ImageUtil;
+import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.contact.core.query.TextComparator;
 import com.netease.nim.uikit.session.SessionCustomization;
@@ -382,25 +399,96 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
         return true;
     }
 
-	private void uploadAdvertisementOrigin(final IMMessage im, final S3AwsClient client, final String abspath_origin, final String s3name_origin){
-		client.uploadAdvertisement(NimConstants.S3_FOLDER_ORIGIN, s3name_origin,  abspath_origin, new S3Callback(){
-			@Override
-			public void onProcess(int precent){
-				//update process bar in UI thread
-			}
+	private class UploadListener implements TransferListener {
+		private IMMessage im;
+		private String s3name_origin;
+		private String abspath_origin;
+		public UploadListener(IMMessage im,String abspath_origin, String s3name_origin){
+			this.im = im;
+			this.s3name_origin = s3name_origin;
+			this.abspath_origin = abspath_origin;
+		}
 
-			@Override
-			public void onResult(int code){
-				//dismiss process bar
-				if(code == 0){
-					String url_origin = NimConstants.S3_URL+NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
-					sendAdvertisement(Constants.ADV_TYPE_PIC, url_origin, null, im);
-				}else{
-					im.setStatus(MsgStatusEnum.fail);
-					SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(null, im);
+		// Simply updates the UI list when notified.
+		@Override
+		public void onError(int id, Exception e) {
+
+		}
+
+		@Override
+		public void onProgressChanged(int id, final long bytesCurrent, final long bytesTotal) {
+			LogUtil.e("test","onProgressChanged "+bytesCurrent+bytesTotal);
+			getHandler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					messageListPanel.onAttachmentProgressChange(im, bytesCurrent,  bytesTotal);
 				}
+			}, 0);
+		}
+
+		@Override
+		public void onStateChanged(int id, TransferState newState) {
+			LogUtil.e("test","onStateChanged "+newState);
+			if(newState == TransferState.COMPLETED) {
+				String url_origin = NimConstants.S3_URL+NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
+				sendAdvertisement(Constants.ADV_TYPE_PIC, url_origin, url_origin, im);
+				deleteFile(abspath_origin,s3name_origin);
+			}else if(newState == TransferState.FAILED){
+				im.setStatus(MsgStatusEnum.fail);
+				SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(null, im);
+				deleteFile(abspath_origin,s3name_origin);
 			}
-		});
+		}
+	}
+
+	private void deleteFile(String abspath_origin, String s3name_origin){
+		String extension = FileUtil.getExtensionName(abspath_origin);
+		String temp = ImageUtil.getTempAdvFilePath(StringUtil.makeMd5(s3name_origin), extension);
+		File file = new File(temp);
+		file.delete();
+	}
+
+    private boolean createTmpFile(String temp, Bitmap bitmap, String extension){
+        FileOutputStream fOut = null;
+        try{
+            File tmpfile = new File(temp);
+            tmpfile.delete();
+            fOut = new FileOutputStream(tmpfile);
+            if(extension.equals("jpg")){
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+            }else{
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
+            }
+            fOut.flush();
+            return true;
+        }catch(Exception e){
+            e.printStackTrace();
+            return false;
+        }finally{
+            try {
+                if(fOut != null)
+                    fOut.close() ;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+	private void uploadAdvertisementOrigin(final IMMessage im, final String abspath_origin, final String s3name_origin){
+		Bitmap bitmap = BitmapDecoder.decodeSampled(abspath_origin, Constants.ADV_PIC_MAX, Constants.ADV_PIC_MAX);
+		String extension = FileUtil.getExtensionName(abspath_origin);
+		String temp = ImageUtil.getTempAdvFilePath(StringUtil.makeMd5(s3name_origin), extension);
+		File file = null;
+		LogUtil.e("test","upload adv temp file path:"+temp);
+		if(createTmpFile(temp,bitmap,extension)){
+			file = new File(temp);
+		}else{
+			file = new File(abspath_origin);
+		}
+		bitmap.recycle();
+		String key = NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
+		TransferObserver observer = S3Util.getTransferUtility(getActivity()).upload(NimConstants.S3_BUCKETNAME,key,file);
+		observer.setTransferListener(new UploadListener(im,abspath_origin,s3name_origin));
 	}
 
 
@@ -419,7 +507,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 
 		ImageAttachment attachment = (ImageAttachment)message.getAttachment();
 		if(attachment != null){
-			String s3name_orig = "orig_"+SamService.getInstance().get_current_user().getunique_id()+"_"+ TimeUtil.currentTimeMillis();
+			String s3name_orig = "orig_"+SamService.getInstance().get_current_user().getunique_id()+"_"+ TimeUtil.currentTimeMillis()+"."+FileUtil.getExtensionName(attachment.getPath());
 			Map<String, Object> save_s3_origin = new HashMap<>();
 			save_s3_origin.put(NimConstants.S3_ORIG,s3name_orig);
 			message.setLocalExtension(save_s3_origin);
@@ -433,13 +521,12 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 				if(attachment != null){
 					final String path = attachment.getPath();
 					final String s3name_orig = (String)message.getLocalExtension().get(NimConstants.S3_ORIG);
-					final S3AwsClient s3client = new S3AwsClient();
 					SamDBManager.getInstance().asyncStoreSendAdvertisementMessage(message, new NIMCallback(){
 						@Override
 						public void onResult(Object obj1, Object obj2, int code) {
 							IMMessage im = (IMMessage)obj1;
 							if(code == 0){
-								uploadAdvertisementOrigin(im,s3client,path,s3name_orig);
+								uploadAdvertisementOrigin(im,path,s3name_orig);
 							}else{
 								NIMClient.getService(MsgService.class).deleteChattingHistory(im);
 								Toast.makeText(getActivity(), getString(R.string.samchat_database_error), Toast.LENGTH_SHORT).show();
@@ -510,8 +597,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 				sendAdvertisement(Constants.ADV_TYPE_PIC, url_origin, null, message);
 			}else{
 				String path = attachment.getPath();
-				S3AwsClient s3client = new S3AwsClient();
-				uploadAdvertisementOrigin(message,s3client,path,s3name_orig);
+                uploadAdvertisementOrigin(message,path,s3name_orig);
 			}
 		}else{
 			MsgSession session=SamService.getInstance().getDao().query_MsgSession_db(NimConstants.SESSION_ACCOUNT_ADVERTISEMENT,ModeEnum.SP_MODE.ordinal());
@@ -553,10 +639,10 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 
 
     private void sendAdvertisement(int type, String content, String content_thumb, final IMMessage im){
-		if(type != Constants.ADV_TYPE_TEXT){
-			content = "http://samchat.s3-website-us-west-1.amazonaws.com/timg.jpg";
-			content_thumb = "http://samchat.s3-website-us-west-1.amazonaws.com/timg_thumb.jpg";
-		}
+		//if(type != Constants.ADV_TYPE_TEXT){
+		//	content = "http://samchat.s3-website-us-west-1.amazonaws.com/timg.jpg";
+		//	content_thumb = "http://samchat.s3-website-us-west-1.amazonaws.com/timg_thumb.jpg";
+		//}
 		SamService.getInstance().write_advertisement(type,content, content_thumb,SamService.getInstance().get_current_user().getunique_id(),new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {

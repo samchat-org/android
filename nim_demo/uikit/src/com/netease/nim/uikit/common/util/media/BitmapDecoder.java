@@ -15,6 +15,7 @@ import android.os.Build;
 import android.provider.MediaStore;
 
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 
 public class BitmapDecoder {
