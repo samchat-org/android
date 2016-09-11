@@ -35,6 +35,7 @@ import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nim.uikit.NIMCallback;
 import com.netease.nim.uikit.NimConstants;
+import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.common.fragment.TFragment;
 
 import java.io.File;
@@ -66,6 +67,8 @@ import com.netease.nim.uikit.common.util.file.FileUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.media.ImageUtil;
+import com.netease.nim.uikit.common.util.storage.StorageType;
+import com.netease.nim.uikit.common.util.storage.StorageUtil;
 import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.contact.core.query.TextComparator;
@@ -403,16 +406,18 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		private IMMessage im;
 		private String s3name_origin;
 		private String abspath_origin;
-		public UploadListener(IMMessage im,String abspath_origin, String s3name_origin){
+		private TransferObserver observer;
+		public UploadListener(IMMessage im,String abspath_origin, String s3name_origin,TransferObserver observer){
 			this.im = im;
 			this.s3name_origin = s3name_origin;
 			this.abspath_origin = abspath_origin;
+			this.observer = observer;
 		}
 
 		// Simply updates the UI list when notified.
 		@Override
 		public void onError(int id, Exception e) {
-
+			//observer.cleanTransferListener();			
 		}
 
 		@Override
@@ -430,10 +435,12 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		public void onStateChanged(int id, TransferState newState) {
 			LogUtil.e("test","onStateChanged "+newState);
 			if(newState == TransferState.COMPLETED) {
+				//observer.cleanTransferListener();
 				String url_origin = NimConstants.S3_URL+NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
 				sendAdvertisement(Constants.ADV_TYPE_PIC, url_origin, url_origin, im);
 				deleteFile(abspath_origin,s3name_origin);
 			}else if(newState == TransferState.FAILED){
+				//observer.cleanTransferListener();
 				im.setStatus(MsgStatusEnum.fail);
 				SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(null, im);
 				deleteFile(abspath_origin,s3name_origin);
@@ -448,11 +455,12 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		file.delete();
 	}
 
+
+
     private boolean createTmpFile(String temp, Bitmap bitmap, String extension){
         FileOutputStream fOut = null;
         try{
             File tmpfile = new File(temp);
-            tmpfile.delete();
             fOut = new FileOutputStream(tmpfile);
             if(extension.equals("jpg")){
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
@@ -488,7 +496,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		bitmap.recycle();
 		String key = NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
 		TransferObserver observer = S3Util.getTransferUtility(getActivity()).upload(NimConstants.S3_BUCKETNAME,key,file);
-		observer.setTransferListener(new UploadListener(im,abspath_origin,s3name_origin));
+		observer.setTransferListener(new UploadListener(im,abspath_origin,s3name_origin,observer));
 	}
 
 
@@ -592,13 +600,8 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 			
 			String s3name_orig = (String)content.get(NimConstants.S3_ORIG);
 			String url_origin = NimConstants.S3_URL+NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3name_orig;
-			boolean existed = false;
-			if(existed){
-				sendAdvertisement(Constants.ADV_TYPE_PIC, url_origin, null, message);
-			}else{
-				String path = attachment.getPath();
-                uploadAdvertisementOrigin(message,path,s3name_orig);
-			}
+			String path = attachment.getPath();
+			uploadAdvertisementOrigin(message,path,s3name_orig);
 		}else{
 			MsgSession session=SamService.getInstance().getDao().query_MsgSession_db(NimConstants.SESSION_ACCOUNT_ADVERTISEMENT,ModeEnum.SP_MODE.ordinal());
 			if(session != null){

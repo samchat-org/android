@@ -310,12 +310,10 @@ public class NimApplication extends Application {
         @Override
         public UserInfo getUserInfo(String account) {
            UserInfo user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
-	        LogUtil.e("test","info provider: " + account+" user:"+user);
-           if(user ==  null){
-				  user = NimUserInfoCache.getInstance().getUserInfo(account);
-               if(user == null)
-							 	NimUserInfoCache.getInstance().getUserInfoFromRemote(account, null);
+           if(user == null){
+               SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(stringTolong(account));
            }
+	        LogUtil.e("test","info provider: " + account+" user:"+user);
            return user;
         }
 
@@ -336,7 +334,7 @@ public class NimApplication extends Application {
 
         @Override
         public Bitmap getAvatarForMessageNotifier(String account) {
-            UserInfo user = getUserInfo(account);
+            UserInfo user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
             return (user != null) ? ImageLoaderKit.getNotificationBitmapFromCache(user) : null;
         }
 
@@ -344,7 +342,7 @@ public class NimApplication extends Application {
         public String getDisplayNameForMessageNotifier(String account, String sessionId, SessionTypeEnum sessionType) {
             String nick = null;
             if (sessionType == SessionTypeEnum.P2P) {
-					UserInfo user = getUserInfo(account);
+					UserInfo user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
 					nick = (user != null) ? user.getName():null;
             } else if (sessionType == SessionTypeEnum.Team) {
                 nick = TeamDataCache.getInstance().getTeamNick(sessionId, account);

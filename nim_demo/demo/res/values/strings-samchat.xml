@@ -185,5 +185,8 @@
     <string name="samchat_picture">Picture</string>
 
     <string name="samchat_database_error">Database operation failed</string>
+    <string name="samchat_start_crop_window_failed">Start crop window failed</string>
+    <string name="samchat_upload_avatar">Upload Avatar</string>
+    <string name="samchat_upload_failed">Upload failed</string>
 
 </resources>

@@ -82,7 +82,7 @@ public class HeadImageView extends CircleImageView {
 
         // 判断是否需要ImageLoader加载
         final UserInfoProvider.UserInfo userInfo = NimUIKit.getUserInfoProvider().getUserInfo(account);
-		  LogUtil.e("test","loadBuddyAvatar: " + account + "userInfo:"+userInfo);
+		 LogUtil.e("test","loadBuddyAvatar: " + account + "userInfo:"+userInfo+"avatar:"+(userInfo != null ? userInfo.getAvatar():null));
         boolean needLoad = userInfo != null && ImageLoaderKit.isImageUriValid(userInfo.getAvatar());
 
         doLoadImage(needLoad, account, userInfo != null ? userInfo.getAvatar() : null, thumbSize);

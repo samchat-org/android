@@ -698,7 +698,7 @@ public class SamchatChatFragment extends TFragment{
 						}
 						loadedRecentsSP = new ArrayList<RecentContact>();
 						for(RecentContact rc:recents){
-							if(rc.getSessionType() == SessionTypeEnum.P2P){
+							if(rc.getSessionType() == SessionTypeEnum.P2P && !rc.getContactId().equals(NimConstants.SESSION_ACCOUNT_ADVERTISEMENT)){
 								if(isTagSet(rc, RECENT_TAG_SP_ROLE)){
 									loadedRecentsSP.add(rc);
 								}else{
@@ -948,7 +948,7 @@ public class SamchatChatFragment extends TFragment{
 				getActivity().runOnUiThread(new Runnable() {
             		@Override
             		public void run() {
-                	updateSPItems(rc);
+                		updateSPItems(rc);
 						refreshSPMessages(true);
             		}
         		});

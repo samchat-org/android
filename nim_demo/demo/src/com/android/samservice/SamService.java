@@ -45,7 +45,7 @@ public class SamService{
 	public static final String TAG="SamService";
 
 	public static final int SAMSERVICE_RETRY_WAIT=3000;
-	public static final int SAMSERVICE_HANDLE_TIMEOUT=25000;
+	public static final int SAMSERVICE_HANDLE_TIMEOUT=30000;
 
 	public static String sam_cache_path;
 	public static String sam_download_path;
@@ -1201,6 +1201,8 @@ public class SamService{
 			return;
 		}else if(http_ret){
 			if(hcc.ret == 0){
+				set_current_user(hcc.userinfo);
+				SamchatUserInfoCache.getInstance().addUser(hcc.userinfo.getunique_id(), hcc.userinfo);
 				if(dao.update_ContactUser_db(hcc.userinfo) == -1){
 					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
 				}else{
@@ -2161,6 +2163,14 @@ public class SamService{
 						@Override
 						public void run(){
 							do_edit_profile(msgObj);
+						}
+					});
+					break;
+				case MSG_UPDATE_AVATAR:
+					mFixedHttpThreadPool.execute(new Runnable(){
+						@Override
+						public void run(){
+							do_update_avatar(msgObj);
 						}
 					});
 					break;

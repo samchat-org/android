@@ -88,6 +88,7 @@ public class SamchatSettingFragment extends TFragment {
 		broadcastManager = LocalBroadcastManager.getInstance(getActivity());
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Constants.BROADCAST_SWITCH_MODE);
+		filter.addAction(Constants.BROADCAST_MYSELF_AVATAR_UPDATE);
 
 		broadcastReceiver = new BroadcastReceiver() {
 			@Override
@@ -100,6 +101,9 @@ public class SamchatSettingFragment extends TFragment {
 						switchMode(ModeEnum.SP_MODE);
 					}
 					((MainActivity)getActivity()).dimissSwitchProgress();
+				}else if(intent.getAction().equals(Constants.BROADCAST_MYSELF_AVATAR_UPDATE)){
+					customer_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
+					sp_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
 				}
 			}
 		};
@@ -133,6 +137,9 @@ public class SamchatSettingFragment extends TFragment {
 		super.onActivityCreated(savedInstanceState);
 		setupSettingPanel();
 
+		customer_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
+		sp_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
+
 		registerBroadcastReceiver();
 	}
 
@@ -145,6 +152,8 @@ public class SamchatSettingFragment extends TFragment {
 	public void onResume(){
 		super.onResume();
 		updateCreateSPLayout();
+		customer_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
+		sp_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
 	}
 
 	private void updateCreateSPLayout(){
@@ -172,9 +181,6 @@ public class SamchatSettingFragment extends TFragment {
 		sp_avatar= findView(R.id.sp_avatar);
 		sp_profile_layout= findView(R.id.sp_profile_layout);
 		sp_qr_layout= findView(R.id.sp_qr_layout);
-		
-		customer_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
-		sp_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
 
 		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
 			switchMode(ModeEnum.CUSTOMER_MODE);
@@ -191,7 +197,7 @@ public class SamchatSettingFragment extends TFragment {
 		setupCustomerCreateSPClick();
 		setupUpdatePasswordClick();
 		//sp view
-        setupSPProfileClick();
+       setupSPProfileClick();
 		setupSPQRCodeClick();
 	}
 

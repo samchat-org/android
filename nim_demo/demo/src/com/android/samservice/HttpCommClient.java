@@ -84,9 +84,11 @@ public class HttpCommClient {
 
 	public static final String URL_contact="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_contact_contact.do";
 	public static final String URL_synccontact="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_contact_contactListQuery.do";
+	public static final String URL_updateAvatar="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_profile_avatarUpdate.do";
+
 	
-	public static final int CONNECTION_TIMEOUT = 20000;
-	public static final int HTTP_TIMEOUT = 10000;
+	public static final int CONNECTION_TIMEOUT = 10000;
+	public static final int HTTP_TIMEOUT = 20000;
 	
 	public int statusCode;
 	public int ret;
@@ -207,6 +209,18 @@ public class HttpCommClient {
 			return imgFileName;
 		}catch(JSONException e){
 			SamLog.i(TAG,"no thumb avatar for this user");	
+			return null;
+		}
+	}
+
+	private String getThumb(JSONObject user){
+		String imgFileName = null;
+		
+		try{
+			imgFileName = user.getString("thumb");
+			return imgFileName;
+		}catch(JSONException e){
+			SamLog.i(TAG,"no thumb return");	
 			return null;
 		}
 	}
@@ -2021,7 +2035,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructUpdateAvatarJson(uaobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_updateAvatar,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -2035,6 +2049,7 @@ public class HttpCommClient {
 				if(isRetOK()){
 					JSONObject user = obj.getJSONObject("user");
 					userinfo = uaobj.user;
+					userinfo.setavatar(getThumb(user));
 					userinfo.setlastupdate(user.getLong("lastupdate"));
 				}
 				

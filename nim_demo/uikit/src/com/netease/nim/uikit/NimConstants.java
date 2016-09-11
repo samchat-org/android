@@ -47,6 +47,8 @@ public class NimConstants{
 	public static final String S3_FOLDER_ORIGIN = "origin/";
 	public static final String S3_FOLDER_THUMB = "thumb/";
 
+	public static final String S3_PATH_AVATAR = "avatar/";
+
 	public static final String S3_ORIG="s3_orig";
 
 }

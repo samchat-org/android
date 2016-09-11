@@ -337,6 +337,11 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateHidden"/>
+        <activity
+            android:name="me.nereo.multi_image_selector.MultiImageSelectorActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
 
 
 

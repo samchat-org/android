@@ -232,7 +232,11 @@ public class ContactUser implements UserInfoProvider.UserInfo
 
 	@Override
 	public String getAvatar(){
-		return avatar;
+		if(avatar != null){
+			return avatar;
+		}else{
+			return avatar_original;
+		}
 	}
 
 
