@@ -3,10 +3,15 @@ package com.android.samchat.fragment;
 import android.content.Intent;
 import android.os.Bundle;
 
+import com.android.samchat.SamchatGlobal;
 import com.android.samchat.activity.SamchatRcvdAdvertisementActivity;
+import com.android.samchat.service.SamDBManager;
+import com.android.samchat.type.ModeEnum;
 import com.android.samservice.info.FollowedSamPros;
 import com.netease.nim.demo.R;
+import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.demo.main.model.MainTab;
+import com.netease.nim.demo.main.reminder.ReminderManager;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.demo.main.fragment.MainTabFragment;
 import com.android.samchat.callback.SendQuestionCallback;
@@ -49,6 +54,7 @@ public class SamchatPublicListFragment extends MainTabFragment {
 			@Override
 			public void onItemClick(FollowedSamPros fsp){
 				SamchatRcvdAdvertisementActivity.start(getActivity(),  fsp);
+				SamDBManager.getInstance().asyncClearReceivedAdvertisementUnreadCount(fsp.getunique_id());
 			}
 
 			@Override
@@ -60,9 +66,15 @@ public class SamchatPublicListFragment extends MainTabFragment {
 			public void onAdd(){
 
 			}	
+
+			@Override
+           public void onUnreadCountChange(int unreadCount){
+				if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+					ReminderManager.getInstance().updateReceivedAdvertisementUnreadNum(unreadCount);
+				} 
+				((MainActivity)getActivity()).setadvertisement_unread_count_customer(unreadCount);
+			}
 		});
-
-
 	}
 	@Override
 	public void onCurrentTabClicked() {

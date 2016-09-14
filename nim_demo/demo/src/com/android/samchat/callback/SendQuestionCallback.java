@@ -3,12 +3,15 @@ import com.android.samservice.info.SendQuestion;
 
 public interface SendQuestionCallback {
 
-    void onSendQuestionLoaded();
+	void onSendQuestionLoaded();
 
-    void onItemClick(SendQuestion sq);
+	void onItemClick(SendQuestion sq);
 
-    void onDelete(SendQuestion sq);
+	void onDelete(SendQuestion sq);
 
-    void onAdd(SendQuestion sq);
+	void onAdd(SendQuestion sq);
+
+	void onUnreadCountChange(int unreadCount);
+
 }
 

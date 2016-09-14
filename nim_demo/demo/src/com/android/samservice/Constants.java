@@ -169,6 +169,9 @@ public class Constants{
 	public static final int QUESTION_NOT_RESPONSED = 0;
 	public static final int QUESTION_RESPONSED = 1;
 
+	public static final int QUESTION_UNREAD = 0;
+	public static final int QUESTION_READ = 1;
+
 	/****************************Advertisement Type***********************************************/
 	public static final int ADV_TYPE_TEXT = 0;
 	public static final int ADV_TYPE_PIC = 1;

@@ -63,12 +63,16 @@ public class SamDBManager{
 	private List<SamchatObserver<List<SendQuestion>>> SendQuestionAnsweredObservers;
 	//send question unread clear observer: SamchatRequestFragment of customer mode will register
 	private List<SamchatObserver<SendQuestion>> SendQuestionUnreadClearObservers;
+	//received question unread clear observer: SamchatRequestFragment of customer mode will register
+	private List<SamchatObserver<ReceivedQuestion>> ReceivedQuestionUnreadClearObservers;
 	//send adv observer: SamchatPublicFragment of sp mode will register
 	private List<SamchatObserver<IMMessage>> SendAdvertisementObservers;
 	//send adv status update observer: SamchatPublicFragment of sp mode will register
 	private List<SamchatObserver<IMMessage>> SendAdvertisementStatusObservers;
 	//received adv session observer: SamchatPublicFragment of customer mode will register
 	private List<SamchatObserver<RcvdAdvSession>> RcvdAdvSessionObservers;
+	//received adv session unread clear observer: SamchatPublicFragment of customer mode will register
+	private List<SamchatObserver<RcvdAdvSession>> ReceivedAdvertisementUnreadClearObservers;
 	//received adv observer: Advertisement fragment mode will register
 	private List<SamchatObserver<Advertisement>> RcvdAdvObservers;
 	
@@ -92,8 +96,10 @@ public class SamDBManager{
 		ReceivedQuestionObservers = new ArrayList<SamchatObserver<ReceivedQuestion>>();
 		SendQuestionAnsweredObservers = new ArrayList<SamchatObserver<List<SendQuestion>>>();
 		SendQuestionUnreadClearObservers = new ArrayList<SamchatObserver<SendQuestion>>();
+		ReceivedQuestionUnreadClearObservers = new ArrayList<SamchatObserver<ReceivedQuestion>>();
 		SendAdvertisementObservers = new ArrayList<SamchatObserver<IMMessage>>();
 		SendAdvertisementStatusObservers = new ArrayList<SamchatObserver<IMMessage>>();
+		ReceivedAdvertisementUnreadClearObservers = new ArrayList<SamchatObserver<RcvdAdvSession>>();
 
 		RcvdAdvSessionObservers = new ArrayList<SamchatObserver<RcvdAdvSession>>();
 		RcvdAdvObservers = new ArrayList<SamchatObserver<Advertisement>>();
@@ -151,6 +157,13 @@ public class SamDBManager{
 		}
 	}
 
+	//call send question unread clear observer one by one
+	public void callReceivedQuestionUnreadClearObserverCallback(ReceivedQuestion rq){
+		for(SamchatObserver<ReceivedQuestion> observer : ReceivedQuestionUnreadClearObservers){
+			observer.onEvent(rq);
+		}
+	}
+
 	//call send advertisement observer one by one
 	public void callSendAdvertisementObserverCallback(IMMessage im){
 		for(SamchatObserver<IMMessage> observer : SendAdvertisementObservers){
@@ -176,6 +189,12 @@ public class SamDBManager{
 	public void callRcvdAdvObserversObserverCallback(Advertisement adv){
 		for(SamchatObserver<Advertisement> observer : RcvdAdvObservers){
 			observer.onEvent(adv);
+		}
+	}
+	//call received advertisement unread clear observer one by one
+	public void callReceivedAdvertisementUnreadClearObserverCallback(RcvdAdvSession session){
+		for(SamchatObserver<RcvdAdvSession> observer : ReceivedAdvertisementUnreadClearObservers){
+			observer.onEvent(session);
 		}
 	}
 
@@ -228,6 +247,7 @@ public class SamDBManager{
 		session.setrecent_adv_content(adv.getcontent());
 		session.setrecent_adv_publish_timestamp(adv.getpublish_timestamp());
 		session.setrecent_adv_content_thumb(adv.getcontent_thumb());
+		session.setunread(session.getunread()+1);
 	}
 
 
@@ -676,6 +696,20 @@ public class SamDBManager{
 		});		
 	}
 
+	public void asyncReadTotalUnreadAdvertisementCount(final NIMCallback callback){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				List<RcvdAdvSession> sessions = SamService.getInstance().getDao().query_RcvdAdvSession_db_All();
+				int total_unread = 0;
+				for(RcvdAdvSession s:sessions){
+					total_unread = total_unread + s.getunread();
+				}
+				callback.onResult(new Integer(total_unread),null,0);
+			}
+		});	
+	}
+
 	public void asyncReadTotalUnreadCount(final int mode, final NIMCallback callback){
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
@@ -709,6 +743,34 @@ public class SamDBManager{
 					sq.setunread(0);
 					SamService.getInstance().getDao().update_SendQuestion_db(sq);
 					callSendQuestionUnreadClearObserverCallback(sq);
+				}
+			}
+		});	
+	}
+
+	public void asyncClearReceivedQuestionUnreadCount(final long question_id){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				ReceivedQuestion rq = SamService.getInstance().getDao().query_ReceivedQuestion_db_by_question_id(question_id);
+				if(rq!=null){
+					rq.setunread(Constants.QUESTION_READ);
+					SamService.getInstance().getDao().update_ReceivedQuestion_db(rq);
+					callReceivedQuestionUnreadClearObserverCallback(rq);
+				}
+			}
+		});	
+	}
+
+	public void asyncClearReceivedAdvertisementUnreadCount(final long unique_id){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				RcvdAdvSession session = SamService.getInstance().getDao().query_RcvdAdvSession_db(unique_id);
+				if(session!=null){
+					session.setunread(0);
+					SamService.getInstance().getDao().update_RcvdAdvSession_db(session);
+					callRcvdAdvSessionObserversObserverCallback(session);
 				}
 			}
 		});	
@@ -1353,6 +1415,14 @@ public class SamDBManager{
 		}
 	}
 
+	synchronized public void registerReceivedQuestionUnreadClearObserver(SamchatObserver<ReceivedQuestion> observer,boolean register){
+		if(register){
+			ReceivedQuestionUnreadClearObservers.add(observer);
+		}else{
+			ReceivedQuestionUnreadClearObservers.remove(observer);
+		}
+	}
+
 	synchronized public void registerSendAdvertisementObserver(SamchatObserver<IMMessage> observer,boolean register){
 		if(register){
 			SendAdvertisementObservers.add(observer);
@@ -1382,6 +1452,14 @@ public class SamDBManager{
 			RcvdAdvObservers.add(observer);
 		}else{
 			RcvdAdvObservers.remove(observer);
+		}
+	}
+
+	synchronized public void registerReceivedAdvertisementUnreadClearObserver(SamchatObserver<RcvdAdvSession> observer,boolean register){
+		if(register){
+			ReceivedAdvertisementUnreadClearObservers.add(observer);
+		}else{
+			ReceivedAdvertisementUnreadClearObservers.remove(observer);
 		}
 	}
 

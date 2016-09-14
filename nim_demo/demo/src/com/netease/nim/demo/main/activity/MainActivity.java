@@ -28,6 +28,7 @@ import com.netease.nim.demo.contact.activity.AddFriendActivity;
 import com.android.samchat.activity.SamchatLoginActivity;
 import com.netease.nim.demo.login.LogoutHelper;
 import com.netease.nim.demo.main.fragment.HomeFragment;
+import com.netease.nim.demo.main.reminder.ReminderSettings;
 import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nim.demo.team.TeamCreateHelper;
 import com.netease.nim.demo.team.activity.AdvancedTeamSearchActivity;
@@ -120,20 +121,54 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
     private int chat_unread_count_customer = 0;
     private int chat_unread_count_sp = 0;
 
+    private int request_unread_count_customer = 0;
+    private int request_unread_count_sp = 0;
+
+    private int advertisement_unread_count_customer = 0;
+
     public int getchat_unread_count_customer(){
         return chat_unread_count_customer;
     }
 		
     public void setchat_unread_count_customer(int count){
         chat_unread_count_customer = count;
+        updateCustomerUnreadTotalCount();
     }
 
     public int getchat_unread_count_sp(){
-        return chat_unread_count_customer;
+        return chat_unread_count_sp;
     }
 		
     public void setchat_unread_count_sp(int count){
         chat_unread_count_sp = count;
+        updateSpUnreadTotalCount();
+    }
+
+    public int getrequest_unread_count_customer(){
+        return request_unread_count_customer;
+    }
+		
+    public void setrequest_unread_count_customer(int count){
+        request_unread_count_customer = count;
+        updateCustomerUnreadTotalCount();
+    }
+
+    public int getrequest_unread_count_sp(){
+        return request_unread_count_sp;
+    }
+		
+    public void setrequest_unread_count_sp(int count){
+        request_unread_count_sp = count;
+        updateSpUnreadTotalCount();
+    }
+
+     public int getadvertisement_unread_count_customer(){
+        return advertisement_unread_count_customer;
+    }
+		
+    public void setadvertisement_unread_count_customer(int count){
+        advertisement_unread_count_customer = count;
+        updateCustomerUnreadTotalCount();
     }
     /*SAMC_END(unread count for 2 mode)*/
 
@@ -520,9 +555,44 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
 	public void refreshTabUnreadCount(ModeEnum currentMode){
 		if(currentMode == ModeEnum.CUSTOMER_MODE){
+			ReminderManager.getInstance().updateRequestUnreadNum(request_unread_count_customer);
+			ReminderManager.getInstance().updateReceivedAdvertisementUnreadNum(advertisement_unread_count_customer);
 			ReminderManager.getInstance().updateSessionUnreadNum(chat_unread_count_customer);
+			int sp_total_reminder = request_unread_count_sp + chat_unread_count_sp;
+			switch_reminder.setVisibility(sp_total_reminder > 0 ? View.VISIBLE : View.GONE);
+			if (sp_total_reminder > 0) {
+				switch_reminder.setText(String.valueOf(ReminderSettings.unreadMessageShowRule(sp_total_reminder)));
+			}
 		}else{
+			ReminderManager.getInstance().updateRequestUnreadNum(request_unread_count_sp);
+			ReminderManager.getInstance().updateReceivedAdvertisementUnreadNum(0);
 			ReminderManager.getInstance().updateSessionUnreadNum(chat_unread_count_sp);
+			int customer_total_reminder = request_unread_count_customer + advertisement_unread_count_customer+chat_unread_count_customer;
+			switch_reminder.setVisibility(customer_total_reminder > 0 ? View.VISIBLE : View.GONE);
+			if (customer_total_reminder > 0) {
+				switch_reminder.setText(String.valueOf(ReminderSettings.unreadMessageShowRule(customer_total_reminder)));
+			}
+		}
+	}
+
+	private void updateSpUnreadTotalCount(){
+		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+			int sp_total_reminder = request_unread_count_sp + chat_unread_count_sp;
+			switch_reminder.setVisibility(sp_total_reminder > 0 ? View.VISIBLE : View.GONE);
+			if (sp_total_reminder > 0) {
+				switch_reminder.setText(String.valueOf(ReminderSettings.unreadMessageShowRule(sp_total_reminder)));
+			}
+		}
+	}
+
+	
+	private void updateCustomerUnreadTotalCount(){
+		if(SamchatGlobal.getmode() == ModeEnum.SP_MODE){
+			int customer_total_reminder = request_unread_count_customer + advertisement_unread_count_customer+chat_unread_count_customer;
+			switch_reminder.setVisibility(customer_total_reminder > 0 ? View.VISIBLE : View.GONE);
+			if (customer_total_reminder > 0) {
+				switch_reminder.setText(String.valueOf(ReminderSettings.unreadMessageShowRule(customer_total_reminder)));
+			}
 		}
 	}
 

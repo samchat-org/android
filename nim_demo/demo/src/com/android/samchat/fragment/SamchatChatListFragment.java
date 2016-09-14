@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.samchat.SamchatGlobal;
+import com.android.samchat.type.ModeEnum;
 import com.netease.nim.demo.R;
 import com.netease.nim.demo.main.model.MainTab;
 import com.netease.nim.demo.main.reminder.ReminderManager;
@@ -76,26 +79,27 @@ public class SamchatChatListFragment extends MainTabFragment {
         multiportBar.setVisibility(View.GONE);
     }
 
-    private void addSamchatChatFragment() {
-        fragment = new SamchatChatFragment();
-        fragment.setContainerId(R.id.samchat_chat_fragment);
+	private void addSamchatChatFragment() {
+		fragment = new SamchatChatFragment();
+		fragment.setContainerId(R.id.samchat_chat_fragment);
 
-        final UI activity = (UI) getActivity();
+		final UI activity = (UI) getActivity();
 
-        fragment = (SamchatChatFragment) activity.addFragment(fragment);
+		fragment = (SamchatChatFragment) activity.addFragment(fragment);
 
-        fragment.setCallbackCustomer(new RecentContactsCallback() {
-            @Override
-            public void onRecentContactsLoaded() {
+		fragment.setCallbackCustomer(new RecentContactsCallback() {
+			@Override
+			public void onRecentContactsLoaded() {
                 
-            }
+			}
 
-            @Override
-            public void onUnreadCountChange(int unreadCount) {
-                LogUtil.e("test","onUnreadCountChange Customer:" + unreadCount);
-                ReminderManager.getInstance().updateSessionUnreadNum(unreadCount);
-					((MainActivity)getActivity()).setchat_unread_count_customer(unreadCount);
-            }
+			@Override
+			public void onUnreadCountChange(int unreadCount) {
+				if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+					ReminderManager.getInstance().updateSessionUnreadNum(unreadCount);
+				} 
+				((MainActivity)getActivity()).setchat_unread_count_customer(unreadCount);
+			}
 
             @Override
             public void onItemClick(RecentContact recent) {
@@ -145,32 +149,33 @@ public class SamchatChatListFragment extends MainTabFragment {
             }
         });
 
-        fragment.setCallbackSP(new RecentContactsCallback() {
-            @Override
-            public void onRecentContactsLoaded() {
+		fragment.setCallbackSP(new RecentContactsCallback() {
+			@Override
+			public void onRecentContactsLoaded() {
                 
-            }
+			}
 
-            @Override
-            public void onUnreadCountChange(int unreadCount) {
-                LogUtil.e("test","onUnreadCountChange SP:" + unreadCount);
-                ReminderManager.getInstance().updateSessionUnreadNum(unreadCount);
-					((MainActivity)getActivity()).setchat_unread_count_sp(unreadCount);
-            }
+			@Override
+			public void onUnreadCountChange(int unreadCount) {
+				if(SamchatGlobal.getmode() == ModeEnum.SP_MODE){
+					ReminderManager.getInstance().updateSessionUnreadNum(unreadCount);
+				} 
+				((MainActivity)getActivity()).setchat_unread_count_sp(unreadCount);
+			}
 
-            @Override
-            public void onItemClick(RecentContact recent) {
-                switch (recent.getSessionType()) {
-                    case P2P:
-                        SessionHelper.startP2PSession(getActivity(), recent.getContactId());
-                        break;
-                    case Team:
-                        SessionHelper.startTeamSession(getActivity(), recent.getContactId());
-                        break;
-                    default:
-                        break;
-                }
-            }
+			@Override
+			public void onItemClick(RecentContact recent) {
+				switch (recent.getSessionType()) {
+					case P2P:
+						SessionHelper.startP2PSession(getActivity(), recent.getContactId());
+						break;
+					case Team:
+						SessionHelper.startTeamSession(getActivity(), recent.getContactId());
+						break;
+					default:
+						break;
+				}
+			}
 
             @Override
             public String getDigestOfAttachment(MsgAttachment attachment) {

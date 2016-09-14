@@ -37,7 +37,7 @@
             android:layout_width="wrap_content"
             android:layout_height="?attr/actionBarSize"
             android:gravity="center"
-            android:text="@string/samchat_add_service_provider"
+            android:text="@string/samchat_add_customer"
             android:layout_centerInParent="true"
             android:textSize="20sp"/>
 

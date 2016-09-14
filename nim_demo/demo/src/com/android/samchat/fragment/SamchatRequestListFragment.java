@@ -2,12 +2,16 @@ package com.android.samchat.fragment;
 
 import android.os.Bundle;
 
+import com.android.samchat.SamchatGlobal;
 import com.android.samchat.activity.SamchatRequestDetailsActivity;
 import com.android.samchat.service.SamDBManager;
+import com.android.samchat.type.ModeEnum;
 import com.android.samservice.Constants;
 import com.android.samservice.QuestionInfo;
 import com.netease.nim.demo.R;
+import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.demo.main.model.MainTab;
+import com.netease.nim.demo.main.reminder.ReminderManager;
 import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.demo.main.fragment.MainTabFragment;
@@ -66,6 +70,14 @@ public class SamchatRequestListFragment extends MainTabFragment {
 			public void onAdd(SendQuestion sq){
 
 			}
+
+			@Override
+			public void onUnreadCountChange(int unreadCount){
+				if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+					ReminderManager.getInstance().updateRequestUnreadNum(unreadCount);
+				} 
+				((MainActivity)getActivity()).setrequest_unread_count_customer(unreadCount);
+			}
 			
 		});
 
@@ -83,6 +95,10 @@ public class SamchatRequestListFragment extends MainTabFragment {
 				}else{
 					SessionHelper.startP2PSession(getActivity(), ""+rq.getsender_unique_id());
 				}
+
+				if(rq.getunread() == Constants.QUESTION_UNREAD){
+					SamDBManager.getInstance().asyncClearReceivedQuestionUnreadCount(rq.getquestion_id());
+				}
 			}
 
 			@Override
@@ -93,6 +109,14 @@ public class SamchatRequestListFragment extends MainTabFragment {
 			@Override
 			public void onAdd(ReceivedQuestion rq){
 
+			}
+
+			@Override
+			public void onUnreadCountChange(int unreadCount){
+				if(SamchatGlobal.getmode() == ModeEnum.SP_MODE){
+					ReminderManager.getInstance().updateRequestUnreadNum(unreadCount);
+				} 
+				((MainActivity)getActivity()).setrequest_unread_count_sp(unreadCount);
 			}
 		});
 	}

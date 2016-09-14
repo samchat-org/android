@@ -115,6 +115,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 	private FollowedSPAdapter fspAdapter;
 	private boolean followedSPLoaded = false;
 	private CustomerPublicCallback cpcallback;
+	private List<RcvdAdvSession> rcvdSessions;
 	
 	/*sp mode*/
 	//view
@@ -201,6 +202,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		findViews();
 		setupSearchClick();
 		initFollowedSPList();
+		LoadRcvdAdvSessions();
 		LoadFollowedSPs(true);
 
 		spLayoutInit();
@@ -258,8 +260,9 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 	}
 
 	private void initFollowedSPList(){
+		rcvdSessions = new ArrayList<RcvdAdvSession>();
 		followedSPs = new ArrayList<FollowedSamPros>();
-		fspAdapter = new FollowedSPAdapter(getActivity(),followedSPs);
+		fspAdapter = new FollowedSPAdapter(getActivity(),followedSPs,rcvdSessions);
 		customer_public_list.setAdapter(fspAdapter);
 		customer_public_list.setItemsCanFocus(true);
 		customer_public_list.setOnItemClickListener(new AdapterView.OnItemClickListener(){
@@ -320,6 +323,15 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		alertDialog.show();
 	}
 
+	private void LoadRcvdAdvSessions(){
+		List<RcvdAdvSession> loadedRcvdSessions = SamService.getInstance().getDao().query_RcvdAdvSession_db_All();
+		rcvdSessions.clear();
+		if(loadedRcvdSessions != null){
+			rcvdSessions.addAll(loadedRcvdSessions);
+			loadedRcvdSessions = null;
+		}
+	}
+
 	private List<FollowedSamPros> loadedFollowSPs;
 	private void LoadFollowedSPs(boolean delay){
 		if(followedSPLoaded){
@@ -360,6 +372,19 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 	private void refreshFollowedSPsList(){
 		sortFollowedSPs(followedSPs);
 		notifyDataSetChangedFSP();
+
+		SamDBManager.getInstance().asyncReadTotalUnreadAdvertisementCount(new NIMCallback(){
+			@Override
+			public void onResult(Object obj1, Object obj2, int code) {
+				final int unread = (Integer)obj1;
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						cpcallback.onUnreadCountChange(unread);
+					}
+				});
+			}
+		});
 	}
 
 	public void setCpCallback(CustomerPublicCallback callback) {
@@ -380,6 +405,33 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		}
 	};
 
+	private void updateRcvdAdvSessions(RcvdAdvSession session){
+		int index = -1;
+		for(int i = 0; i<rcvdSessions.size();i++){
+			if(session.getsession() == rcvdSessions.get(i).getsession()){
+				index = i;
+				break;
+			}
+		}
+		if(index >= 0){
+			rcvdSessions.remove(index);
+		}
+		rcvdSessions.add(session);
+	}
+
+	private void removeRcvdAdvSessionByID(long session_id){
+		int index = -1;
+		for(int i = 0; i<rcvdSessions.size();i++){
+			if(session_id == rcvdSessions.get(i).getsession()){
+				index = i;
+				break;
+			}
+		}
+		if(index >= 0){
+			rcvdSessions.remove(index);
+		}
+	}
+
 
 /***********************************Observers*****************************************************/
 	private void registerObservers(boolean register) {
@@ -388,10 +440,11 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 
 	SamchatObserver< RcvdAdvSession > rcvdAdvSessionChangedObserver = new SamchatObserver <RcvdAdvSession>(){
 		@Override
-		public void onEvent(RcvdAdvSession session){
+		public void onEvent(final RcvdAdvSession session){
 			getHandler().postDelayed(new Runnable() {
 				@Override
 				public void run() {
+					updateRcvdAdvSessions(session);
 					refreshFollowedSPsList();
 				}
 			}, 0);
@@ -732,7 +785,11 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 					getHandler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
+							HttpCommClient hcc = (HttpCommClient)obj;
 							DialogMaker.dismissProgressDialog();
+							removeRcvdAdvSessionByID(hcc.userinfo.getunique_id());
+							loadedFollowSPs= FollowDataCache.getInstance().getMyFollowSPsList();
+							onFollowedSPsLoaded();
 						}
 					}, 0);
 				}

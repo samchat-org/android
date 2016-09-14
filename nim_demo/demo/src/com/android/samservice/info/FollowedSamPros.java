@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.android.samservice.Constants;
 
 	/*
-	id(primary) | unique_id | username | favourite_tag | block_tag | avatar | service_category
+	id(primary) | unique_id | username | favourite_tag | block_tag | avatar | service_category 
 	*/
 public class FollowedSamPros implements Serializable
 {

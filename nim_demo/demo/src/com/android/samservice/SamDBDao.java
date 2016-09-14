@@ -252,7 +252,8 @@ public class SamDBDao{
 			||!stringEquals(old.getsender_username(),now.getsender_username())
 			||old.getdatetime() != now.getdatetime()
 			||!stringEquals(old.getaddress(),now.getaddress())
-			||!stringEquals(old.getquestion(),now.getquestion())){
+			||!stringEquals(old.getquestion(),now.getquestion())
+			||old.getunread() != now.getunread()){
 			return true;
 		}else{
 			return false;
@@ -552,7 +553,8 @@ public class SamDBDao{
 			|| old.getrecent_adv_type() != now.getrecent_adv_type()
 			|| !stringEquals(old.getrecent_adv_content(),now.getrecent_adv_content())
 			|| !stringEquals(old.getrecent_adv_content_thumb(),now.getrecent_adv_content_thumb())
-			|| old.getrecent_adv_publish_timestamp() != now.getrecent_adv_publish_timestamp()){
+			|| old.getrecent_adv_publish_timestamp() != now.getrecent_adv_publish_timestamp()
+			|| old.getunread() != now.getunread()){
 			return true;
 		}else{
 			return false;
@@ -592,6 +594,22 @@ public class SamDBDao{
 		}
 	}
 
+	public List<RcvdAdvSession> query_RcvdAdvSession_db_All(){
+		synchronized(dbLock_rcvdadv){
+			return dbHandle.queryRcvdAdvSessionAll();
+		}
+	}
+
+	public void delete_RcvdAdvSessionBySession(long session_id){
+		synchronized(dbLock_rcvdadv){
+			RcvdAdvSession session = dbHandle.queryRcvdAdvSessionBySession(session_id);
+			if(session != null){
+				dbHandle.deleteRcvdAdvAll(session.getname());
+				dbHandle.deleteRcvdAdvSession(session_id);
+			}
+		}
+	}
+
 /********************************************Received Adv Table******************************************************************/	
 	public void createRcvdAdvTable(String table){
 		synchronized(dbLock_rcvdadv){
@@ -606,7 +624,7 @@ public class SamDBDao{
 			if(tadv == null){
 				ret = dbHandle.addRcvdAdv(table, adv);
 			}else{
-				ret = tadv.getid();
+				ret = -1;//tadv.getid();
 			}
 		}
 		return ret;

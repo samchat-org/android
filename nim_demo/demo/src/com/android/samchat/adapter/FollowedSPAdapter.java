@@ -30,11 +30,13 @@ public class FollowedSPAdapter extends BaseAdapter{
 	private Context mContext;
 	private LayoutInflater mInflater;
 	private List<FollowedSamPros> items;
+	private List<RcvdAdvSession> sessions;
 
-	public FollowedSPAdapter(Context context,List<FollowedSamPros> list){
+	public FollowedSPAdapter(Context context,List<FollowedSamPros> list,List<RcvdAdvSession> snlist){
 		mContext = context;
 		mInflater = LayoutInflater.from(mContext);
 		items = list;
+		sessions = snlist;
 	}
 	
 	@Override
@@ -64,6 +66,7 @@ public class FollowedSPAdapter extends BaseAdapter{
 			holder.username = (TextView) convertView.findViewById(R.id.username);
 			holder.service_category= (TextView) convertView.findViewById(R.id.service_category);
 			holder.adv_content= (TextView) convertView.findViewById(R.id.adv_content);
+			holder.unread_reminder = (TextView) convertView.findViewById(R.id.unread_reminder);
 
 			convertView.setTag(holder);
 		}else{
@@ -76,14 +79,22 @@ public class FollowedSPAdapter extends BaseAdapter{
 			holder.avatar.loadBuddyAvatar(""+user.getunique_id(), 50);
 			holder.username.setText(user.getusername());
 			holder.service_category.setText(user.getservice_category());
-			RcvdAdvSession session = SamService.getInstance().getDao().query_RcvdAdvSession_db(user.getunique_id());
+			RcvdAdvSession session = findSession(user.getunique_id());
 			if(session != null && session.getrecent_adv_id()!=0){
 				if(session.getrecent_adv_type() == Constants.ADV_TYPE_TEXT){
 					holder.adv_content.setText(session.getrecent_adv_content());
 				}else{
 					holder.adv_content.setText("["+mContext.getString(R.string.samchat_picture)+"]");
 				}
+
+				if(session.getunread() >0){
+					holder.unread_reminder.setVisibility(View.VISIBLE);
+					holder.unread_reminder.setText(unreadCountShowRule(session.getunread()));
+				}else{
+					holder.unread_reminder.setVisibility(View.GONE);
+				}
 			}else{
+				holder.unread_reminder.setVisibility(View.GONE);
 				holder.adv_content.setText("");
 			}
 			break;
@@ -102,11 +113,26 @@ public class FollowedSPAdapter extends BaseAdapter{
 		return items.get(position);
 	}
 
+	private RcvdAdvSession findSession(long unique_id){
+		for(RcvdAdvSession s: sessions){
+			if(s.getsession() == unique_id){
+				return s;
+			}
+		}
+		return null;
+	}
+
+	protected String unreadCountShowRule(int unread) {
+        unread = Math.min(unread, 99);
+        return String.valueOf(unread);
+    }
+
 	public static class ViewHolder{
 		public HeadImageView avatar;
 		public TextView username;
 		public TextView service_category;
 		public TextView adv_content;
+		public TextView unread_reminder;
 	}
 	
 	

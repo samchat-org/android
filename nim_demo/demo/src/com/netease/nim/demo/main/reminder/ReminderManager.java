@@ -50,6 +50,32 @@ public class ReminderManager {
         /*SAMC_END(add samchat reminderId of 5 fragment)*/
     }
 
+    // interface
+    public final void updateRequestUnreadNum(int unreadNum) {
+        /*SAMC_BEGIN(add samchat reminderId of 5 fragment)*/
+        updateUnreadMessageNum(unreadNum, false, ReminderId.SAMCHAT_TAB_REQUEST);
+        /*SAMC_END(add samchat reminderId of 5 fragment)*/
+    }
+
+    public final void updateRequestDeltaUnreadNum(int delta) {
+        /*SAMC_BEGIN(add samchat reminderId of 5 fragment)*/
+       updateUnreadMessageNum(delta, true, ReminderId.SAMCHAT_TAB_REQUEST);
+        /*SAMC_END(add samchat reminderId of 5 fragment)*/
+    }
+
+	// interface
+    public final void updateReceivedAdvertisementUnreadNum(int unreadNum) {
+        /*SAMC_BEGIN(add samchat reminderId of 5 fragment)*/
+        updateUnreadMessageNum(unreadNum, false, ReminderId.SAMCHAT_TAB_PUBLIC);
+        /*SAMC_END(add samchat reminderId of 5 fragment)*/
+    }
+
+    public final void updateReceivedAdvertisementDeltaUnreadNum(int delta) {
+        /*SAMC_BEGIN(add samchat reminderId of 5 fragment)*/
+       updateUnreadMessageNum(delta, true, ReminderId.SAMCHAT_TAB_PUBLIC);
+        /*SAMC_END(add samchat reminderId of 5 fragment)*/
+    }
+
     public final void updateContactUnreadNum(int unreadNum) {
         updateUnreadMessageNum(unreadNum, false, ReminderId.CONTACT);
     }

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.android.samservice.Constants;
 
 	/*
-	id(primary) | question_id | question | sender_unique_id | sender_username | status | datetime | address
+	id(primary) | question_id | question | sender_unique_id | sender_username | status | datetime | address | unread
 	*/
 public class ReceivedQuestion implements Serializable
 {
@@ -17,6 +17,7 @@ public class ReceivedQuestion implements Serializable
 	private int status;
 	private long datetime;
 	private String address;
+	private int unread;
 
 	public ReceivedQuestion(){
 		this.id = 0;
@@ -27,6 +28,7 @@ public class ReceivedQuestion implements Serializable
 		this.status = Constants.QUESTION_NOT_RESPONSED;
 		this.datetime = 0;
 		this.address = null;
+		this.unread = Constants.QUESTION_UNREAD;
 	}
 
 	public ReceivedQuestion(long question_id, long sender_unique_id, String sender_username,String question, long datetime,String address){
@@ -38,6 +40,7 @@ public class ReceivedQuestion implements Serializable
 		this.status = Constants.QUESTION_NOT_RESPONSED;
 		this.datetime = datetime;
 		this.address = address;
+		this.unread = Constants.QUESTION_UNREAD;
 	}
 
 	public String getaddress(){
@@ -94,6 +97,13 @@ public class ReceivedQuestion implements Serializable
 	}
 	public void setdatetime(long datetime){
 		this.datetime = datetime;
+	}
+
+	public int getunread(){
+		return unread;
+	}
+	public void setunread(int unread){
+		this.unread = unread;
 	}
 
 	

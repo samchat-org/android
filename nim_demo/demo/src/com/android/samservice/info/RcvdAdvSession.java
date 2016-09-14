@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.android.samservice.Constants;
 
 	/*
-	id(primary) | session | name |recent_adv_id |recent_adv_type |recent_adv_content |rcent_adv_content_thumb| recent_adv_publish_timestamp
+	id(primary) | session | name |recent_adv_id |recent_adv_type |recent_adv_content |rcent_adv_content_thumb| recent_adv_publish_timestamp | unread
 	*/
 public class RcvdAdvSession implements Serializable
 {
@@ -17,6 +17,7 @@ public class RcvdAdvSession implements Serializable
 	private String recent_adv_content;
 	private String recent_adv_content_thumb;
 	private long recent_adv_publish_timestamp;
+	private int unread;
 
 	public RcvdAdvSession(){
 		this.id = 0;
@@ -27,6 +28,7 @@ public class RcvdAdvSession implements Serializable
 		this.recent_adv_content = null;
 		this.recent_adv_content_thumb = null;
 		this.recent_adv_publish_timestamp = 0;
+		this.unread = 0;
 	}
 
 	public RcvdAdvSession(long session, String name){
@@ -38,6 +40,7 @@ public class RcvdAdvSession implements Serializable
 		this.recent_adv_content = null;
 		this.recent_adv_content_thumb = null;
 		this.recent_adv_publish_timestamp = 0;
+		this.unread = 0;
 	}
 
 	public long getid(){
@@ -94,6 +97,13 @@ public class RcvdAdvSession implements Serializable
 	}
 	public void setrecent_adv_publish_timestamp(long recent_adv_publish_timestamp){
 		this.recent_adv_publish_timestamp = recent_adv_publish_timestamp;
+	}
+
+	public int getunread(){
+		return unread;
+	}
+	public void setunread(int unread){
+		this.unread = unread;
 	}
 	
 }

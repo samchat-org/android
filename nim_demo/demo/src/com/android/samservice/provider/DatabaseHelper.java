@@ -84,7 +84,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	private void createReceivedQuestionTable(SQLiteDatabase db){
 	/*
-	id(primary) | question_id | question | sender_unique_id |sender_username | status | datetime |address
+	id(primary) | question_id | question | sender_unique_id |sender_username | status | datetime |address | unread
 	*/
 		StringBuffer sBuffer = new StringBuffer();
 		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_RECEIVED_QUESTION + "] (");
@@ -95,7 +95,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		sBuffer.append("[sender_username] TEXT ,");
 		sBuffer.append("[status] INTEGER ,");
 		sBuffer.append("[datetime] INTEGER ,");
-		sBuffer.append("[address] TEXT )");
+		sBuffer.append("[address] TEXT ,");
+		sBuffer.append("[unread] INTEGER )" );
 		db.execSQL(sBuffer.toString());
 	}
 
@@ -160,7 +161,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	private void createRcvdAdvSessionTable(SQLiteDatabase db){
 	/*
-	id(primary) | session | name | recent_adv_id |recent_adv_type |recent_adv_content |recent_adv_content_thumb |recent_adv_publish_timestamp
+	id(primary) | session | name | recent_adv_id |recent_adv_type |recent_adv_content |recent_adv_content_thumb |recent_adv_publish_timestamp |unread
 	*/
 		StringBuffer sBuffer = new StringBuffer();
 		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_RCVD_ADV_SESSION + "] (");
@@ -171,7 +172,8 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		sBuffer.append("[recent_adv_type] INTEGER,");
 		sBuffer.append("[recent_adv_content] TEXT,");
 		sBuffer.append("[recent_adv_content_thumb] TEXT,");
-		sBuffer.append("[recent_adv_publish_timestamp] INTEGER )");
+		sBuffer.append("[recent_adv_publish_timestamp] INTEGER,");
+		sBuffer.append("[unread] INTEGER )");
 
 		db.execSQL(sBuffer.toString());
 	}

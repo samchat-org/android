@@ -326,6 +326,13 @@ public class SamchatRequestFragment extends TFragment {
 		}
 		sortSendQuestion(sendquestions);
 		notifyDataSetChangedSQ();
+
+		//refresh unread account
+		int unread = 0;
+		for (SendQuestion sq  : sendquestions) {
+			unread += sq.getunread();
+		}
+		sqcallback.onUnreadCountChange(unread);
 	}
 
 	private int findSqHistoryItemId(){
@@ -487,6 +494,14 @@ public class SamchatRequestFragment extends TFragment {
 		int answered = findRqAnsweredItemId();
 		rqadapter.setanswered(answered);
 		notifyDataSetChangedRQ();
+		//refresh unread account
+		int unread = 0;
+		for(ReceivedQuestion rq:rcvdquestions){
+			if(rq.getunread() == Constants.QUESTION_UNREAD){
+				unread += 1;
+			}
+		}
+		rqcallback.onUnreadCountChange(unread);
 	}
 
 	public void setRqCallback(ReceivedQuestionCallback callback) {
@@ -539,6 +554,7 @@ public class SamchatRequestFragment extends TFragment {
 		service.observeMsgStatus(statusObserver, register);
 		SamDBManager.getInstance().registerReceivedQuestionObserver(receviedQuestionObserver,  register);
 		SamDBManager.getInstance().registerSendQuestionUnreadClearObserver(sendQuestionUnreadClearObserver,register);
+		SamDBManager.getInstance().registerReceivedQuestionUnreadClearObserver(receivedQuestionUnreadClearObserver,register);
 	}
 
 	SamchatObserver< ReceivedQuestion> receviedQuestionObserver = new SamchatObserver < ReceivedQuestion >(){
@@ -575,6 +591,19 @@ public class SamchatRequestFragment extends TFragment {
             	public void run() {
 					updateSendQuestionItems(sq);
 					refreshSendQuestionList();
+				}
+			});
+		}
+	};
+
+	SamchatObserver< ReceivedQuestion> receivedQuestionUnreadClearObserver = new SamchatObserver < ReceivedQuestion >(){
+		@Override
+		public void onEvent(final ReceivedQuestion rq){
+			getActivity().runOnUiThread(new Runnable() {
+           	@Override
+            	public void run() {
+					updateReceivedQuestionItems(rq);
+					refreshRcvdQuestionList();
 				}
 			});
 		}

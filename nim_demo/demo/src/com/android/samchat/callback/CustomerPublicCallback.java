@@ -11,4 +11,6 @@ public interface CustomerPublicCallback {
     void onDelete();
 
     void onAdd();
+
+    void onUnreadCountChange(int unreadCount);
 }

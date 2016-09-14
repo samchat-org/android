@@ -164,22 +164,9 @@ public class SamchatChatFragment extends TFragment{
 					if(to == ModeEnum.valueOfType(ModeEnum.CUSTOMER_MODE)){
 						listView_customer.setVisibility(View.VISIBLE);
 						listView_sp.setVisibility(View.GONE);
-						getHandler().postDelayed(new Runnable() {
-							@Override
-							public void run() {
-								refreshCustomerMessages(true);
-							}
-						}, 50);
-						
 					}else{
 						listView_customer.setVisibility(View.GONE);
 						listView_sp.setVisibility(View.VISIBLE);
-						getHandler().postDelayed(new Runnable() {
-							@Override
-							public void run() {
-								refreshSPMessages(true);
-							}
-						}, 50);
 					}
 					((MainActivity)getActivity()).dimissSwitchProgress();
 				}else if(intent.getAction().equals(Constants.BROADCAST_USER_INFO_UPDATE)){
@@ -521,7 +508,7 @@ public class SamchatChatFragment extends TFragment{
         sortRecentContactsCustomer(items_customer);
         notifyDataSetChangedCustomer();
 
-        if (unreadChanged && SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE) {
+        if (unreadChanged) {
             SamDBManager.getInstance().asyncReadTotalUnreadCount(ModeEnum.CUSTOMER_MODE.ordinal(), new NIMCallback() {
                 @Override
                 public void onResult(Object obj1, Object obj2, int code) {
@@ -529,10 +516,6 @@ public class SamchatChatFragment extends TFragment{
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if (SamchatGlobal.getmode() != ModeEnum.CUSTOMER_MODE) {
-                                return;
-                            }
-
                             int other_unread = 0;
                             for (RecentContact r : items_customer) {
                                 if (r.getSessionType() != SessionTypeEnum.P2P) {
@@ -760,7 +743,7 @@ public class SamchatChatFragment extends TFragment{
         sortRecentContactsSP(items_sp);
         notifyDataSetChangedSP();
 
-		 if (unreadChanged && SamchatGlobal.getmode() == ModeEnum.SP_MODE) {
+		 if (unreadChanged) {
              SamDBManager.getInstance().asyncReadTotalUnreadCount(ModeEnum.SP_MODE.ordinal(),new NIMCallback(){
                  @Override
                  public void onResult(Object obj1, Object obj2, int code) {
@@ -768,10 +751,6 @@ public class SamchatChatFragment extends TFragment{
                      getActivity().runOnUiThread(new Runnable() {
                          @Override
                          public void run() {
-                             if(SamchatGlobal.getmode() != ModeEnum.SP_MODE){
-                                 return;
-                             }
-
                              int other_unread = 0;
                              for (RecentContact r : items_sp) {
                                  if(r.getSessionType() != SessionTypeEnum.P2P){

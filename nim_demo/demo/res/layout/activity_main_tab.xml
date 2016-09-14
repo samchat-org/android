@@ -40,14 +40,12 @@
                     android:id="@+id/switch_reminder"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="right"
+                    android:layout_gravity="end"
                     android:gravity="center"
                     android:textColor="#FFFFFF"
-                    android:text="11"
                     android:background="@drawable/nim_g_unread_badge"
-                    android:layout_alignParentTop="true"
-                    android:layout_toRightOf="@id/switch_icon"
-                    android:textSize="12sp"/>
+                    android:textSize="12sp"
+                    android:visibility="gone"/>
             </FrameLayout>
 
             <TextView

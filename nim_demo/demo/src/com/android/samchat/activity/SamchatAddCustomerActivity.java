@@ -151,7 +151,7 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.samchat_addserviceprovider_activity);
+		setContentView(R.layout.samchat_addcustomer_activity);
 
 		ToolBarOptions options = new ToolBarOptions();
 		options.isNeedNavigate = false;

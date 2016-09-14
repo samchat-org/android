@@ -753,6 +753,7 @@ public class SamService{
 
 				}else{
 					dao.delete_FollowList_db_by_unique_id(hcc.userinfo.getunique_id());
+					dao.delete_RcvdAdvSessionBySession(hcc.userinfo.getunique_id());
 					FollowDataCache.getInstance().removeFollowSP(hcc.userinfo.getunique_id());
 					SamDBManager.getInstance().clearUserTable(hcc.userinfo.getunique_id());
 					samobj.callback.onSuccess(hcc,0);

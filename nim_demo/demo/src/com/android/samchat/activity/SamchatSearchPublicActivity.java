@@ -17,15 +17,19 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.samchat.adapter.ContactAdapter;
 import com.android.samchat.adapter.ContactUserAdapter;
+import com.android.samchat.cache.FollowDataCache;
 import com.android.samservice.QuestionInfo;
+import com.android.samservice.TypeEnum;
 import com.android.samservice.info.ContactUser;
 import com.android.samservice.info.SendQuestion;
+import com.karics.library.zxing.android.CaptureActivity;
 import com.netease.nim.demo.DemoCache;
 import com.netease.nim.demo.R;
 import com.netease.nim.demo.config.preference.Preferences;
@@ -79,12 +83,14 @@ import java.util.regex.Matcher;
 import com.android.samservice.HttpCommClient;
 public class SamchatSearchPublicActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatSearchPublicActivity.class.getSimpleName();
+	private static final int REQUEST_CODE_SCAN = 0x0000;
 
 	private FrameLayout back_arrow_layout;
 	private TextView search_textview;
 	private EditText key_edittext;
 	private EditText location_edittext;
 	private ListView searchResultList_listview;
+	private ImageView scan_imageview;
 
 	private String key = null;
 	private String location = null;
@@ -131,15 +137,44 @@ public class SamchatSearchPublicActivity extends UI implements OnKeyListener {
 		super.onDestroy();
 	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
+			if (data != null) {
+				String content = data.getStringExtra("codedContent");
+				long unique_id = transferToUniqueID(content);
+				if(unique_id >0){
+					query_user_precise(unique_id);
+				}else{
+					Toast.makeText(SamchatSearchPublicActivity.this, R.string.samchat_qr_code_invalid, Toast.LENGTH_LONG).show();
+				}
+			}
+		}
+	}
+
+	private long transferToUniqueID(String content){
+		long unique_id = -1;
+		try{
+			unique_id = Long.valueOf(content);
+		}catch(Exception e){
+			LogUtil.i(TAG,"warning: invalid qr code");
+		}finally{
+			return unique_id;
+		}
+	}
+
 	private void setupPanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
 		search_textview = findView(R.id.search);
 		key_edittext = findView(R.id.key);
 		location_edittext = findView(R.id.location);
 		searchResultList_listview = findView(R.id.searchResultList);
+		scan_imageview = findView(R.id.scan);
 
 		setupBackArrowClick();
 		setupSearchClick();
+		setupScanClick();
 		setupKeyEditClick();
 		setupLocationEditClick();
 		setupSearchResultListView();
@@ -197,6 +232,15 @@ public class SamchatSearchPublicActivity extends UI implements OnKeyListener {
 			updateSearch();
 		}
 	};
+
+	private void setupScanClick(){
+		scan_imageview.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				CaptureActivity.startActivityForResult(SamchatSearchPublicActivity.this,REQUEST_CODE_SCAN);
+			}
+		});
+	}
 
 	private void setupKeyEditClick(){
 		key_edittext.addTextChangedListener(key_textWatcher);	
@@ -319,6 +363,70 @@ public class SamchatSearchPublicActivity extends UI implements OnKeyListener {
 
 		} );
 
+	}
+
+	private void query_user_precise(long unique_id){
+		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_processing), false, new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				
+			}
+		}).setCanceledOnTouchOutside(false);
+
+		SamService.getInstance().query_user_precise(TypeEnum.UNIQUE_ID, null, unique_id, null, false, new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					HttpCommClient hcc = (HttpCommClient)obj;
+					DialogMaker.dismissProgressDialog();
+					if(hcc.users.getcount() > 0){
+						if(FollowDataCache.getInstance().getFollowSPByUniqueID(hcc.users.getusers().get(0).getunique_id()) != null){
+							getHandler().postDelayed(new Runnable() {
+								@Override
+								public void run() {
+									Toast.makeText(SamchatSearchPublicActivity.this, R.string.samchat_sp_already_followed, Toast.LENGTH_LONG).show();
+								}
+							}, 0);
+						}else{
+							SamchatContactUserSPNameCardActivity.start(SamchatSearchPublicActivity.this, hcc.users.getusers().get(0));
+						}
+					}else{
+						getHandler().postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								Toast.makeText(SamchatSearchPublicActivity.this, R.string.samchat_qr_code_invalid, Toast.LENGTH_LONG).show();
+							}
+						}, 0);
+					}
+				}
+
+				@Override
+				public void onFailed(final int code) {
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(SamchatSearchPublicActivity.this,code);
+					
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							EasyAlertDialogHelper.showOneButtonDiolag(SamchatSearchPublicActivity.this, null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onError(int code) {
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(SamchatSearchPublicActivity.this,code);
+					
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							EasyAlertDialogHelper.showOneButtonDiolag(SamchatSearchPublicActivity.this, null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+						}
+					}, 0);
+				}
+		});
 	}
 
 }

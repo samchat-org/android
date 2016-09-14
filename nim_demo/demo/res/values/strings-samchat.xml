@@ -199,4 +199,9 @@
     <string name="samchat_favourite">Favourite</string>
     <string name="samchat_unfavourite">UnFavourite</string>
 
+    <string name="samchat_follow_sp_succeed">Follow this service provider successfully</string>
+    <string name="samchat_sp_already_followed">This service provider has been in your follow list</string>
+
+    <string name="samchat_add_customer">Add Client</string>
+
 </resources>
