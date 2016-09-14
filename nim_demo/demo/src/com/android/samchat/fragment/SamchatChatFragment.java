@@ -154,6 +154,7 @@ public class SamchatChatFragment extends TFragment{
 		broadcastManager = LocalBroadcastManager.getInstance(getActivity());
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Constants.BROADCAST_SWITCH_MODE);
+		filter.addAction(Constants.BROADCAST_USER_INFO_UPDATE);
 
 		broadcastReceiver = new BroadcastReceiver() {
 			@Override
@@ -181,6 +182,9 @@ public class SamchatChatFragment extends TFragment{
 						}, 50);
 					}
 					((MainActivity)getActivity()).dimissSwitchProgress();
+				}else if(intent.getAction().equals(Constants.BROADCAST_USER_INFO_UPDATE)){
+					refreshCustomerMessages(false);
+					refreshSPMessages(false);
 				}
 			}
 		};

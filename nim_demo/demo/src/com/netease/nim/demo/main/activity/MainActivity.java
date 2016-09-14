@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.android.samchat.activity.SamchatAddCustomerActivity;
 import com.android.samchat.activity.SamchatAddServiceProviderActivity;
+import com.android.samchat.activity.SamchatMemberSelectActivity;
 import com.android.samchat.receiver.PushReceiver;
 import com.netease.nim.demo.R;
 import com.netease.nim.demo.avchat.AVChatProfile;
@@ -151,8 +152,9 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 break;
             case R.id.create_normal_team:
-                ContactSelectActivity.Option option = TeamHelper.getCreateContactSelectOption(null, 50);
-                NimUIKit.startContactSelect(MainActivity.this, option, REQUEST_CODE_NORMAL);
+                //ContactSelectActivity.Option option = TeamHelper.getCreateContactSelectOption(null, 50);
+                //NimUIKit.startContactSelect(MainActivity.this, option, REQUEST_CODE_NORMAL);
+                SamchatMemberSelectActivity.startActivityForResult(MainActivity.this, new SamchatMemberSelectActivity.Option(1,50,null), REQUEST_CODE_NORMAL);
                 break;
             case R.id.create_regular_team:
                 ContactSelectActivity.Option advancedOption = TeamHelper.getCreateContactSelectOption(null, 50);
@@ -663,6 +665,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 		current_position = pos;
 	}
 
+	public int getCurrentPostition(){
+		return current_position;
+	}
+
 	public void initMode(){
 		SamchatGlobal.setmode(ModeEnum.typeOfValue(Preferences.getMode())); 
 	}
@@ -671,6 +677,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	}
 
 	//NimUIKitInterface
+	public void startMemberSelectActivity(Context context,List<String> selected,int requestCode){
+		SamchatMemberSelectActivity.startActivityForResult(context, new SamchatMemberSelectActivity.Option(1,50, selected), requestCode);
+	}
+	
 	public  int getCurrentMode(){
 		return ModeEnum.valueOfType(SamchatGlobal.getmode());
 	}
@@ -689,6 +699,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
 	public void deleteMessage(String session_id, int mode,IMMessage msg){
 		SamDBManager.getInstance().asyncDeleteMessage(session_id, mode, msg);
+	}
+
+	public void deleteSendAdvertisementMessage(String session_id, int mode,IMMessage msg){
+		SamDBManager.getInstance().asyncDeleteSendAdvertisementMessage( session_id,  mode, msg);
 	}
 
 	public void registerIncomingMsgObserver(SamchatObserver<List<IMMessage>> observer,boolean register){

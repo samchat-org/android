@@ -58,12 +58,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:textColor="@color/color_grey_999999"
             android:textSize="16sp"
             android:text="@string/samchat_my_login_info"/>
         <LinearLayout
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_width="match_parent"
@@ -79,8 +81,21 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:gravity="center"
-                    android:src="@drawable/samchat_write_icon"/>
+                    android:src="@drawable/samchat_phone_icon"/>
             </RelativeLayout>
+            <TextView
+                android:id="@+id/countrycode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:background="@null"
+                android:singleLine="true"
+                android:textSize="18sp"
+                android:textColor="@color/black"/>
             <TextView
                 android:id="@+id/phonenumber"
                 android:layout_width="0dp"
@@ -88,6 +103,7 @@
                 android:layout_weight="1"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="10dp"
+                android:layout_marginEnd="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
@@ -99,6 +115,7 @@
 
         </LinearLayout>
         <LinearLayout
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_width="match_parent"
@@ -114,7 +131,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:gravity="center"
-                    android:src="@drawable/samchat_write_icon"/>
+                    android:src="@drawable/samchat_user_icon"/>
             </RelativeLayout>
             <TextView
                 android:id="@+id/username"
@@ -136,12 +153,14 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:textColor="@color/color_grey_999999"
             android:textSize="16sp"
             android:text="@string/samchat_contact_info"/>
         <LinearLayout
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_width="match_parent"
@@ -157,7 +176,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:gravity="center"
-                    android:src="@drawable/samchat_write_icon"/>
+                    android:src="@drawable/samchat_email_icon"/>
             </RelativeLayout>
             <TextView
                 android:id="@+id/email"
@@ -177,6 +196,7 @@
 
         </LinearLayout>
         <LinearLayout
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_width="match_parent"
@@ -192,7 +212,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:gravity="center"
-                    android:src="@drawable/samchat_write_icon"/>
+                    android:src="@drawable/samchat_location_icon"/>
             </RelativeLayout>
             <TextView
                 android:id="@+id/address"

@@ -124,7 +124,11 @@ public class CountryCodeAdapter extends BaseAdapter{
 
 	@Override
 	public CountryInfo getItem(int position){
-		return items.get(position);
+		if(position < 3){
+			return null;
+		}else{
+			return items.get(position-3);
+		}
 	}
 
 	public int getPositionForSelection(int selection) {

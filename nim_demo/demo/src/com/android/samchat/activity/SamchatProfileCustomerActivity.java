@@ -92,9 +92,11 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 	private static final String TAG = SamchatProfileCustomerActivity.class.getSimpleName();
 	public static final int CONFIRM_ID_AVATAR_SELECTED=200;
 	public static final int CONFIRM_ID_CROP_FINISHED=201;
+	public static final int CONFIRM_ID_SELECT_COUNTRY_CODE = 202;
 
 	private FrameLayout back_arrow_layout;
 	private HeadImageView avatar_headimageview;
+	private TextView countrycode_textview;
 	private TextView phonenumber_textview;
 	private TextView username_textview;
 	private TextView email_textview;
@@ -141,6 +143,7 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 	@Override
 	public void onResume(){
 		super.onResume();
+		updateWithoutAvatar();
 	}
 
 	@Override
@@ -180,7 +183,6 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 					uploadAvatar(getAvatarFilePath());
 					bitmap.recycle();
 				}
-				
 			}
 		}
 	}
@@ -258,7 +260,19 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		}else{
 			avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90);
 		}
-		String phonenumber = "+"+SamService.getInstance().get_current_user().getcountrycode()+" "+SamService.getInstance().get_current_user().getcellphone();
+		String countrycode = "+" + SamService.getInstance().get_current_user().getcountrycode();
+		String phonenumber = SamService.getInstance().get_current_user().getcellphone();
+		countrycode_textview.setText(countrycode);
+		phonenumber_textview.setText(phonenumber);
+		username_textview.setText(SamService.getInstance().get_current_user().getusername());
+		email_textview.setText(SamService.getInstance().get_current_user().getemail());
+		address_textview.setText(SamService.getInstance().get_current_user().getaddress());
+	}
+
+	private void updateWithoutAvatar(){
+		String countrycode = "+" + SamService.getInstance().get_current_user().getcountrycode();
+		String phonenumber = SamService.getInstance().get_current_user().getcellphone();
+		countrycode_textview.setText(countrycode);
 		phonenumber_textview.setText(phonenumber);
 		username_textview.setText(SamService.getInstance().get_current_user().getusername());
 		email_textview.setText(SamService.getInstance().get_current_user().getemail());
@@ -268,6 +282,7 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 	private void setupPanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
 		avatar_headimageview= findView(R.id.avatar);
+		countrycode_textview = findView(R.id.countrycode);
 		phonenumber_textview= findView(R.id.phonenumber);
 		username_textview= findView(R.id.username);
 		email_textview= findView(R.id.email);
@@ -277,6 +292,8 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		setupAvaterClick();
 		setupEmailClick();
 		setupAddressClick();
+		setupCountryCodeClick();
+		setupPhoneNumberClick();
 	}
 	
 	private void setupBackArrowClick(){
@@ -284,6 +301,28 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 			@Override
 			public void onClick(View arg0) {
 				finish();
+			}
+		});
+	}
+
+	private void setupCountryCodeClick(){
+		countrycode_textview.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				SamchatProfileEditActivity.start(SamchatProfileCustomerActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_CUSTOMER_PHONE, 
+					SamService.getInstance().get_current_user().getcountrycode(),
+					SamService.getInstance().get_current_user().getcellphone());
+			}
+		});
+	}
+
+	private void setupPhoneNumberClick(){
+		phonenumber_textview.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				SamchatProfileEditActivity.start(SamchatProfileCustomerActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_CUSTOMER_PHONE, 
+					SamService.getInstance().get_current_user().getcountrycode(),
+					SamService.getInstance().get_current_user().getcellphone());
 			}
 		});
 	}

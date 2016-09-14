@@ -68,11 +68,7 @@ import java.util.HashMap;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 
 public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
-
-    private static final int REQUEST_CODE_FORWARD_PERSON = 0x01;
-    private static final int REQUEST_CODE_FORWARD_TEAM = 0x02;
-
-    // container
+   // container
     private Container container;
     private View rootView;
 
@@ -756,13 +752,6 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
             longClickItemDelete(selectedItem, alertDialog);
             // 4 trans
             longClickItemVoidToText(selectedItem, alertDialog, msgType);
-
-            if (!NimUIKit.getMsgForwardFilter().shouldIgnore(selectedItem) && !recordOnly) {
-                // 5 forward to person
-                longClickItemForwardToPerson(selectedItem, alertDialog);
-                // 6 forward to team
-                longClickItemForwardToTeam(selectedItem, alertDialog);
-            }
         }
 
         // 长按菜单项--重发
@@ -826,7 +815,7 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
             if (recordOnly) {
                 return;
             }
-            alertDialog.addItem(container.activity.getString(R.string.delete_has_blank), new CustomAlertDialog.onSeparateItemClickListener() {
+            alertDialog.addItem(container.activity.getString(R.string.samchat_delete), new CustomAlertDialog.onSeparateItemClickListener() {
 
                 @Override
                 public void onClick() {
@@ -847,12 +836,10 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
             updateReceipt(messages);
             adapter.deleteItem(messageItem);
             /*SAMC_BEGIN(support mode)*/
-            NimUIKit.getCallback().deleteMessage(container.account, container.mode, messageItem);
+            NimUIKit.getCallback().deleteSendAdvertisementMessage(container.account, container.mode, messageItem);
             /*SAMC_END(support mode)*/
         }
 
-
-        // 长按菜单项 -- 音频转文字
         private void longClickItemVoidToText(final IMMessage item, CustomAlertDialog alertDialog, MsgTypeEnum msgType) {
             if (msgType != MsgTypeEnum.audio) return;
 
@@ -872,7 +859,6 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
             });
         }
 
-        // 语音转文字
         private void onVoiceToText(IMMessage item) {
             if (voiceTrans == null)
                 voiceTrans = new VoiceTrans(container.activity);
@@ -884,15 +870,14 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
             }
         }
 
-        // 长按菜单项 -- 听筒扬声器切换
         private void longClickItemEarPhoneMode(CustomAlertDialog alertDialog, MsgTypeEnum msgType) {
             if (msgType != MsgTypeEnum.audio) return;
 
             String content = null;
             if (UserPreferences.isEarPhoneModeEnable()) {
-                content = "切换成扬声器播放";
+                content = container.activity.getString(R.string.samchat_switch_to_speaker);
             } else {
-                content = "切换成听筒播放";
+                content = container.activity.getString(R.string.samchat_switch_to_ear);
             }
             final String finalContent = content;
             alertDialog.addItem(content, new CustomAlertDialog.onSeparateItemClickListener() {
@@ -901,40 +886,6 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
                 public void onClick() {
                     Toast.makeText(container.activity, finalContent, Toast.LENGTH_SHORT).show();
                     setEarPhoneMode(!UserPreferences.isEarPhoneModeEnable());
-                }
-            });
-        }
-
-        // 长按菜单项 -- 转发到个人
-        private void longClickItemForwardToPerson(final IMMessage item, CustomAlertDialog alertDialog) {
-            alertDialog.addItem(container.activity.getString(R.string.forward_to_person), new CustomAlertDialog.onSeparateItemClickListener() {
-
-                @Override
-                public void onClick() {
-                    forwardMessage = item;
-                    ContactSelectActivity.Option option = new ContactSelectActivity.Option();
-                    option.title = "选择转发的人";
-                    option.type = ContactSelectActivity.ContactSelectType.BUDDY;
-                    option.multi = false;
-                    option.maxSelectNum = 1;
-                    NimUIKit.startContactSelect(container.activity, option, REQUEST_CODE_FORWARD_PERSON);
-                }
-            });
-        }
-
-        // 长按菜单项 -- 转发到群组
-        private void longClickItemForwardToTeam(final IMMessage item, CustomAlertDialog alertDialog) {
-            alertDialog.addItem(container.activity.getString(R.string.forward_to_team), new CustomAlertDialog.onSeparateItemClickListener() {
-
-                @Override
-                public void onClick() {
-                    forwardMessage = item;
-                    ContactSelectActivity.Option option = new ContactSelectActivity.Option();
-                    option.title = "选择转发的群";
-                    option.type = ContactSelectActivity.ContactSelectType.TEAM;
-                    option.multi = false;
-                    option.maxSelectNum = 1;
-                    NimUIKit.startContactSelect(container.activity, option, REQUEST_CODE_FORWARD_TEAM);
                 }
             });
         }
@@ -1065,74 +1016,6 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
 
         return true;
     }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode != Activity.RESULT_OK) {
-            return;
-        }
-        final ArrayList<String> selected = data.getStringArrayListExtra(ContactSelectActivity.RESULT_DATA);
-        if (selected != null && !selected.isEmpty()) {
-            switch (requestCode) {
-                case REQUEST_CODE_FORWARD_TEAM:
-                    doForwardMessage(selected.get(0), SessionTypeEnum.Team);
-                    break;
-                case REQUEST_CODE_FORWARD_PERSON:
-                    doForwardMessage(selected.get(0), SessionTypeEnum.P2P);
-                    break;
-            }
-        }
-    }
-
-    // 转发消息
-    private void doForwardMessage(final String sessionId, final SessionTypeEnum sessionTypeEnum) {
-        IMMessage message = MessageBuilder.createForwardMessage(forwardMessage, sessionId, sessionTypeEnum);
-        if (message == null) {
-            Toast.makeText(container.activity, "该类型不支持转发", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if(sessionTypeEnum == SessionTypeEnum.P2P){  
-            /*SAMC_BEGIN(add local and remote tag)*/
-            Map<String, Object> msg_from = new HashMap<>(1);
-            msg_from.put(NimConstants.MSG_FROM,new Integer(container.mode));
-            message.setRemoteExtension(msg_from);
-
-            CustomMessageConfig config = message.getConfig();
-            if(config == null){
-                config = new CustomMessageConfig();
-                config.enableRoaming = false;
-            }else{
-                config.enableRoaming = false;
-            }
-            message.setConfig(config);
-            NimUIKit.getCallback().storeSendMessage(message,new NIMCallback(){
-                @Override
-                public void onResult(Object obj1, Object obj2, int code) {
-                    if(obj1 == null || code !=0){
-                        LogUtil.e("test", "storeMessage failed before send msg, will not send this msg");
-                        return;
-                    }
-                   final IMMessage msg = (IMMessage)obj1;
-                   uiHandler.postDelayed(new Runnable() {
-                       @Override
-                       public void run() {
-                       	// send message to server and save to db
-                        	NIMClient.getService(MsgService.class).sendMessage(msg, false);
-                          if (container.account.equals(sessionId) && container.sessionType == sessionTypeEnum) {
-                              onMsgSend(msg);
-                          }
-                       }
-                    },0);
-                 }
-             });
-             return;
-            /*SAMC_END(add local and remote tag)*/
-        }
-
-        NIMClient.getService(MsgService.class).sendMessage(message, false);
-        if (container.account.equals(sessionId) && container.sessionType == sessionTypeEnum) {
-            onMsgSend(message);
-        }
-    }
+		
 }
 

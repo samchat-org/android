@@ -732,6 +732,11 @@ public class DBManager
 		question_db.delete(table, null, null);
 	}
 
+	public void deleteSendQuestionByID(long question_id){
+		String table = DatabaseHelper.TABLE_NAME_SEND_QUESTION;
+		question_db.delete(table, "question_id=?", new String[]{""+question_id});
+	}
+
 /******************************ReceivedQuestion DB**********************************************/
 	public long addReceivedQuestion(ReceivedQuestion question)
 	{
@@ -868,6 +873,12 @@ public class DBManager
 		String table = DatabaseHelper.TABLE_NAME_RECEIVED_QUESTION;
 		
 		question_db.delete(table, null, null);
+	}
+
+	public void deleteReceivedQuestionByID(long question_id){
+		String table = DatabaseHelper.TABLE_NAME_RECEIVED_QUESTION;
+		
+		question_db.delete(table, "question_id=?", new String[]{""+question_id});
 	}
 
 /******************************Contact List DB**********************************************/

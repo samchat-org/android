@@ -22,10 +22,13 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.android.samchat.activity.SamchatSearchPublicActivity;
 import com.android.samchat.cache.FollowDataCache;
+import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samchat.service.ErrorString;
 import com.android.samchat.service.SamDBManager;
 import com.android.samservice.HttpCommClient;
 import com.android.samservice.SMCallBack;
 import com.android.samservice.info.Advertisement;
+import com.android.samservice.info.ContactUser;
 import com.android.samservice.info.Message;
 import com.android.samservice.info.MsgSession;
 import com.android.samservice.info.RcvdAdvSession;
@@ -63,6 +66,9 @@ import android.content.Intent;
 import com.android.samchat.adapter.FollowedSPAdapter;
 import com.android.samchat.callback.CustomerPublicCallback;
 import com.android.samservice.info.FollowedSamPros;
+import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
+import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
+import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.file.FileUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
@@ -140,6 +146,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Constants.BROADCAST_SWITCH_MODE);
 		filter.addAction(Constants.BROADCAST_FOLLOWEDSP_UPDATE);
+		filter.addAction(Constants.BROADCAST_USER_INFO_UPDATE);
 
 		broadcastReceiver = new BroadcastReceiver() {
 			@Override
@@ -153,6 +160,9 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 					}
 					((MainActivity)getActivity()).dimissSwitchProgress();
 				}else if(intent.getAction().equals(Constants.BROADCAST_FOLLOWEDSP_UPDATE)){
+					loadedFollowSPs= FollowDataCache.getInstance().getMyFollowSPsList();
+					onFollowedSPsLoaded();
+				}else if(intent.getAction().equals(Constants.BROADCAST_USER_INFO_UPDATE)){
 					loadedFollowSPs= FollowDataCache.getInstance().getMyFollowSPsList();
 					onFollowedSPsLoaded();
 				}
@@ -265,10 +275,49 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 
 		customer_public_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                return true;
+				FollowedSamPros fsp = (FollowedSamPros) parent.getAdapter().getItem(position);
+				if(fsp != null){
+					showLongClickMenu((FollowedSamPros) parent.getAdapter().getItem(position));
+				}
+				return true;
 			}
 		});
-		
+	}
+
+	private void showLongClickMenu(final FollowedSamPros fsp) {
+		CustomAlertDialog alertDialog = new CustomAlertDialog(getActivity());
+		String title = getString(R.string.samchat_unfollow);
+		alertDialog.addItem(title, new CustomAlertDialog.onSeparateItemClickListener() {
+			@Override
+			public void onClick() {
+				follow(false,fsp);
+			}
+		});
+
+		title = (fsp.getblock_tag()==Constants.NO_TAG?getString(R.string.samchat_block):getString(R.string.samchat_unblock));
+		alertDialog.addItem(title, new CustomAlertDialog.onSeparateItemClickListener() {
+			@Override
+			public void onClick() {
+                if(fsp.getblock_tag() ==Constants.NO_TAG){
+                    block(true,fsp);
+                }else{
+                    block(false,fsp);
+                }
+			}
+		});
+
+		title = (fsp.getfavourite_tag()==Constants.NO_TAG?getString(R.string.samchat_favourite):getString(R.string.samchat_unfavourite));
+		alertDialog.addItem(title, new CustomAlertDialog.onSeparateItemClickListener() {
+			@Override
+			public void onClick() {
+                if(fsp.getfavourite_tag() ==Constants.NO_TAG){
+                    favourite(true,fsp);
+                }else{
+                    favourite(false,fsp);
+                }
+			}
+		});
+		alertDialog.show();
 	}
 
 	private List<FollowedSamPros> loadedFollowSPs;
@@ -636,7 +685,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
         LogUtil.e("test", "SamchatPublic Fragment  onActivityResult");
 
         inputPanel.onActivityResult(requestCode, resultCode, data);
-        messageListPanel.onActivityResult(requestCode, resultCode, data);
+        //messageListPanel.onActivityResult(requestCode, resultCode, data);
     }
 
 
@@ -668,6 +717,153 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 					LogUtil.e("test", "sendAdvertisement failed");
 				}
 		 });
+	}
+
+	private void follow(boolean follow, FollowedSamPros fsp){
+		ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(fsp.getunique_id());
+		if(user == null){
+			return;
+		}
+		
+		DialogMaker.showProgressDialog(getActivity(), null, getString(R.string.samchat_processing), false, null).setCanceledOnTouchOutside(false);
+		SamService.getInstance().follow(follow, user ,new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onFailed(int code) {
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(getActivity(),code);
+					
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							EasyAlertDialogHelper.showOneButtonDiolag(getActivity(), null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onError(int code) {
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(getActivity(),code);
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							EasyAlertDialogHelper.showOneButtonDiolag(getActivity(), null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+						}
+					}, 0);
+				}
+
+		} );
+
+	}
+
+	
+	private void block(boolean block,FollowedSamPros fsp){
+		ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(fsp.getunique_id());
+		if(user == null){
+			return;
+		}
+		
+		DialogMaker.showProgressDialog(getActivity(), null, getString(R.string.samchat_processing), false, null).setCanceledOnTouchOutside(false);
+		SamService.getInstance().block(block, user ,new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onFailed(int code) {
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(getActivity(),code);
+					
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							EasyAlertDialogHelper.showOneButtonDiolag(getActivity(), null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onError(int code) {
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(getActivity(),code);
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							EasyAlertDialogHelper.showOneButtonDiolag(getActivity(), null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+						}
+					}, 0);
+				}
+
+		} );
+
+	}
+
+	private void favourite(boolean favourite,FollowedSamPros fsp){
+		ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(fsp.getunique_id());
+		if(user == null){
+			return;
+		}
+		
+		DialogMaker.showProgressDialog(getActivity(), null, getString(R.string.samchat_processing), false, null).setCanceledOnTouchOutside(false);
+		SamService.getInstance().favourite(favourite, user ,new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onFailed(int code) {
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(getActivity(),code);
+					
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							EasyAlertDialogHelper.showOneButtonDiolag(getActivity(), null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onError(int code) {
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(getActivity(),code);
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							EasyAlertDialogHelper.showOneButtonDiolag(getActivity(), null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+						}
+					}, 0);
+				}
+		} );
+
 	}
 
 }

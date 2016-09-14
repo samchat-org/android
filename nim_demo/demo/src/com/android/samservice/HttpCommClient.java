@@ -86,6 +86,9 @@ public class HttpCommClient {
 	public static final String URL_synccontact="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_contact_contactListQuery.do";
 	public static final String URL_updateAvatar="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_profile_avatarUpdate.do";
 
+	public static final String URL_queryUserWithoutToken="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_queryWithoutToken.do";
+	public static final String URL_queryGroup="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_queryGroup.do";
+	public static final String URL_deleteAdvertisement="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_advertisement_advertisementDelete.do";
 	
 	public static final int CONNECTION_TIMEOUT = 10000;
 	public static final int HTTP_TIMEOUT = 20000;
@@ -1702,7 +1705,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructQueryUserMultipleJson(qumobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_queryGroup,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -1783,7 +1786,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructQueryUserWithoutTokenJson(quwobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_queryUserWithoutToken,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -2264,7 +2267,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructRemoveContactJson(opobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_contact,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -2579,7 +2582,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructDeleteAdvJson(advobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(URL_deleteAdvertisement,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			

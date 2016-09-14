@@ -3,6 +3,7 @@ package com.android.samchat.adapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.android.samservice.info.Contact;
 import com.netease.nim.demo.R;
 import com.android.samservice.info.SendQuestion;
 import android.widget.BaseAdapter;
@@ -10,32 +11,31 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
-import android.widget.ImageView;
-import com.android.samservice.info.Contact;
-import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
-import android.widget.LinearLayout;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
 
-public class ContactAdapter extends BaseAdapter{
+public class SelectMemberAdapter extends BaseAdapter{
 	static private String TAG = "SamchatContactAdapter";
 	
 	private final int TYPE_CONTACT = 0;
 	private final int TYPE_MAX = TYPE_CONTACT + 1;
 
-	//0: contact list adapter
-	//1: customer list adapter
-	private int type;
 	private Context mContext;
 	private LayoutInflater mInflater;
 	private List<Contact> items;
+	private List<String> selected;
 
-	public ContactAdapter(Context context,List<Contact> list, int t){
+	public SelectMemberAdapter(Context context,List<Contact> list, List<String> s){
 		mContext = context;
 		mInflater = LayoutInflater.from(mContext);
 		items = list;
-		type = t;
+		selected = s;
 	}
 	
 	@Override
@@ -60,18 +60,12 @@ public class ContactAdapter extends BaseAdapter{
 		
 		if(convertView == null){
 			holder = new ViewHolder();
-			if(type == 0){
-				convertView = mInflater.inflate(R.layout.samchat_contact_list_item,parent,false);
-			}else{
-				convertView = mInflater.inflate(R.layout.samchat_customer_list_item,parent,false);
-			}
+			convertView = mInflater.inflate(R.layout.samchat_member_list_item,parent,false);
 			holder.tv_tag = (TextView) convertView.findViewById(R.id.tv_lv_item_tag);
 			holder.avatar= (HeadImageView) convertView.findViewById(R.id.avatar);
 			holder.info_layout = (LinearLayout) convertView.findViewById(R.id.info_layout);
 			holder.username = (TextView) convertView.findViewById(R.id.username);
-			if(type == 0){
-				holder.service_category= (TextView) convertView.findViewById(R.id.service_category);
-			}
+			holder.indicate = (ImageView) convertView.findViewById(R.id.indicate);
 
 			convertView.setTag(holder);
 		}else{
@@ -83,9 +77,6 @@ public class ContactAdapter extends BaseAdapter{
 			Contact user = items.get(position);
 			holder.avatar.loadBuddyAvatar(Long.toString(user.getunique_id()));
 			holder.username.setText(user.getusername());
-			if(type == 0){
-				holder.service_category.setText(user.getservice_category());
-			}
 
 			int selection = user.getFPinYin().charAt(0);
 			int positionForSelection = getPositionForSelection(selection);
@@ -94,6 +85,12 @@ public class ContactAdapter extends BaseAdapter{
 				holder.tv_tag.setText(user.getFPinYin());
 			} else {
 				holder.tv_tag.setVisibility(View.GONE);
+			}
+
+			if(inSelectedMembers(user.getAccount())){
+				holder.indicate.setImageResource((R.drawable.nim_contact_checkbox_checked_green));
+			}else{
+				holder.indicate.setImageResource((R.drawable.nim_contact_checkbox_checked_grey));
 			}
 			
 			break;
@@ -121,7 +118,15 @@ public class ContactAdapter extends BaseAdapter{
 			}
 		}
 		return -1;
+	}
 
+	private boolean inSelectedMembers(String account){
+		for(String id:selected){
+			if(id.equals(account)){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static class ViewHolder{
@@ -129,13 +134,12 @@ public class ContactAdapter extends BaseAdapter{
 		public HeadImageView avatar;
 		public LinearLayout info_layout;
 		public TextView username;
-		public TextView service_category;
+		public ImageView indicate;
 	}
 	
 	
 	
 }
-
 
 
 

@@ -63,18 +63,43 @@
         android:layout_height="1dp"
         android:layout_marginTop="5dp"
         android:background="@color/black"/>
-    <com.netease.nim.uikit.common.ui.widget.ClearableEditTextWithIcon
-        android:id="@+id/edit"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/samchat_green_edit_text_bg"
-        android:inputType="text"
-        android:padding="5dp"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp"
-        android:textColor="@color/color_green_7ed321"
-        android:textColorHint="@color/contact_letter_idx_bg" />
+        android:background="@drawable/samchat_green_edit_text_bg">
+        <TextView
+            android:id="@+id/countrycode"
+            android:layout_width="60dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:textSize="18sp"/>
+        <View
+            android:id="@+id/split"
+            android:layout_width="1px"
+            android:layout_height="40dp"
+            android:layout_toRightOf="@+id/countrycode"
+            android:layout_toEndOf="@+id/countrycode"
+            android:layout_alignBottom="@+id/countrycode"
+            android:background="@color/color_grey_999999"/>
+        <com.netease.nim.uikit.common.ui.widget.ClearableEditTextWithIcon
+            android:id="@+id/edit"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_toRightOf="@+id/split"
+            android:layout_toEndOf="@+id/split"
+            android:layout_alignBottom="@+id/countrycode"
+            android:background="@null"
+            android:layout_gravity="center_vertical"
+            android:inputType="text"
+            android:textSize="18sp"
+            android:padding="5dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:textColor="@color/color_green_7ed321"
+            android:textColorHint="@color/contact_letter_idx_bg" />
+    </RelativeLayout>
+
 </LinearLayout>

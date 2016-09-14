@@ -12,6 +12,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samchat.service.ErrorString;
+import com.android.samservice.SMCallBack;
+import com.android.samservice.info.ContactUser;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import java.util.ArrayList;
@@ -29,6 +33,10 @@ import com.android.samchat.adapter.SendQuestionAdapter;
 import com.android.samchat.SamchatGlobal;
 import java.util.Collections;
 import java.util.Comparator;
+
+import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
+import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
+import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.android.samservice.Constants;
 import android.content.BroadcastReceiver;
@@ -94,6 +102,7 @@ public class SamchatContactFragment extends TFragment {
 		filter.addAction(Constants.BROADCAST_SWITCH_MODE);
 		filter.addAction(Constants.BROADCAST_CONTACTLIST_UPDATE);
 		filter.addAction(Constants.BROADCAST_CUSTOMERLIST_UPDATE);
+		filter.addAction(Constants.BROADCAST_USER_INFO_UPDATE);
 
 		broadcastReceiver = new BroadcastReceiver() {
 			@Override
@@ -114,6 +123,9 @@ public class SamchatContactFragment extends TFragment {
 				}else if(intent.getAction().equals(Constants.BROADCAST_CUSTOMERLIST_UPDATE)){
 					loadedCustomers= new ArrayList<Contact>(CustomerDataCache.getInstance().getMyCustomers());
 					onCustomersLoaded();
+				}else if(intent.getAction().equals(Constants.BROADCAST_USER_INFO_UPDATE)){
+					refreshContactList();
+					refreshCustomerList();
 				}
 			}
 		};
@@ -227,10 +239,25 @@ public class SamchatContactFragment extends TFragment {
 
 		customer_contact_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                return true;
+				Contact ui = (Contact) parent.getAdapter().getItem(position);
+				if(ui != null){
+					showLongClickMenuCustomerContactList(ui);
+				}
+				return true;
 			}
 		});
-		
+	}
+
+	private void showLongClickMenuCustomerContactList(final Contact ui) {
+		CustomAlertDialog alertDialog = new CustomAlertDialog(getActivity());
+		String title = getString(R.string.samchat_delete);
+		alertDialog.addItem(title, new CustomAlertDialog.onSeparateItemClickListener() {
+			@Override
+			public void onClick() {
+				deleteContact(ui,Constants.REMOVE_OUT_CONTACT);
+			}
+		});
+		alertDialog.show();
 	}
 
 	private List<Contact> loadedContacts;
@@ -301,10 +328,26 @@ public class SamchatContactFragment extends TFragment {
 
 		sp_contact_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                return true;
+				Contact ui = (Contact) parent.getAdapter().getItem(position);
+				if(ui != null){
+					showLongClickMenuSpContactList(ui);
+				}
+				return true;
 			}
 		});
 		
+	}
+
+	private void showLongClickMenuSpContactList(final Contact ui) {
+		CustomAlertDialog alertDialog = new CustomAlertDialog(getActivity());
+		String title = getString(R.string.samchat_delete);
+		alertDialog.addItem(title, new CustomAlertDialog.onSeparateItemClickListener() {
+			@Override
+			public void onClick() {
+				deleteContact(ui,Constants.REMOVE_OUT_CUSTOMER);
+			}
+		});
+		alertDialog.show();
 	}
 
 	private List<Contact> loadedCustomers;
@@ -380,7 +423,53 @@ public class SamchatContactFragment extends TFragment {
 
 
 /*************************************Service Provide Mode***************************/
+	private void deleteContact(Contact ui, int type){
+		ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(ui.getunique_id());
+		if(user == null){
+			return;
+		}
+		
+		DialogMaker.showProgressDialog(getActivity(), null, getString(R.string.samchat_processing), false, null).setCanceledOnTouchOutside(false);
+		SamService.getInstance().remove_contact(type, user ,new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+						}
+					}, 0);
+				}
 
+				@Override
+				public void onFailed(int code) {
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(getActivity(),code);
+					
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							EasyAlertDialogHelper.showOneButtonDiolag(getActivity(), null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onError(int code) {
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(getActivity(),code);
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							EasyAlertDialogHelper.showOneButtonDiolag(getActivity(), null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+						}
+					}, 0);
+				}
+		} );
+
+	}
 }
 
 

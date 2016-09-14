@@ -52,6 +52,10 @@ public class ContactDataCache {
 	public void addContact(Long unique_id,Contact user){
         contactMap.put(unique_id,user);
 	}
+
+	public void removeContact(long unique_id){
+		contactMap.remove(unique_id);
+	}
 	
 	static class InstanceHolder {
 		final static ContactDataCache instance = new ContactDataCache();

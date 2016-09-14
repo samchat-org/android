@@ -350,6 +350,7 @@ public class SamService{
 	public void signout(SMCallBack callback ){
 		SignOutCoreObj  samobj = new SignOutCoreObj(callback);
 		samobj.init(get_current_token());
+		samobj.retry_count = 3;
 		LogUtil.e("test","signout token:"+get_current_token());
 		Message msg = mSamServiceHandler.obtainMessage(MSG_SIGN_OUT, samobj);
 		mSamServiceHandler.sendMessage(msg);
@@ -752,7 +753,7 @@ public class SamService{
 
 				}else{
 					dao.delete_FollowList_db_by_unique_id(hcc.userinfo.getunique_id());
-					FollowDataCache.getInstance().addFollowSP(hcc.userinfo.getunique_id(),null);
+					FollowDataCache.getInstance().removeFollowSP(hcc.userinfo.getunique_id());
 					SamDBManager.getInstance().clearUserTable(hcc.userinfo.getunique_id());
 					samobj.callback.onSuccess(hcc,0);
 				}
@@ -808,6 +809,9 @@ public class SamService{
 				FollowedSamPros fsp = FollowDataCache.getInstance().getFollowSPByUniqueID(bcobj.sam_pros.getunique_id());
 				if(fsp != null){
 					fsp.setblock_tag(tag);
+				}else{
+					samobj.callback.onError(Constants.EXCEPTION_ERROR);
+					return;
 				}
 				
 				if(dao.update_FollowList_db_BlockTag(hcc.userinfo.getunique_id(), tag) == -1){
@@ -871,7 +875,10 @@ public class SamService{
 				int tag = fcobj.isFavourite? Constants.TAG : Constants.NO_TAG;
 				FollowedSamPros fsp = FollowDataCache.getInstance().getFollowSPByUniqueID(fcobj.sam_pros.getunique_id());
 				if(fsp != null){
-					fsp.setblock_tag(tag);
+					fsp.setfavourite_tag(tag);
+				}else{
+					samobj.callback.onError(Constants.EXCEPTION_ERROR);
+					return;
 				}
 				
 				if(dao.update_FollowList_db_FavouriteTag(hcc.userinfo.getunique_id(), tag) == -1){
@@ -1143,11 +1150,9 @@ public class SamService{
 			return;
 		}else if(http_ret){
 			if(hcc.ret == 0){
-				if(hcc.userinfo.getcellphone() == null){
-					hcc.userinfo.setcellphone(get_current_user().getcellphone());
-				}
-				if(hcc.userinfo.getcountrycode() == null){
+				if(hcc.userinfo.getcountrycode() == null && hcc.userinfo.getcellphone() == null){
 					hcc.userinfo.setcountrycode(get_current_user().getcountrycode());
+					hcc.userinfo.setcellphone(get_current_user().getcellphone());
 				}
 				set_current_user(hcc.userinfo);
 				SamchatUserInfoCache.getInstance().addUser(hcc.userinfo.getunique_id(), hcc.userinfo);
@@ -1371,10 +1376,10 @@ public class SamService{
 			if(hcc.ret == 0){
 				if(opobj.type == Constants.REMOVE_OUT_CONTACT){
 					dao.delete_ContactList_db_by_unique_id(opobj.user.getunique_id(), false);
-					ContactDataCache.getInstance().addContact(opobj.user.getunique_id(), null);
+					ContactDataCache.getInstance().removeContact(opobj.user.getunique_id());
 				}else{
 					dao.delete_ContactList_db_by_unique_id(opobj.user.getunique_id(), true);
-					CustomerDataCache.getInstance().addCustomer(opobj.user.getunique_id(), null);
+					CustomerDataCache.getInstance().removeCustomer(opobj.user.getunique_id());
 				}
 				samobj.callback.onSuccess(hcc,0);
 

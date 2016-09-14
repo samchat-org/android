@@ -136,7 +136,7 @@ public class SamchatCountryCodeSelectActivity extends UI implements OnKeyListene
 				}else if(position == 2){
 					data.putExtra(Constants.CONFIRM_COUNTRYCODE, "1");
 				}else{
-					data.putExtra(Constants.CONFIRM_COUNTRYCODE, items.get(position).code);
+					data.putExtra(Constants.CONFIRM_COUNTRYCODE, adapter.getItem(position).code);
 				}
 
 				setResult(RESULT_OK, data);

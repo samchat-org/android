@@ -18,9 +18,12 @@ import com.android.samservice.Constants;
 import com.android.samservice.TypeEnum;
 import com.android.samservice.SMCallBack;
 import com.android.samservice.info.MultipleUserProfile;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 
 
 public class SamchatUserInfoCache {
+	public static final String TAG = "SamchatUserInfoCache";
+	
 	public static SamchatUserInfoCache getInstance() {
 		return InstanceHolder.instance;
 	}
@@ -72,7 +75,7 @@ public class SamchatUserInfoCache {
 					MultipleUserProfile users = ((HttpCommClient)obj).users;
 					if(users.getcount() > 0){
 						ContactUser user = users.getusers().get(0);
-						addUser( unique_id,  user);
+						//addUser( unique_id,  user);
 						Intent intent = new Intent();
 						intent.setAction(Constants.BROADCAST_USER_INFO_UPDATE);
 						Bundle bundle = new Bundle();
@@ -84,12 +87,16 @@ public class SamchatUserInfoCache {
 				}
 
 				@Override
-				public void onFailed(int code) {}
+				public void onFailed(int code) {
+					LogUtil.e(TAG,"query user failed:"+unique_id+" code:"+code);
+				}
 
 				@Override
-				public void onError(int code) {}
+				public void onError(int code) {
+					LogUtil.e(TAG,"query user error:"+unique_id+" code:"+code);
+				}
 
-				});
+			});
 	}
 
 	public void addUser(Long unique_id, ContactUser user){

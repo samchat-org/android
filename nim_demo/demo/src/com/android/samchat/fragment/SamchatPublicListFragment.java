@@ -75,6 +75,10 @@ public class SamchatPublicListFragment extends MainTabFragment {
 		LogUtil.e("test", "SamchatPublicListFragment Fragment  onActivityResult");
 		fragment.onActivityResult(requestCode, resultCode, data);
     }
+
+	public boolean onBackPressed() {
+        return fragment.onBackPressed();
+    }
 }
 
 

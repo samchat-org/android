@@ -67,7 +67,7 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 	private static final String KICK_OUT = "KICK_OUT";
 	private final int BASIC_PERMISSION_REQUEST_CODE = 110;
 	
-	public static final int CONFIRM_ID_SELECT_COUNTRY_CODE = 0x100;
+	public static final int CONFIRM_ID_SELECT_COUNTRY_CODE = 200;
 
 	private TextView countrycode_textview;
 	private EditText logininput_edittext;

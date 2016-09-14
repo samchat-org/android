@@ -47,6 +47,10 @@ public class CustomerDataCache {
 	public void addCustomer(Long unique_id,Contact user){
         customerMap.put(unique_id,user);
 	}
+
+	public void removeCustomer(long unique_id){
+		customerMap.remove(unique_id);
+	}
 	
 	static class InstanceHolder {
 		final static CustomerDataCache instance = new CustomerDataCache();

@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
 
+import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.android.samservice.Constants;
 import android.content.BroadcastReceiver;
@@ -99,6 +100,7 @@ public class SamchatRequestFragment extends TFragment {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Constants.BROADCAST_SWITCH_MODE);
 		filter.addAction(Constants.BROADCAST_CUSTOMER_ITEMS_UPDATE);
+		filter.addAction(Constants.BROADCAST_USER_INFO_UPDATE);
 
 		broadcastReceiver = new BroadcastReceiver() {
 			@Override
@@ -132,6 +134,9 @@ public class SamchatRequestFragment extends TFragment {
 						},0);
 					}
 				});
+			}else if(intent.getAction().equals(Constants.BROADCAST_USER_INFO_UPDATE)){
+				refreshRcvdQuestionList();
+				refreshSendQuestionList();
 			}
 		}
 	};
@@ -248,11 +253,28 @@ public class SamchatRequestFragment extends TFragment {
 
 		customer_request_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                return true;
+				SendQuestion sq = (SendQuestion) parent.getAdapter().getItem(position);
+				if(sq!=null){
+					showLongClickMenuSendQuestion(sq);
+				}
+				return true;
 			}
 		});
-		
 	}
+
+	private void showLongClickMenuSendQuestion(final SendQuestion sq) {
+		CustomAlertDialog alertDialog = new CustomAlertDialog(getActivity());
+		String title = getString(R.string.samchat_delete_question);
+		alertDialog.addItem(title, new CustomAlertDialog.onSeparateItemClickListener() {
+			@Override
+			public void onClick() {
+				SamService.getInstance().getDao().delete_SendQuestion_db_by_question_id(sq.getquestion_id());
+				sendquestions.remove(sq);	
+				refreshSendQuestionList();
+			}
+		});
+		alertDialog.show();
+    }
 
 	private List<SendQuestion> loadedSendQuestions;
 	private void LoadSendQuestions(boolean delay){
@@ -383,10 +405,28 @@ public class SamchatRequestFragment extends TFragment {
 
 		sp_request_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                return true;
+				ReceivedQuestion rq = (ReceivedQuestion) parent.getAdapter().getItem(position);
+				if(rq != null){
+					showLongClickMenuReceivedQuestion(rq);
+				}
+				return true;
 			}
 		});
 	}
+
+	private void showLongClickMenuReceivedQuestion(final ReceivedQuestion rq) {
+		CustomAlertDialog alertDialog = new CustomAlertDialog(getActivity());
+		String title = getString(R.string.samchat_delete_question);
+		alertDialog.addItem(title, new CustomAlertDialog.onSeparateItemClickListener() {
+			@Override
+			public void onClick() {
+				SamService.getInstance().getDao().delete_ReceivedQuestion_db_by_question_id(rq.getquestion_id());
+				rcvdquestions.remove(rq);	
+				refreshRcvdQuestionList();
+			}
+		});
+		alertDialog.show();
+    }
 
 	private List<ReceivedQuestion> loadedRcvdQuestions;
 	private void LoadRcvdQuestions(boolean delay){

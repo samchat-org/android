@@ -238,6 +238,12 @@ public class SamDBDao{
 		}
 	}
 
+	public void delete_SendQuestion_db_by_question_id(long question_id){
+		synchronized(dbLock_question){
+            dbHandle.deleteSendQuestionByID(question_id);
+		}
+	}
+
 /********************************************ReceivedQuestion DB******************************************************************/
 	private boolean compareReceivedQuestion(ReceivedQuestion old, ReceivedQuestion now){
 		if(old.getquestion_id() != now.getquestion_id()
@@ -294,6 +300,12 @@ public class SamDBDao{
 	public void delete_ReceivedQuestion_db_All(){
 		synchronized(dbLock_question){
 			dbHandle.deleteReceivedQuestionAll();
+		}
+	}
+
+	public void delete_ReceivedQuestion_db_by_question_id(long question_id){
+		synchronized(dbLock_question){
+			dbHandle.deleteReceivedQuestionByID(question_id);
 		}
 	}
 	

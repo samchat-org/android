@@ -530,7 +530,7 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
      */
     @Override
     public void onAddMember() {
-        ContactSelectActivity.Option option = new ContactSelectActivity.Option();
+        /*ContactSelectActivity.Option option = new ContactSelectActivity.Option();
         option.title = "邀请成员";
         ArrayList<String> disableAccounts = new ArrayList<>();
         disableAccounts.addAll(memberAccounts);
@@ -540,7 +540,11 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
         int capacity = teamCapacity - memberAccounts.size();
         option.maxSelectNum = capacity;
         option.maxSelectedTip = getString(R.string.reach_team_member_capacity, teamCapacity);
-        NimUIKit.startContactSelect(NormalTeamInfoActivity.this, option, REQUEST_CODE_CONTACT_SELECT);
+        NimUIKit.startContactSelect(NormalTeamInfoActivity.this, option, REQUEST_CODE_CONTACT_SELECT);*/
+        
+        /*SAMC_BEGIN(samchat contact select)*/
+        NimUIKit.getCallback().startMemberSelectActivity(NormalTeamInfoActivity.this, memberAccounts, REQUEST_CODE_CONTACT_SELECT);
+        /*SAMC_END(samchat contact select)*/
     }
 
     /**

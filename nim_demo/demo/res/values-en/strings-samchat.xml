@@ -53,6 +53,7 @@
     <string name="samchat_enter_password">Enter your password</string>
     <string name="samchat_signin">SIGN IN</string>
     <string name="samchat_signup">Sign Up</string>
+    <string name="samchat_signout">Sign Out</string>
     <string name="samchat_forgot_pwd">Forgot Password?</string>
     <string name="samchat_reset_password">Reset Password</string>
     <string name="samchat_reseting">Resetting</string>
@@ -183,7 +184,19 @@
     <string name="samchat_save">Save</string>
 
     <string name="samchat_picture">Picture</string>
+
+    <string name="samchat_database_error">Database operation failed</string>
     <string name="samchat_start_crop_window_failed">Start crop window failed</string>
     <string name="samchat_upload_avatar">Upload Avatar</string>
     <string name="samchat_upload_failed">Upload failed</string>
+
+    <string name="samchat_invite">Invite</string>
+    <string name="samchat_phone_illeage">6~15 phone number</string>
+    <string name="samchat_delete_question">Delete this question?</string>
+
+    <string name="samchat_block">Block</string>
+    <string name="samchat_unblock">UnBlock</string>
+    <string name="samchat_favourite">Favourite</string>
+    <string name="samchat_unfavourite">UnFavourite</string>
+
 </resources>

@@ -29,7 +29,7 @@ public class SAMMessageBuilder{
 	public static IMMessage createReceivedQuestionMessage(ReceivedQuestion rq){
 		IMMessage im = MessageBuilder.createTextMessage(""+rq.getsender_unique_id(), SessionTypeEnum.P2P, rq.getquestion());
 		im.setDirect(MsgDirectionEnum.In);
-		im.setFromAccount(rq.getsender_username());
+		im.setFromAccount(""+rq.getsender_unique_id());
 		im.setStatus(MsgStatusEnum.success);
 		Map<String, Object> msg_from = new HashMap<>();
         msg_from.put(NimConstants.MSG_FROM,new Integer(NimConstants.FROM_CUSTOMER));

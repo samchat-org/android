@@ -214,6 +214,7 @@ public class SamDBManager{
 				callReceivedQuestionObserverCallback(rq);
 
 				if(userinfo_need_update){
+					LogUtil.i(TAG,"user info update:"+ui.getAccount());
 					SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(user.getunique_id());
 				}
 				
@@ -882,6 +883,25 @@ public class SamDBManager{
 						LogUtil.e(TAG,"saveMessageToLocal exception:"+exception);
 					}
         		});
+			}
+		});	
+	}
+
+	public void asyncDeleteSendAdvertisementMessage(final String session_id,final int mode,final IMMessage msg){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(session_id,  mode);
+				if(session == null){
+					return;
+				}
+
+				String table = session.getmsg_table_name();
+				Message dbMsg = SamService.getInstance().getDao().query_Message_db_by_uuid( table, msg.getUuid());
+				if(dbMsg != null && dbMsg.getdata_id() != 0){
+					SamService.getInstance().getDao().delete_SamProsAdv_db_by_adv_id(dbMsg.getdata_id());
+				}
+				SamService.getInstance().getDao().delete_Message_db(table, msg.getUuid());
 			}
 		});	
 	}

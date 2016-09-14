@@ -306,12 +306,14 @@ public final class NimUIKit {
         void registerIncomingMsgObserver(SamchatObserver<List<IMMessage>> observer,boolean register);
         void registerSendCustomerMsgObserver(SamchatObserver<IMMessage> observer,boolean register);
         void deleteMessage(String session_id, int mode,IMMessage msg);
+        void deleteSendAdvertisementMessage(String session_id, int mode,IMMessage msg);
         void storeSendCustomerMessage(IMMessage msg,NIMCallback callback);
         void storeRecvCustomerMessage(IMMessage msg, NIMCallback callback);
         void asyncUpdateReceivedQuestionStatusToResponse(long question_id);
         void asyncUpdateReceivedAdvertisementStatusToResponse(long unique_id, long adv_id);
         void registerSendAdvertisementObserver(SamchatObserver<IMMessage> observer,boolean register);
         void registerSendAdvertisementStatusObserver(SamchatObserver<IMMessage> observer,boolean register);
+        void startMemberSelectActivity(Context context,List<String> selected,int requestCode);
     }
 
     static private NimUIKitInterface callback;

@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.android.samchat.activity.SamchatProfileCustomerActivity;
 import com.android.samchat.activity.SamchatProfileServiceProviderActivity;
+import com.android.samservice.SMCallBack;
 import com.karics.library.zxing.android.CaptureActivity;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.uikit.common.fragment.TFragment;
@@ -32,6 +33,8 @@ import com.android.samchat.adapter.SendQuestionAdapter;
 import com.android.samchat.SamchatGlobal;
 import java.util.Collections;
 import java.util.Comparator;
+
+import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.android.samservice.Constants;
 import android.content.BroadcastReceiver;
@@ -51,6 +54,8 @@ import com.netease.nim.demo.DemoCache;
 import android.view.View.OnClickListener;
 import com.android.samchat.activity.SamchatCreateSPStepOneActivity;
 import com.android.samchat.activity.SamchatUpdatePasswordActivity;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.auth.AuthService;
 import com.zbar.scan.ScanCaptureAct;
 import com.android.samchat.activity.SamchatQRCodeActivity;
 /**
@@ -68,6 +73,10 @@ public class SamchatSettingFragment extends TFragment {
 	private HeadImageView sp_avatar;
 	private RelativeLayout sp_profile_layout;
 	private RelativeLayout sp_qr_layout;
+
+	private RelativeLayout signout_layout;
+	private boolean isSignout = false;
+	
 	
 	//observer and broadcast
 	private boolean isBroadcastRegistered = false;
@@ -151,9 +160,11 @@ public class SamchatSettingFragment extends TFragment {
 	@Override
 	public void onResume(){
 		super.onResume();
-		updateCreateSPLayout();
-		customer_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
-		sp_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
+		if(!isSignout){
+			updateCreateSPLayout();
+			customer_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
+			sp_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
+		}
 	}
 
 	private void updateCreateSPLayout(){
@@ -182,6 +193,8 @@ public class SamchatSettingFragment extends TFragment {
 		sp_profile_layout= findView(R.id.sp_profile_layout);
 		sp_qr_layout= findView(R.id.sp_qr_layout);
 
+		signout_layout = findView(R.id.signout_layout);
+
 		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
 			switchMode(ModeEnum.CUSTOMER_MODE);
 		}else{
@@ -199,6 +212,9 @@ public class SamchatSettingFragment extends TFragment {
 		//sp view
        setupSPProfileClick();
 		setupSPQRCodeClick();
+
+		//signout
+		setupSignoutClick();
 	}
 
 /**********************************Profile View*******************************/
@@ -264,14 +280,71 @@ public class SamchatSettingFragment extends TFragment {
 		});
 	}
 
+/**********************************Signout*******************************/
+	private void setupSignoutClick(){
+		signout_layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				isSignout = true;
+				samchatLogout();
+			}
+		});
+	}
+
+
 
 /*******************************************************************************************/
 
 
 
 /**********************************Data Flow Control*********************************************************/
+	private void logout() {
+		removeLoginState();
+		MainActivity.logout(getActivity(), false);
+		NIMClient.getService(AuthService.class).logout();
+		DialogMaker.dismissProgressDialog();
+	}
 
+	private void removeLoginState() {
+		Preferences.saveUserToken("");
+		Preferences.saveUserAccount("");
+	}
+		
+	private void samchatLogout(){
+		DialogMaker.showProgressDialog(getActivity(), null, getString(R.string.samchat_processing), false, null).setCanceledOnTouchOutside(false);
+		SamService.getInstance().signout(new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							logout();
+						}
+					}, 0);
+				}
 
+				@Override
+				public void onFailed(int code) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							logout();
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onError(int code) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							logout();
+						}
+					}, 0);
+				}
+
+		});
+    }
 }
 
 

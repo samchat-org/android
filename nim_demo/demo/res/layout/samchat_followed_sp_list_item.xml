@@ -49,13 +49,5 @@
                 android:textColor="@color/black"
                 android:maxLines="2"/>
         </RelativeLayout>
-        <ImageView
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/samchat_option_button"/>
     </LinearLayout>
 </LinearLayout>

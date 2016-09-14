@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="samchat_delete">Delete</string>
+    <string name="samchat_switch_to_speaker">Switch to speaker louder</string>
+    <string name="samchat_switch_to_ear">Switch to ear phone</string>
+</resources>

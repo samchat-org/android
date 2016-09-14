@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.samchat.activity.SamchatMemberSelectActivity;
 import com.netease.nim.demo.DemoCache;
 import com.netease.nim.demo.R;
 import com.netease.nim.demo.contact.activity.UserProfileActivity;
@@ -145,9 +146,14 @@ public class MessageInfoActivity extends UI {
         ArrayList<String> memberAccounts = new ArrayList<>();
         memberAccounts.add(account);
         LogUtil.e("test","createTeamMsg 1 memberAccounts:"+memberAccounts);
+		 /*
         ContactSelectActivity.Option option = TeamHelper.getCreateContactSelectOption(memberAccounts, 50);
-		  LogUtil.e("test","createTeamMsg 2 memberAccounts:"+memberAccounts);
-        NimUIKit.startContactSelect(this, option, REQUEST_CODE_NORMAL);// 创建群
+		 LogUtil.e("test","createTeamMsg 2 memberAccounts:"+memberAccounts);
+        NimUIKit.startContactSelect(this, option, REQUEST_CODE_NORMAL);*/
+        /*SAMC_BEGIN(samchat team msg)*/
+        SamchatMemberSelectActivity.startActivityForResult(MessageInfoActivity.this,new SamchatMemberSelectActivity.Option(1,50,memberAccounts),REQUEST_CODE_NORMAL);
+		 
+		 /*SAMC_END(samchat team msg)*/
     }
 
     @Override
@@ -155,7 +161,7 @@ public class MessageInfoActivity extends UI {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_CODE_NORMAL) {
-                final ArrayList<String> selected = data.getStringArrayListExtra(ContactSelectActivity.RESULT_DATA);
+                final ArrayList<String> selected = data.getStringArrayListExtra(SamchatMemberSelectActivity.RESULT_DATA);
                 if (selected != null && !selected.isEmpty()) {
                     TeamCreateHelper.createNormalTeam(MessageInfoActivity.this, selected, true, new RequestCallback<Void>() {
                         @Override

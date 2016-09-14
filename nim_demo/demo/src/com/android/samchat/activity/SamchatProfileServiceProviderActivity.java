@@ -99,6 +99,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 	private TextView company_name_textview;
 	private TextView service_category_textview;
 	private TextView service_description_textview;
+	private TextView countrycode_textview;
 	private TextView phonenumber_textview;
 	private TextView email_textview;
 	private TextView address_textview;
@@ -145,6 +146,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 	@Override
 	public void onResume(){
 		super.onResume();
+		updateWithoutAvatar();
 	}
 
 	@Override
@@ -252,7 +254,18 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		}else{
 			avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90);
 		}
-		phonenumber_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode_sp()+" "+SamService.getInstance().get_current_user().getphone_sp());
+		countrycode_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode_sp());
+		phonenumber_textview.setText(SamService.getInstance().get_current_user().getphone_sp());
+		company_name_textview.setText(SamService.getInstance().get_current_user().getcompany_name());
+		service_category_textview.setText(SamService.getInstance().get_current_user().getservice_category());
+		service_description_textview.setText(SamService.getInstance().get_current_user().getservice_description());
+		email_textview.setText(SamService.getInstance().get_current_user().getemail_sp());
+		address_textview.setText(SamService.getInstance().get_current_user().getaddress_sp());
+	}
+
+	private void updateWithoutAvatar(){
+		countrycode_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode_sp());
+		phonenumber_textview.setText(SamService.getInstance().get_current_user().getphone_sp());
 		company_name_textview.setText(SamService.getInstance().get_current_user().getcompany_name());
 		service_category_textview.setText(SamService.getInstance().get_current_user().getservice_category());
 		service_description_textview.setText(SamService.getInstance().get_current_user().getservice_description());
@@ -263,6 +276,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 	private void setupPanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
 		avatar_headimageview= findView(R.id.avatar);
+		countrycode_textview = findView(R.id.countrycode);
 		phonenumber_textview= findView(R.id.phonenumber);
 		company_name_textview = findView(R.id.company_name);
 		service_category_textview = findView(R.id.service_category);
@@ -276,6 +290,9 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		setupServiceDescriptionClick();
 		setupEmailClick();
 		setupAddressClick();
+		setupCountryCodeClick();
+		setupPhoneNumberClick();
+
 	}
 	
 	private void setupBackArrowClick(){
@@ -287,11 +304,34 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		});
 	}
 
+	private void setupCountryCodeClick(){
+		countrycode_textview.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				SamchatProfileEditActivity.start(SamchatProfileServiceProviderActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_SP_PHONE, 
+					SamService.getInstance().get_current_user().getcountrycode_sp(),
+					SamService.getInstance().get_current_user().getphone_sp());
+			}
+		});
+	}
+
+	private void setupPhoneNumberClick(){
+		phonenumber_textview.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				SamchatProfileEditActivity.start(SamchatProfileServiceProviderActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_SP_PHONE, 
+					SamService.getInstance().get_current_user().getcountrycode_sp(),
+					SamService.getInstance().get_current_user().getphone_sp());
+			}
+		});
+	}
+
 	private void setupCompanyNameClick(){
 		company_name_textview.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				SamchatProfileEditActivity.start(SamchatProfileServiceProviderActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_SP_COMPANY_NAME, company_name_textview.getText().toString().trim());
+				SamchatProfileEditActivity.start(SamchatProfileServiceProviderActivity.this, 
+					SamchatProfileEditActivity.EDIT_PROFILE_TYPE_SP_COMPANY_NAME, company_name_textview.getText().toString().trim());
 			}
 		});
 	}
