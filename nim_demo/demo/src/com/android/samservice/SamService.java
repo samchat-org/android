@@ -1647,9 +1647,9 @@ public class SamService{
     }
 
 /***************************************downalod advertisement thum*******************************************************/
-	public void download(String url, SMCallBack callback){
+	public void download(String url, String path, SMCallBack callback){
 		DownloadCoreObj samobj = new DownloadCoreObj(callback);
-		samobj.init(url);
+		samobj.init(url,path);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_DOWNLOAD, samobj);
 		mSamServiceHandler.sendMessage(msg);
 		startTimeOut(samobj);

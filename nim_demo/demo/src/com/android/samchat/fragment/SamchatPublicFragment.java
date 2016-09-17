@@ -23,6 +23,7 @@ import com.amazonaws.services.s3.model.PutObjectResult;
 import com.android.samchat.activity.SamchatSearchPublicActivity;
 import com.android.samchat.cache.FollowDataCache;
 import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samchat.common.SamchatFileNameUtils;
 import com.android.samchat.service.ErrorString;
 import com.android.samchat.service.SamDBManager;
 import com.android.samservice.HttpCommClient;
@@ -55,6 +56,7 @@ import com.android.samchat.SamchatGlobal;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.android.samservice.Constants;
 import android.content.BroadcastReceiver;
@@ -69,6 +71,7 @@ import com.android.samservice.info.FollowedSamPros;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
+import com.netease.nim.uikit.common.util.file.AttachmentStore;
 import com.netease.nim.uikit.common.util.file.FileUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
@@ -91,9 +94,12 @@ import com.netease.nim.uikit.session.sam_message.SamchatObserver;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.msg.MsgService;
+import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
 import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
+import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 
@@ -104,6 +110,7 @@ import android.widget.Toast;
  * Main Fragment in SamchatPublicListFragment
  */
 public class SamchatPublicFragment extends TFragment implements ModuleProxy {
+	public static String TAG="SamchatPublicFragment";
 	/*customer mode*/
 	//view
 	private LinearLayout customer_public_layout;
@@ -131,6 +138,8 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 	private boolean isBroadcastRegistered = false;
 	private BroadcastReceiver broadcastReceiver;
 	private LocalBroadcastManager broadcastManager;
+
+	private Map<String,TransferObserver> S3ObserverMap = new ConcurrentHashMap<>();
 
 	private void switchMode(ModeEnum to){
 		if(to == ModeEnum.SP_MODE){
@@ -457,11 +466,11 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
         List<BaseAction> actions = new ArrayList<>();
         actions.add(new ImageAction());
         actions.add(new VideoAction());
-        actions.add(new LocationAction());
+        /*actions.add(new LocationAction());
 
         if (customization != null && customization.actions != null) {
             actions.addAll(customization.actions);
-        }
+        }*/
         return actions;
     }
 
@@ -493,6 +502,13 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 			}
 		});
 
+		messageListPanel.setOnDeleteMessageListener(new SamchatAdvertisementMessageListPanel.OnDeleteMessageListener(){
+			@Override
+			public void OnDeleteMessage(IMMessage im){
+				releaseTransferObserver(im.getUuid(),true);
+			}
+		});
+
 		
 		inputPanel = new SamchatAdvertisementInputPanel(container, rootView, getActionList());
 		if(customization!=null){
@@ -504,27 +520,41 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
         return true;
     }
 
+	private void releaseTransferObserver(String uuid, boolean cancel){
+		TransferObserver observer = S3ObserverMap.remove(uuid);
+		if(observer != null){
+			if(cancel){
+				S3Util.getTransferUtility(getActivity()).cancel(observer.getId());
+			}
+			observer.cleanTransferListener();
+			S3Util.getTransferUtility(getActivity()).deleteTransferRecord(observer.getId());
+		}
+	}
+
 	private class UploadListener implements TransferListener {
 		private IMMessage im;
 		private String s3name_origin;
 		private String abspath_origin;
 		private TransferObserver observer;
-		public UploadListener(IMMessage im,String abspath_origin, String s3name_origin,TransferObserver observer){
+
+		public UploadListener(IMMessage im,String abspath_origin, String s3name_origin){
 			this.im = im;
 			this.s3name_origin = s3name_origin;
 			this.abspath_origin = abspath_origin;
-			this.observer = observer;
 		}
 
 		// Simply updates the UI list when notified.
 		@Override
 		public void onError(int id, Exception e) {
-			//observer.cleanTransferListener();			
+			releaseTransferObserver(im.getUuid(),false);
+			im.setStatus(MsgStatusEnum.fail);
+			SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(null, im);
+			AttachmentStore.deleteOnExit(SamchatFileNameUtils.getTempFileName(abspath_origin, s3name_origin));
 		}
 
 		@Override
 		public void onProgressChanged(int id, final long bytesCurrent, final long bytesTotal) {
-			LogUtil.e("test","onProgressChanged "+bytesCurrent+bytesTotal);
+			LogUtil.i(TAG,"onProgressChanged "+bytesCurrent+"/"+bytesTotal);
 			getHandler().postDelayed(new Runnable() {
 				@Override
 				public void run() {
@@ -535,70 +565,52 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 
 		@Override
 		public void onStateChanged(int id, TransferState newState) {
-			LogUtil.e("test","onStateChanged "+newState);
+			LogUtil.e(TAG,"onStateChanged "+newState);
 			if(newState == TransferState.COMPLETED) {
-				//observer.cleanTransferListener();
+				releaseTransferObserver(im.getUuid(),false);
 				String url_origin = NimConstants.S3_URL+NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
-				sendAdvertisement(Constants.ADV_TYPE_PIC, url_origin, url_origin, im);
-				deleteFile(abspath_origin,s3name_origin);
-			}else if(newState == TransferState.FAILED){
-				//observer.cleanTransferListener();
+				if(im.getMsgType() == MsgTypeEnum.image){
+					sendAdvertisement(Constants.ADV_TYPE_PIC, url_origin, null, im);
+					AttachmentStore.deleteOnExit(SamchatFileNameUtils.getTempFileName(abspath_origin, s3name_origin));
+				}else{
+					sendAdvertisement(Constants.ADV_TYPE_VEDIO, url_origin, null, im);
+				}
+			}else if(newState == TransferState.IN_PROGRESS){
+				
+			}else{
+				releaseTransferObserver(im.getUuid(),false);
 				im.setStatus(MsgStatusEnum.fail);
 				SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(null, im);
-				deleteFile(abspath_origin,s3name_origin);
+				AttachmentStore.deleteOnExit(SamchatFileNameUtils.getTempFileName(abspath_origin, s3name_origin));
 			}
 		}
 	}
 
-	private void deleteFile(String abspath_origin, String s3name_origin){
-		String extension = FileUtil.getExtensionName(abspath_origin);
-		String temp = ImageUtil.getTempAdvFilePath(StringUtil.makeMd5(s3name_origin), extension);
-		File file = new File(temp);
-		file.delete();
-	}
-
-
-
-    private boolean createTmpFile(String temp, Bitmap bitmap, String extension){
-        FileOutputStream fOut = null;
-        try{
-            File tmpfile = new File(temp);
-            fOut = new FileOutputStream(tmpfile);
-            if(extension.equals("jpg")){
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
-            }else{
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut);
-            }
-            fOut.flush();
-            return true;
-        }catch(Exception e){
-            e.printStackTrace();
-            return false;
-        }finally{
-            try {
-                if(fOut != null)
-                    fOut.close() ;
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-	private void uploadAdvertisementOrigin(final IMMessage im, final String abspath_origin, final String s3name_origin){
-		Bitmap bitmap = BitmapDecoder.decodeSampled(abspath_origin, Constants.ADV_PIC_MAX, Constants.ADV_PIC_MAX);
-		String extension = FileUtil.getExtensionName(abspath_origin);
-		String temp = ImageUtil.getTempAdvFilePath(StringUtil.makeMd5(s3name_origin), extension);
+	private void uploadAdvertisementOrigin(IMMessage im,String absPath,String s3nameOrig){
+		Bitmap bitmap = null;
 		File file = null;
-		LogUtil.e("test","upload adv temp file path:"+temp);
-		if(createTmpFile(temp,bitmap,extension)){
-			file = new File(temp);
+		if(im.getMsgType() == MsgTypeEnum.image){
+			bitmap = BitmapDecoder.decodeSampled(absPath, Constants.ADV_PIC_MAX, Constants.ADV_PIC_MAX);
+			if(bitmap == null){
+				im.setStatus(MsgStatusEnum.fail);
+				SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(null, im);
+				return;
+			}
+			String temp = SamchatFileNameUtils.getTempFileName( absPath,  s3nameOrig);
+			if(AttachmentStore.saveBitmap(bitmap, temp, true)){
+				file = new File(temp);
+			}else{
+				file = new File(absPath);
+			}
 		}else{
-			file = new File(abspath_origin);
+			file = new File(absPath);
 		}
-		bitmap.recycle();
-		String key = NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
+
+		String key = NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3nameOrig;
 		TransferObserver observer = S3Util.getTransferUtility(getActivity()).upload(NimConstants.S3_BUCKETNAME,key,file);
-		observer.setTransferListener(new UploadListener(im,abspath_origin,s3name_origin,observer));
+		observer.setTransferListener(new UploadListener(im,absPath,s3nameOrig));
+		S3ObserverMap.put(im.getUuid(),observer);
+
 	}
 
 
@@ -609,34 +621,33 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		}
 
 		Map<String, Object> msg_from = new HashMap<>();
-		msg_from.put(NimConstants.MSG_FROM,new Integer(ModeEnum.CUSTOMER_MODE.ordinal()));
+		msg_from.put(NimConstants.MSG_FROM,ModeEnum.CUSTOMER_MODE.ordinal());
 		message.setRemoteExtension(msg_from);
-
 		message.setDirect(MsgDirectionEnum.Out);
 		message.setStatus(MsgStatusEnum.sending);
 
-		ImageAttachment attachment = (ImageAttachment)message.getAttachment();
+		FileAttachment attachment = (FileAttachment)message.getAttachment();
 		if(attachment != null){
-			String s3name_orig = "orig_"+SamService.getInstance().get_current_user().getunique_id()+"_"+ TimeUtil.currentTimeMillis()+"."+FileUtil.getExtensionName(attachment.getPath());
-			Map<String, Object> save_s3_origin = new HashMap<>();
-			save_s3_origin.put(NimConstants.S3_ORIG,s3name_orig);
-			message.setLocalExtension(save_s3_origin);
+			String s3nameOrig = SamchatFileNameUtils.getS3FileNameOfOrigin(attachment.getPath());
+			Map<String, Object> hMap = new HashMap<>();
+			hMap.put(NimConstants.S3_ORIG,s3nameOrig);
+			message.setLocalExtension(hMap);
+			message.setAttachStatus(AttachStatusEnum.transferred);
 		}
 
 		NIMClient.getService(MsgService.class).saveMessageToLocal(message, false).setCallback(new RequestCallback<Void>() {
 			@Override
 			public void onSuccess(Void a) {
 				//send advertisement
-				ImageAttachment attachment = (ImageAttachment)message.getAttachment();
-				if(attachment != null){
-					final String path = attachment.getPath();
-					final String s3name_orig = (String)message.getLocalExtension().get(NimConstants.S3_ORIG);
+				if(message.getAttachment() != null){
 					SamDBManager.getInstance().asyncStoreSendAdvertisementMessage(message, new NIMCallback(){
 						@Override
 						public void onResult(Object obj1, Object obj2, int code) {
 							IMMessage im = (IMMessage)obj1;
 							if(code == 0){
-								uploadAdvertisementOrigin(im,path,s3name_orig);
+								String path = ((FileAttachment)message.getAttachment()).getPath();
+								String s3nameOrig = (String)message.getLocalExtension().get(NimConstants.S3_ORIG);
+								uploadAdvertisementOrigin(im,path,s3nameOrig);
 							}else{
 								NIMClient.getService(MsgService.class).deleteChattingHistory(im);
 								Toast.makeText(getActivity(), getString(R.string.samchat_database_error), Toast.LENGTH_SHORT).show();
@@ -681,37 +692,16 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
     }
 
 	public boolean resendMessage(final IMMessage message) {
-		ImageAttachment attachment = (ImageAttachment)message.getAttachment();
+		FileAttachment attachment = (FileAttachment)message.getAttachment();
 		if(attachment != null){
 			//send picture advertisment
-			MsgSession session=SamService.getInstance().getDao().query_MsgSession_db(NimConstants.SESSION_ACCOUNT_ADVERTISEMENT,ModeEnum.SP_MODE.ordinal());
-			if(session == null){
-				return true;
-			}
-
-			Message msg = SamService.getInstance().getDao().query_Message_db_by_uuid(session.getmsg_table_name(), message.getUuid());
-			if(msg == null || msg.gettype() != NimConstants.MSG_TYPE_SEND_ADV || msg.getdata_id() != 0){
-				return true;
-			}
-
-			//check orig_url existed in S3 or not  first
 			Map<String, Object> content = message.getLocalExtension();
-			if(content == null){
-				return true;
-			}
-			
 			String s3name_orig = (String)content.get(NimConstants.S3_ORIG);
 			String url_origin = NimConstants.S3_URL+NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3name_orig;
 			String path = attachment.getPath();
 			uploadAdvertisementOrigin(message,path,s3name_orig);
 		}else{
-			MsgSession session=SamService.getInstance().getDao().query_MsgSession_db(NimConstants.SESSION_ACCOUNT_ADVERTISEMENT,ModeEnum.SP_MODE.ordinal());
-			if(session != null){
-				Message msg = SamService.getInstance().getDao().query_Message_db_by_uuid(session.getmsg_table_name(), message.getUuid());
-				if(msg != null && msg.gettype() == NimConstants.MSG_TYPE_SEND_ADV && msg.getdata_id() == 0){
-					sendAdvertisement(Constants.ADV_TYPE_TEXT, message.getContent(),null, message);
-				}
-			}
+			sendAdvertisement(Constants.ADV_TYPE_TEXT, message.getContent(),null, message);
 		}
 		return true;
     }

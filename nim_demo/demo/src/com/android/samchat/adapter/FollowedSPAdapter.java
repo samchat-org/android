@@ -83,8 +83,10 @@ public class FollowedSPAdapter extends BaseAdapter{
 			if(session != null && session.getrecent_adv_id()!=0){
 				if(session.getrecent_adv_type() == Constants.ADV_TYPE_TEXT){
 					holder.adv_content.setText(session.getrecent_adv_content());
-				}else{
+				}else if(session.getrecent_adv_type() == Constants.ADV_TYPE_PIC){
 					holder.adv_content.setText("["+mContext.getString(R.string.samchat_picture)+"]");
+				}else{
+					holder.adv_content.setText("["+mContext.getString(R.string.samchat_video)+"]");
 				}
 
 				if(session.getunread() >0){

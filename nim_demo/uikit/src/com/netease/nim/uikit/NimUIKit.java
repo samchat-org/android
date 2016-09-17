@@ -303,6 +303,7 @@ public final class NimUIKit {
         void storeSendMessage(IMMessage msg,NIMCallback callback);
         void clearUnreadCount(String session_id, int mode);
         void queryMessage(String session_id, int mode,IMMessage msg, QueryDirectionEnum direction, int count, NIMCallback callback);
+        void queryMsgSession(String session_id, int mode, NIMCallback callback);
         void registerIncomingMsgObserver(SamchatObserver<List<IMMessage>> observer,boolean register);
         void registerSendCustomerMsgObserver(SamchatObserver<IMMessage> observer,boolean register);
         void deleteMessage(String session_id, int mode,IMMessage msg);

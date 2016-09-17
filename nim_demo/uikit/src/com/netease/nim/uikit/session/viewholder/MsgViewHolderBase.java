@@ -15,6 +15,7 @@ import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.session.module.list.MsgAdapter;
 import com.netease.nimlib.sdk.NIMClient;
@@ -174,6 +175,7 @@ public abstract class MsgViewHolderBase extends TViewHolder {
 
     public void refreshCurrentItem() {
         if (message != null) {
+            LogUtil.e("test","refresh in MsgViewHolderBase");
             refresh(message);
         }
     }

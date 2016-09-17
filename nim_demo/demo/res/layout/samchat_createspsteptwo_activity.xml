@@ -7,7 +7,7 @@
     <LinearLayout
         android:id="@+id/welcome_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="@color/white">
         <RelativeLayout
@@ -34,7 +34,8 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
                     android:src="@drawable/samchat_arrow_left"
-                    android:layout_gravity="center"/>
+                    android:layout_gravity="center"
+                    android:contentDescription="@null"/>
             </FrameLayout>
 
             <TextView
@@ -50,7 +51,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="?attr/actionBarSize"
                 android:layout_centerVertical="true"
-                android:layout_alignParentRight="true">
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_toEndOf="@+id/titlebar_name"
+                android:layout_toRightOf="@+id/titlebar_name">
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -58,7 +62,7 @@
                     android:layout_marginRight="10dp"
                     android:textSize="20sp"
                     android:text="@string/samchat_next2"
-                    android:layout_gravity="center"/>
+                    android:layout_gravity="end|center_vertical"/>
             </FrameLayout>
         </RelativeLayout>
         <View
@@ -87,18 +91,22 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_black_list"/>
+                android:src="@drawable/samchat_phone_icon"
+                android:contentDescription="@null"/>
             <EditText
                 android:id="@+id/cellphone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:maxLength="18"
                 android:maxLines="1"
                 android:background="@null"
-                android:textSize="20sp"/>
+                android:textSize="20sp"
+                android:inputType="phone"/>
         </LinearLayout>
         <LinearLayout
             android:layout_marginTop="20dp"
@@ -115,17 +123,21 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_black_list"/>
+                android:src="@drawable/samchat_email_icon"
+                android:contentDescription="@null"/>
             <EditText
                 android:id="@+id/email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:maxLines="1"
                 android:background="@null"
-                android:textSize="20sp"/>
+                android:textSize="20sp"
+                android:inputType="textEmailAddress"/>
         </LinearLayout>
         <LinearLayout
             android:layout_marginTop="20dp"
@@ -142,17 +154,20 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_black_list"/>
+                android:src="@drawable/samchat_location_icon"/>
             <EditText
                 android:id="@+id/address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
                 android:maxLines="1"
                 android:background="@null"
-                android:textSize="20sp"/>
+                android:textSize="20sp"
+                android:inputType="text"/>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

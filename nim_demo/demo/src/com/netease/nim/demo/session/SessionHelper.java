@@ -169,11 +169,11 @@ public class SessionHelper {
             ArrayList<BaseAction> actions = new ArrayList<>();
             actions.add(new AVChatAction(AVChatType.AUDIO));
             actions.add(new AVChatAction(AVChatType.VIDEO));
-            actions.add(new RTSAction());
-            actions.add(new SnapChatAction());
-            actions.add(new GuessAction());
+            //actions.add(new RTSAction());
+            //actions.add(new SnapChatAction());
+            //actions.add(new GuessAction());
             actions.add(new FileAction());
-            actions.add(new TipAction());
+            //actions.add(new TipAction());
             p2pCustomization.actions = actions;
             p2pCustomization.withSticker = true;
 
@@ -288,9 +288,9 @@ public class SessionHelper {
 
             // 定制加号点开后可以包含的操作， 默认已经有图片，视频等消息了
             ArrayList<BaseAction> actions = new ArrayList<>();
-            actions.add(new GuessAction());
+            //actions.add(new GuessAction());
             actions.add(new FileAction());
-            actions.add(new TipAction());
+            //actions.add(new TipAction());
             teamCustomization.actions = actions;
 
             // 定制ActionBar右边的按钮，可以加多个

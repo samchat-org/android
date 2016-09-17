@@ -16,6 +16,7 @@ import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.session.sam_message.SAMMessage;
 import com.netease.nimlib.sdk.msg.MessageBuilder;
 import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
+import com.netease.nimlib.sdk.msg.attachment.VideoAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
@@ -52,8 +53,10 @@ public class SAMMessageBuilder{
 	public static IMMessage createReceivedAdvertisementMessage(Advertisement adv){
 		if(adv.gettype() == Constants.ADV_TYPE_TEXT)
 			return createReceivedAdvertisementTextMessage(adv);
-		else
+		else if(adv.gettype() == Constants.ADV_TYPE_PIC)
 			return createReceivedAdvertisementImageMessage(adv);
+		else
+			return createReceivedAdvertisementVideoMessage(adv);
 	}
 
 	public static IMMessage createReceivedAdvertisementTextMessage(Advertisement adv){
@@ -79,6 +82,27 @@ public class SAMMessageBuilder{
 		msg_from.put(NimConstants.MSG_FROM,new Integer(NimConstants.FROM_SP));
 		im.setRemoteExtension(msg_from);
 		ImageAttachment attachment = (ImageAttachment)im.getAttachment();
+		
+		attachment.setExtension(extension);
+		attachment.setMd5(StringUtil.makeMd5(adv.getcontent_thumb()));
+		attachment.setUrl(adv.getcontent());
+		attachment.setPath(null);
+		
+		return im;
+	}
+
+	public static IMMessage createReceivedAdvertisementVideoMessage(Advertisement adv){
+		String extension = FileUtil.getExtensionName(adv.getcontent());
+		String MD5Path = Environment.getExternalStorageDirectory() + "/" + DemoCache.getContext().getPackageName() + "/nim/"
+								+ StorageType.TYPE_THUMB_VIDEO.getStoragePath()+"/"+ StringUtil.makeMd5(adv.getcontent());
+		IMMessage im = MessageBuilder.createVideoMessage(""+adv.getsender_unique_id(), SessionTypeEnum.P2P, new File(MD5Path),0,0,0,null);
+		im.setDirect(MsgDirectionEnum.In);
+		im.setFromAccount(""+adv.getsender_unique_id());
+		im.setStatus(MsgStatusEnum.success);
+		Map<String, Object> msg_from = new HashMap<>();
+		msg_from.put(NimConstants.MSG_FROM,new Integer(NimConstants.FROM_SP));
+		im.setRemoteExtension(msg_from);
+		VideoAttachment attachment = (VideoAttachment)im.getAttachment();
 		
 		attachment.setExtension(extension);
 		attachment.setMd5(StringUtil.makeMd5(adv.getcontent_thumb()));

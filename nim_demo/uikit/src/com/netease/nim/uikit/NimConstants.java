@@ -41,8 +41,9 @@ public class NimConstants{
 
 	public static final String SESSION_ACCOUNT_ADVERTISEMENT = "999999";
 
-	public static final String S3_BUCKETNAME = "samchat2";
-	public static final String S3_URL = "https://s3-us-west-2.amazonaws.com/samchat2/";
+	public static final String S3_BUCKETNAME = "samchat-test";
+	//public static final String S3_URL = "https://s3-us-west-2.amazonaws.com/samchat-test/";
+	public static final String S3_URL = "http://samchat-test.s3-website-us-west-2.amazonaws.com/";
 	public static final String S3_PATH_ADV = "advertisement/";
 	public static final String S3_FOLDER_ORIGIN = "origin/";
 	public static final String S3_FOLDER_THUMB = "thumb/";

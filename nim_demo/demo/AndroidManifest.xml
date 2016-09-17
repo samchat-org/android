@@ -172,7 +172,7 @@
             android:name=".main.activity.WelcomeActivity"
             android:configChanges="keyboardHidden|orientation"
             android:hardwareAccelerated="true"
-            android:label="@string/app_name"
+            android:label="@string/samchat_app_name"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/WelcomeEntranceActionBarTheme"
@@ -473,7 +473,7 @@
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait"
             android:theme="@style/global_search_bg"
-            android:windowSoftInputMode="stateUnspecified"></activity>
+            android:windowSoftInputMode="stateUnspecified"/>
 
         <!-- 查看阅后即焚 -->
         <activity

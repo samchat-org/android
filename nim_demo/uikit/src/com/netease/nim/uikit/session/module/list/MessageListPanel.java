@@ -411,10 +411,12 @@ public class MessageListPanel implements TAdapterDelegate {
 
     private void onAttachmentProgressChange(AttachmentProgress progress) {
         int index = getItemIndex(progress.getUuid());
+        LogUtil.e("test","onAttachmentProgressChange is run with index:"+index);
         if (index >= 0 && index < items.size()) {
             IMMessage item = items.get(index);
             float value = (float) progress.getTransferred() / (float) progress.getTotal();
             adapter.putProgress(item, value);
+			  LogUtil.e("test","refreshViewHolderByIndex is run with index:"+index+" value:"+value);
             refreshViewHolderByIndex(index);
         }
     }
@@ -442,6 +444,7 @@ public class MessageListPanel implements TAdapterDelegate {
                 Object tag = ListViewUtil.getViewHolderByIndex(messageListView, index);
                 if (tag instanceof MsgViewHolderBase) {
                     MsgViewHolderBase viewHolder = (MsgViewHolderBase) tag;
+					   LogUtil.e("test","refreshCurrentItem "+viewHolder);
                     viewHolder.refreshCurrentItem();
                 }
             }

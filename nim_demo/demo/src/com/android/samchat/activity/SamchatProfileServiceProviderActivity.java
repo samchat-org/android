@@ -42,6 +42,7 @@ import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.ui.widget.ClearableEditTextWithIcon;
+import com.netease.nim.uikit.common.util.file.AttachmentStore;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.storage.StorageType;
@@ -430,8 +431,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 
 	private void deleteFile(){
 		String path = getAvatarFilePath();
-		File file = new File(path);
-		file.delete();
+		AttachmentStore.deleteOnExit(path);
 	}
 	
 	private void uploadAvatar(String path){

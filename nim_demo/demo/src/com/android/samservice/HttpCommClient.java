@@ -1,9 +1,12 @@
 package com.android.samservice;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -47,48 +50,40 @@ import com.netease.nim.uikit.common.util.log.LogUtil;
 public class HttpCommClient {
 	public static final String TAG="HttpCommClient";
 	
-	public static final String ROOT_URL = "http://139.129.57.77/sw/";
-	public static final String URL = "http://139.129.57.77/sw/api/1.0/UserAPI";
-	public static final String URL_QUESTION = "http://139.129.57.77/sw/api/1.0/QuestionAPI";
-	public static final String PUSH_URL = "http://139.129.57.77/sw/push";
-	public static final String URL_AVATAR = "http://139.129.57.77/sw/api/1.0/UserAvatarAPI";
-	public static final String URL_ATICLE = "http://139.129.57.77/sw/api/1.0/ArticleApi";
-	public static final String URL_HOTTOPIC = "http://139.129.57.77/sw/api_1.0_HotTopicAPI.do";
-	public static final String URL_VENDOR_WEB = "http://139.129.57.77/sw/skservicer/setting/info";
+	public static final String ROOT_URL = "http://ec2-52-40-15-21.us-west-2.compute.amazonaws.com:8081/sam_svr/";
 
+	public static final String URL_registerCodeRequest = ROOT_URL+"api_1.0_user_registerCodeRequest.do";
+	public static final String URL_registerCodeVerify =ROOT_URL+"api_1.0_user_signupCodeVerify.do";
+	public static final String URL_signup=ROOT_URL+"api_1.0_user_register.do";
+	public static final String URL_signin=ROOT_URL+"api_1.0_user_login.do";
+	public static final String URL_signout=ROOT_URL+"api_1.0_user_logout.do";
+	public static final String URL_getappkey=ROOT_URL+"api_1.0_profile_appkeyGet.do";
+	public static final String URL_createsp=ROOT_URL+"api_1.0_user_createSamPros.do";
+	public static final String URL_findpwdCodeRequest=ROOT_URL+"api_1.0_user_findpwdCodeRequest.do";
+	public static final String URL_findpwdCodeVerify=ROOT_URL+"api_1.0_user_findpwdCodeVerify.do";
+	public static final String URL_findpwdUpdate=ROOT_URL+"api_1.0_user_findpwdUpdate.do";
+	public static final String URL_pwdUpdate=ROOT_URL+"api_1.0_user_pwdUpdate.do";
 
-	public static final String URL_registerCodeRequest = "http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_registerCodeRequest.do";
-	public static final String URL_registerCodeVerify = "http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_signupCodeVerify.do";
-	public static final String URL_signup="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_register.do";
-	public static final String URL_signin="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_login.do";
-	public static final String URL_signout="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_logout.do";
-	public static final String URL_getappkey="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_profile_appkeyGet.do";
-	public static final String URL_createsp="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_createSamPros.do";
-	public static final String URL_findpwdCodeRequest="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_findpwdCodeRequest.do";
-	public static final String URL_findpwdCodeVerify="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_findpwdCodeVerify.do";
-	public static final String URL_findpwdUpdate="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_findpwdUpdate.do";
-	public static final String URL_pwdUpdate="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_pwdUpdate.do";
+	public static final String URL_questionSend=ROOT_URL+"api_1.0_question_question.do";
 
-	public static final String URL_questionSend="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_question_question.do";
+	public static final String URL_follow=ROOT_URL+"api_1.0_officialAccount_follow.do";
+	public static final String URL_block=ROOT_URL+"api_1.0_officialAccount_block.do";
+	public static final String URL_favourite=ROOT_URL+"api_1.0_officialAccount_favourite.do";
+	public static final String URL_syncFollowList=ROOT_URL+"api_1.0_officialAccount_followListQuery.do";
+	public static final String URL_queryPublic=ROOT_URL+"api_1.0_officialAccount_publicQuery.do";
+	public static final String URL_queryUserFuzzy=ROOT_URL+"api_1.0_user_queryFuzzy.do";
+	public static final String URL_queryUserPrecise=ROOT_URL+"api_1.0_user_queryAccurate.do";
+	public static final String URL_sendInviteMsg=ROOT_URL+"api_1.0_common_sendInviteMsg.do";
+	public static final String URL_editProfile=ROOT_URL+"api_1.0_profile_profileUpdate.do";
+	public static final String URL_writeAdvertisement=ROOT_URL+"api_1.0_advertisement_advertisementWrite.do";
 
-	public static final String URL_follow="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_officialAccount_follow.do";
-	public static final String URL_block="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_officialAccount_block.do";
-	public static final String URL_favourite="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_officialAccount_favourite.do";
-	public static final String URL_syncFollowList="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_officialAccount_followListQuery.do";
-	public static final String URL_queryPublic="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_officialAccount_publicQuery.do";
-	public static final String URL_queryUserFuzzy="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_queryFuzzy.do";
-	public static final String URL_queryUserPrecise="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_queryAccurate.do";
-	public static final String URL_sendInviteMsg="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_common_sendInviteMsg.do";
-	public static final String URL_editProfile="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_profile_profileUpdate.do";
-	public static final String URL_writeAdvertisement="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_advertisement_advertisementWrite.do";
+	public static final String URL_contact=ROOT_URL+"api_1.0_contact_contact.do";
+	public static final String URL_synccontact=ROOT_URL+"api_1.0_contact_contactListQuery.do";
+	public static final String URL_updateAvatar=ROOT_URL+"api_1.0_profile_avatarUpdate.do";
 
-	public static final String URL_contact="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_contact_contact.do";
-	public static final String URL_synccontact="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_contact_contactListQuery.do";
-	public static final String URL_updateAvatar="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_profile_avatarUpdate.do";
-
-	public static final String URL_queryUserWithoutToken="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_queryWithoutToken.do";
-	public static final String URL_queryGroup="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_user_queryGroup.do";
-	public static final String URL_deleteAdvertisement="http://ec2-54-222-170-218.cn-north-1.compute.amazonaws.com.cn:8081/sam_svr/api_1.0_advertisement_advertisementDelete.do";
+	public static final String URL_queryUserWithoutToken=ROOT_URL+"api_1.0_user_queryWithoutToken.do";
+	public static final String URL_queryGroup=ROOT_URL+"api_1.0_user_queryGroup.do";
+	public static final String URL_deleteAdvertisement=ROOT_URL+"api_1.0_advertisement_advertisementDelete.do";
 	
 	public static final int CONNECTION_TIMEOUT = 10000;
 	public static final int HTTP_TIMEOUT = 20000;
@@ -110,8 +105,6 @@ public class HttpCommClient {
 	public MultipleSyncAdv syncadvs;
 	public long latest_lastupdate;
 	public ReceivedQuestion rq;
-	public byte [] data;
-	
 	
 	HttpCommClient(){
 		statusCode = 0;
@@ -129,7 +122,6 @@ public class HttpCommClient {
 		syncadvs = null;
 		latest_lastupdate = 0;
 		rq = null;
-		data = null;
 	}
 
 	private HttpResponse httpCmdStart(String url, JSONObject jsonData)throws ClientProtocolException,IOException{
@@ -1256,7 +1248,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructGetPlacesInfoJson(gpiobj);
 
-			HttpResponse response = httpCmdStart(URL,data);
+			HttpResponse response = httpCmdStart(ROOT_URL,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -2624,29 +2616,44 @@ public class HttpCommClient {
 		
 	}
 
-	private byte[] readStream(InputStream inStream) throws Exception{
-        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];   
-        int len = 0;   
-        while( (len=inStream.read(buffer)) != -1){   
-            outStream.write(buffer, 0, len);   
-        }   
-        outStream.close();   
-        inStream.close();   
-        return outStream.toByteArray();   
+	private boolean readStream(InputStream inStream, String path) throws Exception{    	  
+		byte[] buffer = new byte[1024]; 
+		int len = 0; 
+		FileOutputStream fout = null;
+		try {
+			File f = new File(path);
+			if(!f.exists()){
+				f.createNewFile();
+			} 
+			fout = new FileOutputStream(f);
+			while( (len=inStream.read(buffer)) != -1){   
+				fout.write(buffer, 0, len);   
+			}
+			return true;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}finally{
+			if(fout != null){
+				fout.close();
+			}
+			if(inStream != null){
+				inStream.close();   
+			}
+		}
     } 
 
 	public boolean download(com.android.samservice.DownloadCoreObj dlobj){
 		HttpURLConnection conn =null;
 		String path = dlobj.url;
+		String filePath = dlobj.path;
 		try{
-			java.net.URL url = new java.net.URL(path);   
+			URL url = new URL(path);
 			conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("GET");   
 			InputStream inStream = conn.getInputStream();   
 			if(conn.getResponseCode() == HttpURLConnection.HTTP_OK){   
-				data = readStream(inStream); 
-				return true;
+				return readStream(inStream,filePath); 
 			}
 			return false;
 		}catch(Exception e){

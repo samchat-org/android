@@ -107,6 +107,18 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
         listener = resend;
     }
 
+    private OnDeleteMessageListener deleteListener;
+
+    public interface OnDeleteMessageListener {
+		void OnDeleteMessage(IMMessage im);
+	}
+
+    public void setOnDeleteMessageListener (OnDeleteMessageListener delete){
+        deleteListener = delete;
+    }
+
+
+
     public SamchatAdvertisementMessageListPanel(Container container, View rootView) {
         this(container, rootView, null, false, false);
     }
@@ -837,6 +849,7 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
             adapter.deleteItem(messageItem);
             /*SAMC_BEGIN(support mode)*/
             NimUIKit.getCallback().deleteSendAdvertisementMessage(container.account, container.mode, messageItem);
+            deleteListener.OnDeleteMessage(messageItem);
             /*SAMC_END(support mode)*/
         }
 

@@ -3,11 +3,14 @@ package com.android.samservice.provider;
 import com.android.samservice.SamLog;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class DatabaseHelper extends SQLiteOpenHelper
@@ -255,14 +258,44 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			createMsgSessionTable(db);
 		}
 		
-		
-		
-		
 	}
 	
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
+		for(int i=oldVersion+1;i<=newVersion;i++){
+			switch(i){
+				case 2:
+					upgradeDataBaseToVersion2();
+				break;
+				
+				case 3:
+					upgradeDataBaseToVersion3();
+				break;
+				
+				default:
+
+				break;
+			}
+		}
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db)
+    {
+        super.onOpen(db);
+    }
+
+
+	@Override
+	public void onDowngrade (SQLiteDatabase db, int oldVersion, int newVersion) {
+		downgradeDataBase(db);
+	}
+
+	private void upgradeDataBaseToVersion2(){}
+	private void upgradeDataBaseToVersion3(){}
+
+	private void downgradeDataBase(SQLiteDatabase db){
 		if(dbname.equals(DBManager.USERINFO_DB_NAME)){
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CONTACT_USER);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_CONTACT_LIST);
@@ -271,20 +304,42 @@ public class DatabaseHelper extends SQLiteOpenHelper
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_SEND_QUESTION);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_RECEIVED_QUESTION);
 		}else if(dbname.equals(DBManager.RCVDADV_DB_NAME)){
+			dropRcvdAdvTable(db);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_RCVD_ADV_SESSION);
 		}else if(dbname.equals(DBManager.WRITE_ADV_DB_NAME)){
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_SAMPROS_ADV);
 		}else if(dbname.equals(DBManager.MESSAGE_DB_NAME)){
+			dropMsgTable(db);
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME_MSG_SESSION);
 		}
 		
 		onCreate(db);
-    }
+	}
 
-    @Override
-    public void onOpen(SQLiteDatabase db)
-    {
-        super.onOpen(db);
-    }
+	private void dropMsgTable(SQLiteDatabase db){
+		List<String> msg_table_names = new ArrayList<>();
+		Cursor c = db.query(TABLE_NAME_MSG_SESSION,null,null,null,null,null,null);
+		while(c.moveToNext()){
+			msg_table_names.add(c.getString(c.getColumnIndex("msg_table_name")));
+		}
+		c.close();
+
+		for(String s:msg_table_names){
+			db.execSQL("DROP TABLE IF EXISTS" + s);
+		}
+	}
+
+	private void dropRcvdAdvTable(SQLiteDatabase db){
+		List<String> table_names = new ArrayList<>();
+		Cursor c = db.query(TABLE_NAME_RCVD_ADV_SESSION,null,null,null,null,null,null);
+		while(c.moveToNext()){
+			table_names.add(c.getString(c.getColumnIndex("name")));
+		}
+		c.close();
+
+		for(String s : table_names){
+			db.execSQL("DROP TABLE IF EXISTS" + s);
+		}
+	}
 
 }

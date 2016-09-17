@@ -172,7 +172,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
     }
     /*SAMC_END(unread count for 2 mode)*/
 
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_activity_menu, menu);
@@ -208,7 +208,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
     public static void start(Context context) {
         start(context, null);
@@ -307,12 +307,12 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
     @OnMPermissionGranted(BASIC_PERMISSION_REQUEST_CODE)
     public void onBasicPermissionSuccess(){
-        Toast.makeText(this, "授权成功", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.samchat_permision_grant), Toast.LENGTH_SHORT).show();
     }
 
     @OnMPermissionDenied(BASIC_PERMISSION_REQUEST_CODE)
     public void onBasicPermissionFailed(){
-        Toast.makeText(this, "授权失败", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.samchat_permision_refused), Toast.LENGTH_SHORT).show();
     }
 
     private void onInit() {
@@ -765,6 +765,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
 	public void queryMessage(String session_id, int mode,IMMessage msg, QueryDirectionEnum direction, int count, NIMCallback callback){
 		SamDBManager.getInstance().queryMessage(session_id,  mode,  msg,  direction,  count,  callback);
+	}
+
+	public void queryMsgSession(String session_id, int mode, NIMCallback callback){
+		SamDBManager.getInstance().queryMsgSession( session_id,  mode, callback);
 	}
 
 	public void deleteMessage(String session_id, int mode,IMMessage msg){

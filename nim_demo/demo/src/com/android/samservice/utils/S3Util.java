@@ -51,7 +51,7 @@ public class S3Util {
         if (sCredProvider == null) {
             sCredProvider = new CognitoCachingCredentialsProvider(
                     context.getApplicationContext(),
-                    "us-west-2:083f7106-00ad-4b9e-8e1d-2214d30975ba", // Identity Pool ID
+                    "us-west-2:2d22de2e-5125-4d48-9dec-28367ebeda89", // Identity Pool ID
                     Regions.US_WEST_2 );
         }
         return sCredProvider;

@@ -118,7 +118,7 @@
     <string name="samchat_password_warning">space should not be used in password</string>
     <string name="samchat_loginging">Logining ....</string>
 
-    <string name="samchat_create_sp">Create Service Account</string>
+    <string name="samchat_create_sp">Account</string>
     <string name="samchat_next2">Next</string>
     <string name="samchat_bussiness_name">Your business name(optional)</string>
     <string name="samchat_service_category">Service category</string>
@@ -203,4 +203,14 @@
     <string name="samchat_sp_already_followed">This service provider has been in your follow list</string>
 
     <string name="samchat_add_customer">Add Client</string>
+
+    <string name="samchat_permision_grant">Permission granted</string>
+    <string name="samchat_permision_refused">Permission refused, some function will not work!</string>
+
+    <string name="samchat_file_transfer_state_send">send</string>
+    <string name="samchat_file_transfer_state_unsend">unsend</string>
+    <string name="samchat_file_transfer_state_downloaded">download</string>
+    <string name="samchat_file_transfer_state_undownloaded">undownload</string>
+
+    <string name="samchat_video">video</string>
 </resources>

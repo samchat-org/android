@@ -84,12 +84,19 @@ public class AdvertisementAdapter extends BaseAdapter{
 				holder.content_text.setVisibility(View.VISIBLE);
 				holder.content_image.setVisibility(View.GONE);
 				holder.content_text.setText(adv.getcontent());
-			}else{
+			}else if(adv.gettype() == Constants.ADV_TYPE_PIC){
 				holder.content_text.setVisibility(View.GONE);
 				holder.content_image.setVisibility(View.VISIBLE);
 				String extension = FileUtil.getExtensionName(adv.getcontent());
 				String MD5Path = Environment.getExternalStorageDirectory() + "/" + DemoCache.getContext().getPackageName() + "/nim/"
 								+StorageType.TYPE_THUMB_IMAGE.getStoragePath()+"/"+StringUtil.makeMd5(adv.getcontent_thumb());
+				holder.content_image.load("file://"+MD5Path);
+			}else{
+				holder.content_text.setVisibility(View.GONE);
+				holder.content_image.setVisibility(View.VISIBLE);
+				String extension = FileUtil.getExtensionName(adv.getcontent());
+				String MD5Path = Environment.getExternalStorageDirectory() + "/" + DemoCache.getContext().getPackageName() + "/nim/"
+								+StorageType.TYPE_THUMB_VIDEO.getStoragePath()+"/"+StringUtil.makeMd5(adv.getcontent_thumb());
 				holder.content_image.load("file://"+MD5Path);
 			}
 

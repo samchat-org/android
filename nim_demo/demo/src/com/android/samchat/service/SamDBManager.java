@@ -5,6 +5,7 @@ import android.os.Environment;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samchat.common.SamchatFileNameUtils;
 import com.android.samservice.SMCallBack;
 import com.android.samservice.info.AdvancedMessage;
 import com.android.samservice.info.Advertisement;
@@ -317,17 +318,37 @@ public class SamDBManager{
 						//call incoming adv observer
 						callRcvdAdvObserversObserverCallback(adv);
 					}
-				}else{
+				}else if(adv.gettype() == Constants.ADV_TYPE_PIC){
 					LogUtil.i(TAG,"received adv:" + adv.getcontent_thumb());
-					SamService.getInstance().download(adv.getcontent_thumb(), new SMCallBack(){
+					String MD5Path = SamchatFileNameUtils.getMD5Path(StorageType.TYPE_THUMB_IMAGE,adv.getcontent_thumb());
+					SamService.getInstance().download(adv.getcontent_thumb(),  MD5Path, new SMCallBack(){
 						@Override
 						public void onSuccess(final Object obj, final int WarningCode) {
 							LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" successfully");
-							HttpCommClient hcc = (HttpCommClient)obj;
-							String extension = FileUtil.getExtensionName(adv.getcontent_thumb());
-							String MD5Path = Environment.getExternalStorageDirectory() + "/" + DemoCache.getContext().getPackageName() + "/nim/"
-								+StorageType.TYPE_THUMB_IMAGE.getStoragePath()+"/"+StringUtil.makeMd5(adv.getcontent_thumb());
-							saveFile(MD5Path, hcc.data);
+							RcvdAdvSession changedSession = storeRcvdAdvertisement(adv);
+							if(changedSession != null){
+								//call rcvd adv session changed observer
+								callRcvdAdvSessionObserversObserverCallback(changedSession);
+								//call incoming adv observer
+								callRcvdAdvObserversObserverCallback(adv);
+							}
+						}
+						@Override
+						public void onFailed(int code) {
+							LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" failed");
+						}
+						@Override
+						public void onError(int code) {
+							LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" error");
+						}
+					});
+				}else{
+					LogUtil.i(TAG,"received adv:" + adv.getcontent_thumb());
+					String MD5Path = SamchatFileNameUtils.getMD5Path(StorageType.TYPE_THUMB_VIDEO,adv.getcontent_thumb());
+					SamService.getInstance().download(adv.getcontent_thumb(), MD5Path, new SMCallBack(){
+						@Override
+						public void onSuccess(final Object obj, final int WarningCode) {
+							LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" successfully");
 							RcvdAdvSession changedSession = storeRcvdAdvertisement(adv);
 							if(changedSession != null){
 								//call rcvd adv session changed observer
@@ -1061,6 +1082,16 @@ public class SamDBManager{
 			}
 		});
 		
+	}
+
+	public void queryMsgSession(final String session_id, final int mode ,final NIMCallback callback){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				MsgSession session = SamService.getInstance().getDao().query_MsgSession_db( session_id,  mode);
+				callback.onResult(session, null, 0);
+			}
+		});	
 	}
 
 	public void asyncUpdateReceivedQuestionStatusToResponse(final long question_id){

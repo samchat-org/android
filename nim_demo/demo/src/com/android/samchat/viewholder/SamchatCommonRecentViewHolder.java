@@ -22,8 +22,8 @@ import com.netease.nim.uikit.NimConstants;
 public class SamchatCommonRecentViewHolder extends SamchatRecentViewHolder {
 
 	@Override
-	protected String getContent(MsgSession session) {
-		return descOfMsg(session);
+	protected String getContent(MsgSession session, IMMessage im) {
+		return descOfMsg(session,im);
 	}
 
 	@Override
@@ -31,41 +31,9 @@ public class SamchatCommonRecentViewHolder extends SamchatRecentViewHolder {
         return R.layout.samchat_recent_contact_list_item;
     }
 
-	protected String descOfMsg(MsgSession session) {
-		if(session.getrecent_msg_type() == NimConstants.MSG_TYPE_IM){
-			if(session.getrecent_msg_uuid() == null){
-				return "";
-			}
-			
-			List<String> uuids = new ArrayList<>(1);
-			uuids.add(session.getrecent_msg_uuid());
-          List<IMMessage> msgs = NIMClient.getService(MsgService.class).queryMessageListByUuidBlock(uuids);
-			if(msgs == null || msgs.size() <=0){
-				return "";
-			}
-			
-			if (msgs.get(0).getMsgType() == MsgTypeEnum.text) {
-				return msgs.get(0).getContent();
-			} else if (msgs.get(0).getMsgType() == MsgTypeEnum.tip) {
-				String digest = null;
-				digest = getDefaultDigest(msgs.get(0),null);
-				return digest;
-        } else if (msgs.get(0).getAttachment() != null) {
-            String digest = null;
-            digest = getDefaultDigest(msgs.get(0),msgs.get(0).getAttachment());
-            return digest;
-        }
-        return "";
-		}else if(session.getrecent_msg_type() == NimConstants.MSG_TYPE_SQ){
-			return session.getrecent_msg_content();
-		}else if(session.getrecent_msg_type() == NimConstants.MSG_TYPE_RQ){
-			return session.getrecent_msg_content();
-		}else if(session.getrecent_msg_type() == NimConstants.MSG_TYPE_SEND_ADV){
-
-		}else if(session.getrecent_msg_type() == NimConstants.MSG_TYPE_RCVD_ADV){
-			return session.getrecent_msg_content();
-		}
-        return "";
+	protected String descOfMsg(MsgSession session,IMMessage im) {
+		String digest = getDefaultDigest(im,im.getAttachment());
+		return digest;
 	}
 
    private String getDefaultDigest(IMMessage im, MsgAttachment attachment) {

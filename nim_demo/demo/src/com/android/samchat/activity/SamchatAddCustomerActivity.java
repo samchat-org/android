@@ -159,7 +159,6 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 		setToolBar(R.id.toolbar, options);
 
 		setupPanel();
-
 	}
 
 	@Override
