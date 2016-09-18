@@ -364,7 +364,6 @@ public class SamchatRegisterCodeRequestActivity extends UI implements OnKeyListe
 
 				@Override
 				public void onError(int code) {
-					LogUtil.e("test","register_code_request error "+code);
 					DialogMaker.dismissProgressDialog();
 					final ErrorString error = new ErrorString(SamchatRegisterCodeRequestActivity.this,code);
 					getHandler().postDelayed(new Runnable() {

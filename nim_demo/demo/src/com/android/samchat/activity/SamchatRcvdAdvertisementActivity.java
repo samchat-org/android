@@ -222,9 +222,6 @@ public class SamchatRcvdAdvertisementActivity extends UI implements OnKeyListene
 			return;
 		}
 		Collections.sort(list, comp);
-		for(Advertisement r: list){
-			LogUtil.e("test","time:"+r.getpublish_timestamp()+" content:"+r.getcontent());
-		}
 	}
 
 	private static Comparator<Advertisement> comp = new Comparator<Advertisement>() {

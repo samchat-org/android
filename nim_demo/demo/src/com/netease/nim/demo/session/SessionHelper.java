@@ -196,7 +196,9 @@ public class SessionHelper {
 
             infoButton.iconId = R.drawable.nim_ic_message_actionbar_p2p_add;
 
-            buttons.add(cloudMsgButton);
+            /*SAMC_BEGIN(not show close msg button)*/
+            //buttons.add(cloudMsgButton);
+            /*SAMC_END(not show close msg button)*/
             buttons.add(infoButton);
             p2pCustomization.buttons = buttons;
         }
@@ -257,7 +259,9 @@ public class SessionHelper {
 
             cloudMsgButton.iconId = R.drawable.nim_ic_messge_history;
 
-            buttons.add(cloudMsgButton);
+            /*SAMC_BEGIN(not show close msg button)*/
+            //buttons.add(cloudMsgButton);
+            /*SAMC_END(not show close msg button)*/
             myP2pCustomization.buttons = buttons;
         }
         return myP2pCustomization;
@@ -315,7 +319,9 @@ public class SessionHelper {
                 }
             };
             infoButton.iconId = R.drawable.nim_ic_message_actionbar_team;
-            buttons.add(cloudMsgButton);
+            /*SAMC_BEGIN(not show close msg button)*/
+            //buttons.add(cloudMsgButton);
+            /*SAMC_END(not show close msg button)*/
             buttons.add(infoButton);
             teamCustomization.buttons = buttons;
 

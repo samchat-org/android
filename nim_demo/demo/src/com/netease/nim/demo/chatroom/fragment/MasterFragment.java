@@ -71,7 +71,7 @@ public class MasterFragment extends TFragment {
 
     private void findViews() {
         imageView = findView(R.id.master_head_image);
-        imageView.loadAvatarByUrl(""); // 网络不好的时候，设置一个默认头像
+        imageView.loadAvatarByUrl(""); 
         nameText = findView(R.id.master_name);
         countText = findView(R.id.online_total);
         announceText = findView(R.id.announce_content);

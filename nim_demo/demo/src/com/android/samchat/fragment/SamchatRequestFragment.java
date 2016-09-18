@@ -156,7 +156,6 @@ public class SamchatRequestFragment extends TFragment {
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		LogUtil.e("test", "requestCode:"+requestCode+"data:"+data);
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == REQUEST_CODE_NEW_QUESTION && resultCode == Activity.RESULT_OK) {
 			if (data != null) {

@@ -156,7 +156,7 @@ public class TeamListActivity extends UI implements AdapterView.OnItemClickListe
 
     private static class GroupStrategy extends ContactGroupStrategy {
         GroupStrategy() {
-            add(ContactGroupStrategy.GROUP_NULL, 0, ""); // 默认分组
+            add(ContactGroupStrategy.GROUP_NULL, 0, ""); 
         }
 
         @Override

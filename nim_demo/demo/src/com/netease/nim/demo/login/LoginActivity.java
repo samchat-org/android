@@ -317,9 +317,9 @@ public class LoginActivity extends UI implements OnKeyListener {
             public void onFailed(int code) {
                 onLoginDone();
                 if (code == 302 || code == 404) {
-                    Toast.makeText(LoginActivity.this, R.string.login_failed, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, R.string.samchat_login_failed, Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(LoginActivity.this, "登录失败: " + code, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, R.string.samchat_login_failed, Toast.LENGTH_SHORT).show();
                 }
             }
 

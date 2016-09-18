@@ -261,10 +261,6 @@ public class DBManager
 			msgs.add(0,msg);
 		}
 
-		for(Message m:msgs){
-			LogUtil.e("test", "queryMessages id:" + m.getid());
-		}
-
 		c.close();
 
 		return msgs;

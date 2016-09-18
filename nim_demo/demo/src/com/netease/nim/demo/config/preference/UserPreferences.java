@@ -57,7 +57,7 @@ public class UserPreferences {
     }
 
     public static boolean getNotificationToggle() {
-        return getBoolean(KEY_SB_NOTIFY_TOGGLE, true);
+        return getBoolean(KEY_SB_NOTIFY_TOGGLE, false);
     }
 
     public static void setRingToggle(boolean on) {
@@ -65,7 +65,7 @@ public class UserPreferences {
     }
 
     public static boolean getRingToggle() {
-        return getBoolean(KEY_RING_TOGGLE, true);
+        return getBoolean(KEY_RING_TOGGLE, false);
     }
 
     public static void setLedToggle(boolean on) {
@@ -73,7 +73,7 @@ public class UserPreferences {
     }
 
     public static boolean getLedToggle() {
-        return getBoolean(KEY_LED_TOGGLE, true);
+        return getBoolean(KEY_LED_TOGGLE, false);
     }
 
     public static boolean getNoticeContentToggle() {

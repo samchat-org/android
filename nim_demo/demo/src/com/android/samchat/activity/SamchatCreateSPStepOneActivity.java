@@ -173,7 +173,6 @@ public class SamchatCreateSPStepOneActivity extends UI implements OnKeyListener 
 	private void updateNext(){
 		boolean enable = ready_service_category & ready_service_description;
 		right_button_layout.setEnabled(enable);
-		LogUtil.e("test","next: "+enable);
 	}
 
 	private void setupNextClick(){
@@ -181,7 +180,6 @@ public class SamchatCreateSPStepOneActivity extends UI implements OnKeyListener 
 		right_button_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				LogUtil.e("test","next click");
 				ContactUser sp = new ContactUser(SamService.getInstance().get_current_user());
 				sp.setcompany_name(company_name);
 				sp.setservice_category(service_category);

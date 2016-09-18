@@ -51,6 +51,7 @@ import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.uikit.cache.DataCacheManager;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.fragment.TFragment;
+import com.netease.nim.uikit.common.framework.NimSingleThreadExecutor;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.ui.widget.ClearableEditTextWithIcon;
@@ -231,8 +232,6 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 		
 	private void setupPhoneContactsListView(){
 		contacts = new ArrayList<>();
-		getPhoneContacts();
-		sortUsers(contacts);
 		adapter = new PhoneContactsAdapter(SamchatAddServiceProviderActivity.this, contacts);
 		phone_contacts_listview.setAdapter(adapter);
        phone_contacts_listview.setItemsCanFocus(true);
@@ -245,45 +244,67 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 				query_user_precise(contact);
 			}
 		});
+
+		LoadPhoneContacts();
 	}
 
-	private void getPhoneContacts() {  
-		ContentResolver resolver = getBaseContext().getContentResolver();
-		Cursor phoneCursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,PHONES_PROJECTION, null, null, null);
+	private List<PhoneContact> loadedContacts;
+	private void LoadPhoneContacts() {
+		NimSingleThreadExecutor.getInstance().execute(new Runnable() {
+			@Override
+			public void run() {
+				loadedContacts = new ArrayList<>();
+				ContentResolver resolver = getBaseContext().getContentResolver();
+				Cursor phoneCursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,PHONES_PROJECTION, null, null, null);
       
-		if (phoneCursor != null) {  
-			while (phoneCursor.moveToNext()) {  
-
-			String phoneNumber = phoneCursor.getString(PHONES_NUMBER_INDEX);  
-
-			if (TextUtils.isEmpty(phoneNumber))
-				continue;  
- 
-				String contactName = phoneCursor.getString(PHONES_DISPLAY_NAME_INDEX);  
-          
-				Long contactid = phoneCursor.getLong(PHONES_CONTACT_ID_INDEX);  
-
-				Long photoid = phoneCursor.getLong(PHONES_PHOTO_ID_INDEX);  
-          
-				Bitmap contactPhoto = null;
-        
-				if(photoid > 0 ) {  
-					Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactid);
-					InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(resolver, uri);
-					contactPhoto = BitmapFactory.decodeStream(input);
-				}else {  
-					contactPhoto = BitmapFactory.decodeResource(getResources(), R.drawable.avatar_def);  
+				if (phoneCursor != null) {  
+					while (phoneCursor.moveToNext()) {  
+						String phoneNumber = phoneCursor.getString(PHONES_NUMBER_INDEX);  
+						if (TextUtils.isEmpty(phoneNumber))
+							continue;  
+						String contactName = phoneCursor.getString(PHONES_DISPLAY_NAME_INDEX);  
+						Long contactid = phoneCursor.getLong(PHONES_CONTACT_ID_INDEX);  
+						Long photoid = phoneCursor.getLong(PHONES_PHOTO_ID_INDEX);  
+						Bitmap contactPhoto = null;
+						if(photoid > 0 ) {  
+							Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactid);
+							InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(resolver, uri);
+							contactPhoto = BitmapFactory.decodeStream(input);
+						}else {  
+							contactPhoto = BitmapFactory.decodeResource(getResources(), R.drawable.avatar_def);  
+						}  
+						loadedContacts.add(new PhoneContact(contactName, phoneNumber, contactPhoto));
+					}  
+					phoneCursor.close();  
 				}  
-          
-				contacts.add(new PhoneContact(contactName, phoneNumber, contactPhoto));
-			}  
 
-			phoneCursor.close();  
-			
-		}  
-		
+				getHandler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						if (((UI)SamchatAddServiceProviderActivity.this).isDestroyedCompatible()){
+							return;
+						}
+						onContactsLoaded();
+					}
+				}, 0);
+			}
+		});
 	}  
 
+	private void onContactsLoaded(){
+		contacts.clear();
+		if(loadedContacts != null){
+			contacts.addAll(loadedContacts);
+			loadedContacts = null;
+		}
+		sortUsers(contacts);
+		notifyDataSetChanged();
+	}
+
+	private void notifyDataSetChanged() {
+		adapter.notifyDataSetChanged();
+	}
+	
 	private void sortUsers(List<PhoneContact> list) {
 		if (list.size() == 0) {
 			return;

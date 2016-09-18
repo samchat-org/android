@@ -1,5 +1,8 @@
 package com.netease.nim.uikit.common.util.sys;
 
+import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.R;
+
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -88,7 +91,7 @@ public class TimeUtil {
 
         GregorianCalendar gregorianCalendar = new GregorianCalendar();
         gregorianCalendar.setTimeZone(timezone);
-        String prefix = gregorianCalendar.get(Calendar.AM_PM) == Calendar.AM ? "上午" : "下午";
+        String prefix = gregorianCalendar.get(Calendar.AM_PM) == Calendar.AM ? NimUIKit.getContext().getString(R.string.samchat_am) : NimUIKit.getContext().getString(R.string.samchat_pm);
 
         return prefix + formatter.format(date);
     }
@@ -141,11 +144,11 @@ public class TimeUtil {
         Date preyesterday = new Date(yesterdaybegin.getTime() - 3600 * 24 * 1000);
 
         if (!currentTime.before(todaybegin)) {
-            dataString = "今天";
+            dataString = NimUIKit.getContext().getString(R.string.samchat_today);
         } else if (!currentTime.before(yesterdaybegin)) {
-            dataString = "昨天";
+            dataString = NimUIKit.getContext().getString(R.string.samchat_yesterday);
         } else if (!currentTime.before(preyesterday)) {
-            dataString = "前天";
+            dataString = NimUIKit.getContext().getString(R.string.samchat_day_before_yesterday);
         } else if (isSameWeekDates(currentTime, today)) {
             dataString = getWeekOfDate(currentTime);
         } else {
@@ -180,13 +183,13 @@ public class TimeUtil {
         SimpleDateFormat timeformatter1to12 = new SimpleDateFormat("hh:mm", Locale.getDefault());
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         if (hour >= 0 && hour < 5) {
-            return "凌晨 " + timeformatter0to11.format(date);
+            return NimUIKit.getContext().getString(R.string.samchat_am)+" "+ timeformatter0to11.format(date);
         } else if (hour >= 5 && hour < 12) {
-            return "上午 " + timeformatter0to11.format(date);
+            return NimUIKit.getContext().getString(R.string.samchat_am)+" "+ timeformatter0to11.format(date);
         } else if (hour >= 12 && hour < 18) {
-            return "下午 " + timeformatter1to12.format(date);
+            return NimUIKit.getContext().getString(R.string.samchat_pm)+" " + timeformatter1to12.format(date);
         } else if (hour >= 18 && hour < 24) {
-            return "晚上 " + timeformatter1to12.format(date);
+            return NimUIKit.getContext().getString(R.string.samchat_pm)+" "  + timeformatter1to12.format(date);
         }
         return "";
     }
@@ -198,7 +201,13 @@ public class TimeUtil {
      * @return
      */
     public static String getWeekOfDate(Date date) {
-        String[] weekDaysName = {"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"};
+        String[] weekDaysName = {NimUIKit.getContext().getString(R.string.samchat_sunday),
+								NimUIKit.getContext().getString(R.string.samchat_monday),
+								NimUIKit.getContext().getString(R.string.samchat_tuesday),
+								NimUIKit.getContext().getString(R.string.samchat_wednesday),
+								NimUIKit.getContext().getString(R.string.samchat_thursday),
+								NimUIKit.getContext().getString(R.string.samchat_friday),
+								NimUIKit.getContext().getString(R.string.samchat_saturday)};
         // String[] weekDaysCode = { "0", "1", "2", "3", "4", "5", "6" };
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -296,15 +305,15 @@ public class TimeUtil {
             seconds = 1;
         int hour = seconds / (60 * 60);
         if (hour != 0) {
-            sb.append(hour).append("小时");
+            sb.append(hour).append(NimUIKit.getContext().getString(R.string.samchat_hour));
         }
         int minute = (seconds - 60 * 60 * hour) / 60;
         if (minute != 0) {
-            sb.append(minute).append("分");
+            sb.append(minute).append(NimUIKit.getContext().getString(R.string.samchat_min));
         }
         int second = (seconds - 60 * 60 * hour - 60 * minute);
         if (second != 0) {
-            sb.append(second).append("秒");
+            sb.append(second).append(NimUIKit.getContext().getString(R.string.samchat_second));
         }
         return sb.toString();
     }

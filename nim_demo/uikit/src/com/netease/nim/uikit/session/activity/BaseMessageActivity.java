@@ -79,7 +79,7 @@ public abstract class BaseMessageActivity extends UI {
         adv_id = getIntent().getLongExtra(Extras.EXTRA_ADVID,0L);
         /*SAMC_BEGIN(support mode setting for p2p activity)*/
 
-        if (customization != null) {
+        if (customization != null && (!(BaseMessageActivity.this instanceof P2PMessageActivity )|| mode != 0)) {
             addRightCustomViewOnActionBar(this, customization.buttons);
         }
     }

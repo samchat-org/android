@@ -381,11 +381,11 @@ public class WatchVideoActivity extends UI implements Callback {
         long fileSize = ((VideoAttachment) message.getAttachment()).getSize();
 
         if (duration <= 0) {
-            fileInfoTextView.setText("大小: " + FileUtil.formatFileSize(fileSize));
+            fileInfoTextView.setText(getString(R.string.samchat_size)+": " + FileUtil.formatFileSize(fileSize));
         } else {
             long seconds = TimeUtil.getSecondsByMilliseconds(duration);
-            fileInfoTextView.setText("大小: " + FileUtil.formatFileSize(fileSize) + ",时长: "
-                    + String.valueOf(seconds) + " 秒");
+            fileInfoTextView.setText(getString(R.string.samchat_size)+": " + FileUtil.formatFileSize(fileSize) + ","+getString(R.string.samchat_duration)+": "
+                    + String.valueOf(seconds) + " "+getString(R.string.samchat_seconds));
             videoLength = seconds;
         }
     }

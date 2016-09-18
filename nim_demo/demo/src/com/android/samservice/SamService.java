@@ -283,7 +283,6 @@ public class SamService{
 			if(hcc.ret == 0){
 				set_current_user(hcc.userinfo);
 				store_current_token(hcc.token_id+siobj.deviceid);
-				LogUtil.e("test","save token "+(hcc.token_id+siobj.deviceid));
 				initDao(StringUtil.makeMd5(""+hcc.userinfo.getunique_id()));
 				if(dao.update_ContactUser_db(hcc.userinfo) == -1){
 					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
@@ -351,7 +350,6 @@ public class SamService{
 		SignOutCoreObj  samobj = new SignOutCoreObj(callback);
 		samobj.init(get_current_token());
 		samobj.retry_count = 3;
-		LogUtil.e("test","signout token:"+get_current_token());
 		Message msg = mSamServiceHandler.obtainMessage(MSG_SIGN_OUT, samobj);
 		mSamServiceHandler.sendMessage(msg);
 		startTimeOut(samobj);
@@ -1522,7 +1520,6 @@ public class SamService{
 			return;
 		}else if(http_ret){
 			if(hcc.ret == 0){
-				LogUtil.e("test","sync followlist: "+hcc.followusers.getcount()+" "+ hcc.followusers.getsps());
 				boolean isDbError = syncUpdateFollowList(hcc.followusers);
 				samobj.callback.onSuccess(hcc,isDbError?Constants.DB_OPT_ERROR:0);
 				for(FollowedSamPros sp:hcc.followusers.getsps()){

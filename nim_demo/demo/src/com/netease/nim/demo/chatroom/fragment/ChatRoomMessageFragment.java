@@ -156,15 +156,15 @@ public class ChatRoomMessageFragment extends TFragment implements ModuleProxy {
                     @Override
                     public void onFailed(int code) {
                         if (code == ResponseCode.RES_CHATROOM_MUTED) {
-                            Toast.makeText(DemoCache.getContext(), "用户被禁言", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DemoCache.getContext(), DemoCache.getContext().getString(R.string.samchat_forbid), Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(DemoCache.getContext(), "消息发送失败：code:" + code, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(DemoCache.getContext(), DemoCache.getContext().getString(R.string.samchat_send_failed)+" code:" + code, Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onException(Throwable exception) {
-                        Toast.makeText(DemoCache.getContext(), "消息发送失败！", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DemoCache.getContext(), DemoCache.getContext().getString(R.string.samchat_send_failed), Toast.LENGTH_SHORT).show();
                     }
                 });
         messageListPanel.onMsgSend(msg);

@@ -1,4 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="samchat_delete">Delete</string>
+    <string name="samchat_switch_to_speaker">Switch to speaker louder</string>
+    <string name="samchat_switch_to_ear">Switch to ear phone</string>
+
+
+    <string name="samchat_record_complete">record complete</string>
+    <string name="samchat_record_end_dueto_memory">record end due to shortage of storage</string>
+    <string name="samchat_record_saved">record file save to:</string>
+    <string name="samchat_call">[samchat call]</string>
+    <string name="samchat_add_black_list_failed">add black list failed</string>
+    <string name="samchat_move_out_of_black_list_failed">move out of black list failed</string>
+    <string name="samchat_move_out_of_black_list_succeed">move out of black list succeed</string>
+    <string name="samchat_typing">typing...</string>
+    <string name="samchat_RTS">RTS</string>
+    <string name="samchat_sticker">sticker</string>
+    <string name="samchat_snapchat">snapchat</string>
+    <string name="samchat_picture">picture</string>
+    <string name="samchat_video">video</string>
+    <string name="samchat_audio">audio</string>
+    <string name="samchat_location">location</string>
+    <string name="samchat_file">file</string>
+    <string name="samchat_notice">notification</string>
+    <string name="samchat_missing">missing</string>
+    <string name="samchat_video_call">vedio call</string>
+    <string name="samchat_audio_call">audio call</string>
+
+    <string name="samchat_size">size</string>
+    <string name="samchat_duration">duration</string>
+    <string name="samchat_seconds">seconds</string>
+
+
+    <string name="samchat_input_remark">input remark</string>
+    <string name="samchat_am">a.m</string>
+    <string name="samchat_pm">p.m</string>
+
+    <string name="samchat_today">today</string>
+    <string name="samchat_yesterday">yesterday</string>
+    <string name="samchat_day_before_yesterday">day before yesterday</string>
+
+    <string name="samchat_monday">Monday</string>
+    <string name="samchat_tuesday">Tuesday</string>
+    <string name="samchat_wednesday">Wednesday</string>
+    <string name="samchat_thursday">Thursday</string>
+    <string name="samchat_friday">Friday</string>
+    <string name="samchat_saturday">Saturday</string>
+    <string name="samchat_sunday">Sunday</string>
+
+    <string name="samchat_second">sec</string>
+    <string name="samchat_min">min</string>
+    <string name="samchat_hour">hour</string>
+
+
+    <string name="samchat_send_failed">Send Failed</string>
+    <string name="samchat_forbid">Forbidden</string>
+    <string name="samchat_unforbid">UnForbidden</string>
+    <string name="samchat_forbid_succeed">Forbidden Succeed</string>
+    <string name="samchat_forbid_failed">Forbidden Failed</string>
+
+    <string name="samchat_join_group">join group</string>
+    <string name="samchat_join_advance_group">join advance group</string>
+    <string name="samchat_remove_out_of_advance_group">remove out advance group</string>
+    <string name="samchat_remove_out_of_group">remove out group</string>
+
+    <string name="samchat_leave_group">leave group</string>
+    <string name="samchat_leave_advance_group">leave group</string>
+
+    <string name="samchat_dimiss_group">dismiss group</string>
+    <string name="samchat_group_rename_to">rename to</string>
+    <string name="samchat_group_description_rename_to">description change to</string>
+    <string name="samchat_modify_group_announcement">modify announcement</string>
+    <string name="samchat_authentication_change_to">authentication change to</string>
+    <string name="samchat_extension_change_to">extension change to</string>
+    <string name="samchat_extension_server_change_to">extension(server) change to</string>
+    <string name="samchat_avatar_update">avatar update</string>
+    <string name="samchat_invite_permission_change_to">invite permission change to</string>
+    <string name="samchat_document_update_permission_change_to"> document update permission change to</string>
+    <string name="samchat_be_invite_authentication_change_to"> be invited authentication change to</string>
+    <string name="samchat_extension_modify_permission_change_to"> extension modify permission change to</string>
+    <string name="samchat_group">group</string>
+    <string name="samchat_changed_to">change to</string>
+    <string name="samchat_unkown">unknown</string>
+    <string name="samchat_admin_pass">admin pass</string>
+    <string name="samchat_transfer_group_to">transfer group to</string>
+    <string name="samchat_appoint_as_admin">appoint as admin</string>
+    <string name="samchat_revocation_from_admin">revocation from admin</string>
+    <string name="samchat_accept">accept</string>
+    <string name="samchat_invite">invite</string>
+
 </resources>

@@ -42,6 +42,7 @@ import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.ui.widget.ClearableEditTextWithIcon;
+import com.netease.nim.uikit.common.util.file.AttachmentStore;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.storage.StorageType;
@@ -178,10 +179,9 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 				LogUtil.e(TAG,"crop image successfully :" + cropImageUri);
 				Bitmap bitmap =decodeUriAsBitmap(cropImageUri);
 				LogUtil.e(TAG,"decodeUriAsBitmap :" + bitmap);
-				if(bitmap != null && createAvatarFile(bitmap)){
+				if(bitmap != null && AttachmentStore.saveBitmap(bitmap, getAvatarFilePath(), true)){
 					LogUtil.e(TAG,"createAvatarFile OK");
 					uploadAvatar(getAvatarFilePath());
-					bitmap.recycle();
 				}
 			}
 		}
@@ -382,6 +382,7 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		@Override
 		public void onError(int id, Exception e) {
 			observer.cleanTransferListener();
+			S3Util.getTransferUtility(SamchatProfileCustomerActivity.this).deleteTransferRecord(observer.getId());
 		}
 
 		@Override
@@ -391,18 +392,19 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 
 		@Override
 		public void onStateChanged(int id, TransferState newState) {
-			LogUtil.e("test","onStateChanged "+newState);
 			if(newState == TransferState.COMPLETED) {
-				Toast.makeText(SamchatProfileCustomerActivity.this, "upload avatar finished", Toast.LENGTH_SHORT).show();
 				observer.cleanTransferListener();
-				String avatar_orig = NimConstants.S3_URL + NimConstants.S3_PATH_AVATAR+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
-				LogUtil.e("test","upload avatar succeed: "+avatar_orig);
+				S3Util.getTransferUtility(SamchatProfileCustomerActivity.this).deleteTransferRecord(observer.getId());
+				String avatar_orig = NimConstants.S3_URL_UPLOAD+ NimConstants.S3_PATH_AVATAR+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
 				ContactUser user = new ContactUser(SamService.getInstance().get_current_user());
 				user.setavatar_original(avatar_orig);
 				user.setavatar(null);
 				updateAvatar(user);
-			}else if(newState == TransferState.FAILED){
+			}else if(newState == TransferState.IN_PROGRESS){
+				
+			}else{
 				observer.cleanTransferListener();
+				S3Util.getTransferUtility(SamchatProfileCustomerActivity.this).deleteTransferRecord(observer.getId());
 				deleteFile();
 				DialogMaker.dismissProgressDialog();
 				EasyAlertDialogHelper.showOneButtonDiolag(SamchatProfileCustomerActivity.this, null,
@@ -413,8 +415,7 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 
 	private void deleteFile(){
 		String path = getAvatarFilePath();
-		File file = new File(path);
-		file.delete();
+		AttachmentStore.deleteOnExit(path);
 	}
 	
 	private void uploadAvatar(String path){
@@ -429,6 +430,7 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		SamService.getInstance().update_avatar(user, new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
+					deleteFile();
 					DialogMaker.dismissProgressDialog();
 					getHandler().postDelayed(new Runnable() {
 						@Override

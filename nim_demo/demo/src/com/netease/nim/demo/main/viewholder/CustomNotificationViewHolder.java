@@ -61,7 +61,7 @@ public class CustomNotificationViewHolder extends TViewHolder {
         String id = jsonObj.getString("id");
         String content;
         if (id != null && id.equals("1")) {
-            content = "正在输入...";
+            content = context.getString(R.string.samchat_typing);
         } else {
             content = jsonObj.getString("content");
         }

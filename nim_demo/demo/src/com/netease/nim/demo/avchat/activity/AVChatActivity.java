@@ -55,7 +55,7 @@ import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
  */
 public class AVChatActivity extends UI implements AVChatUI.AVChatListener, AVChatStateObserver {
     // constant
-    private static final String TAG = "AVChatActivity";
+    private static final String TAG = "SamchatAVChatActivity";
     private static final String KEY_IN_CALLING = "KEY_IN_CALLING";
     private static final String KEY_ACCOUNT = "KEY_ACCOUNT";
     private static final String KEY_CALL_TYPE = "KEY_CALL_TYPE";
@@ -252,7 +252,6 @@ public class AVChatActivity extends UI implements AVChatUI.AVChatListener, AVCha
         NIMClient.getService(MsgService.class).saveMessageToLocal(im, false).setCallback(new RequestCallback<Void>() {
            @Override
            public void onSuccess(Void a) {
-           LogUtil.e("test","saveMessageToLocal succeed im:"+im);
                NimUIKit.getCallback().storeSendCustomerMessage(im,new NIMCallback(){
                    @Override
                    public void onResult(Object obj1, Object obj2, int code) {
@@ -273,15 +272,12 @@ public class AVChatActivity extends UI implements AVChatUI.AVChatListener, AVCha
 		private void saveRecvCustomerMessage(){
            String text = createText();
 
-           LogUtil.e("test","saveRecvCustomerMessage 1");
-
            final IMMessage  im = MessageBuilder.createTextMessage(avChatData.getAccount(),SessionTypeEnum.P2P,text);
            setRecvMessageConfig(im);
            im.setStatus(MsgStatusEnum.success);
            NIMClient.getService(MsgService.class).saveMessageToLocal(im, false).setCallback(new RequestCallback<Void>() {
             @Override
             public void onSuccess(Void a) {
-                LogUtil.e("test","saveRecvCustomerMessage save im to local succeed");
                 NimUIKit.getCallback().storeRecvCustomerMessage(im,new NIMCallback(){
                    @Override
                    public void onResult(Object obj1, Object obj2, int code) {
@@ -309,12 +305,10 @@ public class AVChatActivity extends UI implements AVChatUI.AVChatListener, AVCha
         needFinish = true;
 
         /*SAMC_BEGIN(support mode for avchat)*/
-        LogUtil.e("test","saveRecvCustomerMessage:"+avChatUI.isCallServerConnected +" "+mIsInComingCall +" "+receiverId);
+        LogUtil.e(TAG,"saveRecvCustomerMessage:"+avChatUI.isCallServerConnected +" "+mIsInComingCall +" "+receiverId);
         if(avChatUI.isCallServerConnected && !mIsInComingCall && receiverId != null){
-			  LogUtil.e("test","saveSendCustomerMessage");
             saveSendCustomerMessage();
         }else if(avChatUI.isCallServerConnected && mIsInComingCall && avChatData.getAccount() != null){
-            LogUtil.e("test","saveRecvCustomerMessage");
             saveRecvCustomerMessage();
         }
         /*SAMC_END(support mode for avchat)*/
@@ -661,21 +655,21 @@ public class AVChatActivity extends UI implements AVChatUI.AVChatListener, AVCha
             String parent = new File(file).getParent();
             String msg;
             if(event == 0) {
-                msg = "录制已结束";
+                msg = getString(R.string.samchat_record_complete);
             } else {
-                msg = "你的手机内存不足, 录制已结束";
+                msg = getString(R.string.samchat_record_end_dueto_memory);
             }
 
             if(!TextUtils.isEmpty(parent)) {
-                msg += ", 录制文件已保存至：" + parent;
+                msg += ", " + getString(R.string.samchat_record_saved) + parent;
             }
 
             Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         } else {
             if(event == 1) {
-                Toast.makeText(this, "你的手机内存不足, 录制已结束.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.samchat_record_end_dueto_memory), Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(this, "录制已结束.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,getString(R.string.samchat_record_complete), Toast.LENGTH_SHORT).show();
             }
         }
 

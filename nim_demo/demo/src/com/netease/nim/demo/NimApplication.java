@@ -143,9 +143,9 @@ public class NimApplication extends Application {
         config.ledOnMs = 1000;
         config.ledOffMs = 1500;
 
-        options.statusBarNotificationConfig = config;
-        DemoCache.setNotificationConfig(config);
-        UserPreferences.setStatusConfig(config);
+        options.statusBarNotificationConfig  = null;//= config;
+        DemoCache.setNotificationConfig(null);//(config);
+        UserPreferences.setStatusConfig(null);//(config);
 
         // 配置保存图片，文件，log等数据的目录
         String sdkPath = Environment.getExternalStorageDirectory() + "/" + getPackageName() + "/nim";
@@ -313,7 +313,6 @@ public class NimApplication extends Application {
            if(user == null){
                SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(stringTolong(account));
            }
-	        LogUtil.e("test","info provider: " + account+" user:"+user);
            return user;
         }
 

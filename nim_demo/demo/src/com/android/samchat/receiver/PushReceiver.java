@@ -14,6 +14,7 @@ import com.netease.nim.uikit.common.util.log.LogUtil;
 import java.io.UnsupportedEncodingException;
 
 public class PushReceiver extends BroadcastReceiver {
+	private static final String TAG="SamchatPushReceiver";
 	public static StringBuilder payloadData = new StringBuilder();
 	public static final String action_get_msg_data="samchat.service.msg.GET_MSG_DATA";
 	public static final String action_get_client="samchat.service.msg.GET_CLIENTID";
@@ -45,7 +46,7 @@ public class PushReceiver extends BroadcastReceiver {
                 if (payload != null) {		
                     String data = decodeString(payload);
                     Bundle param = new Bundle();
-                    Log.d("test", "payload json:"+data);
+                    Log.d(TAG, "payload json:"+data);
                     param.putString("data", data);
                     param.putString("taskid",taskid);
                     param.putString("messageid",messageid);

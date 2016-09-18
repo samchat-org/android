@@ -121,6 +121,7 @@ public class SamchatChatFragment extends TFragment{
 		}
 	};
 
+	private static final String TAG="SamchatChatFragment";
 	public static final long RECENT_TAG_STICKY = 1;
 	public static final long RECENT_TAG_CUSTOMER_ROLE = 2;
 	public static final long RECENT_TAG_SP_ROLE = 4;
@@ -196,9 +197,7 @@ public class SamchatChatFragment extends TFragment{
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		findViews();
-
-		LogUtil.e("test","onActivityCreated"+" Thread id:"+Thread.currentThread().getId());
-
+		
 		//if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
 			initMessageListCustomer();
 			requestMessagesCustomer(true);
@@ -304,7 +303,6 @@ public class SamchatChatFragment extends TFragment{
 
 	private RecentContact findRecentContact(List<RecentContact> recents, IMMessage msg){
 		for(RecentContact rc : recents){
-			LogUtil.e("test","RecentContact:"+rc.getContactId()+" msg session id:"+msg.getSessionId());
 			if(msg.getSessionId().equals(rc.getContactId())){
 				return rc;
 			}
@@ -524,7 +522,6 @@ public class SamchatChatFragment extends TFragment{
                             }
 
                             callback_customer.onUnreadCountChange(other_unread + p2p_unread);
-									LogUtil.e("test","customer p2p_unread:"+p2p_unread+" other_unread:"+other_unread);
                         }
                     });
                 }
@@ -539,9 +536,7 @@ public class SamchatChatFragment extends TFragment{
 			@Override
 			public void run() {
 				Object tag = ListViewUtil.getViewHolderByIndex(listView_customer, index);
-				LogUtil.e("test","getViewHolderByIndex:"+tag);
 				if (tag instanceof SamchatRecentViewHolder) {
-					LogUtil.e("test","getViewHolderByIndex:"+tag);
 					SamchatRecentViewHolder viewHolder = (SamchatRecentViewHolder) tag;
 					viewHolder.refreshCurrentItem();
 				}else if(tag instanceof RecentViewHolder) {
@@ -759,7 +754,6 @@ public class SamchatChatFragment extends TFragment{
                              }
 
                              callback_sp.onUnreadCountChange(other_unread + p2p_unread);
-									LogUtil.e("test","sp p2p_unread:"+p2p_unread+" other_unread:"+other_unread);
                          }
                      });
                  }
@@ -776,9 +770,7 @@ public class SamchatChatFragment extends TFragment{
 			@Override
 			public void run() {
 				Object tag = ListViewUtil.getViewHolderByIndex(listView_sp, index);
-				LogUtil.e("test","getViewHolderByIndex:"+tag);
 				if (tag instanceof SamchatRecentViewHolder) {
-					LogUtil.e("test","getViewHolderByIndex:"+tag);
 					SamchatRecentViewHolder viewHolder = (SamchatRecentViewHolder) tag;
 					viewHolder.refreshCurrentItem();
 				}else if(tag instanceof RecentViewHolder) {
@@ -899,15 +891,12 @@ public class SamchatChatFragment extends TFragment{
 	SamchatObserver < MsgSession > msgSessionChangedObserver = new SamchatObserver < MsgSession >(){
 		@Override
 		public void onEvent(MsgSession session){
-			LogUtil.e("test","msgSessionChangedObserver called:" + Thread.currentThread().getId());
 			List<RecentContact> recents = NIMClient.getService(MsgService.class).queryRecentContactsBlock();	
 			final RecentContact rc = findRecentContact(recents,session.getsession_id());
 			if(rc == null){
-				LogUtil.e("test","find recent contact:" +session.getsession_id()+" not found");
+				LogUtil.e(TAG,"find recent contact:" +session.getsession_id()+" not found");
 				return;
 			}
-
-			LogUtil.e("test","find recent contact:" +session.getsession_id()+"  found");
 
 			if(session.getmode() == ModeEnum.valueOfType(ModeEnum.CUSTOMER_MODE)){
 				if(!isTagSet(rc, RECENT_TAG_CUSTOMER_ROLE)){
@@ -942,10 +931,8 @@ public class SamchatChatFragment extends TFragment{
 	Observer<IMMessage> statusObserver = new Observer<IMMessage>() {
 		@Override
 		public void onEvent(IMMessage message){
-			LogUtil.e("test","statusObserver:"+message.getSessionId()+" Thread id:"+Thread.currentThread().getId());
 			if(message.	getDirect() == MsgDirectionEnum.Out){
 				Map<String, Object> content = message.getRemoteExtension();
-				LogUtil.e("test","content:"+content);
 				if(content == null){
 					int index = findRecentContactIndex(items_customer,message);
 					if(index != -1){
@@ -989,7 +976,6 @@ public class SamchatChatFragment extends TFragment{
 			for (RecentContact msg : messages){
 				if(msg.getSessionType() == SessionTypeEnum.P2P && !msg.getContactId().equals(NimConstants.SESSION_ACCOUNT_ADVERTISEMENT)){
 					if(isTagSet(msg, RECENT_TAG_CUSTOMER_ROLE)){
-						LogUtil.e("test","customer tag rc "+msg+ " Thread id:"+Thread.currentThread().getId());
 						updateCustomerItems(msg);
 						refreshCustomer = true;
 					}else{
@@ -1000,11 +986,9 @@ public class SamchatChatFragment extends TFragment{
 							updateCustomerItems(msg);
 							refreshCustomer = true;
 						}
-						LogUtil.e("test","customer tag session "+session+" Thread id:"+Thread.currentThread().getId());
 					}
 
 					if(isTagSet(msg, RECENT_TAG_SP_ROLE)){
-						LogUtil.e("test","sp tag rc"+msg+" Thread id:"+Thread.currentThread().getId());
 						updateSPItems(msg);
 						refreshSP = true;
 					}else{
@@ -1015,7 +999,6 @@ public class SamchatChatFragment extends TFragment{
 							updateSPItems(msg);
 							refreshSP = true;
 						}
-						LogUtil.e("test","sp tag session "+session+" Thread id:"+Thread.currentThread().getId());
 					}
 				}else if(msg.getSessionType() == SessionTypeEnum.Team){
 					if(isTagSet(msg, RECENT_TAG_CUSTOMER_ROLE) ){

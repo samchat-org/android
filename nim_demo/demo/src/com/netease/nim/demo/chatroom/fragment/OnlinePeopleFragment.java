@@ -544,12 +544,12 @@ public class OnlinePeopleFragment extends TFragment implements TAdapterDelegate 
                 .setCallback(new RequestCallback<Void>() {
                     @Override
                     public void onSuccess(Void param) {
-                        Toast.makeText(getActivity(), "设置临时禁言成功", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getActivity().getString(R.string.samchat_forbid_succeed), Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onFailed(int code) {
-                        Toast.makeText(getActivity(), "设置临时禁言失败，code:" + code, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getActivity().getString(R.string.samchat_forbid_failed)+"code:" + code, Toast.LENGTH_SHORT).show();
                     }
 
                     @Override

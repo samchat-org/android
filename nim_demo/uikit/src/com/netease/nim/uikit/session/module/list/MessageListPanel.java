@@ -70,7 +70,7 @@ import com.netease.nim.uikit.common.util.log.LogUtil;
  * Created by hzxuwen on 2015/6/10.
  */
 public class MessageListPanel implements TAdapterDelegate {
-
+    private static final String TAG = "SamchatMessageListPanel";
     private static final int REQUEST_CODE_FORWARD_PERSON = 0x01;
     private static final int REQUEST_CODE_FORWARD_TEAM = 0x02;
 
@@ -411,12 +411,10 @@ public class MessageListPanel implements TAdapterDelegate {
 
     private void onAttachmentProgressChange(AttachmentProgress progress) {
         int index = getItemIndex(progress.getUuid());
-        LogUtil.e("test","onAttachmentProgressChange is run with index:"+index);
         if (index >= 0 && index < items.size()) {
             IMMessage item = items.get(index);
             float value = (float) progress.getTransferred() / (float) progress.getTotal();
             adapter.putProgress(item, value);
-			  LogUtil.e("test","refreshViewHolderByIndex is run with index:"+index+" value:"+value);
             refreshViewHolderByIndex(index);
         }
     }
@@ -444,7 +442,6 @@ public class MessageListPanel implements TAdapterDelegate {
                 Object tag = ListViewUtil.getViewHolderByIndex(messageListView, index);
                 if (tag instanceof MsgViewHolderBase) {
                     MsgViewHolderBase viewHolder = (MsgViewHolderBase) tag;
-					   LogUtil.e("test","refreshCurrentItem "+viewHolder);
                     viewHolder.refreshCurrentItem();
                 }
             }
@@ -510,7 +507,6 @@ public class MessageListPanel implements TAdapterDelegate {
             @Override
             public void onResult(Object obj1,Object obj2, int code) {
                final List<IMMessage> ims = (List<IMMessage>)obj1;
-				  LogUtil.e("test","query ims:"+ims+" code:"+code);
                uiHandler.post(new Runnable() {
                    @Override
                    public void run() {
@@ -1115,7 +1111,7 @@ public class MessageListPanel implements TAdapterDelegate {
                 @Override
                 public void onResult(Object obj1, Object obj2, int code) {
                     if(obj1 == null || code !=0){
-                        LogUtil.e("test", "storeMessage failed before send msg, will not send this msg");
+                        LogUtil.e(TAG, "storeMessage failed before send msg, will not send this msg");
                         return;
                     }
                    final IMMessage msg = (IMMessage)obj1;

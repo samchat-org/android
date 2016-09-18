@@ -128,8 +128,6 @@ public class SamchatResetPasswordActivity extends UI implements OnKeyListener {
 
 		onParseIntent();
 		setupPanel();
-
-		LogUtil.e("test","reset password activity launched");
 	}
 	
 	private void setupBackArrowClick(){

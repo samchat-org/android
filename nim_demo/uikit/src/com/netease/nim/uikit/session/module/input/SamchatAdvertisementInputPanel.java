@@ -74,6 +74,9 @@ public class SamchatAdvertisementInputPanel implements IEmoticonSelectedListener
     protected View emojiButtonInInputBar;// 发送消息按钮
     protected View messageInputBar;
 
+    protected FrameLayout audioTextSwitchLayout;
+    
+
     private SessionCustomization customization;
 
     // 表情
@@ -180,11 +183,10 @@ public class SamchatAdvertisementInputPanel implements IEmoticonSelectedListener
 
         // 文本录音按钮切换布局
         textAudioSwitchLayout = (FrameLayout) view.findViewById(R.id.switchLayout);
-        if (isTextAudioSwitchShow) {
-            textAudioSwitchLayout.setVisibility(View.VISIBLE);
-        } else {
-            textAudioSwitchLayout.setVisibility(View.GONE);
-        }
+        textAudioSwitchLayout.setVisibility(View.GONE);
+        audioTextSwitchLayout = (FrameLayout) view.findViewById(R.id.audioTextSwitchLayout);
+        audioTextSwitchLayout.setVisibility(View.GONE);
+        emojiButtonInInputBar.setVisibility(View.GONE);
     }
 
     private void initInputBarListener() {
@@ -734,12 +736,9 @@ public class SamchatAdvertisementInputPanel implements IEmoticonSelectedListener
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        LogUtil.e("test", "SamchatAdvertisementInputPanel  onActivityResult");
         if (resultCode != Activity.RESULT_OK) {
             return;
         }
-
-		 LogUtil.e("test", "SamchatAdvertisementInputPanel  onActivityResult 2");
 
         int index = (requestCode << 16) >> 24;
         if (index != 0) {

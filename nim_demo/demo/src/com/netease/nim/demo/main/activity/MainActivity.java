@@ -98,7 +98,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
     private static final String EXTRA_APP_QUIT = "APP_QUIT";
     private static final int REQUEST_CODE_NORMAL = 1;
     private static final int REQUEST_CODE_ADVANCED = 2;
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = "SamchatMainActivity";
     private final int BASIC_PERMISSION_REQUEST_CODE = 100;
 
     private HomeFragment mainFragment;
@@ -430,7 +430,6 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	 LogUtil.e("test","MainActivity onActivityResult");
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_CODE_NORMAL) {
@@ -509,19 +508,18 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	public void onDestroy() {
 		registerObservers(false);
 		if(isGetuInited){
-			LogUtil.e("test","stop getui service");
+			LogUtil.e(TAG,"stop getui service");
 			//PushManager.getInstance().turnOffPush(DemoCache.getContext());
 			PushManager.getInstance().stopService(DemoCache.getContext());
 			//registerGetuiReceiver(false);
 			isGetuInited = false;
-			//LogUtil.e("test","isPushTurnOn:"+PushManager.getInstance().isPushTurnedOn(DemoCache.getContext()));
 		}
 		super.onDestroy();
 	}
 
 	private void initGeTui(){
 		if(!isGetuInited){
-			LogUtil.e("test","init getui service");
+			LogUtil.e(TAG,"init getui service");
 			//registerGetuiReceiver(true);
 			PushManager.getInstance().initialize(getApplicationContext());
 			//PushManager.getInstance().turnOnPush(DemoCache.getContext());
@@ -733,6 +731,11 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
 	public void setCurrentPostition(int pos){
 		current_position = pos;
+		if(current_position == MainTab.SAMCHAT_CONTACT.tabIndex){
+			titlebar_right_icon.setVisibility(View.VISIBLE);
+		}else{
+			titlebar_right_icon.setVisibility(View.GONE);
+		}
 	}
 
 	public int getCurrentPostition(){

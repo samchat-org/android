@@ -145,7 +145,6 @@ public class MessageInfoActivity extends UI {
     private void createTeamMsg() {
         ArrayList<String> memberAccounts = new ArrayList<>();
         memberAccounts.add(account);
-        LogUtil.e("test","createTeamMsg 1 memberAccounts:"+memberAccounts);
 		 /*
         ContactSelectActivity.Option option = TeamHelper.getCreateContactSelectOption(memberAccounts, 50);
 		 LogUtil.e("test","createTeamMsg 2 memberAccounts:"+memberAccounts);

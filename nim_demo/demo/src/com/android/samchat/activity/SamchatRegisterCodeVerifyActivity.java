@@ -340,11 +340,10 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 		manager.sendBroadcast(intent);
 	}
 	private void verifyConfirmationCode(){
-		LogUtil.e("test","verifyConfirmationCode...");
 		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_verifying), false, new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {
-				LogUtil.e("test","verifyConfirmationCode canceled");
+
 			}
 		}).setCanceledOnTouchOutside(false);
 		
@@ -352,7 +351,6 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 			new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
-					LogUtil.e("test","verifyConfirmationCode succeed");
 					DialogMaker.dismissProgressDialog();
 					//lunch sign up finally ui
 					SamchatSignupActivity.start(SamchatRegisterCodeVerifyActivity.this,  countrycode,  cellphone,  
@@ -381,7 +379,6 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 
 				@Override
 				public void onError(int code) {
-					LogUtil.e("test","verifyConfirmationCode error "+code);
 					DialogMaker.dismissProgressDialog();
 					final ErrorString error = new ErrorString(SamchatRegisterCodeVerifyActivity.this,code);
 					
@@ -400,11 +397,10 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 
 
 	private void verifyForgetPwdConfirmationCode(){
-		LogUtil.e("test","verifyForgetPwdConfirmationCode...");
 		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_verifying), false, new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {
-				LogUtil.e("test","verifyForgetPwdConfirmationCode canceled");
+
 			}
 		}).setCanceledOnTouchOutside(false);
 		
@@ -412,7 +408,6 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 			new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
-					LogUtil.e("test","verifyForgetPwdConfirmationCode succeed");
 					DialogMaker.dismissProgressDialog();
 					//lunch reset password finally ui
 					SamchatResetPasswordActivity.start(SamchatRegisterCodeVerifyActivity.this,  countrycode,  cellphone,  
@@ -442,7 +437,6 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 
 				@Override
 				public void onError(int code) {
-					LogUtil.e("test","verifyConfirmationCode error "+code);
 					DialogMaker.dismissProgressDialog();
 					final ErrorString error = new ErrorString(SamchatRegisterCodeVerifyActivity.this,code);
 					

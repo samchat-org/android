@@ -172,10 +172,9 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 				LogUtil.e(TAG,"crop image successfully :" + cropImageUri);
 				Bitmap bitmap =decodeUriAsBitmap(cropImageUri);
 				LogUtil.e(TAG,"decodeUriAsBitmap :" + bitmap);
-				if(bitmap != null && createAvatarFile(bitmap)){
+				if(bitmap != null && AttachmentStore.saveBitmap(bitmap, getAvatarFilePath(), true)){
 					LogUtil.e(TAG,"createAvatarFile OK");
 					uploadAvatar(getAvatarFilePath());
-					bitmap.recycle();
 				}
 				
 			}
@@ -293,6 +292,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		setupAddressClick();
 		setupCountryCodeClick();
 		setupPhoneNumberClick();
+		setupAvaterClick();
 
 	}
 	
@@ -373,6 +373,15 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		});
 	}
 
+	private void setupAvaterClick(){
+		avatar_headimageview.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				launchAvatarActivity();
+			}
+		});
+	}
+
 	private void launchAvatarActivity(){
 		Intent intent = new Intent(this, MultiImageSelectorActivity.class);
 		// whether show camera
@@ -400,6 +409,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		@Override
 		public void onError(int id, Exception e) {
 			observer.cleanTransferListener();
+			S3Util.getTransferUtility(SamchatProfileServiceProviderActivity.this).deleteTransferRecord(observer.getId());
 		}
 
 		@Override
@@ -409,18 +419,19 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 
 		@Override
 		public void onStateChanged(int id, TransferState newState) {
-			LogUtil.e("test","onStateChanged "+newState);
 			if(newState == TransferState.COMPLETED) {
-				Toast.makeText(SamchatProfileServiceProviderActivity.this, "upload avatar finished", Toast.LENGTH_SHORT).show();
 				observer.cleanTransferListener();
-				String avatar_orig = NimConstants.S3_URL + NimConstants.S3_PATH_AVATAR+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
-				LogUtil.e("test","upload avatar succeed: "+avatar_orig);
+				S3Util.getTransferUtility(SamchatProfileServiceProviderActivity.this).deleteTransferRecord(observer.getId());
+				String avatar_orig = NimConstants.S3_URL_UPLOAD + NimConstants.S3_PATH_AVATAR+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
 				ContactUser user = new ContactUser(SamService.getInstance().get_current_user());
 				user.setavatar_original(avatar_orig);
 				user.setavatar(null);
 				updateAvatar(user);
-			}else if(newState == TransferState.FAILED){
+			}else if(newState == TransferState.IN_PROGRESS){
+				
+			}else{
 				observer.cleanTransferListener();
+				S3Util.getTransferUtility(SamchatProfileServiceProviderActivity.this).deleteTransferRecord(observer.getId());
 				deleteFile();
 				DialogMaker.dismissProgressDialog();
 				EasyAlertDialogHelper.showOneButtonDiolag(SamchatProfileServiceProviderActivity.this, null,
@@ -446,6 +457,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		SamService.getInstance().update_avatar(user, new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
+					deleteFile();
 					DialogMaker.dismissProgressDialog();
 					getHandler().postDelayed(new Runnable() {
 						@Override

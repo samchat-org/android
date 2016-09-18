@@ -140,14 +140,14 @@ public class BlackListActivity extends UI implements TAdapterDelegate {
             NIMClient.getService(FriendService.class).removeFromBlackList(user.getAccount()).setCallback(new RequestCallback<Void>() {
                 @Override
                 public void onSuccess(Void param) {
-                    Toast.makeText(BlackListActivity.this, "移出黑名单成功", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BlackListActivity.this, BlackListActivity.this.getString(R.string.samchat_move_out_of_black_list_succeed), Toast.LENGTH_SHORT).show();
                     data.remove(user);
                     adapter.notifyDataSetChanged();
                 }
 
                 @Override
                 public void onFailed(int code) {
-                    Toast.makeText(BlackListActivity.this, "移出黑名单失败，错误码：" + code, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BlackListActivity.this, BlackListActivity.this.getString(R.string.samchat_move_out_of_black_list_failed)+" code:" + code, Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -174,7 +174,7 @@ public class BlackListActivity extends UI implements TAdapterDelegate {
 
                 @Override
                 public void onFailed(int code) {
-                    Toast.makeText(BlackListActivity.this, "加入黑名单失败,code:" + code, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(BlackListActivity.this, BlackListActivity.this.getString(R.string.samchat_add_black_list_failed)+" code:" + code, Toast.LENGTH_SHORT).show();
                 }
 
                 @Override

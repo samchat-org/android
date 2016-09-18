@@ -368,7 +368,6 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
 		    container.activity.runOnUiThread(new Runnable() {
                @Override
                public void run() {
-                   LogUtil.i("test","SendAdvertisementObserver: onMsgSend "+im);
                    onMsgSend(im);
 			    }
 		    });
@@ -513,7 +512,6 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
             @Override
             public void onResult(Object obj1,Object obj2, int code) {
                final List<IMMessage> ims = (List<IMMessage>)obj1;
-				  LogUtil.e("test","query ims:"+ims+" code:"+code);
                uiHandler.post(new Runnable() {
                    @Override
                    public void run() {

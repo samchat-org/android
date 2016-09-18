@@ -175,7 +175,6 @@ public abstract class MsgViewHolderBase extends TViewHolder {
 
     public void refreshCurrentItem() {
         if (message != null) {
-            LogUtil.e("test","refresh in MsgViewHolderBase");
             refresh(message);
         }
     }

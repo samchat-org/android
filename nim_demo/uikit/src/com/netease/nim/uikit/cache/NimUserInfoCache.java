@@ -73,7 +73,6 @@ public class NimUserInfoCache {
         List<String> accounts = new ArrayList<>(1);
         accounts.add(account);
 
-		LogUtil.e("test","getUserInfoFromRemote "+accounts);
         NIMClient.getService(UserService.class).fetchUserInfo(accounts).setCallback(new RequestCallbackWrapper<List<NimUserInfo>>() {
 
             @Override

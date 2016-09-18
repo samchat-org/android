@@ -41,17 +41,17 @@ public class SamchatCommonRecentViewHolder extends SamchatRecentViewHolder {
             case text:
                 return im.getContent();
             case image:
-                return "[图片]";
+                return "["+context.getString(R.string.samchat_picture)+"]";
             case video:
-                return "[视频]";
+                return "["+context.getString(R.string.samchat_video)+"]";
             case audio:
-                return "[语音消息]";
+                return "["+context.getString(R.string.samchat_audio)+"]";
             case location:
-                return "[位置]";
+                return "["+context.getString(R.string.samchat_location)+"]";
             case file:
-                return "[文件]";
+                return "["+context.getString(R.string.samchat_file)+"]";
             case tip:
-                return "[通知提醒]";
+                return "["+context.getString(R.string.samchat_notice)+"]";
             case notification:
                 return TeamNotificationHelper.getTeamNotificationText(recent.getContactId(),
                         recent.getFromAccount(),
@@ -60,31 +60,31 @@ public class SamchatCommonRecentViewHolder extends SamchatRecentViewHolder {
                 AVChatAttachment avchat = (AVChatAttachment) attachment;
                 if (avchat.getState() == AVChatRecordState.Missed && !recent.getFromAccount().equals(NimUIKit.getAccount())) {
                     // 未接通话请求
-                    StringBuilder sb = new StringBuilder("[未接");
+                    StringBuilder sb = new StringBuilder("["+context.getString(R.string.samchat_missing));
                     if (avchat.getType() == AVChatType.VIDEO) {
-                        sb.append("视频电话]");
+                        sb.append(context.getString(R.string.samchat_video_call)+"]");
                     } else {
-                        sb.append("音频电话]");
+                        sb.append(context.getString(R.string.samchat_audio_call)+"]");
                     }
                     return sb.toString();
                 } else if (avchat.getState() == AVChatRecordState.Success) {
                     StringBuilder sb = new StringBuilder();
                     if (avchat.getType() == AVChatType.VIDEO) {
-                        sb.append("[视频电话]: ");
+                        sb.append("[" + context.getString(R.string.samchat_video_call) + "]: ");
                     } else {
-                        sb.append("[音频电话]: ");
+                        sb.append("[" + context.getString(R.string.samchat_audio_call) + "]: ");
                     }
                     sb.append(TimeUtil.secToTime(avchat.getDuration()));
                     return sb.toString();
                 } else {
                     if (avchat.getType() == AVChatType.VIDEO) {
-                        return ("[视频电话]");
+                        return ("["+ context.getString(R.string.samchat_video_call) +"]");
                     } else {
-                        return ("[音频电话]");
+                        return ("["+ context.getString(R.string.samchat_audio_call) +"]");
                     }
                 }
             default:
-                return "[自定义消息]";
+                return "";
         }
     }
 }

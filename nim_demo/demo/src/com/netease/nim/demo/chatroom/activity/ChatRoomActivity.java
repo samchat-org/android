@@ -156,9 +156,9 @@ public class ChatRoomActivity extends UI {
         @Override
         public void onEvent(ChatRoomStatusChangeData chatRoomStatusChangeData) {
             if (chatRoomStatusChangeData.status == StatusCode.CONNECTING) {
-                DialogMaker.updateLoadingMessage("连接中...");
+                DialogMaker.updateLoadingMessage(getString(R.string.samchat_connecting));
             } else if (chatRoomStatusChangeData.status == StatusCode.LOGINING) {
-                DialogMaker.updateLoadingMessage("登录中...");
+                DialogMaker.updateLoadingMessage(getString(R.string.samchat_loginging));
             } else if (chatRoomStatusChangeData.status == StatusCode.LOGINED) {
                 if (fragment != null) {
                     fragment.updateOnlineStatus(true);
@@ -169,7 +169,7 @@ public class ChatRoomActivity extends UI {
                 }
                 int code = NIMClient.getService(ChatRoomService.class).getEnterErrorCode(roomId);
                 if (code != ResponseCode.RES_ECONNECTION) {
-                    Toast.makeText(ChatRoomActivity.this, "未登录,code=" + code, Toast.LENGTH_LONG).show();
+                    Toast.makeText(ChatRoomActivity.this, getString(R.string.samchat_login_failed)+",code=" + code, Toast.LENGTH_LONG).show();
                 }
             } else if (chatRoomStatusChangeData.status == StatusCode.NET_BROKEN) {
                 if (fragment != null) {
@@ -185,7 +185,7 @@ public class ChatRoomActivity extends UI {
     Observer<ChatRoomKickOutEvent> kickOutObserver = new Observer<ChatRoomKickOutEvent>() {
         @Override
         public void onEvent(ChatRoomKickOutEvent chatRoomKickOutEvent) {
-            Toast.makeText(ChatRoomActivity.this, "被踢出聊天室，原因:" + chatRoomKickOutEvent.getReason(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(ChatRoomActivity.this, getString(R.string.samchat_kickout)+":" + chatRoomKickOutEvent.getReason(), Toast.LENGTH_SHORT).show();
             clearChatRoom();
         }
     };

@@ -67,6 +67,7 @@
     <string name="samchat_input_error">Username or Phone no error</string>
     <string name="samchat_login_failed">Login Failed</string>
     <string name="samchat_login_exception">Invalid Input</string>
+    <string name="samchat_kickout">Kickout</string>
 
     <string name="samchat_your_phone_no">Your phone number</string>
     <string name="samchat_send_confirmation_code">Send Confirmation Code</string>
@@ -117,6 +118,7 @@
     <string name="samchat_cellphone_warning">only number could be used in cellphone</string>
     <string name="samchat_password_warning">space should not be used in password</string>
     <string name="samchat_loginging">Logining ....</string>
+    <string name="samchat_connecting">Connecting ....</string>
 
     <string name="samchat_create_sp">Account</string>
     <string name="samchat_next2">Next</string>
@@ -183,14 +185,12 @@
     <string name="samchat_edit_profile">Edit Profile </string>
     <string name="samchat_save">Save</string>
 
-    <string name="samchat_picture">Picture</string>
-
     <string name="samchat_database_error">Database operation failed</string>
     <string name="samchat_start_crop_window_failed">Start crop window failed</string>
     <string name="samchat_upload_avatar">Upload Avatar</string>
     <string name="samchat_upload_failed">Upload failed</string>
 
-    <string name="samchat_invite">Invite</string>
+
     <string name="samchat_phone_illeage">6~15 phone number</string>
     <string name="samchat_delete_question">Delete this question?</string>
 
@@ -212,5 +212,4 @@
     <string name="samchat_file_transfer_state_downloaded">download</string>
     <string name="samchat_file_transfer_state_undownloaded">undownload</string>
 
-    <string name="samchat_video">video</string>
 </resources>

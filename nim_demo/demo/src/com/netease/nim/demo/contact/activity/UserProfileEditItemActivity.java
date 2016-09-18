@@ -156,7 +156,7 @@ public class UserProfileEditItemActivity extends UI implements View.OnClickListe
             if (friend != null && !TextUtils.isEmpty(friend.getAlias())) {
                 editText.setText(friend.getAlias());
             } else {
-                editText.setHint("请输入备注名...");
+                editText.setHint(getString(R.string.samchat_input_remark));
             }
         } else {
             editText.setText(data);

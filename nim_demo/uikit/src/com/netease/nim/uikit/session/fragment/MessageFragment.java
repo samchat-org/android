@@ -50,7 +50,7 @@ public class MessageFragment extends TFragment implements ModuleProxy {
 
     private SessionCustomization customization;
 
-    protected static final String TAG = "MessageActivity";
+    protected static final String TAG = "SamchatMessageFragment";
 
     // 聊天对象
     protected String sessionId; // p2p对方Account或者群id
@@ -307,7 +307,7 @@ public class MessageFragment extends TFragment implements ModuleProxy {
                 @Override
                 public void onResult(Object obj1, Object obj2, int code) {
                     if(obj1 == null || code !=0){
-                        LogUtil.e("test", "storeMessage failed before send msg, will not send this msg");
+                        LogUtil.e(TAG, "storeMessage failed before send msg, will not send this msg");
                         return;
                     }
                    final IMMessage msg = (IMMessage)obj1;

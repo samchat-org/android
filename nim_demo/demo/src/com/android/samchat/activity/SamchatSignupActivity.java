@@ -381,7 +381,6 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 		HttpCommClient hcc = (HttpCommClient)obj;
 		final String account = ""+hcc.userinfo.getunique_id();
 		final String token = hcc.token_id + deviceid;
-		LogUtil.e("test","signup token:"+token);
 		saveLoginInfo(account,token);
 
 		login(account,token);

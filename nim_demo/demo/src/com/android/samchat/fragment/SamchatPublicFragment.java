@@ -258,11 +258,9 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
     }
 
 	private void setupSearchClick(){
-		LogUtil.e("test","setupSearchClick");
 		search_textview.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				LogUtil.e("test","click called...");
 				SamchatSearchPublicActivity.start(getActivity());
 			}
 		});
@@ -568,12 +566,13 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 			LogUtil.e(TAG,"onStateChanged "+newState);
 			if(newState == TransferState.COMPLETED) {
 				releaseTransferObserver(im.getUuid(),false);
-				String url_origin = NimConstants.S3_URL+NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
+				String url_origin = NimConstants.S3_URL_UPLOAD+NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
 				if(im.getMsgType() == MsgTypeEnum.image){
 					sendAdvertisement(Constants.ADV_TYPE_PIC, url_origin, null, im);
 					AttachmentStore.deleteOnExit(SamchatFileNameUtils.getTempFileName(abspath_origin, s3name_origin));
 				}else{
-					sendAdvertisement(Constants.ADV_TYPE_VEDIO, url_origin, null, im);
+					sendAdvertisement(Constants.ADV_TYPE_VEDIO, url_origin, 
+						"http://samchat-test.s3-website-us-west-2.amazonaws.com/advertisement/thumb/thumb_10000000008_1474031723942.jpg", im);
 				}
 			}else if(newState == TransferState.IN_PROGRESS){
 				
@@ -697,7 +696,6 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 			//send picture advertisment
 			Map<String, Object> content = message.getLocalExtension();
 			String s3name_orig = (String)content.get(NimConstants.S3_ORIG);
-			String url_origin = NimConstants.S3_URL+NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3name_orig;
 			String path = attachment.getPath();
 			uploadAdvertisementOrigin(message,path,s3name_orig);
 		}else{
@@ -724,9 +722,6 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        LogUtil.e("test", "SamchatPublic Fragment  onActivityResult");
-
         inputPanel.onActivityResult(requestCode, resultCode, data);
         //messageListPanel.onActivityResult(requestCode, resultCode, data);
     }
@@ -745,19 +740,16 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 					Advertisement adv = hcc.adv;
 					im.setStatus(MsgStatusEnum.success);
 					SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(adv, im);
-					LogUtil.e("test", "sendAdvertisement succeed");
 				}
 				@Override
 				public void onFailed(int code) {
 					im.setStatus(MsgStatusEnum.fail);
 					SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(null, im);
-					LogUtil.e("test", "sendAdvertisement failed");
 				}
 				@Override
 				public void onError(int code) {
 					im.setStatus(MsgStatusEnum.fail);
 					SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(null, im);
-					LogUtil.e("test", "sendAdvertisement failed");
 				}
 		 });
 	}

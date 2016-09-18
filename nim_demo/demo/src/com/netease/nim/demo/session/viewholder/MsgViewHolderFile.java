@@ -127,11 +127,6 @@ public class MsgViewHolderFile extends MsgViewHolderBase {
 	@Override
 	protected void onItemClick() {
 		String path = msgAttachment.getPathForSave();
-		LogUtil.e("test","getPath:" + msgAttachment.getPath());
-		LogUtil.e("test","getPathForSave:" + msgAttachment.getPathForSave());
-		LogUtil.e("test","	getThumbPath:" + msgAttachment.getThumbPath());
-		LogUtil.e("test","getThumbPathForSave:" + msgAttachment.getThumbPathForSave());
-		LogUtil.e("test","getMD5:" + msgAttachment.getMd5());
 	
 		if(path != null){
 			Intent intent = SamchatOpenFileUtil.openFile(path);

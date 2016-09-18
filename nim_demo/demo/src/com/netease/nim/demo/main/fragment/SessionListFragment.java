@@ -221,11 +221,11 @@ public class SessionListFragment extends MainTabFragment {
                     GuessAttachment guess = (GuessAttachment) attachment;
                     return guess.getValue().getDesc();
                 } else if (attachment instanceof RTSAttachment) {
-                    return "[白板]";
+                    return "["+getActivity().getString(R.string.samchat_RTS)+"]";
                 } else if (attachment instanceof StickerAttachment) {
-                    return "[贴图]";
+                    return "["+getActivity().getString(R.string.samchat_sticker)+"]";
                 } else if (attachment instanceof SnapChatAttachment) {
-                    return "[阅后即焚]";
+                    return "["+getActivity().getString(R.string.samchat_snapchat)+"]";
                 }
 
                 return null;

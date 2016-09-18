@@ -72,7 +72,7 @@ public class AVChatNotification {
                     .FLAG_UPDATE_CURRENT);
 
             String title = context.getString(R.string.avchat_no_pickup_call);
-            String tickerText = NimUserInfoCache.getInstance().getUserDisplayName(account) + ": 【网络通话】";
+            String tickerText = NimUserInfoCache.getInstance().getUserDisplayName(account) + ": "+context.getString(R.string.samchat_call);
             int iconId = R.drawable.avchat_no_pickup;
 
             missCallNotification = makeNotification(pendingIntent, title, tickerText, tickerText, iconId, true, true);

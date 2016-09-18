@@ -283,11 +283,11 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
                     GuessAttachment guess = (GuessAttachment) attachment;
                     return guess.getValue().getDesc();
                 } else if (attachment instanceof RTSAttachment) {
-                    return "[白板]";
+                    return "["+getString(R.string.samchat_RTS)+"]";
                 } else if (attachment instanceof StickerAttachment) {
-                    return "[贴图]";
+                    return "["+getString(R.string.samchat_sticker)+"]";
                 } else if (attachment instanceof SnapChatAttachment) {
-                    return "[阅后即焚]";
+                    return "["+getString(R.string.samchat_snapchat)+"]";
                 }
 
                 return null;

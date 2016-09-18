@@ -707,7 +707,6 @@ public class HttpCommClient {
 			JSONObject header = new JSONObject();
 			header.putOpt("action", "logout");
 			header.putOpt("token", soobj.token);
-			SamLog.i("test","constructSignOutJson token:"+soobj.token);
 			
 			JSONObject body = new JSONObject();
 			
@@ -2009,9 +2008,6 @@ public class HttpCommClient {
 			JSONObject body = new JSONObject();
 			
 			JSONObject avatar = new JSONObject();
-			if(uaobj.user.getavatar() != null){
-				avatar.putOpt("thumb", uaobj.user.getavatar());
-			}
 
 			if(uaobj.user.getavatar_original() != null){
 				avatar.putOpt("origin",uaobj.user.getavatar_original());

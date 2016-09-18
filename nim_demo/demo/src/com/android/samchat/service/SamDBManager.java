@@ -384,7 +384,6 @@ public class SamDBManager{
 		List<Message> msgs = new ArrayList<Message>();
 		for(IMMessage im : messages){
 			msgs.add( new Message(msg_type, im.getUuid()));
-			LogUtil.e("test","IMMessage received: "+im.getContent()+" uuid:"+im.getUuid());
 		}
 		return msgs;
 	}
@@ -437,7 +436,6 @@ public class SamDBManager{
 		if(session == null){
 			String msg_table_name = "msgdb_"+StringUtil.makeMd5(session_id)+"_"+mode;//StringUtil.makeMd5(session_id)+"_"+mode;
 			session = new MsgSession( session_id,  mode,  msg_table_name);
-			LogUtil.e("test","createMsgTable "+msg_table_name);
 			SamService.getInstance().getDao().createMsgTable(msg_table_name);
 		}
 
@@ -446,27 +444,24 @@ public class SamDBManager{
 		if(rc != -1){
 			updateSessionBySendMsg(session, msg, im);
 			if(SamService.getInstance().getDao().update_MsgSession_db(session) != -1){
-				LogUtil.e("test","storeSendMessage update msg session succeed");
 				return session;
 			}else{
-				LogUtil.e("test","storeSendMessage update msg session failed");
 				return null;
 			}
 		}else{
-			LogUtil.e("test","storeSendMessage add_Message_db failed");
 			return null;
 		}
 		
 	}
 
-	private int numberOfIMMessage(List<Message> dbMsgs){
+	private int numberOfIMMessage(List<IMMessage> ims){
 		int num = 0;
-		for(Message msg:dbMsgs){
-			if(msg.gettype() ==  NimConstants.MSG_TYPE_IM ){
+		for(IMMessage im : ims){
+			Map<String, Object> content = im.getRemoteExtension();
+			if(content == null || (!content.containsKey(NimConstants.QUEST_ID) && !content.containsKey(NimConstants.SQ_QUEST_ID))){
 				num++;
 			}
 		}
-
 		return num;
 	}
 
@@ -476,7 +471,7 @@ public class SamDBManager{
 		}
 
 		if(recordUnread){
-			session.settotal_unread(session.gettotal_unread()+numberOfIMMessage(dbMsgs));
+			session.settotal_unread(session.gettotal_unread()+numberOfIMMessage(ims));
 		}
 		session.setrecent_msg_type(dbMsgs.get(dbMsgs.size()-1).gettype());
 		session.setrecent_msg_uuid(ims.get(ims.size() - 1).getUuid());
@@ -522,7 +517,6 @@ public class SamDBManager{
 		if(session == null){
 			String msg_table_name = "msgdb_"+StringUtil.makeMd5(session_id)+"_"+mode;//StringUtil.makeMd5(session_id)+"_"+mode;
 			session = new MsgSession( session_id,  mode,  msg_table_name);
-			LogUtil.e("test","createMsgTable "+msg_table_name);
 			SamService.getInstance().getDao().createMsgTable(msg_table_name);
 		}
 
@@ -531,14 +525,11 @@ public class SamDBManager{
 		if(rc != -1){
 			updateSessionByRcvdMsg(session,dbMsgs,ims,recordUnread);
 			if(SamService.getInstance().getDao().update_MsgSession_db(session) != -1){
-				LogUtil.e("test","storeRcvdMessages update msg session succeed");
 				return session;
 			}else{
-				LogUtil.e("test","storeRcvdMessages update msg session failed");
 				return null;
 			}
 		}else{
-			LogUtil.e("test","storeRcvdMessages add_Message_db failed");
 			return null;
 		}		
 	}
@@ -665,30 +656,25 @@ public class SamDBManager{
 			mFixedHttpThreadPool.execute(new Runnable(){
 					@Override
 					public void run(){
-						LogUtil.e("test","asyncStoreRcvdMessages1:"+ims);
 						if(ims == null || ims.size() == 0){
 							return;
 						}
-						LogUtil.e("test","asyncStoreRcvdMessages2");
 						SessionTypeEnum sessionType = ims.get(0).getSessionType();
 						String sessionId = ims.get(0).getSessionId();
 						if(sessionType !=  SessionTypeEnum.P2P){
 							return;
 						}
 
-						LogUtil.e("test","asyncStoreRcvdMessages3");
 						Map<String, Object> content = ims.get(0).getRemoteExtension();
 						if(content == null || !content.containsKey(NimConstants.MSG_FROM)){
 							return;
 						}
 
-						LogUtil.e("test","asyncStoreRcvdMessages4");
 						int msg_from = (int)content.get(NimConstants.MSG_FROM);
 						int mode = (msg_from == Constants.FROM_CUSTOMER ? ModeEnum.SP_MODE.ordinal():ModeEnum.CUSTOMER_MODE.ordinal());
 						List<Message> msgs = createMessages(sessionId,NimConstants.MSG_TYPE_IM, ims);
                    	MsgSession changedSession;
 						if((changedSession = storeRcvdMessages(sessionId,mode,msgs,ims,false)) != null){
-							LogUtil.e("test","asyncStoreRcvdMessages5");
 							//call session changed observer
 							callMsgServiceObserverCallback(changedSession);
 							//call incoming IMMessage observer
@@ -1049,7 +1035,6 @@ public class SamDBManager{
 			public void run(){
 				List<IMMessage> ims = new ArrayList<IMMessage>();
 				MsgSession session = SamService.getInstance().getDao().query_MsgSession_db( session_id,  mode);
-				LogUtil.e("test","query message msgsession:"+session);
 				if(session == null){
 					callback.onResult(ims,null,-1);
 					return;
@@ -1059,21 +1044,16 @@ public class SamDBManager{
 				List<Message> messages=null;
 				if(im == null){
 					messages = SamService.getInstance().getDao().query_Messages_db_Newest(table,  count);
-					LogUtil.e("test","query message when im==null:"+messages);
 				}else{
 					Message tmsg = SamService.getInstance().getDao().query_Message_db_by_uuid(session.getmsg_table_name(),im.getUuid());
-					LogUtil.e("test","query message when im!=null: "+tmsg);
 					if(tmsg == null){
-						LogUtil.e("test","query message tmg is null");
 						callback.onResult(ims,null,-1);
 						return;
 					}
 					messages = SamService.getInstance().getDao().query_Messages_db_by_anchor( table, tmsg.getid(), count);
-					LogUtil.e("test","query message when im!=null: "+messages);
 				}
 
 				if(messages == null || messages.size() <=0){
-					LogUtil.e("test","query message messages is null or size ==0");
 					callback.onResult(ims,null,0);
 				}else{
 					ims = createIMMessages(messages);
@@ -1129,7 +1109,6 @@ public class SamDBManager{
 
 	public void registerObservers(boolean register){
 		NIMClient.getService(MsgServiceObserve.class).observeReceiveMessage(incomingP2PMessageObserver,register);
-		LogUtil.e("test","incomingP2PMessageObserver is registered");
 		if(!register){
 			close();
 		}
@@ -1279,18 +1258,15 @@ public class SamDBManager{
 			mFixedHttpThreadPool.execute(new Runnable(){
 					@Override
 					public void run(){
-						LogUtil.e("test","incomingP2PMessageObserver is called1"+" Thread id:"+Thread.currentThread().getId());
 						if(ims == null || ims.size() == 0){
 							return;
 						}
-						LogUtil.e("test","incomingP2PMessageObserver is called2");
 						SessionTypeEnum sessionType = ims.get(0).getSessionType();
 						String sessionId = ims.get(0).getSessionId();
 						if(sessionType !=  SessionTypeEnum.P2P){
 							return;
 						}
 
-						LogUtil.e("test","incomingP2PMessageObserver is called3");
 						List<IMMessage> valid_ims = new ArrayList<IMMessage>();
 						for(IMMessage m:ims){
 							Map<String, Object> content = m.getRemoteExtension();
