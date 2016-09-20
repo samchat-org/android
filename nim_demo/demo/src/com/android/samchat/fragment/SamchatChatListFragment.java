@@ -7,7 +7,7 @@ import android.widget.Toast;
 
 import com.android.samchat.SamchatGlobal;
 import com.android.samchat.type.ModeEnum;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.main.model.MainTab;
 import com.netease.nim.demo.main.reminder.ReminderManager;
 import com.netease.nim.demo.session.SessionHelper;

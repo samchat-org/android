@@ -727,6 +727,12 @@ public class SamDBDao{
 		}
 	}
 
+	public List<MsgSession> query_MsgSession_db_All(){
+		synchronized(dbLock_msg){
+			return dbHandle.queryMsgSessionAll();
+		}
+	}
+
 	public void delete_MsgSession_db(String session_id, int mode){
 		synchronized(dbLock_msg){
 			dbHandle.deleteMsgSession( session_id,  mode);

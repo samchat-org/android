@@ -7,7 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.avchat.activity.AVChatActivity;
 import com.netease.nim.demo.main.activity.WelcomeActivity;
 import com.netease.nim.demo.main.model.Extras;

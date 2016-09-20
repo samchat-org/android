@@ -8,7 +8,7 @@ import com.android.samchat.activity.SamchatRcvdAdvertisementActivity;
 import com.android.samchat.service.SamDBManager;
 import com.android.samchat.type.ModeEnum;
 import com.android.samservice.info.FollowedSamPros;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.demo.main.model.MainTab;
 import com.netease.nim.demo.main.reminder.ReminderManager;

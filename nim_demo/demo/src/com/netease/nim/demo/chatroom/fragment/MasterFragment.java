@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.chatroom.activity.ChatRoomActivity;
 import com.netease.nim.demo.chatroom.helper.ChatRoomMemberCache;
 import com.netease.nim.demo.chatroom.widget.ChatRoomImageView;

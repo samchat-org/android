@@ -1,6 +1,6 @@
 package com.netease.nim.demo.file;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.uikit.common.util.file.FileUtil;
 
 import java.util.HashMap;

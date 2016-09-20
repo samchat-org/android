@@ -12,7 +12,7 @@ import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 
 import java.util.ArrayList;

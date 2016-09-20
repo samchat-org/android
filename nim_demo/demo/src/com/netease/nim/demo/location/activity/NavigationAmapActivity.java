@@ -27,7 +27,7 @@ import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.maps2d.model.LatLngBounds;
 import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.location.adapter.IconListAdapter;
 import com.netease.nim.demo.location.adapter.IconListAdapter.IconListItem;
 import com.netease.nim.demo.location.helper.MapHelper;

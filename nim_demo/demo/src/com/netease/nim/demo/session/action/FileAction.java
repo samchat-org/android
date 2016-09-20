@@ -2,7 +2,7 @@ package com.netease.nim.demo.session.action;
 
 import android.content.Intent;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.file.browser.FileBrowserActivity;
 import com.netease.nim.uikit.session.constant.RequestCode;
 import com.netease.nim.uikit.session.actions.BaseAction;

@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.GridView;
 import android.widget.Toast;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.chatroom.activity.ChatRoomActivity;
 import com.netease.nim.demo.chatroom.adapter.ChatRoomAdapter;
 import com.netease.nim.demo.chatroom.thridparty.ChatRoomHttpClient;

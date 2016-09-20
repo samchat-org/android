@@ -7,7 +7,7 @@ import com.android.samservice.Constants;
 import com.android.samservice.SamService;
 import com.android.samservice.info.FollowedSamPros;
 import com.android.samservice.info.RcvdAdvSession;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.android.samservice.info.SendQuestion;
 import android.widget.BaseAdapter;
 import android.content.Context;

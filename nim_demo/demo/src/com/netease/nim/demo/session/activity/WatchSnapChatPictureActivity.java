@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.session.extension.SnapChatAttachment;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;

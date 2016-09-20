@@ -20,7 +20,7 @@ import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import java.util.ArrayList;
 import java.util.List;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.android.samchat.callback.SendQuestionCallback;
 import android.widget.LinearLayout;
 import com.android.samservice.info.SendQuestion;

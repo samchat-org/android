@@ -8,6 +8,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.samchat.cache.MsgSessionDataCache;
+import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nim.uikit.recent.viewholder.SamchatRecentContactAdapter;
 import com.netease.nim.uikit.NIMCallback;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
@@ -29,7 +32,6 @@ import com.netease.nimlib.sdk.msg.model.RecentContact;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nim.uikit.recent.viewholder.RecentContactAdapter;
 import com.android.samservice.info.MsgSession;
-import com.android.samchat.adapter.SamchatRecentContactAdapter;
 import com.android.samchat.type.ModeEnum;
 import com.android.samservice.SamService;
 import com.netease.nim.uikit.NimConstants;
@@ -38,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class SamchatRecentViewHolder extends TViewHolder implements OnClickListener {
-
+    private static final String TAG="SamchatRecentViewHolder";
     protected FrameLayout portraitPanel;
 
     protected HeadImageView imgHead;
@@ -61,7 +63,7 @@ public abstract class SamchatRecentViewHolder extends TViewHolder implements OnC
     protected View bottomLine;
     protected View topLine;
 
-    protected abstract String getContent(MsgSession session, IMMessage im);
+    protected abstract String getContent(MsgSession session);
 
     public void refresh(Object item) {
         recent = (RecentContact) item;
@@ -132,9 +134,9 @@ public abstract class SamchatRecentViewHolder extends TViewHolder implements OnC
         if(getAdapter() instanceof SamchatRecentContactAdapter){
 			  MsgSession session = null;
             if(((SamchatRecentContactAdapter)getAdapter()).getmode() == ModeEnum.CUSTOMER_MODE.ordinal()){
-                 session = SamService.getInstance().getDao().query_MsgSession_db(recent.getContactId(), ModeEnum.CUSTOMER_MODE.ordinal());
+                 session = MsgSessionDataCache.getInstance().getMsgSession(recent.getContactId(), ModeEnum.CUSTOMER_MODE.ordinal());
 			   }else{
-                 session = SamService.getInstance().getDao().query_MsgSession_db(recent.getContactId(), ModeEnum.SP_MODE.ordinal());
+                 session = MsgSessionDataCache.getInstance().getMsgSession(recent.getContactId(), ModeEnum.SP_MODE.ordinal());
 			  }
             unreadNum = session.gettotal_unread();
 		  }
@@ -143,14 +145,11 @@ public abstract class SamchatRecentViewHolder extends TViewHolder implements OnC
     }
 
 	private void updateMsgLabel() {
-		MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(recent.getContactId(), ((SamchatRecentContactAdapter)getAdapter()).getmode());
-		if(session != null && session.getrecent_msg_uuid()!= null){
-			List<String> uuids = new ArrayList<>(1);
-			uuids.add(session.getrecent_msg_uuid());
-			List<IMMessage> msgs = NIMClient.getService(MsgService.class).queryMessageListByUuidBlock(uuids);
-			if(msgs != null || msgs.size() > 0){
-				MoonUtil.identifyFaceExpressionAndTags(context, tvMessage, getContent(session,msgs.get(0)), ImageSpan.ALIGN_BOTTOM, 0.45f);
-				MsgStatusEnum status = msgs.get(0).getStatus();
+		MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(recent.getContactId(), ((SamchatRecentContactAdapter)getAdapter()).getmode());
+		if(session != null){
+				MoonUtil.identifyFaceExpressionAndTags(context, tvMessage, getContent(session), ImageSpan.ALIGN_BOTTOM, 0.45f);
+				MsgStatusEnum status = 	MsgStatusEnum.statusOfValue(session.getrecent_msg_status());
+				LogUtil.e(TAG,"get update msg status:"+status.getValue());
 					switch (status) {
 						case fail:
 							imgMsgStatus.setImageResource(R.drawable.nim_g_ic_failed_small);
@@ -172,7 +171,6 @@ public abstract class SamchatRecentViewHolder extends TViewHolder implements OnC
 						tvDatetime.setVisibility(View.VISIBLE);
 					}
 			}
-		}
 	}
 
     protected void updateNickLabel(String nick) {

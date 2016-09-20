@@ -1,6 +1,6 @@
 package com.netease.nim.demo.chatroom.constant;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.chatroom.fragment.tab.ChatRoomTabFragment;
 import com.netease.nim.demo.chatroom.fragment.tab.MasterTabFragment;
 import com.netease.nim.demo.chatroom.fragment.tab.MessageTabFragment;

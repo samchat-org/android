@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.netease.nim.demo.DemoCache;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.chatroom.helper.ChatRoomMemberCache;
 import com.netease.nim.demo.chatroom.module.ChatRoomMsgListPanel;
 import com.netease.nim.demo.session.action.GuessAction;

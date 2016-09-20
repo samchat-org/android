@@ -24,7 +24,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import android.content.Context;
 import com.dtr.zbar.build.ZBarDecoder;
 

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Environment;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.android.samchat.cache.MsgSessionDataCache;
 import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samchat.common.SamchatFileNameUtils;
 import com.android.samservice.SMCallBack;
@@ -23,6 +24,7 @@ import com.netease.nim.uikit.common.util.storage.StorageType;
 import com.netease.nim.uikit.common.util.storage.StorageUtil;
 import com.netease.nim.uikit.session.sam_message.SAMMessage;
 import com.netease.nimlib.sdk.RequestCallback;
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.android.samservice.Constants;
 import com.android.samservice.SamService;
@@ -198,7 +200,8 @@ public class SamDBManager{
 			observer.onEvent(session);
 		}
 	}
-
+	
+/*********************************************************************************************/
 	public void clearUserTable(long unique_id){
 
 	}
@@ -477,8 +480,10 @@ public class SamDBManager{
 		session.setrecent_msg_uuid(ims.get(ims.size() - 1).getUuid());
 		session.setrecent_msg_subtype(ims.get(ims.size() - 1).getMsgType().getValue());
 		session.setrecent_msg_content(ims.get(ims.size() - 1).getContent());
+
 		session.setrecent_msg_time(ims.get(ims.size() - 1).getTime());
-		session.setrecent_msg_status(NimConstants.MSG_STATUS_DEFAULT);
+		session.setrecent_msg_status(MsgStatusEnum.success.getValue());
+		MsgSessionDataCache.getInstance().addMsgSession( session.getsession_id(),  session.getmode(), session);
 	}
 
 	private void updateSessionBySendMsg(MsgSession session, Message msg,IMMessage im){
@@ -491,16 +496,17 @@ public class SamDBManager{
 		session.setrecent_msg_content(im.getContent());
 		session.setrecent_msg_time(im.getTime());
 		session.setrecent_msg_status(im.getStatus().getValue());
+		MsgSessionDataCache.getInstance().addMsgSession( session.getsession_id(),  session.getmode(), session);
 	}
 
 	private void updateSessionByDeleteMsg(MsgSession session, IMMessage im,int msg_type){
 		if(im == null){
 			session.setrecent_msg_type(NimConstants.MSG_TYPE_IM);
 			session.setrecent_msg_uuid(null);
-			session.setrecent_msg_subtype(NimConstants.MSG_SUBTYPE_DEFAULT);
+			session.setrecent_msg_subtype(MsgTypeEnum.undef.getValue());
 			session.setrecent_msg_content(null);
 			session.setrecent_msg_time(0);
-			session.setrecent_msg_status(NimConstants.MSG_STATUS_DEFAULT);
+			session.setrecent_msg_status(MsgStatusEnum.success.getValue());
 		}else{
 			session.setrecent_msg_type(msg_type);
 			session.setrecent_msg_uuid(im.getUuid());
@@ -509,6 +515,7 @@ public class SamDBManager{
 			session.setrecent_msg_time(im.getTime());
 			session.setrecent_msg_status(im.getStatus().getValue());
 		}
+		MsgSessionDataCache.getInstance().addMsgSession( session.getsession_id(),  session.getmode(), session);
 	}
 	
 	private MsgSession storeRcvdMessages(String session_id, int mode, List<Message> dbMsgs, List<IMMessage> ims, boolean recordUnread){
@@ -521,7 +528,6 @@ public class SamDBManager{
 		}
 
 		int rc = SamService.getInstance().getDao().add_Messages_db(session.getmsg_table_name(), dbMsgs);
-		
 		if(rc != -1){
 			updateSessionByRcvdMsg(session,dbMsgs,ims,recordUnread);
 			if(SamService.getInstance().getDao().update_MsgSession_db(session) != -1){
@@ -552,7 +558,6 @@ public class SamDBManager{
 		List<IMMessage> ims = new ArrayList<IMMessage>();
 		ims.add(im);
 		final List<Message> msgs = createMessages(sessionId,NimConstants.MSG_TYPE_IM, ims);
-		im.setStatus(MsgStatusEnum.success);
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
@@ -635,7 +640,11 @@ public class SamDBManager{
 
 	public void syncDeleteMessageSession(final String session_id, final int mode){
 		MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(session_id,  mode);
+		if(session == null){
+			return;
+		}
 		String table = session.getmsg_table_name();
+		MsgSessionDataCache.getInstance().removeMsgSession( session_id,  mode);
 		SamService.getInstance().getDao().delete_MsgSession_db(session_id, mode);
 		SamService.getInstance().getDao().delete_Message_db_all(table);
 	}
@@ -645,7 +654,11 @@ public class SamDBManager{
 			@Override
 			public void run(){
 				MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(session_id,  mode);
+				if(session == null){
+					return;
+				}
 				String table = session.getmsg_table_name();
+				MsgSessionDataCache.getInstance().removeMsgSession( session_id,  mode);
 				SamService.getInstance().getDao().delete_MsgSession_db(session_id, mode);
 				SamService.getInstance().getDao().delete_Message_db_all(table);
 			}
@@ -685,6 +698,10 @@ public class SamDBManager{
 		}
 	
 	public void syncClearUnreadCount(String session_id, int mode){
+		MsgSession session = MsgSessionDataCache.getInstance().getMsgSession( session_id,  mode);
+		if(session != null){
+			session.settotal_unread(0);
+		}
 		SamService.getInstance().getDao().update_MsgSession_db_unread_count(session_id, mode, 0);		
 	}
 
@@ -692,6 +709,10 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
+				MsgSession session = MsgSessionDataCache.getInstance().getMsgSession( session_id,  mode);
+				if(session != null){
+					session.settotal_unread(0);
+				}
 				if(SamService.getInstance().getDao().update_MsgSession_db_unread_count(session_id, mode, 0)!=-1){
 					MsgSession changedSession = SamService.getInstance().getDao().query_MsgSession_db( session_id,  mode);
 					if(changedSession !=null){
@@ -783,39 +804,34 @@ public class SamDBManager{
 		});	
 	}
 
-	public void asyncNoticeReceivedQuestionMessage(final ReceivedQuestion rq, final IMMessage im){
-			final List<IMMessage> ims = new ArrayList<IMMessage>();
-			ims.add(im);
-			mFixedHttpThreadPool.execute(new Runnable(){
-				@Override
-				public void run(){
-					MsgSession changedSession = SamService.getInstance().getDao().query_MsgSession_db(""+rq.getsender_unique_id(), ModeEnum.SP_MODE.ordinal());
-					if(changedSession != null){
-						//call session changed observer
-						callMsgServiceObserverCallback(changedSession);
-						//call incoming IMMessage observer
-						callIncomingMsgObserverCallback(ims);
-					}
-				}
-			});
-		}
-
-	private boolean syncStoreReceivedQuestionMessage(ReceivedQuestion rq, IMMessage im){
-		Map<String, Object> content = im.getRemoteExtension();
-		int msg_from = (int)content.get(NimConstants.MSG_FROM);
-		int mode = (msg_from == Constants.FROM_CUSTOMER ? ModeEnum.SP_MODE.ordinal():ModeEnum.CUSTOMER_MODE.ordinal());
-		Message msg = createMessage(im.getSessionId(),NimConstants.MSG_TYPE_RQ, im,rq.getquestion_id());
-
-		List<IMMessage> ims = new ArrayList<IMMessage>();
+	public void syncNoticeReceivedQuestionMessage(final ReceivedQuestion rq, final IMMessage im){
+		final List<IMMessage> ims = new ArrayList<IMMessage>();
 		ims.add(im);
-		List<Message> msgs = new ArrayList<Message>();
-		msgs.add(msg);
+		MsgSession changedSession = SamService.getInstance().getDao().query_MsgSession_db(""+rq.getsender_unique_id(), ModeEnum.SP_MODE.ordinal());
+			if(changedSession != null){
+				//call session changed observer
+				callMsgServiceObserverCallback(changedSession);
+				//call incoming IMMessage observer
+				callIncomingMsgObserverCallback(ims);
+			}
+	}
 
-		if(storeRcvdMessages(im.getSessionId(),mode,msgs,ims,false) != null){
-			return true;		
-		}
-		
-		return false;
+	private void asyncStoreReceivedQuestionMessage(final ReceivedQuestion rq, final IMMessage im){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				Map<String, Object> content = im.getRemoteExtension();
+				int msg_from = (int)content.get(NimConstants.MSG_FROM);
+				int mode = (msg_from == Constants.FROM_CUSTOMER ? ModeEnum.SP_MODE.ordinal():ModeEnum.CUSTOMER_MODE.ordinal());
+				Message msg = createMessage(im.getSessionId(),NimConstants.MSG_TYPE_RQ, im,rq.getquestion_id());
+				List<IMMessage> ims = new ArrayList<IMMessage>();
+				ims.add(im);
+				List<Message> msgs = new ArrayList<Message>();
+				msgs.add(msg);
+				storeRcvdMessages(im.getSessionId(),mode,msgs,ims,false);
+				syncNoticeReceivedQuestionMessage(rq, im);
+			}
+		});
 	}
 
 	public void asyncInsertReceivedQuestionMessage(final ReceivedQuestion rq){
@@ -828,15 +844,11 @@ public class SamDBManager{
 				}
 			
 				final IMMessage im = SAMMessageBuilder.createReceivedQuestionMessage(rq);
-				if(!syncStoreReceivedQuestionMessage(rq,im)){
-					return;
-				}
-				
 				NIMClient.getService(MsgService.class).saveMessageToLocal(im, false).setCallback(new RequestCallback<Void>() {
            		@Override
            		public void onSuccess(Void a) {
            			LogUtil.e(TAG,"saveMessageToLocal successful");
-               		asyncNoticeReceivedQuestionMessage(rq, im);
+						asyncStoreReceivedQuestionMessage(rq, im);
             		}
 
             		@Override
@@ -869,57 +881,61 @@ public class SamDBManager{
 		});
 	}
 
-	public void syncUpdateSendAdvertisementMessage(final Advertisement adv, final IMMessage im){
-		if(im.getStatus() == MsgStatusEnum.success){
-			MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(NimConstants.SESSION_ACCOUNT_ADVERTISEMENT,ModeEnum.SP_MODE.ordinal());
-			if(SamService.getInstance().getDao().updateMessageDataID(session.getmsg_table_name(), im.getUuid(), adv.getadv_id())!=0){
-				NIMClient.getService(MsgService.class).updateIMMessageStatus(im);
-				callSendAdvertisementStatusObserverCallback(im);
-			}else{
-				im.setStatus(MsgStatusEnum.fail);
-				NIMClient.getService(MsgService.class).updateIMMessageStatus(im);
-				callSendAdvertisementStatusObserverCallback(im);
-			}
-		}else{
-			NIMClient.getService(MsgService.class).updateIMMessageStatus(im);
-			callSendAdvertisementStatusObserverCallback(im);
-		}
-	}
-
-	private boolean syncStoreReceivedAdvertisementMessage(Advertisement adv, IMMessage im){
-		Map<String, Object> content = im.getRemoteExtension();
-		int msg_from = (int)content.get(NimConstants.MSG_FROM);
-		int mode = (msg_from == Constants.FROM_CUSTOMER ? ModeEnum.SP_MODE.ordinal():ModeEnum.CUSTOMER_MODE.ordinal());
-		Message msg = createMessage(im.getSessionId(),NimConstants.MSG_TYPE_RCVD_ADV, im,adv.getadv_id());
-
-		List<IMMessage> ims = new ArrayList<IMMessage>();
-		ims.add(im);
-		List<Message> msgs = new ArrayList<Message>();
-		msgs.add(msg);
-
-		if(storeRcvdMessages(im.getSessionId(),mode,msgs,ims,false) != null){
-			return true;		
-		}
-		
-		return false;
-	}
-
-	public void asyncNoticeRcvdAdvMessage(final Advertisement adv, final IMMessage im){
-			final List<IMMessage> ims = new ArrayList<IMMessage>();
-			ims.add(im);
-			mFixedHttpThreadPool.execute(new Runnable(){
-				@Override
-				public void run(){
-					MsgSession changedSession = SamService.getInstance().getDao().query_MsgSession_db(""+adv.getsender_unique_id(), ModeEnum.CUSTOMER_MODE.ordinal());
-					if(changedSession != null){
-						//call session changed observer
-						callMsgServiceObserverCallback(changedSession);
-						//call incoming IMMessage observer
-						callIncomingMsgObserverCallback(ims);
+	public void asyncUpdateSendAdvertisementMessage(final Advertisement adv, final IMMessage im){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				if(im.getStatus() == MsgStatusEnum.success){
+					MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(NimConstants.SESSION_ACCOUNT_ADVERTISEMENT,ModeEnum.SP_MODE.ordinal());
+					if(SamService.getInstance().getDao().updateMessageDataID(session.getmsg_table_name(), im.getUuid(), adv.getadv_id())!=0){
+						NIMClient.getService(MsgService.class).updateIMMessageStatus(im);
+						callSendAdvertisementStatusObserverCallback(im);
+					}else{
+						im.setStatus(MsgStatusEnum.fail);
+						NIMClient.getService(MsgService.class).updateIMMessageStatus(im);
+						callSendAdvertisementStatusObserverCallback(im);
 					}
+				}else{
+					NIMClient.getService(MsgService.class).updateIMMessageStatus(im);
+					callSendAdvertisementStatusObserverCallback(im);
 				}
-			});
+			}
+		});
+	}
+
+
+	
+
+	private void asyncStoreReceivedAdvertisementMessage(final Advertisement adv, final IMMessage im){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				Map<String, Object> content = im.getRemoteExtension();
+				int msg_from = (int)content.get(NimConstants.MSG_FROM);
+				int mode = (msg_from == Constants.FROM_CUSTOMER ? ModeEnum.SP_MODE.ordinal():ModeEnum.CUSTOMER_MODE.ordinal());
+				Message msg = createMessage(im.getSessionId(),NimConstants.MSG_TYPE_RCVD_ADV, im,adv.getadv_id());
+
+				List<IMMessage> ims = new ArrayList<IMMessage>();
+				ims.add(im);
+				List<Message> msgs = new ArrayList<Message>();
+				msgs.add(msg);
+				storeRcvdMessages(im.getSessionId(),mode,msgs,ims,false);
+				syncNoticeRcvdAdvMessage(adv,im);
+			}
+		});
+	}
+
+	public void syncNoticeRcvdAdvMessage( Advertisement adv,  IMMessage im){
+		final List<IMMessage> ims = new ArrayList<IMMessage>();
+		ims.add(im);
+		MsgSession changedSession = SamService.getInstance().getDao().query_MsgSession_db(""+adv.getsender_unique_id(), ModeEnum.CUSTOMER_MODE.ordinal());
+		if(changedSession != null){
+			//call session changed observer
+			callMsgServiceObserverCallback(changedSession);
+			//call incoming IMMessage observer
+			callIncomingMsgObserverCallback(ims);
 		}
+	}
 
 	public void asyncInsertRcvdAdvMessage(final Advertisement adv){
 		mFixedHttpThreadPool.execute(new Runnable(){
@@ -931,15 +947,12 @@ public class SamDBManager{
 				}
 
 				final IMMessage im = SAMMessageBuilder.createReceivedAdvertisementMessage(adv);
-				if(!syncStoreReceivedAdvertisementMessage(adv,im)){
-					return;
-				}
 				
 				NIMClient.getService(MsgService.class).saveMessageToLocal(im, false).setCallback(new RequestCallback<Void>() {
            		@Override
            		public void onSuccess(Void a) {
            			LogUtil.e(TAG,"saveMessageToLocal successful");
-               		asyncNoticeRcvdAdvMessage(adv, im);
+						asyncStoreReceivedAdvertisementMessage(adv,im);
             		}
 
             		@Override

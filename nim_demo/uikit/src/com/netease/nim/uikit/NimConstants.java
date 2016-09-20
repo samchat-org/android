@@ -9,9 +9,6 @@ public class NimConstants{
 	public static final int MSG_TYPE_SEND_ADV = 3;
 	public static final int MSG_TYPE_RCVD_ADV = 4;
 	
-	public static final int MSG_SUBTYPE_DEFAULT = 99;
-	public static final int MSG_STATUS_DEFAULT = 99;
-
 	public static final String MSG_FROM="msg_from";
 	public static final int FROM_CUSTOMER = 0;
 	public static final int FROM_SP = 1;

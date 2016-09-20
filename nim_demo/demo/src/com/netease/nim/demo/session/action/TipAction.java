@@ -1,6 +1,6 @@
 package com.netease.nim.demo.session.action;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.uikit.session.actions.BaseAction;
 import com.netease.nimlib.sdk.msg.MessageBuilder;
 import com.netease.nimlib.sdk.msg.model.CustomMessageConfig;

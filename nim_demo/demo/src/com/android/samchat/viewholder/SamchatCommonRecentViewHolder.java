@@ -1,6 +1,7 @@
 package com.android.samchat.viewholder;
 
 import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.session.helper.TeamNotificationHelper;
 import com.netease.nimlib.sdk.avchat.constant.AVChatRecordState;
@@ -10,7 +11,7 @@ import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.attachment.NotificationAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nim.uikit.recent.viewholder.RecentViewHolder;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.android.samservice.info.MsgSession;
 import java.util.List;
 import java.util.ArrayList;
@@ -20,10 +21,11 @@ import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nim.uikit.NimConstants;
 
 public class SamchatCommonRecentViewHolder extends SamchatRecentViewHolder {
+	private static final String TAG = "SamchatCommonRecentViewHolder";
 
 	@Override
-	protected String getContent(MsgSession session, IMMessage im) {
-		return descOfMsg(session,im);
+	protected String getContent(MsgSession session) {
+		return descOfMsg(session);
 	}
 
 	@Override
@@ -31,60 +33,28 @@ public class SamchatCommonRecentViewHolder extends SamchatRecentViewHolder {
         return R.layout.samchat_recent_contact_list_item;
     }
 
-	protected String descOfMsg(MsgSession session,IMMessage im) {
-		String digest = getDefaultDigest(im,im.getAttachment());
+	protected String descOfMsg(MsgSession session) {
+		String digest = getDefaultDigest(session);
 		return digest;
 	}
 
-   private String getDefaultDigest(IMMessage im, MsgAttachment attachment) {
-        switch (im.getMsgType()) {
-            case text:
-                return im.getContent();
-            case image:
-                return "["+context.getString(R.string.samchat_picture)+"]";
-            case video:
-                return "["+context.getString(R.string.samchat_video)+"]";
-            case audio:
-                return "["+context.getString(R.string.samchat_audio)+"]";
-            case location:
-                return "["+context.getString(R.string.samchat_location)+"]";
-            case file:
-                return "["+context.getString(R.string.samchat_file)+"]";
-            case tip:
-                return "["+context.getString(R.string.samchat_notice)+"]";
-            case notification:
-                return TeamNotificationHelper.getTeamNotificationText(recent.getContactId(),
-                        recent.getFromAccount(),
-                        (NotificationAttachment) recent.getAttachment());
-            case avchat:
-                AVChatAttachment avchat = (AVChatAttachment) attachment;
-                if (avchat.getState() == AVChatRecordState.Missed && !recent.getFromAccount().equals(NimUIKit.getAccount())) {
-                    // 未接通话请求
-                    StringBuilder sb = new StringBuilder("["+context.getString(R.string.samchat_missing));
-                    if (avchat.getType() == AVChatType.VIDEO) {
-                        sb.append(context.getString(R.string.samchat_video_call)+"]");
-                    } else {
-                        sb.append(context.getString(R.string.samchat_audio_call)+"]");
-                    }
-                    return sb.toString();
-                } else if (avchat.getState() == AVChatRecordState.Success) {
-                    StringBuilder sb = new StringBuilder();
-                    if (avchat.getType() == AVChatType.VIDEO) {
-                        sb.append("[" + context.getString(R.string.samchat_video_call) + "]: ");
-                    } else {
-                        sb.append("[" + context.getString(R.string.samchat_audio_call) + "]: ");
-                    }
-                    sb.append(TimeUtil.secToTime(avchat.getDuration()));
-                    return sb.toString();
-                } else {
-                    if (avchat.getType() == AVChatType.VIDEO) {
-                        return ("["+ context.getString(R.string.samchat_video_call) +"]");
-                    } else {
-                        return ("["+ context.getString(R.string.samchat_audio_call) +"]");
-                    }
-                }
-            default:
-                return "";
+   private String getDefaultDigest(MsgSession session) {
+		if(session.getrecent_msg_subtype() == MsgTypeEnum.text.getValue()){
+            return session.getrecent_msg_content();
+        }else if(session.getrecent_msg_subtype() == MsgTypeEnum.image.getValue()){
+            return "["+context.getString(R.string.samchat_picture)+"]";
+        }else if(session.getrecent_msg_subtype() == MsgTypeEnum.video.getValue()){
+            return "["+context.getString(R.string.samchat_video)+"]";
+        }else if(session.getrecent_msg_subtype() == MsgTypeEnum.audio.getValue()){
+            return "["+context.getString(R.string.samchat_audio)+"]";
+        }else if(session.getrecent_msg_subtype() == MsgTypeEnum.location.getValue()){
+            return "["+context.getString(R.string.samchat_location)+"]";
+        }else if(session.getrecent_msg_subtype() == MsgTypeEnum.file.getValue()){
+            return "["+context.getString(R.string.samchat_file)+"]";
+        }else if(session.getrecent_msg_subtype() == MsgTypeEnum.tip.getValue()){
+            return "["+context.getString(R.string.samchat_notice)+"]";
+        }else{
+            return "";
         }
     }
 }

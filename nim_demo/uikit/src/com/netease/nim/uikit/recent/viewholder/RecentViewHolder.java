@@ -22,7 +22,6 @@ import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.RecentContact;
 import com.netease.nimlib.sdk.team.model.Team;
-import com.android.samchat.adapter.SamchatRecentContactAdapter;
 import com.netease.nim.uikit.NimConstants;
 
 public abstract class RecentViewHolder extends TViewHolder implements OnClickListener {

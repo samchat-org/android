@@ -175,7 +175,7 @@ public class MessageAudioControl extends BaseAudioControl<IMMessage> {
 			}
 			if (message.getStatus() != MsgStatusEnum.read) {
 				message.setStatus(MsgStatusEnum.read);
-                NIMClient.getService(MsgService.class).updateIMMessageStatus(message);
+              NIMClient.getService(MsgService.class).updateIMMessageStatus(message);
 			}
 			//不是直接通过点击ViewHolder开始的播放，不设置AudioControlListener
 			//notifyDataSetChanged会触发ViewHolder刷新，对应的ViewHolder会把AudioControlListener设置上去

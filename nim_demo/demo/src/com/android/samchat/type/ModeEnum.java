@@ -25,6 +25,6 @@ public enum ModeEnum {
 		}
 
 		public static int valueOfType(ModeEnum type){
-			return type.ordinal();
+			return type.getValue();
 		}
 }

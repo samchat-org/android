@@ -29,7 +29,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.android.samservice.utils.S3Util;
 import com.netease.nim.demo.DemoCache;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.config.preference.Preferences;
 import com.netease.nim.demo.config.preference.UserPreferences;
 import com.netease.nim.demo.contact.ContactHttpClient;

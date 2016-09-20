@@ -4,7 +4,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.contact.activity.BlackListAdapter;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;

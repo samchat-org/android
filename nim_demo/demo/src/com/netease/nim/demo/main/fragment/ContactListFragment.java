@@ -9,7 +9,7 @@ import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
 import com.netease.nim.demo.DemoCache;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.contact.activity.BlackListActivity;
 import com.netease.nim.demo.main.activity.SystemMessageActivity;
 import com.netease.nim.demo.main.activity.TeamListActivity;

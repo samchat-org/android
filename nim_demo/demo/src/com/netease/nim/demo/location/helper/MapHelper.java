@@ -11,7 +11,7 @@ import android.content.pm.PackageManager;
 import android.text.TextUtils;
 import android.widget.Toast;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.location.model.NimLocation;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 

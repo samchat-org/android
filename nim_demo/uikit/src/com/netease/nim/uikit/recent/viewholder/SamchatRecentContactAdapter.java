@@ -1,4 +1,4 @@
-package com.android.samchat.adapter;
+package com.netease.nim.uikit.recent.viewholder;
 
 import android.content.Context;
 

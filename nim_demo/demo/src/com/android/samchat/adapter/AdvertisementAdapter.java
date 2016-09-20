@@ -7,7 +7,7 @@ import com.android.samservice.Constants;
 import com.android.samservice.info.Advertisement;
 import com.android.samservice.info.ContactUser;
 import com.netease.nim.demo.DemoCache;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.android.samservice.info.SendQuestion;
 
 import android.os.Environment;

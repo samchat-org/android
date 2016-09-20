@@ -2,7 +2,7 @@ package com.netease.nim.demo.session.extension;
 
 import com.alibaba.fastjson.JSONObject;
 import com.netease.nim.demo.DemoCache;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 
 /**
  * Created by huangjun on 2015/7/28.

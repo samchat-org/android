@@ -195,6 +195,32 @@ public class DBManager
 		return sessions;
 	}
 
+	public List<MsgSession> queryMsgSessionAll(){
+		String table = DatabaseHelper.TABLE_NAME_MSG_SESSION;
+		MsgSession session = null;
+		Cursor c = message_db.query(table,null,null,null,null,null,null);
+		List<MsgSession> sessions = new ArrayList<MsgSession>();
+		
+		while(c.moveToNext()){
+			session = new MsgSession();
+			session.setid(c.getLong(c.getColumnIndex("id")));
+			session.setsession_id(c.getString(c.getColumnIndex("session_id")));
+			session.setmode(c.getInt(c.getColumnIndex("mode")));
+			session.setmsg_table_name(c.getString(c.getColumnIndex("msg_table_name")));
+			session.settotal_unread(c.getInt(c.getColumnIndex("total_unread")));
+			session.setrecent_msg_type(c.getInt(c.getColumnIndex("recent_msg_type")));
+			session.setrecent_msg_uuid(c.getString(c.getColumnIndex("recent_msg_uuid")));
+			session.setrecent_msg_subtype(c.getInt(c.getColumnIndex("recent_msg_subtype")));
+			session.setrecent_msg_content(c.getString(c.getColumnIndex("recent_msg_content")));
+			session.setrecent_msg_time(c.getLong(c.getColumnIndex("recent_msg_time")));
+			sessions.add(session);
+		}
+
+		c.close();
+
+		return sessions;
+	}
+
 	public void deleteMsgSession(String session_id,int mode){
 		String table = DatabaseHelper.TABLE_NAME_MSG_SESSION ;
 		

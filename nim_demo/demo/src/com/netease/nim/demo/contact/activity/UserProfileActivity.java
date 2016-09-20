@@ -15,7 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netease.nim.demo.DemoCache;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.contact.constant.UserConstant;
 import com.netease.nim.demo.main.model.Extras;
 import com.netease.nim.demo.session.SessionHelper;

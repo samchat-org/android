@@ -1,5 +1,5 @@
 package com.android.samchat.service;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.android.samservice.Constants;
 import android.app.Activity;
 

@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.android.samservice.info.ContactUser;
 import com.android.samservice.info.PhoneContact;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.android.samservice.info.SendQuestion;
 import android.widget.BaseAdapter;
 import android.content.Context;

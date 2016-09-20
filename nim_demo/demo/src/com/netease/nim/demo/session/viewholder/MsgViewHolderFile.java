@@ -8,7 +8,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.samchat.common.SamchatOpenFileUtil;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
 import com.netease.nim.uikit.common.util.file.FileUtil;
 import com.netease.nim.demo.file.FileIcons;

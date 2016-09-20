@@ -14,7 +14,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.rts.ActionTypeEnum;
 import com.netease.nim.demo.rts.doodle.DoodleView;
 import com.netease.nim.demo.rts.doodle.SupportActionType;

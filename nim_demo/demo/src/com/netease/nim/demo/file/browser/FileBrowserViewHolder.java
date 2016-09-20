@@ -6,7 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.netease.nim.demo.DemoCache;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.demo.file.browser.FileBrowserAdapter.FileManagerItem;
 

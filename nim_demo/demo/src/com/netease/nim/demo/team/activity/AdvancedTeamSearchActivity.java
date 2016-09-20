@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.widget.ClearableEditTextWithIcon;
 import com.netease.nim.uikit.model.ToolBarOptions;

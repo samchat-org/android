@@ -20,7 +20,7 @@ import com.android.samchat.activity.SamchatAddCustomerActivity;
 import com.android.samchat.activity.SamchatAddServiceProviderActivity;
 import com.android.samchat.activity.SamchatMemberSelectActivity;
 import com.android.samchat.receiver.PushReceiver;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.avchat.AVChatProfile;
 import com.netease.nim.demo.avchat.activity.AVChatActivity;
 import com.netease.nim.demo.chatroom.helper.ChatRoomHelper;

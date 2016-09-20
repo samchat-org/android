@@ -10,7 +10,7 @@ import android.widget.Toast;
 import com.netease.nim.demo.DemoCache;
 import com.netease.nim.demo.NimApplication;
 import com.netease.nim.uikit.cache.NimUserInfoCache;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.avchat.constant.CallStateEnum;
 import com.netease.nim.demo.avchat.widgets.ToggleListener;
 import com.netease.nim.demo.avchat.widgets.ToggleState;

@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.session.activity.WatchSnapChatPictureActivity;
 import com.netease.nim.demo.session.extension.SnapChatAttachment;
 import com.netease.nim.uikit.common.util.file.AttachmentStore;

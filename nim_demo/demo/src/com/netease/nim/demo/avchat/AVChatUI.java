@@ -11,7 +11,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.netease.nim.demo.DemoCache;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.avchat.activity.AVChatExitCode;
 import com.netease.nim.demo.avchat.constant.CallStateEnum;
 import com.netease.nim.demo.config.preference.UserPreferences;

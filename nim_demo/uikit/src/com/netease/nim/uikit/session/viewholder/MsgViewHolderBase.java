@@ -200,6 +200,7 @@ public abstract class MsgViewHolderBase extends TViewHolder {
     private void setStatus() {
 
         MsgStatusEnum status = message.getStatus();
+				LogUtil.e("test","show status:"+status);
         switch (status) {
         case fail:
             progressBar.setVisibility(View.GONE);

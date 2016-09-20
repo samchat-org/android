@@ -18,8 +18,9 @@ import android.view.View.OnKeyListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.samchat.cache.MsgSessionDataCache;
 import com.netease.nim.demo.DemoCache;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.config.preference.Preferences;
 import com.netease.nim.demo.config.preference.UserPreferences;
 import com.netease.nim.demo.contact.ContactHttpClient;
@@ -38,6 +39,7 @@ import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nim.uikit.permission.MPermission;
 import com.netease.nim.uikit.permission.annotation.OnMPermissionDenied;
 import com.netease.nim.uikit.permission.annotation.OnMPermissionGranted;
+import com.netease.nim.uikit.recent.viewholder.SamchatRecentContactAdapter;
 import com.netease.nimlib.sdk.AbortableFuture;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -73,7 +75,6 @@ import com.android.samservice.QuestionInfo;
 import android.widget.ListView;
 import java.util.List;
 import java.util.ArrayList;
-import com.android.samchat.adapter.SamchatRecentContactAdapter;
 import com.netease.nim.uikit.recent.RecentContactsCallback;
 import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
@@ -476,7 +477,6 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 			public void run() {
 				Object tag = ListViewUtil.getViewHolderByIndex(listView_customer, index);
 				if (tag instanceof SamchatRecentViewHolder) {
-					LogUtil.e("test","getViewHolderByIndex:"+tag);
 					SamchatRecentViewHolder viewHolder = (SamchatRecentViewHolder) tag;
 					viewHolder.refreshCurrentItem();
 				}else if(tag instanceof RecentViewHolder) {
@@ -500,8 +500,12 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 				
 				if((Integer)content.get(Constants.MSG_FROM) == Constants.FROM_CUSTOMER){
 					int index = findRecentContactIndex(items_customer,message);
-					if(index != -1){
-						items_customer.get(index).setMsgStatus(message.getStatus());
+					if(index != -1 &&( message.getSessionType() == SessionTypeEnum.P2P)){
+						MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(message.getSessionId(), ModeEnum.CUSTOMER_MODE.getValue());
+						if(session != null){
+							session.setrecent_msg_status(message.getStatus().getValue());
+							LogUtil.e(TAG,"update msg status:"+session.getrecent_msg_status());
+						}
 						refreshViewHolderCustomerByIndex(index);
 					}
 				}
@@ -511,7 +515,7 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 
 	private void registerObservers(boolean register) {
 		MsgServiceObserve service = NIMClient.getService(MsgServiceObserve.class);
-		service.observeMsgStatus(statusObserver, register);
+		//service.observeMsgStatus(statusObserver, register);
 	}
 
 }

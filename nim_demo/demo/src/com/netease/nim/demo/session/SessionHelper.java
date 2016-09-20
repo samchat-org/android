@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.netease.nim.demo.DemoCache;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.contact.activity.UserProfileActivity;
 import com.netease.nim.demo.session.action.AVChatAction;
 import com.netease.nim.demo.session.action.FileAction;

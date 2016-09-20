@@ -10,7 +10,7 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;  
 import android.view.View;  
 import android.widget.TextView;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 
 public class SideBar extends View {
 	

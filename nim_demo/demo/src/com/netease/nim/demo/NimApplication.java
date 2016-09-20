@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.samchat.R;
 import com.android.samservice.info.ContactUser;
 import com.igexin.sdk.PushManager;
 import com.netease.nim.demo.avchat.AVChatProfile;
@@ -136,7 +137,7 @@ public class NimApplication extends Application {
         config.notificationSmallIconId = R.drawable.ic_stat_notify_msg;
 
         // 通知铃声的uri字符串
-        config.notificationSound = "android.resource://com.netease.nim.demo/raw/msg";
+        config.notificationSound = "android.resource://com.android.samchat/raw/msg";
 
         // 呼吸灯配置
         config.ledARGB = Color.GREEN;

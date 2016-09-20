@@ -4,7 +4,7 @@ import android.graphics.Color;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderBase;
 import com.netease.nimlib.sdk.avchat.constant.AVChatType;

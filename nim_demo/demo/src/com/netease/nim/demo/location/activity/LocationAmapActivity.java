@@ -21,7 +21,7 @@ import com.amap.api.maps2d.MapView;
 import com.amap.api.maps2d.UiSettings;
 import com.amap.api.maps2d.model.CameraPosition;
 import com.amap.api.maps2d.model.LatLng;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.location.helper.NimGeocoder;
 import com.netease.nim.demo.location.helper.NimLocationManager;
 import com.netease.nim.demo.location.helper.NimLocationManager.NimLocationListener;

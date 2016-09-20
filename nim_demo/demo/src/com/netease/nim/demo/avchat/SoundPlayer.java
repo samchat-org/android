@@ -4,7 +4,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 
 
 /**

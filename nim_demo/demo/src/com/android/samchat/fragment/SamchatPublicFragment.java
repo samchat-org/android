@@ -48,7 +48,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import android.widget.LinearLayout;
 import com.netease.nim.uikit.common.activity.UI;
 import com.android.samservice.SamService;
@@ -546,7 +546,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		public void onError(int id, Exception e) {
 			releaseTransferObserver(im.getUuid(),false);
 			im.setStatus(MsgStatusEnum.fail);
-			SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(null, im);
+			SamDBManager.getInstance().asyncUpdateSendAdvertisementMessage(null, im);
 			AttachmentStore.deleteOnExit(SamchatFileNameUtils.getTempFileName(abspath_origin, s3name_origin));
 		}
 
@@ -579,7 +579,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 			}else{
 				releaseTransferObserver(im.getUuid(),false);
 				im.setStatus(MsgStatusEnum.fail);
-				SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(null, im);
+				SamDBManager.getInstance().asyncUpdateSendAdvertisementMessage(null, im);
 				AttachmentStore.deleteOnExit(SamchatFileNameUtils.getTempFileName(abspath_origin, s3name_origin));
 			}
 		}
@@ -592,7 +592,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 			bitmap = BitmapDecoder.decodeSampled(absPath, Constants.ADV_PIC_MAX, Constants.ADV_PIC_MAX);
 			if(bitmap == null){
 				im.setStatus(MsgStatusEnum.fail);
-				SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(null, im);
+				SamDBManager.getInstance().asyncUpdateSendAdvertisementMessage(null, im);
 				return;
 			}
 			String temp = SamchatFileNameUtils.getTempFileName( absPath,  s3nameOrig);
@@ -739,17 +739,17 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 					HttpCommClient hcc = (HttpCommClient) obj;
 					Advertisement adv = hcc.adv;
 					im.setStatus(MsgStatusEnum.success);
-					SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(adv, im);
+					SamDBManager.getInstance().asyncUpdateSendAdvertisementMessage(adv, im);
 				}
 				@Override
 				public void onFailed(int code) {
 					im.setStatus(MsgStatusEnum.fail);
-					SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(null, im);
+					SamDBManager.getInstance().asyncUpdateSendAdvertisementMessage(null, im);
 				}
 				@Override
 				public void onError(int code) {
 					im.setStatus(MsgStatusEnum.fail);
-					SamDBManager.getInstance().syncUpdateSendAdvertisementMessage(null, im);
+					SamDBManager.getInstance().asyncUpdateSendAdvertisementMessage(null, im);
 				}
 		 });
 	}

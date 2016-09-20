@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import com.alibaba.fastjson.JSONObject;
 import com.netease.nim.demo.DemoCache;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.main.helper.CustomNotificationCache;
 import com.netease.nim.demo.main.viewholder.CustomNotificationViewHolder;
 import com.netease.nim.uikit.NimUIKit;

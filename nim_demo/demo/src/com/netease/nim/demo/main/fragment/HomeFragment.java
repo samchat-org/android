@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import com.android.samchat.SamchatGlobal;
 import com.android.samchat.fragment.SamchatPublicListFragment;
 import com.android.samchat.type.ModeEnum;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.common.ui.viewpager.FadeInOutPageTransformer;
 import com.netease.nim.demo.common.ui.viewpager.PagerSlidingTabStrip;
 import com.netease.nim.demo.main.adapter.MainTabPagerAdapter;

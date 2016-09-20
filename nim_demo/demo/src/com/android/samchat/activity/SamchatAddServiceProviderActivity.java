@@ -43,7 +43,7 @@ import com.android.samservice.info.PhoneContact;
 import com.android.samservice.info.SendQuestion;
 import com.karics.library.zxing.android.CaptureActivity;
 import com.netease.nim.demo.DemoCache;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.config.preference.Preferences;
 import com.netease.nim.demo.config.preference.UserPreferences;
 import com.netease.nim.demo.contact.ContactHttpClient;

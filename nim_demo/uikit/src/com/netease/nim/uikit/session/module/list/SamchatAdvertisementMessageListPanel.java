@@ -876,7 +876,7 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
             voiceTrans.voiceToText(item);
             if (item.getDirect() == MsgDirectionEnum.In && item.getStatus() != MsgStatusEnum.read) {
                 item.setStatus(MsgStatusEnum.read);
-                NIMClient.getService(MsgService.class).updateIMMessageStatus(item);
+               NIMClient.getService(MsgService.class).updateIMMessageStatus(item);
                 adapter.notifyDataSetChanged();
             }
         }

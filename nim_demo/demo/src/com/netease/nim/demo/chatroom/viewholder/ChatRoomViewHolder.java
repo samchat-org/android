@@ -3,7 +3,7 @@ package com.netease.nim.demo.chatroom.viewholder;
 import android.view.View;
 import android.widget.TextView;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.chatroom.adapter.ChatRoomAdapter;
 import com.netease.nim.demo.chatroom.helper.ChatRoomHelper;
 import com.netease.nim.uikit.common.adapter.TViewHolder;

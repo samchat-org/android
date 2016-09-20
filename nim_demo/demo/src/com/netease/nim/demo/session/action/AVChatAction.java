@@ -2,7 +2,7 @@ package com.netease.nim.demo.session.action;
 
 import android.widget.Toast;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.avchat.activity.AVChatActivity;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nim.uikit.session.actions.BaseAction;

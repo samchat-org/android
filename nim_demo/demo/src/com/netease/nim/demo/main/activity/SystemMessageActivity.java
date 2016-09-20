@@ -10,7 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.main.adapter.SystemMessageAdapter;
 import com.netease.nim.demo.main.viewholder.SystemMessageViewHolder;
 import com.netease.nim.uikit.cache.NimUserInfoCache;

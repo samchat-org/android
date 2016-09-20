@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 import com.netease.nim.uikit.common.fragment.TabFragment;
 import com.netease.nim.demo.main.model.MainTab;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 
 
 public abstract class MainTabFragment extends TabFragment {

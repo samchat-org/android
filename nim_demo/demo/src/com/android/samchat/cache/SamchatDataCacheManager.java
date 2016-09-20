@@ -48,6 +48,7 @@ public class SamchatDataCacheManager {
 		ContactDataCache.getInstance().buildCache();
 		CustomerDataCache.getInstance().buildCache();
 		FollowDataCache.getInstance().buildCache();
+		MsgSessionDataCache.getInstance().buildCache();
 		
 
         // build self avatar cache
@@ -61,6 +62,7 @@ public class SamchatDataCacheManager {
 		ContactDataCache.getInstance().clearCache();
 		CustomerDataCache.getInstance().clearCache();
 		SamchatUserInfoCache.getInstance().clearCache();
+		MsgSessionDataCache.getInstance().clearCache();
 	}
 
 }

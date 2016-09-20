@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 import com.android.samchat.activity.SamchatMemberSelectActivity;
 import com.netease.nim.demo.DemoCache;
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.contact.activity.UserProfileActivity;
 import com.netease.nim.demo.team.TeamCreateHelper;
 import com.netease.nim.uikit.NimUIKit;

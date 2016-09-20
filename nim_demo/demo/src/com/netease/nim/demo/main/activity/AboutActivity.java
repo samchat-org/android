@@ -3,8 +3,8 @@ package com.netease.nim.demo.main.activity;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import com.netease.nim.demo.BuildConfig;
-import com.netease.nim.demo.R;
+import com.android.samchat.BuildConfig;
+import com.android.samchat.R;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.model.ToolBarOptions;
 

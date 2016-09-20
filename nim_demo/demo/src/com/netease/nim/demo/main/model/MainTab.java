@@ -1,6 +1,6 @@
 package com.netease.nim.demo.main.model;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.main.fragment.ContactListFragment;
 import com.netease.nim.demo.main.fragment.MainTabFragment;
 import com.netease.nim.demo.main.fragment.SessionListFragment;

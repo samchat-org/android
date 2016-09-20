@@ -5,6 +5,8 @@ import java.io.Serializable;
 import com.android.samservice.Constants;
 import com.android.samchat.type.ModeEnum;
 import com.netease.nim.uikit.NimConstants;
+import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
+import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 
 /*
 	id(primary) | session_id | mode | msg_table_name | total_unread 
@@ -24,6 +26,10 @@ public class MsgSession implements Serializable
 	private long recent_msg_time;
 	private int recent_msg_status;
 
+	public static String makeKey(String s_id, int mode){
+		return s_id+"_"+mode;
+	}
+
 	public MsgSession(){
 		this.id = 0;
 		this.session_id = null;
@@ -32,10 +38,10 @@ public class MsgSession implements Serializable
 		this.total_unread = 0;
 		this.recent_msg_type = NimConstants.MSG_TYPE_IM;
 		this.recent_msg_uuid = null;
-		this.recent_msg_subtype = NimConstants.MSG_SUBTYPE_DEFAULT;
+		this.recent_msg_subtype = MsgTypeEnum.undef.getValue();
 		this.recent_msg_content = null;
 		this.recent_msg_time = 0;
-		this.recent_msg_status = NimConstants.MSG_STATUS_DEFAULT;
+		this.recent_msg_status = MsgStatusEnum.success.getValue();
 	}
 
 	public MsgSession(String session_id, int mode, String msg_table_name){
@@ -46,10 +52,10 @@ public class MsgSession implements Serializable
 		this.total_unread = 0;
 		this.recent_msg_type = NimConstants.MSG_TYPE_IM;
 		this.recent_msg_uuid = null;
-		this.recent_msg_subtype = NimConstants.MSG_SUBTYPE_DEFAULT;
+		this.recent_msg_subtype = MsgTypeEnum.undef.getValue();
 		this.recent_msg_content = null;
 		this.recent_msg_time = 0;
-		this.recent_msg_status = NimConstants.MSG_STATUS_DEFAULT;
+		this.recent_msg_status = MsgStatusEnum.success.getValue();
 	}
 
 	public int getrecent_msg_subtype(){

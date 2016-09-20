@@ -359,7 +359,7 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean register_code_request(VerifyCodeCoreObj vcobj){			
+	public boolean register_code_request(VerifyCodeCoreObj vcobj){	
 		try{
 			JSONObject  data = constructRegisterCodeReqeustJson(vcobj);
 
@@ -401,7 +401,6 @@ public class HttpCommClient {
 			e.printStackTrace(); 
 			return false;
 		}
-		
 	}
 
 	private JSONObject constructRegisterCodeVerifyJson(VerifyCodeCoreObj vcobj) throws JSONException{
@@ -421,7 +420,7 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean register_code_verify(VerifyCodeCoreObj vcobj){			
+	public boolean register_code_verify(VerifyCodeCoreObj vcobj){
 		try{
 			JSONObject  data = constructRegisterCodeVerifyJson(vcobj);
 
@@ -485,7 +484,7 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean signup(SignUpCoreObj suobj){			
+	public boolean signup(SignUpCoreObj suobj){	
 		try{
 			SamLog.i(TAG,"signup start");
 			JSONObject  signup_data = constructSignUpJson(suobj);
@@ -563,7 +562,7 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean signin(SignInCoreObj siobj){			
+	public boolean signin(SignInCoreObj siobj){	
 		try{
 			JSONObject  data = constructSignInJson(siobj);
 
@@ -650,7 +649,7 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean get_app_key(GetAppKeyCoreObj gakobj){			
+	public boolean get_app_key(GetAppKeyCoreObj gakobj){		
 		try{
 			JSONObject  data = constructGetAppKeyJson(gakobj);
 
@@ -717,7 +716,7 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean signout(SignOutCoreObj soobj){			
+	public boolean signout(SignOutCoreObj soobj){	
 		try{
 			JSONObject  data = constructSignOutJson(soobj);
 
@@ -760,7 +759,6 @@ public class HttpCommClient {
 			e.printStackTrace(); 
 			return false;
 		}
-		
 	}
 
 	private JSONObject constructCreateSamProsJson(CreateSamProsCoreObj cspobj) throws JSONException{
@@ -815,7 +813,7 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean create_sam_pros(CreateSamProsCoreObj cspobj){			
+	public boolean create_sam_pros(CreateSamProsCoreObj cspobj){
 		try{
 			JSONObject  data = constructCreateSamProsJson(cspobj);
 

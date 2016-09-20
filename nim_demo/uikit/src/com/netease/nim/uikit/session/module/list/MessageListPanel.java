@@ -604,6 +604,7 @@ public class MessageListPanel implements TAdapterDelegate {
             List<IMMessage> result = new ArrayList<>();
             for (IMMessage message : messages) {
                 result.add(message);
+					LogUtil.e("test","msg status"+message.getStatus());
             }
             if (direction == QueryDirectionEnum.QUERY_NEW) {
                 items.addAll(result);

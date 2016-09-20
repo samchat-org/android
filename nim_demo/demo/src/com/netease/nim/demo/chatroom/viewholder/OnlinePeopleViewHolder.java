@@ -5,7 +5,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.chatroom.widget.ChatRoomImageView;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nimlib.sdk.chatroom.constant.MemberType;

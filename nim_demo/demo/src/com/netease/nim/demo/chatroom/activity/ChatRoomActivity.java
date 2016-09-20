@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.demo.chatroom.fragment.ChatRoomFragment;
 import com.netease.nim.demo.chatroom.fragment.ChatRoomMessageFragment;
 import com.netease.nim.demo.chatroom.helper.ChatRoomMemberCache;

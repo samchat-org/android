@@ -1,6 +1,6 @@
 package com.netease.nim.demo.chatroom.helper;
 
-import com.netease.nim.demo.R;
+import com.android.samchat.R;
 import com.netease.nim.uikit.common.ui.imageview.ImageViewEx;
 
 import java.util.HashMap;
