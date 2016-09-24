@@ -315,6 +315,7 @@ public final class NimUIKit {
         void registerSendAdvertisementObserver(SamchatObserver<IMMessage> observer,boolean register);
         void registerSendAdvertisementStatusObserver(SamchatObserver<IMMessage> observer,boolean register);
         void startMemberSelectActivity(Context context,List<String> selected,int requestCode);
+        void lastMsgResending(String account, int mode, IMMessage im);
     }
 
     static private NimUIKitInterface callback;

@@ -57,7 +57,7 @@ public class UserPreferences {
     }
 
     public static boolean getNotificationToggle() {
-        return getBoolean(KEY_SB_NOTIFY_TOGGLE, false);
+        return getBoolean(KEY_SB_NOTIFY_TOGGLE, true);
     }
 
     public static void setRingToggle(boolean on) {

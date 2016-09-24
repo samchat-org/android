@@ -16,6 +16,7 @@ import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.UserPreferences;
+import com.netease.nim.uikit.cache.SendIMMessageCache;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
@@ -706,6 +707,13 @@ public class MessageListPanel implements TAdapterDelegate {
             dialog.show();
         }
 
+        private boolean isLastMessage(IMMessage message){
+            if(items != null && items.size() >0 && message.getUuid().equals(items.get(items.size()-1).getUuid())){
+                return true;
+            }
+            return false;
+        }
+
         // 重发消息到服务器
         private void resendMessage(IMMessage message) {
             // 重置状态为unsent
@@ -716,6 +724,14 @@ public class MessageListPanel implements TAdapterDelegate {
                 refreshViewHolderByIndex(index);
             }
 
+            /*SAMC_BEGIN(work around for nim bug with queryMessageByUuid)*/
+            if(message.getSessionType() == SessionTypeEnum.P2P){
+                SendIMMessageCache.getInstance().add(message.getUuid());
+                if(isLastMessage(message)){
+                    NimUIKit.getCallback().lastMsgResending(message.getSessionId(), container.mode, message);
+                }
+            }
+            /*SAMC_END(work around for nim bug with queryMessageByUuid)*/
             NIMClient.getService(MsgService.class).sendMessage(message, true);
         }
 
@@ -850,7 +866,12 @@ public class MessageListPanel implements TAdapterDelegate {
             updateReceipt(messages);
             adapter.deleteItem(messageItem);
             /*SAMC_BEGIN(support mode)*/
-            NimUIKit.getCallback().deleteMessage(container.account, container.mode, messageItem);
+            if(messageItem.getSessionType() == SessionTypeEnum.P2P){
+                if(messageItem.getDirect() == MsgDirectionEnum.Out){
+                    SendIMMessageCache.getInstance().remove(messageItem.getUuid());
+                }
+                NimUIKit.getCallback().deleteMessage(container.account, container.mode, messageItem);
+            }
             /*SAMC_END(support mode)*/
         }
 
@@ -1120,6 +1141,7 @@ public class MessageListPanel implements TAdapterDelegate {
                        @Override
                        public void run() {
                        	// send message to server and save to db
+            				SendIMMessageCache.getInstance().add(msg.getUuid());
                         	NIMClient.getService(MsgService.class).sendMessage(msg, false);
                           if (container.account.equals(sessionId) && container.sessionType == sessionTypeEnum) {
                               onMsgSend(msg);

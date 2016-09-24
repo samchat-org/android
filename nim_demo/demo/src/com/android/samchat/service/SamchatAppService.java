@@ -53,7 +53,7 @@ public class SamchatAppService extends IntentService {
 			PushManager.getInstance().sendFeedbackMessage(mContext, taskid, messageid, 90001);
 		}else if(action.equals(PushReceiver.action_get_client)){
 			String clientid = intent.getExtras().getString("cid");
-			SamService.getInstance().bind_alias();
+			SamService.getInstance().bind_alias(clientid);
 		}
    }
 	

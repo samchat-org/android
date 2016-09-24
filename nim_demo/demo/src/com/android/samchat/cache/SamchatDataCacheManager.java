@@ -3,6 +3,7 @@ package com.android.samchat.cache;
 import android.content.Context;
 import android.os.Handler;
 
+import com.netease.nim.uikit.cache.SendIMMessageCache;
 import com.netease.nim.uikit.common.framework.NimSingleThreadExecutor;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 
@@ -49,6 +50,7 @@ public class SamchatDataCacheManager {
 		CustomerDataCache.getInstance().buildCache();
 		FollowDataCache.getInstance().buildCache();
 		MsgSessionDataCache.getInstance().buildCache();
+		SendIMMessageCache.getInstance().buildCache();
 		
 
         // build self avatar cache
@@ -63,6 +65,7 @@ public class SamchatDataCacheManager {
 		CustomerDataCache.getInstance().clearCache();
 		SamchatUserInfoCache.getInstance().clearCache();
 		MsgSessionDataCache.getInstance().clearCache();
+		SendIMMessageCache.getInstance().clearCache();
 	}
 
 }

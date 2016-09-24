@@ -108,6 +108,7 @@ public class SamService{
 	public static final int MSG_DELETE_ADV = MSG_WRITE_ADV + 1;
 	public static final int MSG_DOWNLOAD = MSG_DELETE_ADV + 1;
 	public static final int MSG_BIND_ALIAS = MSG_DOWNLOAD + 1;
+	public static final int MSG_SEND_CLIENTID = MSG_BIND_ALIAS + 1;
 
 	private boolean isTimeOut(SamCoreObj samobj){
 		cancelTimeOut(samobj);
@@ -1668,8 +1669,10 @@ public class SamService{
     }
 
 /********************************************** Bind Getu Alias  ********************************************************/
-	public void bind_alias(){
-		Message msg = mSamServiceHandler.obtainMessage(MSG_BIND_ALIAS,null);
+	public void bind_alias(String clientid){
+		BindCoreObj samobj = new BindCoreObj(null);
+		samobj.init(get_current_token(), clientid);
+		Message msg = mSamServiceHandler.obtainMessage(MSG_BIND_ALIAS,samobj);
 		mSamServiceHandler.sendMessage(msg);
 	}
 
@@ -1682,6 +1685,9 @@ public class SamService{
 			bindSucceed = PushManager.getInstance().bindAlias(DemoCache.getContext(),StringUtil.makeMd5(account));
 		}else{
 			SamLog.e(TAG, "do not bind alias this time");
+			if(Preferences.getScid() == 0){
+				send_clientid((BindCoreObj)samobj);
+			}
 			return;
 		}
 
@@ -1690,8 +1696,31 @@ public class SamService{
 			mSamServiceHandler.sendMessageDelayed(msg, 10000);
 			SamLog.e(TAG, "bind alias failed and retry in 10s");
 		}else{
+			Preferences.saveScid(0);
 			Preferences.saveUserAlias(StringUtil.makeMd5(account));
 			SamLog.e(TAG, "bind alias succeed");
+			send_clientid((BindCoreObj)samobj);
+		}
+    }
+
+
+/********************************************** Send Client ID  ********************************************************/
+	public void send_clientid(BindCoreObj samobj){
+		Message msg = mSamServiceHandler.obtainMessage(MSG_SEND_CLIENTID,samobj);
+		mSamServiceHandler.sendMessage(msg);
+	}
+
+	private void do_send_clientid(SamCoreObj samobj){
+		BindCoreObj bdobj = (BindCoreObj)samobj;
+		HttpCommClient hcc = new HttpCommClient();
+
+		boolean http_ret = hcc.send_clientid(bdobj);
+
+		if(!http_ret || hcc.ret != 0){
+			Message msg = mSamServiceHandler.obtainMessage(MSG_SEND_CLIENTID,samobj);
+			mSamServiceHandler.sendMessageDelayed(msg,10000);
+		}else{
+			Preferences.saveScid(1);
 		}
     }
 
@@ -2258,6 +2287,17 @@ public class SamService{
 						}
 					});
 					break;
+					
+				case MSG_SEND_CLIENTID:
+					mFixedHttpThreadPool.execute(new Runnable(){
+						@Override
+						public void run(){
+							do_send_clientid(msgObj);
+						}
+					});
+					break;
+
+					
 					
 			}
 		}

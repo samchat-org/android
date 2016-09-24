@@ -715,6 +715,12 @@ public class SamDBDao{
 		}
 	}
 
+	public long update_MsgSession_db_recent_status(String session_id, int mode, int status){
+		synchronized(dbLock_msg){
+			return dbHandle.updateMsgSessionRecentStatus( session_id,  mode, status);
+		}
+	}
+
 	public MsgSession query_MsgSession_db(String session_id, int mode){
 		synchronized(dbLock_msg){
 			return dbHandle.queryMsgSession( session_id,  mode);
@@ -767,7 +773,7 @@ public class SamDBDao{
 		synchronized(dbLock_msg){
 			ret = dbHandle.updateMessageDataID( table,  uuid,  data_id);
 		}
-		return ret;
+		return (ret==0 ? -1: ret);
 	}
 
 	

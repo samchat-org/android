@@ -92,12 +92,12 @@ public class NimApplication extends Application {
 					String account = Preferences.getUserAccount();
 					String token = Preferences.getUserToken()+UuidFactory.getInstance().getDeviceId();
 					SamService.getInstance().initDao(StringUtil.makeMd5(DemoCache.getAccount()));
+					SamchatDataCacheManager.buildDataCache(); // build data cache on auto login
 					if(SamService.getInstance().get_current_user() == null || SamService.getInstance().get_current_token() == null){
-						ContactUser cuser = SamService.getInstance().getDao().query_ContactUser_db_by_unique_id(Long.valueOf(account));
+						ContactUser cuser = SamchatUserInfoCache.getInstance().getUserByUniqueID(Long.valueOf(account));
 						SamService.getInstance().set_current_user(cuser);
 						SamService.getInstance().store_current_token(token);
 					}
-                 SamchatDataCacheManager.buildDataCache(); // build data cache on auto login
                  SamDBManager.getInstance().registerObservers(true);
             }
 
@@ -144,9 +144,9 @@ public class NimApplication extends Application {
         config.ledOnMs = 1000;
         config.ledOffMs = 1500;
 
-        options.statusBarNotificationConfig  = null;//= config;
-        DemoCache.setNotificationConfig(null);//(config);
-        UserPreferences.setStatusConfig(null);//(config);
+        options.statusBarNotificationConfig  = config;
+        DemoCache.setNotificationConfig(config);
+        UserPreferences.setStatusConfig(config);
 
         // 配置保存图片，文件，log等数据的目录
         String sdkPath = Environment.getExternalStorageDirectory() + "/" + getPackageName() + "/nim";

@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.android.samchat.cache.MsgSessionDataCache;
 import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.cache.FriendDataCache;
+import com.netease.nim.uikit.cache.SendIMMessageCache;
 import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
@@ -34,6 +35,7 @@ import com.netease.nimlib.sdk.RequestCallbackWrapper;
 import com.netease.nimlib.sdk.ResponseCode;
 import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.MsgServiceObserve;
+import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.model.RecentContact;
@@ -43,6 +45,7 @@ import com.netease.nimlib.sdk.team.TeamService;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog.onSeparateItemClickListener;
@@ -945,7 +948,12 @@ public class SamchatChatFragment extends TFragment{
 							MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(message.getSessionId(), ModeEnum.CUSTOMER_MODE.ordinal());
 							if(session != null){
 								session.setrecent_msg_status(message.getStatus().getValue());
+								if(message.getStatus() == MsgStatusEnum.success){
+									SamDBManager.getInstance().asyncUpdateMessageSessionDBRecentMessageStatus(message.getSessionId(), ModeEnum.CUSTOMER_MODE.ordinal(),message.getStatus().getValue());
+								}
 							}
+							SendIMMessageCache.getInstance().remove(message.getUuid());
+							sendBroadcastForCustomerItemsUpdata();
 						}else{
 							items_customer.get(index).setMsgStatus(message.getStatus());
 						}
@@ -958,7 +966,11 @@ public class SamchatChatFragment extends TFragment{
 							MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(message.getSessionId(), ModeEnum.SP_MODE.ordinal());
 							if(session != null){
 								session.setrecent_msg_status(message.getStatus().getValue());
+								if(message.getStatus() == MsgStatusEnum.success){
+									SamDBManager.getInstance().asyncUpdateMessageSessionDBRecentMessageStatus(message.getSessionId(), ModeEnum.SP_MODE.ordinal(),message.getStatus().getValue());
+								}
 							}
+							SendIMMessageCache.getInstance().remove(message.getUuid());
 						}else{
 							items_sp.get(index).setMsgStatus(message.getStatus());
 						}

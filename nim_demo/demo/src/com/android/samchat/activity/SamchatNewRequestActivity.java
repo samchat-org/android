@@ -8,8 +8,11 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -19,7 +22,9 @@ import android.view.View.OnKeyListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.samchat.factory.LocationFactory;
 import com.android.samservice.QuestionInfo;
+import com.android.samservice.info.PlacesInfo;
 import com.android.samservice.info.SendQuestion;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
@@ -68,7 +73,9 @@ import java.util.regex.Matcher;
 import com.android.samservice.HttpCommClient;
 public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatNewRequestActivity.class.getSimpleName();
-
+	private static final int MSG_COUNT_DOWN = 100;
+	private static final int TIME_COUNT_DOWN = 2000;
+	
 	private FrameLayout back_arrow_layout;
 	private TextView send_textview;
 	private EditText question_edittext;
@@ -76,6 +83,8 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 
 	private String question = null;
 	private String location = null;
+	private String locationInput = null;
+	private String pre_locationInput=null;
 
 	private boolean ready_send = false;
 
@@ -108,11 +117,17 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 
 		setupPanel();
 
+		LocationFactory.getInstance().startLocationMonitor();
+
+		handler = new LocationHandler();
+
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		LocationFactory.getInstance().stopLocationMonitor();
+		handler.removeCallbacksAndMessages(null);
 	}
 
 	private void setupPanel() {
@@ -183,6 +198,18 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 		question_edittext.addTextChangedListener(question_textWatcher);	
 	}
 
+	private boolean stringEquals(String s1, String s2){
+		if(s1 == null && s2 == null){
+			return true;
+		}else if(s1 == null && s2 != null){
+			return false;
+		}else if(s1 != null && s2 == null){
+			return false;
+		}else{
+			return s1.equals(s2);
+		}
+	}
+
 	private TextWatcher location_textWatcher = new TextWatcher() {
 		@Override
  		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -196,12 +223,41 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 
 		@Override
 		public void afterTextChanged(Editable s) {
-			location = location_edittext.getText().toString().trim();
+			pre_locationInput = locationInput;
+			locationInput = location_edittext.getText().toString().trim();
+			if(!stringEquals(pre_locationInput,locationInput)){
+				cancelQueryCountDown();
+				startQueryCountDown();
+			}else if(TextUtils.isEmpty(locationInput)){
+				cancelQueryCountDown();
+			}
 		}
 	};
 
 	private void setupLocationEditClick(){
 		location_edittext.addTextChangedListener(location_textWatcher);	
+	}
+
+	private LocationHandler handler;
+
+	private class LocationHandler extends Handler {
+		@Override
+		public void handleMessage(Message msg){
+			switch(msg.what){
+				case MSG_COUNT_DOWN:
+					getPlacesInfo(locationInput);	
+					break;
+				}
+		}
+	}
+
+	private void cancelQueryCountDown() {
+		handler.removeMessages(MSG_COUNT_DOWN);
+	}
+
+	private void startQueryCountDown() {
+		Message msg = handler.obtainMessage(MSG_COUNT_DOWN);
+		handler.sendMessageDelayed(msg, TIME_COUNT_DOWN);
 	}
 
 /******************************************Data Flow Control***********************************************************/
@@ -258,9 +314,31 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 				}
 
 		} );
-
 	}
 
+
+	private void getPlacesInfo(String key){
+		if(key == null){
+			return;
+		}
+
+		SamService.getInstance().get_places_info(key, new SMCallBack(){
+			@Override
+			public void onSuccess(final Object obj, final int WarningCode) {
+				HttpCommClient hcc = (HttpCommClient)obj;
+				for(PlacesInfo info: hcc.placesinfos.getinfo()){
+					LogUtil.e(TAG,"description:"+info.description+" place_id:"+info.place_id);
+				}
+				if(hcc.placesinfos.getkey().equals(locationInput)){
+					LogUtil.e(TAG,"show drag down menu");
+				}
+			}
+			@Override
+			public void onFailed(int code) {}
+			@Override
+			public void onError(int code) {}
+		 });
+	}
 }
 
 

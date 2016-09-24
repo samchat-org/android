@@ -36,6 +36,7 @@ import com.android.samchat.SamVendorInfo;
 import com.android.samservice.info.Advertisement;
 import com.android.samservice.info.Contact;
 import com.android.samservice.info.ContactUser;
+import com.android.samservice.info.DownloadCoreObj;
 import com.android.samservice.info.FollowedSamPros;
 import com.android.samservice.info.MultipleContact;
 import com.android.samservice.info.MultipleFollowUser;
@@ -50,7 +51,8 @@ import com.netease.nim.uikit.common.util.log.LogUtil;
 public class HttpCommClient {
 	public static final String TAG="HttpCommClient";
 	
-	public static final String ROOT_URL = "http://ec2-52-40-15-21.us-west-2.compute.amazonaws.com:8081/sam_svr/";
+	//public static final String ROOT_URL = "http://ec2-52-40-15-21.us-west-2.compute.amazonaws.com:8081/sam_svr/";
+	public static final String ROOT_URL = "http://service-test.samchat.com:8081/sam_svr/";
 
 	public static final String URL_registerCodeRequest = ROOT_URL+"api_1.0_user_registerCodeRequest.do";
 	public static final String URL_registerCodeVerify =ROOT_URL+"api_1.0_user_signupCodeVerify.do";
@@ -84,6 +86,9 @@ public class HttpCommClient {
 	public static final String URL_queryUserWithoutToken=ROOT_URL+"api_1.0_user_queryWithoutToken.do";
 	public static final String URL_queryGroup=ROOT_URL+"api_1.0_user_queryGroup.do";
 	public static final String URL_deleteAdvertisement=ROOT_URL+"api_1.0_advertisement_advertisementDelete.do";
+	public static final String URL_sendClientId=ROOT_URL+"api_1.0_profile_sendClientId.do";
+	public static final String URL_getPlacesInfoRequest=ROOT_URL+"api_1.0_profile_getPlacesInfoRequest.do";
+
 	
 	public static final int CONNECTION_TIMEOUT = 10000;
 	public static final int HTTP_TIMEOUT = 20000;
@@ -1245,7 +1250,7 @@ public class HttpCommClient {
 		try{
 			JSONObject  data = constructGetPlacesInfoJson(gpiobj);
 
-			HttpResponse response = httpCmdStart(ROOT_URL,data);
+			HttpResponse response = httpCmdStart(URL_getPlacesInfoRequest,data);
 			
 			statusCode = response.getStatusLine().getStatusCode();
 			
@@ -1257,7 +1262,7 @@ public class HttpCommClient {
 				ret = obj.getInt("ret");
 
 				if(isRetOK()){
-					placesinfos = new MultiplePlacesInfo();
+					placesinfos = new MultiplePlacesInfo(gpiobj.key);
 					int count = obj.getInt("count");
 					if(count > 0){
 						JSONArray jsonArrayX = obj.getJSONArray("places_info");
@@ -2610,6 +2615,67 @@ public class HttpCommClient {
 		
 	}
 
+	private JSONObject constructSendClientIDJson(BindCoreObj bdobj) throws JSONException{
+			JSONObject header = new JSONObject();
+			header.putOpt("action", "send-clientId");
+			header.putOpt("token", bdobj.token);
+			
+			JSONObject body = new JSONObject();
+			body.put("client_id",bdobj.clientid);
+			
+			JSONObject data = new JSONObject();
+			data.put("header", header);
+			data.put("body", body);
+
+			return data;
+	}
+	
+	public boolean send_clientid(BindCoreObj bdobj){			
+		try{
+			JSONObject  data = constructSendClientIDJson(bdobj);
+
+			HttpResponse response = httpCmdStart(URL_sendClientId,data);
+			
+			statusCode = response.getStatusLine().getStatusCode();
+			
+			if(isHttpOK()){
+				String rev = EntityUtils.toString(response.getEntity());
+				SamLog.i(TAG,"rev:" + rev);
+				
+				JSONObject obj = new JSONObject(rev); 
+				ret = obj.getInt("ret");
+				
+				return true;
+				
+			}else{
+				SamLog.i(TAG,"send client id http status code:"+statusCode);
+				return false;
+			}
+		
+		}catch (JSONException e) {  
+			exception = true;
+			e.printStackTrace();
+			SamLog.e(TAG,"send client id :JSONException");
+			return false;
+		} catch (ClientProtocolException e) {
+			exception = true;
+			SamLog.e(TAG,"send client id:ClientProtocolException");
+			e.printStackTrace(); 
+			return false;
+		} catch (IOException e) { 
+			exception = true;
+			SamLog.e(TAG,"send client id :IOException");
+			e.printStackTrace(); 
+			return false;
+		} catch (Exception e) { 
+			exception = true;
+			SamLog.e(TAG,"send client id :Exception");
+			e.printStackTrace(); 
+			return false;
+		}
+		
+	}
+
 	private boolean readStream(InputStream inStream, String path) throws Exception{    	  
 		byte[] buffer = new byte[1024]; 
 		int len = 0; 
@@ -2637,7 +2703,7 @@ public class HttpCommClient {
 		}
     } 
 
-	public boolean download(com.android.samservice.DownloadCoreObj dlobj){
+	public boolean download(DownloadCoreObj dlobj){
 		HttpURLConnection conn =null;
 		String path = dlobj.url;
 		String filePath = dlobj.path;

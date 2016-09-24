@@ -22,6 +22,8 @@ public class NimConstants{
 
 	public static final String MSG_TYPE="msg_type";
 
+	public static final String SendMsgRealStatus="send_msg_real_status";
+
 	public static final int AVCHAT_DISCONNECTED=0;
 	public static final int AVCHAT_CONNECTED=1;
 
@@ -38,10 +40,8 @@ public class NimConstants{
 
 	public static final String SESSION_ACCOUNT_ADVERTISEMENT = "999999";
 
-	public static final String S3_BUCKETNAME = "samchat-test";
-	//public static final String S3_URL = "https://s3-us-west-2.amazonaws.com/samchat-test/";
-	public static final String S3_URL_UPLOAD = "https://s3-us-west-2.amazonaws.com/samchat-test/";
-	public static final String S3_URL_DOWNLOAD = "http://samchat-test.s3-website-us-west-2.amazonaws.com/";
+	public static final String S3_BUCKETNAME = "samchat-test";//"storage-test.samchat.com";
+	public static final String S3_URL_UPLOAD = "http://storage-test.samchat.com/";
 	public static final String S3_PATH_ADV = "advertisement/";
 	public static final String S3_FOLDER_ORIGIN = "origin/";
 	public static final String S3_FOLDER_THUMB = "thumb/";

@@ -19,11 +19,13 @@ import java.util.ArrayList;
 import com.android.samservice.info.Message;
 import com.android.samservice.info.RcvdAdvSession;
 import com.netease.nim.uikit.NimConstants;
+import com.netease.nim.uikit.cache.SendIMMessageCache;
 import com.netease.nim.uikit.common.util.file.FileUtil;
 import com.netease.nim.uikit.common.util.storage.StorageType;
 import com.netease.nim.uikit.common.util.storage.StorageUtil;
 import com.netease.nim.uikit.session.sam_message.SAMMessage;
 import com.netease.nimlib.sdk.RequestCallback;
+import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.android.samservice.Constants;
@@ -446,7 +448,9 @@ public class SamDBManager{
 		
 		if(rc != -1){
 			updateSessionBySendMsg(session, msg, im);
-			if(SamService.getInstance().getDao().update_MsgSession_db(session) != -1){
+			MsgSession dbSession = new MsgSession(session);
+			dbSession.setrecent_msg_status(MsgStatusEnum.fail.getValue());
+			if(SamService.getInstance().getDao().update_MsgSession_db(dbSession) != -1){
 				return session;
 			}else{
 				return null;
@@ -661,6 +665,15 @@ public class SamDBManager{
 				MsgSessionDataCache.getInstance().removeMsgSession( session_id,  mode);
 				SamService.getInstance().getDao().delete_MsgSession_db(session_id, mode);
 				SamService.getInstance().getDao().delete_Message_db_all(table);
+			}
+		});
+	}
+
+	public void asyncUpdateMessageSessionDBRecentMessageStatus(final String session_id, final int mode, final int status){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				SamService.getInstance().getDao().update_MsgSession_db_recent_status( session_id,  mode,  status);
 			}
 		});
 	}
@@ -886,17 +899,17 @@ public class SamDBManager{
 			@Override
 			public void run(){
 				if(im.getStatus() == MsgStatusEnum.success){
-					MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(NimConstants.SESSION_ACCOUNT_ADVERTISEMENT,ModeEnum.SP_MODE.ordinal());
-					if(SamService.getInstance().getDao().updateMessageDataID(session.getmsg_table_name(), im.getUuid(), adv.getadv_id())!=0){
+					MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(im.getSessionId(), ModeEnum.SP_MODE.ordinal());
+					if(SamService.getInstance().getDao().updateMessageDataID(session.getmsg_table_name(), im.getUuid(), adv.getadv_id())!=-1){
 						NIMClient.getService(MsgService.class).updateIMMessageStatus(im);
 						callSendAdvertisementStatusObserverCallback(im);
+						session.setrecent_msg_status(im.getStatus().getValue());
+						SamDBManager.getInstance().asyncUpdateMessageSessionDBRecentMessageStatus(im.getSessionId(), ModeEnum.SP_MODE.ordinal(),im.getStatus().getValue());
 					}else{
 						im.setStatus(MsgStatusEnum.fail);
-						NIMClient.getService(MsgService.class).updateIMMessageStatus(im);
 						callSendAdvertisementStatusObserverCallback(im);
 					}
 				}else{
-					NIMClient.getService(MsgService.class).updateIMMessageStatus(im);
 					callSendAdvertisementStatusObserverCallback(im);
 				}
 			}
@@ -988,6 +1001,19 @@ public class SamDBManager{
 		});	
 	}
 
+	public void asyncNoticeLastMsgSending(final String account, final int mode, IMMessage im){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(account,  mode);
+				if(session != null){
+					session.setrecent_msg_status(MsgStatusEnum.sending.getValue());
+					callMsgServiceObserverCallback(session);
+				}
+			}
+		});	
+	}
+
 
 
 	private IMMessage findMsg(List<IMMessage> messages,String uuid){
@@ -1015,6 +1041,9 @@ public class SamDBManager{
 		for(Message msg:messages){
 			IMMessage im = findMsg(ims,msg.getuuid());
 			if(im!=null){
+				if(im.getSessionType() == SessionTypeEnum.P2P && im.getDirect()== MsgDirectionEnum.Out && SendIMMessageCache.getInstance().contains(im.getUuid())){
+					im.setStatus(MsgStatusEnum.sending);
+				}
 				fims.add(im);
 			}
 		}

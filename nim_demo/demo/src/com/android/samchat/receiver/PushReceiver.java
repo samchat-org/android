@@ -9,6 +9,7 @@ import android.util.Log;
 import com.igexin.sdk.PushConsts;
 import com.igexin.sdk.PushManager;
 import com.android.samchat.service.SamchatAppService;
+import com.netease.nim.demo.config.preference.Preferences;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 
 import java.io.UnsupportedEncodingException;
@@ -35,6 +36,9 @@ public class PushReceiver extends BroadcastReceiver {
         LogUtil.e("GetuiSdkDemo", "onReceive() action=" + bundle.getInt("action"));
         switch (bundle.getInt(PushConsts.CMD_ACTION)) {
             case PushConsts.GET_MSG_DATA:
+                if(Preferences.getUserAccount() == null || Preferences.getUserAccount().equals("")){
+                    return;
+                }
                 //receive transparent MSG
                 byte[] payload = bundle.getByteArray("payload");
                 String taskid = bundle.getString("taskid");

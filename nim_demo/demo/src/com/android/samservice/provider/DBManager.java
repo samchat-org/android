@@ -101,6 +101,18 @@ public class DBManager
 		return message_db.update(table,cv,whereClause,whereArgs);
 	}
 
+	public long updateMsgSessionRecentStatus(String session_id, int mode, int status)
+	{
+		String table =  DatabaseHelper.TABLE_NAME_MSG_SESSION;
+		ContentValues cv = new ContentValues();
+		cv.put("recent_msg_status",status); 
+
+		String whereClause = "session_id=? and mode=?";
+		String [] whereArgs = {session_id,""+mode};
+
+		return message_db.update(table,cv,whereClause,whereArgs);
+	}
+
 	public long updateMsgSessionUnreadCount(String session_id, int mode, int count)
 	{
 		String table =  DatabaseHelper.TABLE_NAME_MSG_SESSION;
@@ -157,6 +169,7 @@ public class DBManager
 			session.setrecent_msg_subtype(c.getInt(c.getColumnIndex("recent_msg_subtype")));
 			session.setrecent_msg_content(c.getString(c.getColumnIndex("recent_msg_content")));
 			session.setrecent_msg_time(c.getLong(c.getColumnIndex("recent_msg_time")));
+			session.setrecent_msg_status(c.getInt(c.getColumnIndex("recent_msg_status")));
 		}
 
 		c.close();
@@ -187,6 +200,7 @@ public class DBManager
 			session.setrecent_msg_subtype(c.getInt(c.getColumnIndex("recent_msg_subtype")));
 			session.setrecent_msg_content(c.getString(c.getColumnIndex("recent_msg_content")));
 			session.setrecent_msg_time(c.getLong(c.getColumnIndex("recent_msg_time")));
+			session.setrecent_msg_status(c.getInt(c.getColumnIndex("recent_msg_status")));
 			sessions.add(session);
 		}
 
@@ -213,6 +227,7 @@ public class DBManager
 			session.setrecent_msg_subtype(c.getInt(c.getColumnIndex("recent_msg_subtype")));
 			session.setrecent_msg_content(c.getString(c.getColumnIndex("recent_msg_content")));
 			session.setrecent_msg_time(c.getLong(c.getColumnIndex("recent_msg_time")));
+			session.setrecent_msg_status(c.getInt(c.getColumnIndex("recent_msg_status")));
 			sessions.add(session);
 		}
 

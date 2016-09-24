@@ -57,7 +57,7 @@ public class Constants{
 	public static final int AVATAR_UPDATE_SAM_PROS = 1;
 
 	/****************************Http Command Config***********************************************/
-	public static final boolean POST_CMD = true;
+	public static final boolean POST_CMD = false;
 
 	/****************************Login Final Config***********************************************/
 	public static final int MIN_MPHONE_NUMBER_LENGTH = 6;

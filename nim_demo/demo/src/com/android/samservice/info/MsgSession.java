@@ -58,6 +58,20 @@ public class MsgSession implements Serializable
 		this.recent_msg_status = MsgStatusEnum.success.getValue();
 	}
 
+	public MsgSession(MsgSession session){
+		this.id = session.getid();
+		this.session_id = session.getsession_id();
+		this.mode = session.getmode();
+		this.msg_table_name = session.getmsg_table_name();
+		this.total_unread = session.gettotal_unread();
+		this.recent_msg_type = session.getrecent_msg_type();
+		this.recent_msg_uuid = session.getrecent_msg_uuid();
+		this.recent_msg_subtype = session.getrecent_msg_subtype();
+		this.recent_msg_content = session.getrecent_msg_content();
+		this.recent_msg_time = session.getrecent_msg_time();
+		this.recent_msg_status = session.getrecent_msg_status();
+	}
+
 	public int getrecent_msg_subtype(){
 		return this.recent_msg_subtype;
 	}

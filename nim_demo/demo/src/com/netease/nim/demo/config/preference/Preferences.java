@@ -24,6 +24,21 @@ public class Preferences {
         return getString(KEY_USER_ALIAS);
     }
     /*SAMC_END(GETU Alias)*/
+	/*SAMC_BEGIN(Send Client ID Flag)*/
+    private static final String KEY_USER_SCID = "scid";
+    public static void saveScid(int flag) {
+        saveString(KEY_USER_SCID, String.valueOf(flag));
+    }
+
+    public static int getScid() {
+		String str = getString(KEY_USER_SCID);
+		if(StringUtil.isEmpty(str)){
+			return 0;
+		}
+		
+		return Integer.valueOf(str).intValue();
+	}
+    /*SAMC_END(GETU Alias)*/
 
 	/*SAMC_BEGIN(current mode)*/
 	private static final String KEY_MODE = "mode";

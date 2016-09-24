@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -18,6 +19,8 @@ import android.view.View.OnKeyListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samservice.info.ContactUser;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
 import com.netease.nim.demo.config.preference.Preferences;
@@ -383,7 +386,33 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 		final String token = hcc.token_id + deviceid;
 		saveLoginInfo(account,token);
 
-		login(account,token);
+		//login(account,token);
+		autoLogin(account, token);
+	}
+
+	private void autoLogin( String account,  String token){
+		DemoCache.setAccount(account);
+		NIMClient.toggleNotification(UserPreferences.getNotificationToggle());
+		if (UserPreferences.getStatusConfig() == null) {
+			UserPreferences.setStatusConfig(DemoCache.getNotificationConfig());
+		}
+		NIMClient.updateStatusBarNotificationConfig(UserPreferences.getStatusConfig());
+		if(!TextUtils.isEmpty(DemoCache.getAccount())){
+			SamService.getInstance().initDao(StringUtil.makeMd5(DemoCache.getAccount()));
+			DataCacheManager.buildDataCacheAsync();
+			SamchatDataCacheManager.buildDataCache(); // build data cache on auto login
+			if(SamService.getInstance().get_current_user() == null || SamService.getInstance().get_current_token() == null){
+				ContactUser cuser = SamchatUserInfoCache.getInstance().getUserByUniqueID(Long.valueOf(account));
+				SamService.getInstance().set_current_user(cuser);
+				SamService.getInstance().store_current_token(token);
+			}
+			SamDBManager.getInstance().registerObservers(true);
+		}
+		MainActivity.start(SamchatSignupActivity.this, null);
+		finish();
+		Intent intent = new Intent();
+		intent.setAction(Constants.BROADCAST_SIGN_IN_ALREADY);
+		sendbroadcast(intent);
 	}
 
 	private void signup(){

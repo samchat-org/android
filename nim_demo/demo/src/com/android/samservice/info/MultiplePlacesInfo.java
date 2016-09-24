@@ -5,12 +5,22 @@ import java.util.List;
 import com.android.samservice.info.PlacesInfo;
 
 public class MultiplePlacesInfo{
+	private String key;
 	private int count;
 	private List<PlacesInfo> info;
 
-	public MultiplePlacesInfo(){
-		count = 0;
-		info = new ArrayList<PlacesInfo>();
+	public MultiplePlacesInfo(String key){
+		this.key = key;
+		this.count = 0;
+		this.info = new ArrayList<PlacesInfo>();
+	}
+
+	public String getkey(){
+		return key;
+	}
+
+	public void setkey(String key){
+		this.key = key;
 	}
 
 	public int getcount(){

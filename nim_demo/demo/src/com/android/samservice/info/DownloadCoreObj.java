@@ -1,8 +1,11 @@
-package com.android.samservice;
+package com.android.samservice.info;
+
+import com.android.samservice.SMCallBack;
+import com.android.samservice.SamCoreObj;
 
 import java.util.List;
 
-public class DownloadCoreObj extends SamCoreObj{
+public class DownloadCoreObj extends SamCoreObj {
 	public String url;
 	public String path;
 	

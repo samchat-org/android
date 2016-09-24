@@ -1027,6 +1027,13 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
 
         return true;
     }
+
+	public boolean isLastMessage(IMMessage message){
+		if(items != null && items.size() >0 && message.getUuid().equals(items.get(items.size()-1).getUuid())){
+			return true;
+		}
+		return false;
+	}
 		
 }
 

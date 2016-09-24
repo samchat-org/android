@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.SendIMMessageCache;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.actions.BaseAction;
@@ -315,6 +316,7 @@ public class MessageFragment extends TFragment implements ModuleProxy {
                        @Override
                        public void run() {
                        	  // send message to server and save to db
+                       	  SendIMMessageCache.getInstance().add(msg.getUuid());
                           NIMClient.getService(MsgService.class).sendMessage(msg, false);
                           messageListPanel.onMsgSend(msg);
                        }

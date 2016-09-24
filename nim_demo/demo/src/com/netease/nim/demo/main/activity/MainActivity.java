@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -111,6 +112,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
     /*SAMC_BEGIN(Customized title bar)*/
     private LinearLayout app_bar_layout;
     private ImageView switch_icon;
+    private FrameLayout switch_layout;
     private TextView switch_reminder;
     private TextView titlebar_name;
     private ImageView titlebar_right_icon;
@@ -392,7 +394,8 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
     private void onParseIntent() {
         Intent intent = getIntent();
         if (intent.hasExtra(NimIntent.EXTRA_NOTIFY_CONTENT)) {
-            IMMessage message = (IMMessage) getIntent().getSerializableExtra(NimIntent.EXTRA_NOTIFY_CONTENT);
+            /*SAMC_BEGIN(do not jump into P2P for samchat)*/
+            /*IMMessage message = (IMMessage) getIntent().getSerializableExtra(NimIntent.EXTRA_NOTIFY_CONTENT);
             switch (message.getSessionType()) {
                 case P2P:
                     SessionHelper.startP2PSession(this, message.getSessionId());
@@ -402,7 +405,9 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
                     break;
                 default:
                     break;
-            }
+
+            }*/
+            /*SAMC_END(do not jump into P2P for samchat)*/
         } else if (intent.hasExtra(EXTRA_APP_QUIT)) {
             onLogout();
             return;
@@ -413,11 +418,13 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
                 startActivity(localIntent);
             }
         } else if (intent.hasExtra(com.netease.nim.demo.main.model.Extras.EXTRA_JUMP_P2P)) {
-            Intent data = intent.getParcelableExtra(com.netease.nim.demo.main.model.Extras.EXTRA_DATA);
-            String account = data.getStringExtra(com.netease.nim.demo.main.model.Extras.EXTRA_ACCOUNT);
-            if (!TextUtils.isEmpty(account)) {
-                SessionHelper.startP2PSession(this, account);
-            }
+            /*SAMC_BEGIN(do not jump into P2P for samchat)*/
+            //Intent data = intent.getParcelableExtra(com.netease.nim.demo.main.model.Extras.EXTRA_DATA);
+            //String account = data.getStringExtra(com.netease.nim.demo.main.model.Extras.EXTRA_ACCOUNT);
+            //if (!TextUtils.isEmpty(account)) {
+            //    SessionHelper.startP2PSession(this, account);
+            //}
+            /*SAMC_END(do not jump into P2P for samchat)*/
         }
     }
 
@@ -624,14 +631,13 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	private void titlebarInit(){
 		app_bar_layout = (LinearLayout) findViewById(R.id.app_bar_layout);
 		switch_icon = (ImageView) findViewById(R.id.switch_icon);
+		switch_layout = (FrameLayout) findViewById(R.id.switch_layout);
 		switch_reminder = (TextView) findViewById(R.id.switch_reminder);
 		titlebar_name = (TextView) findViewById(R.id.titlebar_name);
 		titlebar_right_icon = (ImageView) findViewById(R.id.titlebar_right_icon);
 
-
-
 		refreshToolBar(current_position);
-		switch_icon.setOnClickListener(new View.OnClickListener() {
+		switch_layout.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if(SamService.getInstance().get_current_user().getusertype() == Constants.SAM_PROS){
@@ -778,8 +784,12 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 		SamDBManager.getInstance().asyncDeleteMessage(session_id, mode, msg);
 	}
 
-	public void deleteSendAdvertisementMessage(String session_id, int mode,IMMessage msg){
-		SamDBManager.getInstance().asyncDeleteSendAdvertisementMessage( session_id,  mode, msg);
+	public void deleteSendAdvertisementMessage(String session_id, int mode,IMMessage im){
+		SamDBManager.getInstance().asyncDeleteSendAdvertisementMessage( session_id,  mode, im);
+	}
+
+	public void lastMsgResending(String account, int mode, IMMessage im){
+		SamDBManager.getInstance().asyncNoticeLastMsgSending( account,  mode, im);
 	}
 
 	public void registerIncomingMsgObserver(SamchatObserver<List<IMMessage>> observer,boolean register){

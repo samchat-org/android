@@ -10,8 +10,10 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.cache.SendIMMessageCache;
 import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
@@ -26,6 +28,9 @@ import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nim.uikit.common.adapter.TAdapter;
+
+import java.util.Map;
+
 /**
  * 会话窗口消息列表项的ViewHolder基类，负责每个消息项的外层框架，包括头像，昵称，发送/接收进度条，重发按钮等。<br>
  *     具体的消息展示项可继承该基类，然后完成具体消息内容展示即可。
@@ -198,9 +203,7 @@ public abstract class MsgViewHolderBase extends TViewHolder {
      * 设置消息发送状态
      */
     private void setStatus() {
-
-        MsgStatusEnum status = message.getStatus();
-				LogUtil.e("test","show status:"+status);
+		 MsgStatusEnum status = message.getStatus();
         switch (status) {
         case fail:
             progressBar.setVisibility(View.GONE);
