@@ -53,7 +53,7 @@ import android.widget.FrameLayout;
 import android.widget.EditText;
 import com.android.samservice.Constants;
 import com.android.samchat.factory.UuidFactory;
-import com.android.samservice.SMCallBack;
+import com.android.samservice.callback.SMCallBack;
 import com.android.samchat.service.ErrorString;
 import android.content.BroadcastReceiver;
 import android.support.v4.content.LocalBroadcastManager;

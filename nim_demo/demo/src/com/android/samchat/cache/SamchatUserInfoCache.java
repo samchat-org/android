@@ -2,21 +2,17 @@ package com.android.samchat.cache;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import com.android.samservice.HttpCommClient;
 import com.android.samservice.info.ContactUser;
 import com.android.samservice.SamService;
 import java.util.Collection;
 import com.android.samservice.Constants;
-import com.android.samservice.TypeEnum;
-import com.android.samservice.SMCallBack;
+import com.android.samservice.type.TypeEnum;
+import com.android.samservice.callback.SMCallBack;
 import com.android.samservice.info.MultipleUserProfile;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 

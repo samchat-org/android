@@ -1,51 +1,40 @@
 package com.android.samservice;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.http.HttpStatus;
-
-import com.android.samchat.SamVendorInfo;
 import com.android.samchat.cache.ContactDataCache;
 import com.android.samchat.cache.CustomerDataCache;
 import com.android.samchat.cache.FollowDataCache;
+import com.android.samservice.callback.SMCallBack;
+import com.android.samservice.dao.SamDBDao;
 import com.android.samservice.info.*;
-import com.android.samservice.provider.*;
+import com.android.samservice.type.TypeEnum;
 import com.netease.nim.demo.DemoCache;
-import com.netease.nim.uikit.common.util.log.LogUtil;
-
-import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
 import android.os.HandlerThread;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.os.SystemClock;
 import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.netease.nim.demo.config.preference.Preferences;
 import com.igexin.sdk.PushManager;
-import com.android.samchat.test.TestCase;
 import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samchat.service.SamDBManager;
+import com.android.samservice.coreobj.*;
+
 public class SamService{
 	public static final String TAG="SamService";
 
 	public static final int SAMSERVICE_RETRY_WAIT=3000;
 	public static final int SAMSERVICE_HANDLE_TIMEOUT=30000;
+    public static final int SAMSERVICE_STATUS_CHECK_TIMOUT=360000;
 
 	public static String sam_cache_path;
 	public static String sam_download_path;
@@ -66,6 +55,25 @@ public class SamService{
 
 	private SamDBDao dao;
 	private String dbFolder;
+
+	private String clientID;
+	private boolean startBind;
+
+	private static final int  INITED=0;
+	private static final int  SYNCING=1;
+	private static final int  SYNCED=2;
+
+	private static int SYNC_QUERY_STATE=0;
+	private static int SYNC_FOLLOW_LIST=1;
+	private static int SYNC_CONTACT_LIST=2;
+	private static int SYNC_CUSTOMER_LIST=3;
+	private static int SYNC_BIND=4;
+	private static int SYNC_SEND_CLIENT_ID=5;
+	private boolean startSync = false;
+	private boolean clientidReady = false;
+	private int [] syncStatus = {INITED,INITED,INITED,INITED,INITED,INITED};
+	private Object syncStatusObject = new Object();
+	private StateDateInfo sdinfo;
 	
 	/*MSG ID*/
 	//timeout msg:
@@ -109,6 +117,19 @@ public class SamService{
 	public static final int MSG_DOWNLOAD = MSG_DELETE_ADV + 1;
 	public static final int MSG_BIND_ALIAS = MSG_DOWNLOAD + 1;
 	public static final int MSG_SEND_CLIENTID = MSG_BIND_ALIAS + 1;
+	public static final int MSG_QUERY_STATE = MSG_SEND_CLIENTID + 1;
+	
+	public static final int MSG_SYNC_START = MSG_QUERY_STATE + 1;
+	public static final int MSG_SYNC_CHECK = MSG_SYNC_START + 1;
+	public static final int MSG_NETWORK_AVAILABLE = MSG_SYNC_CHECK + 1;
+	public static final int MSG_CLIENTID_READY = MSG_NETWORK_AVAILABLE + 1;
+	public static final int MSG_SYNC_QUERY_STATE_UPDATE = MSG_CLIENTID_READY + 1;
+	public static final int MSG_SYNC_FOLLOW_LIST_UPDATE = MSG_SYNC_QUERY_STATE_UPDATE + 1;
+	public static final int MSG_SYNC_CONTACT_LIST_UPDATE = MSG_SYNC_FOLLOW_LIST_UPDATE + 1;
+	public static final int MSG_SYNC_CUSTOMER_LIST_UPDATE = MSG_SYNC_CONTACT_LIST_UPDATE + 1;
+	public static final int MSG_SYNC_BIND_ALIAS_UPDATE = MSG_SYNC_CUSTOMER_LIST_UPDATE + 1;
+	public static final int MSG_SYNC_SEND_CLIENT_ID_UPDATE = MSG_SYNC_BIND_ALIAS_UPDATE + 1;
+	
 
 	private boolean isTimeOut(SamCoreObj samobj){
 		cancelTimeOut(samobj);
@@ -1419,6 +1440,12 @@ public class SamService{
 
 /***************************************sync contact list*******************************************************/
 	public void sync_contact_list(boolean isCustomer, SMCallBack callback){
+		if(isCustomer){
+			syncStatus[SYNC_CUSTOMER_LIST] = SYNCING;
+		}else{
+			syncStatus[SYNC_CONTACT_LIST] = SYNCING;
+		}
+		
 		SyncContactListCoreObj samobj = new SyncContactListCoreObj(callback);
 		samobj.init(isCustomer,get_current_token());
 		Message msg = mSamServiceHandler.obtainMessage(MSG_SYNC_CONTACT_LIST, samobj);
@@ -1459,9 +1486,9 @@ public class SamService{
 			return;
 		}else if(http_ret){
 			if(hcc.ret == 0){
+				
 				boolean isDbError = syncUpdateContactList(scobj.isCustomer,hcc.contacts);
 				samobj.callback.onSuccess(hcc,isDbError?Constants.DB_OPT_ERROR:0);
-
 				Intent intent = new Intent();
 				if(!scobj.isCustomer){
 					intent.setAction(Constants.BROADCAST_CONTACTLIST_UPDATE);
@@ -1480,11 +1507,7 @@ public class SamService{
 				samobj.callback.onFailed(hcc.ret);
 			}
 		}else if(!hcc.exception){
-			if(0<samobj.retry_count--){
-				retry_sync_contact_list(scobj);
-			}else{
-				samobj.callback.onError(Constants.CONNECTION_HTTP_ERROR);
-			}
+			samobj.callback.onError(Constants.CONNECTION_HTTP_ERROR);
 		}else{
 			samobj.callback.onError(Constants.EXCEPTION_ERROR);
 		}
@@ -1504,6 +1527,7 @@ public class SamService{
 
 /***************************************sync follow list*******************************************************/
 	public void sync_follow_list(SMCallBack callback){
+		syncStatus[SYNC_FOLLOW_LIST] = SYNCING;
 		SyncFollowListCoreObj samobj = new SyncFollowListCoreObj(callback);
 		samobj.init(get_current_token());
 		Message msg = mSamServiceHandler.obtainMessage(MSG_SYNC_FOLLOW_LIST, samobj);
@@ -1533,16 +1557,11 @@ public class SamService{
 				Intent intent = new Intent();
 				intent.setAction(Constants.BROADCAST_FOLLOWEDSP_UPDATE);
 				sendbroadcast(intent);
-				
 			}else{
 				samobj.callback.onFailed(hcc.ret);
 			}
 		}else if(!hcc.exception){
-			if(0<samobj.retry_count--){
-				retry_sync_follow_list(sflobj);
-			}else{
-				samobj.callback.onError(Constants.CONNECTION_HTTP_ERROR);
-			}
+			samobj.callback.onError(Constants.CONNECTION_HTTP_ERROR);
 		}else{
 			samobj.callback.onError(Constants.EXCEPTION_ERROR);
 		}
@@ -1560,9 +1579,9 @@ public class SamService{
 	}
 
 /***************************************write advertisement*******************************************************/
-	public void write_advertisement(int type, String content, String content_thumb, long sender_unique_id, SMCallBack callback){
+	public void write_advertisement(int type, String content, String content_thumb, long sender_unique_id, String message_id, SMCallBack callback){
 		AdvCoreObj samobj = new AdvCoreObj(callback);
-		samobj.init(get_current_token(),type,content, content_thumb, sender_unique_id);
+		samobj.init(get_current_token(),type,content, content_thumb, sender_unique_id,message_id);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_WRITE_ADV, samobj);
 		mSamServiceHandler.sendMessage(msg);
 		startTimeOut(samobj);
@@ -1600,7 +1619,7 @@ public class SamService{
 	private void retry_write_advertisement(AdvCoreObj samobj){
 		AdvCoreObj  retryobj = new AdvCoreObj(samobj.callback);
 		
-		retryobj.init(samobj.token, samobj.type,samobj.content,samobj.content_thumb, samobj.sender_unique_id);
+		retryobj.init(samobj.token, samobj.type,samobj.content,samobj.content_thumb, samobj.sender_unique_id,samobj.message_id);
 		
 		retryobj.setRetryCount(samobj.retry_count);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_WRITE_ADV,retryobj);
@@ -1669,9 +1688,10 @@ public class SamService{
     }
 
 /********************************************** Bind Getu Alias  ********************************************************/
-	public void bind_alias(String clientid){
-		BindCoreObj samobj = new BindCoreObj(null);
-		samobj.init(get_current_token(), clientid);
+	public void bind_alias(SMCallBack callback){
+		syncStatus[SYNC_BIND]=SYNCING;
+		BindCoreObj samobj = new BindCoreObj(callback);
+		samobj.init(get_current_token());
 		Message msg = mSamServiceHandler.obtainMessage(MSG_BIND_ALIAS,samobj);
 		mSamServiceHandler.sendMessage(msg);
 	}
@@ -1685,43 +1705,80 @@ public class SamService{
 			bindSucceed = PushManager.getInstance().bindAlias(DemoCache.getContext(),StringUtil.makeMd5(account));
 		}else{
 			SamLog.e(TAG, "do not bind alias this time");
-			if(Preferences.getScid() == 0){
-				send_clientid((BindCoreObj)samobj);
-			}
+			samobj.callback.onSuccess(null,0);
 			return;
 		}
 
-		if(!bindSucceed){
-			Message msg = mSamServiceHandler.obtainMessage(MSG_BIND_ALIAS,null);
-			mSamServiceHandler.sendMessageDelayed(msg, 10000);
-			SamLog.e(TAG, "bind alias failed and retry in 10s");
-		}else{
-			Preferences.saveScid(0);
+		if(bindSucceed){
 			Preferences.saveUserAlias(StringUtil.makeMd5(account));
 			SamLog.e(TAG, "bind alias succeed");
-			send_clientid((BindCoreObj)samobj);
+			samobj.callback.onSuccess(null,0);
+		}else{
+			samobj.callback.onError(Constants.CONNECTION_HTTP_ERROR);
 		}
     }
 
 
 /********************************************** Send Client ID  ********************************************************/
-	public void send_clientid(BindCoreObj samobj){
-		Message msg = mSamServiceHandler.obtainMessage(MSG_SEND_CLIENTID,samobj);
+	public void send_clientid(SMCallBack callback){
+		syncStatus[SYNC_SEND_CLIENT_ID]=SYNCING;
+		SendClientIDCoreObj samobj = new SendClientIDCoreObj(callback);
+		samobj.init(get_current_token(),clientID);
+		Message msg = mSamServiceHandler.obtainMessage(MSG_SEND_CLIENTID, samobj);
 		mSamServiceHandler.sendMessage(msg);
+		startTimeOut(samobj);
 	}
 
 	private void do_send_clientid(SamCoreObj samobj){
-		BindCoreObj bdobj = (BindCoreObj)samobj;
+		SendClientIDCoreObj bdobj = (SendClientIDCoreObj)samobj;
 		HttpCommClient hcc = new HttpCommClient();
 
 		boolean http_ret = hcc.send_clientid(bdobj);
 
-		if(!http_ret || hcc.ret != 0){
-			Message msg = mSamServiceHandler.obtainMessage(MSG_SEND_CLIENTID,samobj);
-			mSamServiceHandler.sendMessageDelayed(msg,10000);
+		if(isTimeOut(samobj)){
+			return;
+		}else if(http_ret){
+			if(hcc.ret == 0){
+				samobj.callback.onSuccess(hcc,0);
+			}else{
+				samobj.callback.onFailed(hcc.ret);
+			}
+		}else if(!hcc.exception){
+				samobj.callback.onError(Constants.CONNECTION_HTTP_ERROR);
 		}else{
-			Preferences.saveScid(1);
+			samobj.callback.onError(Constants.EXCEPTION_ERROR);
 		}
+    }
+
+/********************************************** Query State  ********************************************************/
+	public void query_state(SMCallBack callback){
+		syncStatus[SYNC_QUERY_STATE] = SYNCING;
+		QueryStateCoreObj samobj = new QueryStateCoreObj(callback);
+		samobj.init(get_current_token());
+		Message msg = mSamServiceHandler.obtainMessage(MSG_QUERY_STATE, samobj);
+		mSamServiceHandler.sendMessage(msg);
+		startTimeOut(samobj);
+	}
+
+	private void do_query_state(SamCoreObj samobj){
+		QueryStateCoreObj qsobj = (QueryStateCoreObj)samobj;
+		HttpCommClient hcc = new HttpCommClient();
+
+		boolean http_ret = hcc.query_state(qsobj);
+		if(isTimeOut(samobj)){
+			return;
+		}else if(http_ret){
+			if(hcc.ret == 0){
+				samobj.callback.onSuccess(hcc,0);
+			}else{
+				samobj.callback.onFailed(hcc.ret);
+			}
+		}else if(!hcc.exception){
+				samobj.callback.onError(Constants.CONNECTION_HTTP_ERROR);
+		}else{
+			samobj.callback.onError(Constants.EXCEPTION_ERROR);
+		}
+		
     }
 
 /********************************************** HTTP PUSH  ********************************************************/
@@ -1745,6 +1802,202 @@ public class SamService{
 		}
 
 	} 
+
+/********************************************** SYNC OPT ********************************************************/
+	public void client_id_ready(String clid){
+		clientID = clid;
+		Message msg = mHandlerTimeOutHandler.obtainMessage(MSG_CLIENTID_READY);
+		mHandlerTimeOutHandler.sendMessage(msg);		
+	}
+
+	public void network_available(){
+		Message msg = mHandlerTimeOutHandler.obtainMessage(MSG_NETWORK_AVAILABLE);
+		mHandlerTimeOutHandler.sendMessage(msg);		
+	}
+
+	private void sync_status_check(){
+		mHandlerTimeOutHandler.removeMessages(MSG_SYNC_CHECK);
+		if(isSyncComplete() || !NetworkMonitor.isNetworkAvailable()){
+			return;
+		}
+		Message msg = mHandlerTimeOutHandler.obtainMessage(MSG_SYNC_CHECK);
+		mHandlerTimeOutHandler.sendMessageDelayed(msg,SAMSERVICE_STATUS_CHECK_TIMOUT);
+	}
+
+	private void set_query_state(StateDateInfo sdinfo,boolean succeed){
+		Message msg = mHandlerTimeOutHandler.obtainMessage(MSG_SYNC_QUERY_STATE_UPDATE, new SyncCoreObj(succeed,sdinfo));
+		mHandlerTimeOutHandler.sendMessage(msg);		
+	}
+
+	private void set_sync_follow_list(boolean succeed){
+		Message msg = mHandlerTimeOutHandler.obtainMessage(MSG_SYNC_FOLLOW_LIST_UPDATE, new SyncCoreObj(succeed));
+		mHandlerTimeOutHandler.sendMessage(msg);		
+	}
+
+	private void set_sync_contact_list(boolean succeed){
+		Message msg = mHandlerTimeOutHandler.obtainMessage(MSG_SYNC_CONTACT_LIST_UPDATE,new SyncCoreObj(succeed));
+		mHandlerTimeOutHandler.sendMessage(msg);		
+	}
+
+	private void set_sync_customer_list(boolean succeed){
+		Message msg = mHandlerTimeOutHandler.obtainMessage(MSG_SYNC_CUSTOMER_LIST_UPDATE,new SyncCoreObj(succeed));
+		mHandlerTimeOutHandler.sendMessage(msg);		
+	}
+
+	private void set_sync_bind_alias(boolean succeed){
+		Message msg = mHandlerTimeOutHandler.obtainMessage(MSG_SYNC_BIND_ALIAS_UPDATE,new SyncCoreObj(succeed));
+		mHandlerTimeOutHandler.sendMessage(msg);		
+	}
+
+	private void set_sync_send_clientID(boolean succeed){
+		Message msg = mHandlerTimeOutHandler.obtainMessage(MSG_SYNC_SEND_CLIENT_ID_UPDATE,new SyncCoreObj(succeed));
+		mHandlerTimeOutHandler.sendMessage(msg);		
+	}
+
+	public void startSync(){
+		Message msg = mHandlerTimeOutHandler.obtainMessage(MSG_SYNC_START);
+		mHandlerTimeOutHandler.sendMessage(msg);
+	}
+
+	private boolean isSyncComplete(){
+		for(int status: syncStatus){
+			if(status != SYNCED){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean needSyncFollowList(StateDateInfo sdinfo){
+		if(sdinfo.getfollow_list_date() == 0){
+			return false;
+		}
+		
+		String date = Preferences.getFldate();
+		if(date == null || !date.equals(""+sdinfo.getfollow_list_date())){
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean needSyncContactList(StateDateInfo sdinfo){
+		if(sdinfo.getcontact_list_date() == 0){
+			return false;
+		}
+		
+		String date = Preferences.getCcdate();
+		if(date == null || !date.equals(""+sdinfo.getcontact_list_date())){
+			return true;
+		}
+
+		return false;
+	}
+
+	private boolean needSyncCustomerList(StateDateInfo sdinfo){
+		if(sdinfo.getcustomer_list_date() == 0 || get_current_user().getusertype() == Constants.USER){
+			return false;
+		}
+		
+		String date = Preferences.getCudate();
+		if(date == null || !date.equals(""+sdinfo.getcustomer_list_date())){
+			return true;
+		}
+
+		return false;
+	}
+
+	SMCallBack syncQueryStateCallback = new SMCallBack(){
+		@Override
+		public void onSuccess( Object obj,  int WarningCode) {
+			HttpCommClient hcc = (HttpCommClient)obj;
+			set_query_state(hcc.sdinfo,true);
+		}
+		@Override
+		public void onFailed(int code) {
+			set_query_state(null,false);
+		}
+		@Override
+		public void onError(int code) {
+			set_query_state(null,false);
+		}
+	};
+
+	SMCallBack syncFollowListCallback = new SMCallBack(){
+		@Override
+		public void onSuccess(Object obj, int WarningCode) {
+			set_sync_follow_list(true);
+		}
+		@Override
+		public void onFailed(int code) {
+			set_sync_follow_list(false);
+		}
+		@Override
+		public void onError(int code) {
+			set_sync_follow_list(false);
+		}
+	};
+
+	SMCallBack syncContactListCallback = new SMCallBack(){
+		@Override
+		public void onSuccess(final Object obj, final int WarningCode) {
+			set_sync_contact_list(true);
+		}
+		@Override
+		public void onFailed(int code) {
+			set_sync_contact_list(false);
+		}
+		@Override
+		public void onError(int code) {
+			set_sync_contact_list(false);
+		}
+	};
+
+	
+	SMCallBack syncCustomerListCallback = new SMCallBack(){
+		@Override
+		public void onSuccess(final Object obj, final int WarningCode) {
+			set_sync_customer_list(true);
+		}
+		@Override
+		public void onFailed(int code) {
+			set_sync_customer_list(false);
+		}
+		@Override
+		public void onError(int code) {
+			set_sync_customer_list(false);
+		}
+	};
+
+	SMCallBack syncBindAliasCallback = new SMCallBack(){
+		@Override
+		public void onSuccess(final Object obj, final int WarningCode) {
+			set_sync_bind_alias(true);
+		}
+		@Override
+		public void onFailed(int code) {
+			set_sync_bind_alias(false);
+		}
+		@Override
+		public void onError(int code) {
+			set_sync_bind_alias(false);
+		}
+	};
+
+	SMCallBack syncSendClientIDCallback = new SMCallBack(){
+		@Override
+		public void onSuccess(final Object obj, final int WarningCode) {
+			set_sync_send_clientID(true);
+		}
+		@Override
+		public void onFailed(int code) {
+			set_sync_send_clientID(false);
+		}
+		@Override
+		public void onError(int code) {
+			set_sync_send_clientID(false);
+		}
+	};
 
 /********************************************** HTTP API END ********************************************************/
 
@@ -1815,6 +2068,9 @@ public class SamService{
 		if(!file2.exists()){
 			file2.mkdirs();
 		}
+
+		clientID = null;
+		startBind = false;
 		
 	}
 
@@ -1877,7 +2133,13 @@ public class SamService{
 		mSamService = null;
 		current_token = null;
 		current_user = null;
+		clientID = null;
+		startBind = false;
 
+	}
+
+	public void setClientID(String clientID){
+		this.clientID = clientID;
 	}
 
 	private void asyncUpdateUserInfo(ContactUser now){
@@ -1960,6 +2222,8 @@ public class SamService{
 		mHandlerTimeOutHandler.sendMessageDelayed(msg, SAMSERVICE_HANDLE_TIMEOUT+SAMSERVICE_RETRY_WAIT);
 	}
 
+	
+
 	private final class SamServiceTimeOutHandler extends Handler{
 		public SamServiceTimeOutHandler(Looper looper)
 		{
@@ -1968,11 +2232,10 @@ public class SamService{
 
 		@Override
 		public void handleMessage(Message msg){
-			SamCoreObj samobj = (SamCoreObj)msg.obj;
-			boolean continue_run = true;
-
 			switch(msg.what){
 				case MSG_HANDLE_TIMEOUT:
+					SamCoreObj samobj = (SamCoreObj)msg.obj;
+					boolean continue_run = true;
 					synchronized(samobj){
 						if(samobj.request_status == SamCoreObj.STATUS_INIT){
 							samobj.request_status = SamCoreObj.STATUS_TIMEOUT;
@@ -1985,6 +2248,191 @@ public class SamService{
 						samobj.callback.onError(Constants.CONNECTION_TIMEOUT_ERROR);
 					}
 					
+				break;
+
+				case MSG_SYNC_START:
+					startSync = true;
+					sync_status_check();
+					query_state(syncQueryStateCallback);
+				break;
+
+				case MSG_CLIENTID_READY:
+					clientidReady = true;
+					
+					if(syncStatus[SYNC_CUSTOMER_LIST] == SYNCED
+						&& syncStatus[SYNC_CONTACT_LIST] == SYNCED
+						&& syncStatus[SYNC_FOLLOW_LIST] == SYNCED
+						&& syncStatus[SYNC_BIND] == SYNCED
+						&& syncStatus[SYNC_SEND_CLIENT_ID] == INITED){
+						send_clientid(syncSendClientIDCallback);
+					}
+				break;
+
+				case MSG_NETWORK_AVAILABLE:
+				case MSG_SYNC_CHECK:
+					if(!startSync || isSyncComplete() ||!NetworkMonitor.isNetworkAvailable())
+						return;
+
+					if(syncStatus[SYNC_QUERY_STATE] == INITED){
+						sync_status_check();
+						query_state(syncQueryStateCallback);
+						return;
+					}else if(syncStatus[SYNC_QUERY_STATE] == SYNCING){
+						return;
+					}
+
+					if(syncStatus[SYNC_FOLLOW_LIST] == INITED){
+						sync_status_check();
+						sync_follow_list(syncFollowListCallback);
+					}
+
+					if(syncStatus[SYNC_CONTACT_LIST] == INITED){
+						sync_status_check();
+						sync_contact_list(false,syncContactListCallback);
+					}
+
+					if(syncStatus[SYNC_CUSTOMER_LIST] == INITED){
+						sync_status_check();
+						sync_contact_list(true,syncCustomerListCallback);
+					}
+
+					if(syncStatus[SYNC_CUSTOMER_LIST] == SYNCED
+						&& syncStatus[SYNC_CONTACT_LIST] == SYNCED
+						&& syncStatus[SYNC_FOLLOW_LIST] == SYNCED
+						&& syncStatus[SYNC_BIND] == INITED){
+						sync_status_check();
+						bind_alias(syncBindAliasCallback);
+					}
+
+					if(syncStatus[SYNC_CUSTOMER_LIST] == SYNCED
+						&& syncStatus[SYNC_CONTACT_LIST] == SYNCED
+						&& syncStatus[SYNC_FOLLOW_LIST] == SYNCED
+						&& syncStatus[SYNC_BIND] == SYNCED
+						&& syncStatus[SYNC_SEND_CLIENT_ID] == INITED
+						&& clientidReady){
+						sync_status_check();
+						send_clientid(syncSendClientIDCallback);
+					}
+
+				break;
+
+				case MSG_SYNC_QUERY_STATE_UPDATE:
+					SyncCoreObj stateObj = (SyncCoreObj)msg.obj;
+					if(stateObj.succeed){
+						syncStatus[SYNC_QUERY_STATE]=SYNCED;
+						sdinfo = stateObj.sdinfo;
+						if(needSyncFollowList(sdinfo)){
+							sync_status_check();
+							sync_follow_list(syncFollowListCallback);
+						}else{
+							syncStatus[SYNC_FOLLOW_LIST]=SYNCED;
+							Preferences.saveFldate(""+sdinfo.getfollow_list_date());
+						}
+
+						if(needSyncContactList(sdinfo)){
+							sync_status_check();
+							sync_contact_list(false, syncContactListCallback);
+						}else{
+							syncStatus[SYNC_CONTACT_LIST]=SYNCED;
+							Preferences.saveCcdate(""+sdinfo.getcontact_list_date());
+						}
+
+						if(needSyncCustomerList(sdinfo)){
+							sync_status_check();
+							sync_contact_list(true, syncCustomerListCallback);
+						}else{
+							syncStatus[SYNC_CUSTOMER_LIST]=SYNCED;
+							Preferences.saveCudate(""+sdinfo.getcustomer_list_date());
+						}
+						
+						if(syncStatus[SYNC_FOLLOW_LIST]==SYNCED && syncStatus[SYNC_CONTACT_LIST]==SYNCED 
+							&& syncStatus[SYNC_CUSTOMER_LIST]==SYNCED && syncStatus[SYNC_BIND] == INITED){
+							sync_status_check();
+							bind_alias(syncBindAliasCallback);
+						}
+					}else{
+						syncStatus[SYNC_QUERY_STATE]=INITED;
+						sync_status_check();
+						query_state(syncQueryStateCallback);
+					}
+				break;
+
+				case MSG_SYNC_FOLLOW_LIST_UPDATE:
+					SyncCoreObj followObj = (SyncCoreObj)msg.obj;
+					if(followObj.succeed){
+						syncStatus[SYNC_FOLLOW_LIST]=SYNCED;
+						Preferences.saveFldate(""+sdinfo.getfollow_list_date());
+						if(syncStatus[SYNC_FOLLOW_LIST]==SYNCED && syncStatus[SYNC_CONTACT_LIST]==SYNCED 
+							&& syncStatus[SYNC_CUSTOMER_LIST]==SYNCED && syncStatus[SYNC_BIND] == INITED){
+							sync_status_check();
+							bind_alias(syncBindAliasCallback);
+						}
+					}else{
+						syncStatus[SYNC_FOLLOW_LIST]=INITED;
+						sync_status_check();
+						sync_follow_list(syncFollowListCallback);
+					}
+				break;
+
+				case MSG_SYNC_CONTACT_LIST_UPDATE:
+					SyncCoreObj contactObj = (SyncCoreObj)msg.obj;
+					if(contactObj.succeed){
+						syncStatus[SYNC_CONTACT_LIST]=SYNCED;
+						Preferences.saveCcdate(""+sdinfo.getcontact_list_date());
+						if(syncStatus[SYNC_FOLLOW_LIST]==SYNCED && syncStatus[SYNC_CONTACT_LIST]==SYNCED 
+							&& syncStatus[SYNC_CUSTOMER_LIST]==SYNCED && syncStatus[SYNC_BIND] == INITED){
+							sync_status_check();
+							bind_alias(syncBindAliasCallback);
+						}
+					}else{
+						syncStatus[SYNC_CONTACT_LIST]=INITED;
+						sync_status_check();
+						sync_contact_list(false, syncContactListCallback);
+					}
+				break;
+				
+				case MSG_SYNC_CUSTOMER_LIST_UPDATE:
+					SyncCoreObj customerObj = (SyncCoreObj)msg.obj;
+					if(customerObj.succeed){
+						syncStatus[SYNC_CUSTOMER_LIST]=SYNCED;
+						Preferences.saveCudate(""+sdinfo.getcustomer_list_date());
+						if(syncStatus[SYNC_FOLLOW_LIST]==SYNCED && syncStatus[SYNC_CONTACT_LIST]==SYNCED 
+							&& syncStatus[SYNC_CUSTOMER_LIST]==SYNCED && syncStatus[SYNC_BIND] == INITED){
+							sync_status_check();
+							bind_alias(syncBindAliasCallback);
+						}
+					}else{
+						syncStatus[SYNC_CUSTOMER_LIST]=INITED;
+						sync_status_check();
+						sync_contact_list(true, syncContactListCallback);
+					}
+				break;
+				
+				case MSG_SYNC_BIND_ALIAS_UPDATE:
+					SyncCoreObj bindObj = (SyncCoreObj)msg.obj;
+					if(bindObj.succeed){
+						syncStatus[SYNC_BIND]=SYNCED;
+						if(syncStatus[SYNC_SEND_CLIENT_ID]==INITED){
+							sync_status_check();
+							send_clientid(syncSendClientIDCallback);
+						}
+					}else{
+						syncStatus[SYNC_BIND]=INITED;
+						sync_status_check();
+						bind_alias(syncBindAliasCallback);
+					}
+
+				break;
+
+				case MSG_SYNC_SEND_CLIENT_ID_UPDATE:
+					SyncCoreObj sendObj = (SyncCoreObj)msg.obj;
+					if(!sendObj.succeed){
+						syncStatus[SYNC_SEND_CLIENT_ID]=INITED;
+						sync_status_check();
+						send_clientid(syncSendClientIDCallback);
+					}else{
+						syncStatus[SYNC_SEND_CLIENT_ID]=SYNCED;
+					}
 				break;
 			}
 		}
@@ -2275,6 +2723,15 @@ public class SamService{
 						@Override
 						public void run(){
 							do_download(msgObj);
+						}
+					});
+					break;
+
+				case MSG_QUERY_STATE:
+					mFixedHttpThreadPool.execute(new Runnable(){
+						@Override
+						public void run(){
+							do_query_state(msgObj);
 						}
 					});
 					break;

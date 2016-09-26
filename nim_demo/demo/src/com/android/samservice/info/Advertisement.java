@@ -1,13 +1,5 @@
 package com.android.samservice.info;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import com.android.samservice.AdvContent;
-import com.android.samservice.AdvContentTypeEnum;
 import com.android.samservice.Constants;
 
 public class Advertisement{

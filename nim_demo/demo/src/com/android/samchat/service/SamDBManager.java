@@ -1,13 +1,9 @@
 package com.android.samchat.service;
 
-import android.content.Intent;
-import android.os.Environment;
-import android.support.v4.content.LocalBroadcastManager;
-
 import com.android.samchat.cache.MsgSessionDataCache;
 import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samchat.common.SamchatFileNameUtils;
-import com.android.samservice.SMCallBack;
+import com.android.samservice.callback.SMCallBack;
 import com.android.samservice.info.AdvancedMessage;
 import com.android.samservice.info.Advertisement;
 import com.android.samservice.info.MsgSession;
@@ -20,10 +16,7 @@ import com.android.samservice.info.Message;
 import com.android.samservice.info.RcvdAdvSession;
 import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.cache.SendIMMessageCache;
-import com.netease.nim.uikit.common.util.file.FileUtil;
 import com.netease.nim.uikit.common.util.storage.StorageType;
-import com.netease.nim.uikit.common.util.storage.StorageUtil;
-import com.netease.nim.uikit.session.sam_message.SAMMessage;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
@@ -37,7 +30,6 @@ import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import java.util.Map;
 import com.android.samchat.type.ModeEnum;
-import com.netease.nim.uikit.common.framework.NimSingleThreadExecutor;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -216,7 +208,7 @@ public class SamDBManager{
 			@Override
 			public void run(){
 				boolean userinfo_need_update = false;
-				ContactUser user = SamService.getInstance().getDao().query_ContactUser_db_by_unique_id(ui.getunique_id());
+				ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(ui.getunique_id());
 				if(user == null){
 					user = new ContactUser();
 					user.setunique_id(ui.getunique_id());
@@ -709,14 +701,6 @@ public class SamDBManager{
 					}
 			});
 		}
-	
-	public void syncClearUnreadCount(String session_id, int mode){
-		MsgSession session = MsgSessionDataCache.getInstance().getMsgSession( session_id,  mode);
-		if(session != null){
-			session.settotal_unread(0);
-		}
-		SamService.getInstance().getDao().update_MsgSession_db_unread_count(session_id, mode, 0);		
-	}
 
 	public void asyncClearUnreadCount(final String session_id, final int mode){
 		mFixedHttpThreadPool.execute(new Runnable(){
@@ -817,7 +801,7 @@ public class SamDBManager{
 		});	
 	}
 
-	public void syncNoticeReceivedQuestionMessage(final ReceivedQuestion rq, final IMMessage im){
+	private void syncNoticeReceivedQuestionMessage(final ReceivedQuestion rq, final IMMessage im){
 		final List<IMMessage> ims = new ArrayList<IMMessage>();
 		ims.add(im);
 		MsgSession changedSession = SamService.getInstance().getDao().query_MsgSession_db(""+rq.getsender_unique_id(), ModeEnum.SP_MODE.ordinal());
@@ -938,7 +922,7 @@ public class SamDBManager{
 		});
 	}
 
-	public void syncNoticeRcvdAdvMessage( Advertisement adv,  IMMessage im){
+	private void syncNoticeRcvdAdvMessage( Advertisement adv,  IMMessage im){
 		final List<IMMessage> ims = new ArrayList<IMMessage>();
 		ims.add(im);
 		MsgSession changedSession = SamService.getInstance().getDao().query_MsgSession_db(""+adv.getsender_unique_id(), ModeEnum.CUSTOMER_MODE.ordinal());
@@ -1012,6 +996,56 @@ public class SamDBManager{
 				}
 			}
 		});	
+	}
+
+	public void asyncQueryAllRecvAdvSession(final NIMCallback callback){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				List<RcvdAdvSession> sessions = SamService.getInstance().getDao().query_RcvdAdvSession_db_All();
+				callback.onResult(sessions, null, 0);
+			}
+		});
+	}
+
+	public void asyncQuerySendQuestionByID(final long question_id, final NIMCallback callback){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				SendQuestion sq = SamService.getInstance().getDao().query_SendQuestion_db_by_question_id(question_id);
+				callback.onResult(sq, null, 0);
+			}
+		});
+	}
+
+	public void asyncDeleteSendQuestionByID(final long question_id, final NIMCallback callback){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				SamService.getInstance().getDao().delete_SendQuestion_db_by_question_id(question_id);
+				callback.onResult(null, null, 0);
+			}
+		});
+	}
+
+	public void asyncDeleteReceivedQuestionByID(final long question_id, final NIMCallback callback){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				SamService.getInstance().getDao().delete_ReceivedQuestion_db_by_question_id(question_id);
+				callback.onResult(null, null, 0);
+			}
+		});
+	}
+
+	public void asyncQueryReceivedQuestionByTimeStamp(final long timestamp,final boolean after, final NIMCallback callback){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				List<ReceivedQuestion> rqs = SamService.getInstance().getDao().query_ReceivedQuestion_db_by_timestamp(timestamp,after);
+				callback.onResult(rqs, null, 0);
+			}
+		});
 	}
 
 

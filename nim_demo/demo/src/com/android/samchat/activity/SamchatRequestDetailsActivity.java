@@ -1,69 +1,32 @@
 package com.android.samchat.activity;
 
-import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.InputFilter;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.samchat.cache.MsgSessionDataCache;
-import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
-import com.netease.nim.demo.config.preference.Preferences;
-import com.netease.nim.demo.config.preference.UserPreferences;
-import com.netease.nim.demo.contact.ContactHttpClient;
-import com.netease.nim.demo.main.activity.MainActivity;
+import com.netease.nim.uikit.NIMCallback;
 import com.netease.nim.uikit.NimConstants;
-import com.netease.nim.uikit.cache.DataCacheManager;
 import com.netease.nim.uikit.common.activity.UI;
-import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
-import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
-import com.netease.nim.uikit.common.ui.widget.ClearableEditTextWithIcon;
 import com.netease.nim.uikit.common.util.log.LogUtil;
-import com.netease.nim.uikit.common.util.string.MD5;
-import com.netease.nim.uikit.common.util.sys.NetworkUtil;
-import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.model.ToolBarOptions;
-import com.netease.nim.uikit.permission.MPermission;
-import com.netease.nim.uikit.permission.annotation.OnMPermissionDenied;
-import com.netease.nim.uikit.permission.annotation.OnMPermissionGranted;
 import com.netease.nim.uikit.recent.viewholder.SamchatRecentContactAdapter;
-import com.netease.nimlib.sdk.AbortableFuture;
 import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.RequestCallbackWrapper;
 import com.netease.nimlib.sdk.ResponseCode;
-import com.netease.nimlib.sdk.auth.AuthService;
-import com.netease.nimlib.sdk.auth.ClientType;
-import com.netease.nimlib.sdk.auth.LoginInfo;
-import com.android.samchat.cache.SamchatDataCacheManager;
 import com.android.samservice.SamService;
-import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.android.samchat.service.SamDBManager;
 import android.widget.FrameLayout;
-import android.widget.EditText;
 import com.android.samservice.Constants;
-import com.android.samchat.factory.UuidFactory;
-import com.android.samservice.SMCallBack;
-import com.android.samchat.service.ErrorString;
 import android.content.BroadcastReceiver;
 import android.support.v4.content.LocalBroadcastManager;
 import android.content.IntentFilter;
-import android.graphics.Typeface;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
@@ -71,7 +34,7 @@ import com.netease.nimlib.sdk.msg.model.RecentContact;
 import com.netease.nim.uikit.recent.viewholder.TeamRecentViewHolder;
 import com.android.samchat.viewholder.SamchatCommonRecentViewHolder;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
-import com.android.samservice.QuestionInfo;
+import com.android.samservice.info.QuestionInfo;
 import android.widget.ListView;
 import java.util.List;
 import java.util.ArrayList;
@@ -100,7 +63,6 @@ import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.MsgServiceObserve;
 import com.netease.nim.uikit.recent.viewholder.RecentViewHolder;
-
 
 public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatRequestDetailsActivity.class.getSimpleName();
@@ -381,13 +343,20 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 	private List<RecentContact> loadedRecentsCustomer;
 
 	private void requestMessagesCustomer() {
-		SendQuestion sq = SamService.getInstance().getDao().query_SendQuestion_db_by_question_id(info.getquestion_id());
-		final List<String> sp_ids = parseSp_ids(sq.getsp_ids());
-		if(sp_ids == null || sp_ids.size() == 0){
-			return;
-		}
-		
-		NIMClient.getService(MsgService.class).queryRecentContacts().setCallback(new RequestCallbackWrapper<List<RecentContact>>() {
+        SamDBManager.getInstance().asyncQuerySendQuestionByID(info.getquestion_id(), new NIMCallback(){
+			@Override
+			public void onResult(Object obj1, Object obj2, int code) {
+				SendQuestion sq = (SendQuestion)obj1;
+				if(sq == null){
+					return;
+				}
+
+				final List<String> sp_ids = parseSp_ids(sq.getsp_ids());
+				if(sp_ids == null || sp_ids.size() == 0){
+					return;
+				}
+
+				NIMClient.getService(MsgService.class).queryRecentContacts().setCallback(new RequestCallbackWrapper<List<RecentContact>>() {
 					@Override
 					public void onResult(int code, List<RecentContact> recents, Throwable exception) {
 						if (code != ResponseCode.RES_SUCCESS || recents == null ) {
@@ -396,13 +365,14 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 						loadedRecentsCustomer = new ArrayList<RecentContact>();
 						for(RecentContact rc:recents){
 							if(rc.getSessionType() == SessionTypeEnum.P2P && isTagSet(rc, NimConstants.RECENT_TAG_CUSTOMER_ROLE) && isMine(sp_ids,rc.getContactId())){
-									loadedRecentsCustomer.add(rc);
+								loadedRecentsCustomer.add(rc);
 							}
 						}
-
 						onRecentContactsCustomerLoaded();
 					}
 				});
+			}
+		});
 	}
 
 	private void onRecentContactsCustomerLoaded() {
@@ -436,7 +406,7 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 			long time1 = 0;
 			long time2 = 0;
 			if(o1.getSessionType() == SessionTypeEnum.P2P){
-				MsgSession s1 = SamService.getInstance().getDao().query_MsgSession_db(o1.getContactId(),ModeEnum.CUSTOMER_MODE.ordinal());
+				MsgSession s1 = MsgSessionDataCache.getInstance().getMsgSession(o1.getContactId(),ModeEnum.CUSTOMER_MODE.ordinal());
 				if(s1!=null){
 					time1 = s1.getrecent_msg_time();
 				}
@@ -445,7 +415,7 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 			}
 
 			if(o2.getSessionType() == SessionTypeEnum.P2P){
-				MsgSession s2 = SamService.getInstance().getDao().query_MsgSession_db(o2.getContactId(),ModeEnum.CUSTOMER_MODE.ordinal());
+				MsgSession s2 = MsgSessionDataCache.getInstance().getMsgSession(o2.getContactId(),ModeEnum.CUSTOMER_MODE.ordinal());
 				if(s2!=null){
 					time2 = s2.getrecent_msg_time();
 				}

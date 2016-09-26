@@ -1,41 +1,21 @@
 package com.android.samchat.fragment;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.android.samchat.activity.SamchatProfileCustomerActivity;
 import com.android.samchat.activity.SamchatProfileServiceProviderActivity;
-import com.android.samservice.SMCallBack;
-import com.karics.library.zxing.android.CaptureActivity;
+import com.android.samservice.callback.SMCallBack;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.uikit.common.fragment.TFragment;
-import java.util.ArrayList;
-import java.util.List;
 import com.android.samchat.R;
-import com.android.samchat.callback.SendQuestionCallback;
 import android.widget.LinearLayout;
-import com.android.samservice.info.SendQuestion;
-import com.android.samchat.adapter.ReceivedQuestionAdapter;
-import com.android.samservice.info.ReceivedQuestion;
-import com.android.samchat.callback.ReceivedQuestionCallback;
-import com.netease.nim.uikit.common.activity.UI;
 import com.android.samservice.SamService;
-import com.android.samchat.adapter.SendQuestionAdapter;
 import com.android.samchat.SamchatGlobal;
-import java.util.Collections;
-import java.util.Comparator;
 
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
-import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.android.samservice.Constants;
 import android.content.BroadcastReceiver;
 import android.support.v4.content.LocalBroadcastManager;
@@ -43,20 +23,14 @@ import com.android.samchat.type.ModeEnum;
 import android.content.IntentFilter;
 import android.content.Context;
 import android.content.Intent;
-import com.android.samchat.adapter.FollowedSPAdapter;
-import com.android.samchat.callback.CustomerPublicCallback;
-import com.android.samservice.info.FollowedSamPros;
-import com.netease.nim.uikit.contact.core.query.TextComparator;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import android.widget.RelativeLayout;
 import com.netease.nim.demo.config.preference.Preferences;
-import com.netease.nim.demo.DemoCache;
 import android.view.View.OnClickListener;
 import com.android.samchat.activity.SamchatCreateSPStepOneActivity;
 import com.android.samchat.activity.SamchatUpdatePasswordActivity;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.auth.AuthService;
-import com.zbar.scan.ScanCaptureAct;
 import com.android.samchat.activity.SamchatQRCodeActivity;
 /**
  * Main Fragment in SamchatSettingListFragment

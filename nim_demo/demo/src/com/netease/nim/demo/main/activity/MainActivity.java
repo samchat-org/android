@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -20,6 +21,8 @@ import android.widget.Toast;
 import com.android.samchat.activity.SamchatAddCustomerActivity;
 import com.android.samchat.activity.SamchatAddServiceProviderActivity;
 import com.android.samchat.activity.SamchatMemberSelectActivity;
+import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samchat.receiver.NetworkStateBroadcastReceiver;
 import com.android.samchat.receiver.PushReceiver;
 import com.android.samchat.R;
 import com.netease.nim.demo.avchat.AVChatProfile;
@@ -80,13 +83,7 @@ import java.util.Map;
 import com.netease.nim.uikit.session.sam_message.SamchatObserver;
 import com.netease.nim.demo.main.reminder.ReminderManager;
 import com.android.samchat.factory.UuidFactory;
-import com.android.samservice.SMCallBack;
-import android.os.Message;
-import com.android.samservice.appkey;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import com.android.samservice.HttpCommClient;
+
 /*SAMC_END(......)*/
 
 /**
@@ -270,9 +267,8 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
         });
 
         /*SAMC_BEGIN(sync samchat data including contact list, follow list, ...)*/
-        syncFollowList();
-        syncContactList();
-        syncCustomerList();
+        registerNetworkReceiver();
+        SamService.getInstance().startSync();
         /*SAMC_END(sync samchat data including contact list, follow list, ...)*/
 
         Log.i(TAG, "sync completed = " + syncCompleted);
@@ -491,6 +487,16 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
         logout();
     }
 
+	private BroadcastReceiver networkBroadcast=new NetworkStateBroadcastReceiver();
+	private void registerNetworkReceiver() {  
+		IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+		this.registerReceiver(networkBroadcast, filter);  
+	} 
+
+	private void unregisterNetworkReceiver() {  
+        this.unregisterReceiver(networkBroadcast);  
+	}  
+
 	private void registerObservers(boolean register) {
 		NIMClient.getService(AuthServiceObserver.class).observeOnlineStatus(onLineStatusObserver, register);
 	}
@@ -513,6 +519,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
 	@Override
 	public void onDestroy() {
+		unregisterNetworkReceiver();
 		registerObservers(false);
 		if(isGetuInited){
 			LogUtil.e(TAG,"stop getui service");
@@ -537,9 +544,8 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	private void initSamAutoLogin(){
 		String account = Preferences.getUserAccount();
 		String token = Preferences.getUserToken()+UuidFactory.getInstance().getDeviceId();
-		SamService.getInstance().initDao(StringUtil.makeMd5(account));
 		if(SamService.getInstance().get_current_user() == null || SamService.getInstance().get_current_token() == null){
-			ContactUser cuser = SamService.getInstance().getDao().query_ContactUser_db_by_unique_id(Long.valueOf(account));
+			ContactUser cuser = SamchatUserInfoCache.getInstance().getUserByUniqueID(Long.valueOf(account));
 			SamService.getInstance().set_current_user(cuser);
 			SamService.getInstance().store_current_token(token);
 		}
@@ -679,41 +685,6 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 			}
 		});
 		
-	}
-
-	private void syncFollowList(){
-		SamService.getInstance().sync_follow_list(new SMCallBack(){
-				@Override
-				public void onSuccess(final Object obj, final int WarningCode) {}
-				@Override
-				public void onFailed(int code) {}
-				@Override
-				public void onError(int code) {}
-		 });
-	}
-
-	private void syncContactList(){
-		SamService.getInstance().sync_contact_list(false, new SMCallBack(){
-				@Override
-				public void onSuccess(final Object obj, final int WarningCode) {}
-				@Override
-				public void onFailed(int code) {}
-				@Override
-				public void onError(int code) {}
-         });
-	}
-
-	private void syncCustomerList(){
-		if(SamService.getInstance().get_current_user().getusertype() == Constants.SAM_PROS){
-			SamService.getInstance().sync_contact_list(true, new SMCallBack(){
-				@Override
-				public void onSuccess(final Object obj, final int WarningCode) {}
-				@Override
-				public void onFailed(int code) {}
-				@Override
-				public void onError(int code) {}
-         });
-		}
 	}
 
 	public void startSwitchProgress(){

@@ -118,16 +118,12 @@ public class SamchatRequestFragment extends TFragment {
 				}else if(intent.getAction().equals(Constants.BROADCAST_CUSTOMER_ITEMS_UPDATE)){
 					SamDBManager.getInstance().asyncQuerySendQuestion(new NIMCallback(){
 					@Override
-					public void onResult(Object obj1, Object obj2, int code) {
-						if(obj1 == null){
-							return;
-						}
-						final List<SendQuestion> sqs = (List<SendQuestion>)obj1;
+					public void onResult(final Object obj1, Object obj2, int code) {
 						getHandler().postDelayed(new Runnable() {
 							@Override
 							public void run() {
 								if(isAdded()){
-									loadedSendQuestions = sqs;
+									loadedSendQuestions = (List<SendQuestion>)obj1;
 									onSendQuestionsLoaded();
 								}
 							}
@@ -267,9 +263,18 @@ public class SamchatRequestFragment extends TFragment {
 		alertDialog.addItem(title, new CustomAlertDialog.onSeparateItemClickListener() {
 			@Override
 			public void onClick() {
-				SamService.getInstance().getDao().delete_SendQuestion_db_by_question_id(sq.getquestion_id());
-				sendquestions.remove(sq);	
-				refreshSendQuestionList();
+				SamDBManager.getInstance().asyncDeleteSendQuestionByID(sq.getquestion_id(),new NIMCallback(){
+					@Override
+					public void onResult(Object obj1, Object obj2, int code) {
+						getHandler().postDelayed(new Runnable() {
+						@Override
+							public void run() {
+								sendquestions.remove(sq);	
+								refreshSendQuestionList();
+							}
+						},0);
+					}
+				});
 			}
 		});
 		alertDialog.show();
@@ -287,12 +292,23 @@ public class SamchatRequestFragment extends TFragment {
 				if(sendQuestionsLoaded || getActivity() == null || ((UI)getActivity()).isDestroyedCompatible()){
 					return;
 				}
+
+				SamDBManager.getInstance().asyncQuerySendQuestion(new  NIMCallback(){
+					@Override
+					public void onResult(final Object obj1, Object obj2, int code) {
+						getHandler().postDelayed(new Runnable() {
+						@Override
+							public void run() {
+								sendQuestionsLoaded = true;
+								loadedSendQuestions = (List<SendQuestion>)obj1;
+								if(isAdded()){
+									onSendQuestionsLoaded();
+								}
+							}
+						},0);
+					}
+				});
 				
-				loadedSendQuestions = SamService.getInstance().getDao().query_SendQuestion_db_ALL();
-				sendQuestionsLoaded = true;
-				if(isAdded()){
-					onSendQuestionsLoaded();
-				}
 			}
 		}, delay ? 250 : 0);
 
@@ -426,11 +442,20 @@ public class SamchatRequestFragment extends TFragment {
 		alertDialog.addItem(title, new CustomAlertDialog.onSeparateItemClickListener() {
 			@Override
 			public void onClick() {
-				SamService.getInstance().getDao().delete_ReceivedQuestion_db_by_question_id(rq.getquestion_id());
-				rcvdquestions.remove(rq);	
-				refreshRcvdQuestionList();
+				SamDBManager.getInstance().asyncDeleteReceivedQuestionByID(rq.getquestion_id(),new NIMCallback(){
+					@Override
+					public void onResult(Object obj1, Object obj2, int code) {
+						getHandler().postDelayed(new Runnable() {
+						@Override
+							public void run() {
+								rcvdquestions.remove(rq);	
+								refreshRcvdQuestionList();
+							}
+						},0);
+					}
+				});
 			}
-		});
+		});	
 		alertDialog.show();
     }
 
@@ -446,12 +471,22 @@ public class SamchatRequestFragment extends TFragment {
 				if(rcvdQuestionsLoaded || getActivity() == null || ((UI)getActivity()).isDestroyedCompatible()){
 					return;
 				}
-				
-				loadedRcvdQuestions = SamService.getInstance().getDao().query_ReceivedQuestion_db_by_timestamp(SamchatGlobal.getoneWeekSysTime(),true);
-				rcvdQuestionsLoaded = true;
-				if(isAdded()){
-					onRcvdQuestionsLoaded();
-				}
+
+				SamDBManager.getInstance().asyncQueryReceivedQuestionByTimeStamp(SamchatGlobal.getoneWeekSysTime(),true,new NIMCallback(){
+					@Override
+					public void onResult(final Object obj1, Object obj2, int code) {
+						getHandler().postDelayed(new Runnable() {
+						@Override
+							public void run() {
+								loadedRcvdQuestions = (List<ReceivedQuestion>)obj1;
+								rcvdQuestionsLoaded = true;
+								if(isAdded()){
+									onRcvdQuestionsLoaded();
+								}
+							}
+						},0);
+					}
+				});
 			}
 		}, delay ? 250 : 0);
 

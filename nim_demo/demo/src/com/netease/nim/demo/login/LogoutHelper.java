@@ -33,7 +33,6 @@ public class LogoutHelper {
         PushManager.getInstance().unBindAlias(DemoCache.getContext(),Preferences.getUserAlias(),true);
         PushManager.getInstance().stopService(DemoCache.getContext());
         Preferences.saveUserAlias("");
-        Preferences.saveScid(0);
         Preferences.saveMode(ModeEnum.CUSTOMER_MODE.ordinal());
         SamchatDataCacheManager.clearDataCache();
         /*SAMC_END(stop push service when logout)*/

@@ -11,15 +11,9 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
-import com.amazonaws.mobileconnectors.s3.transfermanager.Upload;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectResult;
 import com.android.samchat.activity.SamchatSearchPublicActivity;
 import com.android.samchat.cache.FollowDataCache;
 import com.android.samchat.cache.MsgSessionDataCache;
@@ -28,25 +22,20 @@ import com.android.samchat.common.SamchatFileNameUtils;
 import com.android.samchat.service.ErrorString;
 import com.android.samchat.service.SamDBManager;
 import com.android.samservice.HttpCommClient;
-import com.android.samservice.SMCallBack;
+import com.android.samservice.callback.SMCallBack;
 import com.android.samservice.info.Advertisement;
 import com.android.samservice.info.ContactUser;
-import com.android.samservice.info.Message;
 import com.android.samservice.info.MsgSession;
 import com.android.samservice.info.RcvdAdvSession;
 import com.android.samservice.utils.S3Util;
-import com.netease.nim.demo.DemoCache;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nim.uikit.NIMCallback;
 import com.netease.nim.uikit.NimConstants;
-import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.cache.SendIMMessageCache;
 import com.netease.nim.uikit.common.fragment.TFragment;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,19 +63,12 @@ import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
-import com.netease.nim.uikit.common.util.file.FileUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
-import com.netease.nim.uikit.common.util.media.ImageUtil;
-import com.netease.nim.uikit.common.util.storage.StorageType;
-import com.netease.nim.uikit.common.util.storage.StorageUtil;
-import com.netease.nim.uikit.common.util.string.StringUtil;
-import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.contact.core.query.TextComparator;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.actions.BaseAction;
 import com.netease.nim.uikit.session.actions.ImageAction;
-import com.netease.nim.uikit.session.actions.LocationAction;
 import com.netease.nim.uikit.session.actions.VideoAction;
 import com.netease.nim.uikit.session.module.Container;
 import com.netease.nim.uikit.session.module.ModuleProxy;
@@ -97,7 +79,6 @@ import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.attachment.FileAttachment;
-import com.netease.nimlib.sdk.msg.attachment.ImageAttachment;
 import com.netease.nimlib.sdk.msg.constant.AttachStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
@@ -332,13 +313,24 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		alertDialog.show();
 	}
 
+	List<RcvdAdvSession> loadedRcvdSessions;
 	private void LoadRcvdAdvSessions(){
-		List<RcvdAdvSession> loadedRcvdSessions = SamService.getInstance().getDao().query_RcvdAdvSession_db_All();
-		rcvdSessions.clear();
-		if(loadedRcvdSessions != null){
-			rcvdSessions.addAll(loadedRcvdSessions);
-			loadedRcvdSessions = null;
-		}
+		SamDBManager.getInstance().asyncQueryAllRecvAdvSession(new NIMCallback(){
+			@Override
+			public void onResult(final Object obj1, Object obj2, int code) {
+				getHandler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						loadedRcvdSessions = (List<RcvdAdvSession>)obj1;
+						rcvdSessions.clear();
+						if(loadedRcvdSessions != null){
+							rcvdSessions.addAll(loadedRcvdSessions);
+							loadedRcvdSessions = null;
+						}
+					}
+				},0);
+			}
+		});
 	}
 
 	private List<FollowedSamPros> loadedFollowSPs;
@@ -354,7 +346,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 					return;
 				}
 				
-				loadedFollowSPs= SamService.getInstance().getDao().query_FollowList_db_All();
+				loadedFollowSPs= FollowDataCache.getInstance().getMyFollowSPsList();
 				followedSPLoaded = true;
 				if(isAdded()){
 					onFollowedSPsLoaded();
@@ -454,6 +446,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 				@Override
 				public void run() {
 					updateRcvdAdvSessions(session);
+					LogUtil.e("test","rcvd adv session:"+session.getsession()+" "+session.getname()+" "+session.getrecent_adv_content());
 					refreshFollowedSPsList();
 				}
 			}, 0);
@@ -727,7 +720,8 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 
 
     private void sendAdvertisement(int type, String content, String content_thumb, final IMMessage im){
-		SamService.getInstance().write_advertisement(type,content, content_thumb,SamService.getInstance().get_current_user().getunique_id(),new SMCallBack(){
+		SamService.getInstance().write_advertisement(type,content, content_thumb,
+			SamService.getInstance().get_current_user().getunique_id(),im.getUuid(),new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
 					HttpCommClient hcc = (HttpCommClient) obj;

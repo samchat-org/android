@@ -91,6 +91,7 @@ public class AdvertisementAdapter extends BaseAdapter{
 				String MD5Path = Environment.getExternalStorageDirectory() + "/" + DemoCache.getContext().getPackageName() + "/nim/"
 								+StorageType.TYPE_THUMB_IMAGE.getStoragePath()+"/"+StringUtil.makeMd5(adv.getcontent_thumb());
 				holder.content_image.load("file://"+MD5Path);
+				LogUtil.e("test","load MD5Path:"+MD5Path);
 			}else{
 				holder.content_text.setVisibility(View.GONE);
 				holder.content_image.setVisibility(View.VISIBLE);

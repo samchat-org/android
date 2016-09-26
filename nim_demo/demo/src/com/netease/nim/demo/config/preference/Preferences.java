@@ -24,20 +24,34 @@ public class Preferences {
         return getString(KEY_USER_ALIAS);
     }
     /*SAMC_END(GETU Alias)*/
-	/*SAMC_BEGIN(Send Client ID Flag)*/
-    private static final String KEY_USER_SCID = "scid";
-    public static void saveScid(int flag) {
-        saveString(KEY_USER_SCID, String.valueOf(flag));
+
+    /*SAMC_BEGIN(GETU Alias)*/
+    private static final String KEY_FOLLOW_LIST_UPDATE = "fldate";
+    public static void saveFldate(String date) {
+        saveString(KEY_FOLLOW_LIST_UPDATE, date);
     }
 
-    public static int getScid() {
-		String str = getString(KEY_USER_SCID);
-		if(StringUtil.isEmpty(str)){
-			return 0;
-		}
-		
-		return Integer.valueOf(str).intValue();
-	}
+    public static String getFldate() {
+        return getString(KEY_FOLLOW_LIST_UPDATE);
+    }
+
+	private static final String KEY_CONTACT_LIST_UPDATE = "ccdate";
+    public static void saveCcdate(String date) {
+        saveString(KEY_CONTACT_LIST_UPDATE, date);
+    }
+
+    public static String getCcdate() {
+        return getString(KEY_CONTACT_LIST_UPDATE);
+    }
+
+    private static final String KEY_CUSTOMER_LIST_UPDATE = "cudate";
+    public static void saveCudate(String date) {
+        saveString(KEY_CUSTOMER_LIST_UPDATE, date);
+    }
+
+    public static String getCudate() {
+        return getString(KEY_CUSTOMER_LIST_UPDATE);
+    }
     /*SAMC_END(GETU Alias)*/
 
 	/*SAMC_BEGIN(current mode)*/

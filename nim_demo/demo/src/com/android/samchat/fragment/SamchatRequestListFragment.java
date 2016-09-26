@@ -7,7 +7,7 @@ import com.android.samchat.activity.SamchatRequestDetailsActivity;
 import com.android.samchat.service.SamDBManager;
 import com.android.samchat.type.ModeEnum;
 import com.android.samservice.Constants;
-import com.android.samservice.QuestionInfo;
+import com.android.samservice.info.QuestionInfo;
 import com.android.samchat.R;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.demo.main.model.MainTab;

@@ -1,6 +1,5 @@
 package com.android.samservice;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,17 +9,13 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.client.entity.*;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -32,21 +27,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.apache.http.message.BasicNameValuePair;
 
-import com.android.samchat.SamVendorInfo;
-import com.android.samservice.info.Advertisement;
-import com.android.samservice.info.Contact;
-import com.android.samservice.info.ContactUser;
-import com.android.samservice.info.DownloadCoreObj;
-import com.android.samservice.info.FollowedSamPros;
-import com.android.samservice.info.MultipleContact;
-import com.android.samservice.info.MultipleFollowUser;
-import com.android.samservice.info.MultipleSyncAdv;
-import com.android.samservice.info.MultipleUserProfile;
-import com.android.samservice.info.MultiplePlacesInfo;
-import com.android.samservice.info.PlacesInfo;
-import com.android.samservice.info.ReceivedQuestion;
-import com.android.samservice.info.ContactUser;
-import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.android.samservice.info.*;
+import com.android.samservice.coreobj.*;
+import com.android.samservice.type.TypeEnum;
 
 public class HttpCommClient {
 	public static final String TAG="HttpCommClient";
@@ -88,7 +71,7 @@ public class HttpCommClient {
 	public static final String URL_deleteAdvertisement=ROOT_URL+"api_1.0_advertisement_advertisementDelete.do";
 	public static final String URL_sendClientId=ROOT_URL+"api_1.0_profile_sendClientId.do";
 	public static final String URL_getPlacesInfoRequest=ROOT_URL+"api_1.0_profile_getPlacesInfoRequest.do";
-
+	public static final String URL_queryStateDate=ROOT_URL+"api_1.0_profile_queryStateDate.do";
 	
 	public static final int CONNECTION_TIMEOUT = 10000;
 	public static final int HTTP_TIMEOUT = 20000;
@@ -110,6 +93,7 @@ public class HttpCommClient {
 	public MultipleSyncAdv syncadvs;
 	public long latest_lastupdate;
 	public ReceivedQuestion rq;
+	public StateDateInfo sdinfo;
 	
 	HttpCommClient(){
 		statusCode = 0;
@@ -127,6 +111,7 @@ public class HttpCommClient {
 		syncadvs = null;
 		latest_lastupdate = 0;
 		rq = null;
+		sdinfo = null;
 	}
 
 	private HttpResponse httpCmdStart(String url, JSONObject jsonData)throws ClientProtocolException,IOException{
@@ -2489,6 +2474,7 @@ public class HttpCommClient {
 			if(advobj.content_thumb != null){
 				body.putOpt("content_thumb",advobj.content_thumb);
 			}
+			body.putOpt("message_id",advobj.message_id);
 			
 			JSONObject data = new JSONObject();
 			data.put("header", header);
@@ -2615,7 +2601,72 @@ public class HttpCommClient {
 		
 	}
 
-	private JSONObject constructSendClientIDJson(BindCoreObj bdobj) throws JSONException{
+	private JSONObject constructQueryStateJson(QueryStateCoreObj  qsobj) throws JSONException{
+			JSONObject header = new JSONObject();
+			header.putOpt("action", "query-state-date");
+			header.putOpt("token", qsobj.token);
+			
+			JSONObject body = new JSONObject();
+			
+			JSONObject data = new JSONObject();
+			data.put("header", header);
+			data.put("body", body);
+
+			return data;
+	}
+	
+	public boolean query_state(QueryStateCoreObj qsobj){
+		try{
+			JSONObject  data = constructQueryStateJson(qsobj);
+
+			HttpResponse response = httpCmdStart(URL_queryStateDate,data);
+			
+			statusCode = response.getStatusLine().getStatusCode();
+			
+			if(isHttpOK()){
+				String rev = EntityUtils.toString(response.getEntity());
+				SamLog.i(TAG,"rev:" + rev);
+				
+				JSONObject obj = new JSONObject(rev); 
+				ret = obj.getInt("ret");
+				if (isRetOK()) {
+					JSONObject jo = obj.getJSONObject("state_date_info");
+					long flist = jo.getLong("follow_list");
+					long slist = jo.getLong("servicer_list");
+					long clist = jo.getLong("customer_list");
+					sdinfo = new StateDateInfo(flist,slist,clist);
+				}
+				return true;
+			}else{
+				SamLog.i(TAG,"query state http status code:"+statusCode);
+				return false;
+			}
+		
+		}catch (JSONException e) {  
+			exception = true;
+			e.printStackTrace();
+			SamLog.e(TAG,"query state:JSONException");
+			return false;
+		} catch (ClientProtocolException e) {
+			exception = true;
+			SamLog.e(TAG,"query state:ClientProtocolException");
+			e.printStackTrace(); 
+			return false;
+		} catch (IOException e) { 
+			exception = true;
+			SamLog.e(TAG,"query state:IOException");
+			e.printStackTrace(); 
+			return false;
+		} catch (Exception e) { 
+			exception = true;
+			SamLog.e(TAG,"query state:Exception");
+			e.printStackTrace(); 
+			return false;
+		}
+		
+	}
+
+	private JSONObject constructSendClientIDJson(SendClientIDCoreObj bdobj) throws JSONException{
 			JSONObject header = new JSONObject();
 			header.putOpt("action", "send-clientId");
 			header.putOpt("token", bdobj.token);
@@ -2630,7 +2681,7 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean send_clientid(BindCoreObj bdobj){			
+	public boolean send_clientid(SendClientIDCoreObj bdobj){			
 		try{
 			JSONObject  data = constructSendClientIDJson(bdobj);
 

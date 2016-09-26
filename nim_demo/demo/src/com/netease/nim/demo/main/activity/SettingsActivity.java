@@ -30,7 +30,7 @@ import com.netease.nimlib.sdk.msg.MsgService;
 import java.util.ArrayList;
 import java.util.List;
 import com.android.samservice.SamService;
-import com.android.samservice.SMCallBack;
+import com.android.samservice.callback.SMCallBack;
 /**
  * Created by hzxuwen on 2015/6/26.
  */
