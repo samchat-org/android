@@ -43,11 +43,13 @@ import com.android.samchat.cache.CustomerDataCache;
 import android.widget.RelativeLayout;
 import com.android.samchat.ui.SideBar;
 import com.android.samchat.ui.SideBar.OnSideBarTouchingLetterChangedListener;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 
 /**
  * Main Fragment in SamchatContactListFragment
  */
 public class SamchatContactFragment extends TFragment {
+	private static final String TAG="SamchatContactFragment";
 	/*customer mode*/
 	//view
 	private LinearLayout customer_contact_layout;
@@ -218,6 +220,7 @@ public class SamchatContactFragment extends TFragment {
 					Contact ui = (Contact) parent.getAdapter().getItem(position);
 					if(ui != null){
 						contact_callback.onItemClick(ui);
+						LogUtil.i(TAG,"start chatting activity for ui:"+ui.getunique_id());
 					}
 				}
 			}

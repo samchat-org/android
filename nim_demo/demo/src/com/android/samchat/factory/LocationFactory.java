@@ -219,7 +219,7 @@ public class LocationFactory {
 	}
 
 
-	private SCell getCellInfo() {
+	public SCell getCurrentCellInfo() {
 		SCell cell = new SCell();
  
 		TelephonyManager mTelNet = (TelephonyManager) DemoCache.getContext().getSystemService(Context.TELEPHONY_SERVICE);

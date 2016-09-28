@@ -605,7 +605,7 @@ public class MessageListPanel implements TAdapterDelegate {
             List<IMMessage> result = new ArrayList<>();
             for (IMMessage message : messages) {
                 result.add(message);
-					LogUtil.e("test","msg status"+message.getStatus());
+					LogUtil.e(TAG,"msg status"+message.getStatus());
             }
             if (direction == QueryDirectionEnum.QUERY_NEW) {
                 items.addAll(result);
@@ -1115,20 +1115,20 @@ public class MessageListPanel implements TAdapterDelegate {
             return;
         }
 
+        CustomMessageConfig config = message.getConfig();
+        if(config == null){
+             config = new CustomMessageConfig();
+             config.enableRoaming = false;
+        }else{
+             config.enableRoaming = false;
+        }
+        message.setConfig(config);
+
         if(sessionTypeEnum == SessionTypeEnum.P2P){  
             /*SAMC_BEGIN(add local and remote tag)*/
             Map<String, Object> msg_from = new HashMap<>(1);
             msg_from.put(NimConstants.MSG_FROM,new Integer(container.mode));
             message.setRemoteExtension(msg_from);
-
-            CustomMessageConfig config = message.getConfig();
-            if(config == null){
-                config = new CustomMessageConfig();
-                config.enableRoaming = false;
-            }else{
-                config.enableRoaming = false;
-            }
-            message.setConfig(config);
             NimUIKit.getCallback().storeSendMessage(message,new NIMCallback(){
                 @Override
                 public void onResult(Object obj1, Object obj2, int code) {

@@ -14,6 +14,8 @@ import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.android.samchat.type.ModeEnum;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
 import com.netease.nim.demo.config.preference.Preferences;
@@ -132,6 +134,12 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.samchat_login_activity);
+
+		
+		/*clear all persist storage info*/
+		Preferences.saveUserAlias("");
+		Preferences.saveMode(ModeEnum.CUSTOMER_MODE.ordinal());
+		Preferences.clearSyncDate();
 
 		requestBasicPermission();
 

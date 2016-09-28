@@ -263,6 +263,32 @@ public class AttachmentStore {
         }
     }
 
+    /*SAMC_BEGIN(add delete function for samchat)*/
+    public static void deleteIfExist(String path) {
+        if(TextUtils.isEmpty(path)){
+            return;
+        }
+        File f = new File(path);
+        if (f.exists()) {
+            f.delete();
+        }
+    }
+		
+    public static boolean deleteFileUnderDir(String path){
+        File pathFile = new File(path);
+        if(pathFile.exists()){
+            File[] files = pathFile.listFiles(); 
+            for (File file : files) {
+                if(file.exists())
+			         file.delete();
+            }
+            return true;
+        }else{
+            return true;
+        }
+    }
+
+    /*SAMC_END(add delete function for samchat)*/
     public static boolean deleteDir(String path) {
         return deleteDir(path, true);
     }

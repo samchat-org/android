@@ -212,4 +212,6 @@
     <string name="samchat_file_transfer_state_downloaded">download</string>
     <string name="samchat_file_transfer_state_undownloaded">undownload</string>
 
+    <string name="samchat_clear_cache">Clear Cache</string>
+    <string name="samchat_clear_cache_finish">clear cache finish</string>
 </resources>

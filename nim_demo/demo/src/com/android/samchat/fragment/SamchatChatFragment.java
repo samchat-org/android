@@ -394,6 +394,8 @@ public class SamchatChatFragment extends TFragment{
                         removeTag(recent,RECENT_TAG_CUSTOMER_ROLE);
                         NIMClient.getService(MsgService.class).updateRecent(recent);
                         SamDBManager.getInstance().syncDeleteMessageSession(recent.getContactId(), ModeEnum.CUSTOMER_MODE.ordinal());
+							removeCustomerItem(recent);
+							refreshCustomerMessages(true);
                     }else{
                         SamDBManager.getInstance().syncDeleteMessageSession(recent.getContactId(), ModeEnum.CUSTOMER_MODE.ordinal());
                         NIMClient.getService(MsgService.class).clearChattingHistory(recent.getContactId(), recent.getSessionType());
@@ -606,6 +608,21 @@ public class SamchatChatFragment extends TFragment{
 		items_customer.add(rc);
 	}
 
+	private void removeCustomerItem(RecentContact rc){
+		int index = -1;
+		for(int i = 0; i<items_customer.size();i++){
+			if(rc.getContactId().equals(items_customer.get(i).getContactId())
+				&& rc.getSessionType() == (items_customer.get(i).getSessionType()) ){
+				index = i;
+				break;
+			}
+		}
+		
+		if(index >= 0){
+			items_customer.remove(index);
+		}
+	}
+
 
 
     public void setCallbackCustomer(RecentContactsCallback callback) {
@@ -671,18 +688,16 @@ public class SamchatChatFragment extends TFragment{
                         removeTag(recent,RECENT_TAG_SP_ROLE);
                         NIMClient.getService(MsgService.class).updateRecent(recent);
                         SamDBManager.getInstance().asyncDeleteMessageSession(recent.getContactId(), ModeEnum.SP_MODE.ordinal());
-                        items_sp.remove(recent);
+                        removeSPItem(recent);
                         refreshSPMessages(true);
                     }else{
                         NIMClient.getService(MsgService.class).clearChattingHistory(recent.getContactId(), recent.getSessionType());
-                        NIMClient.getService(MsgService.class).deleteRecentContact(recent);
+                        NIMClient.getService(MsgService.class).deleteRecentContact2(recent.	getContactId(),recent.getSessionType());;
                     }
                 }else{
                     NIMClient.getService(MsgService.class).clearChattingHistory(recent.getContactId(), recent.getSessionType());
-                    NIMClient.getService(MsgService.class).deleteRecentContact(recent);
+                    NIMClient.getService(MsgService.class).deleteRecentContact2(recent.	getContactId(),recent.getSessionType());;
                 }
-                items_sp.remove(recent);
-                refreshSPMessages(true);
             }
         });
 
@@ -785,6 +800,21 @@ public class SamchatChatFragment extends TFragment{
 		}
 
 		items_sp.add(rc);
+	}
+
+	private void removeSPItem(RecentContact rc){
+		int index = -1;
+		for(int i = 0; i<items_sp.size();i++){
+			if(rc.getContactId().equals(items_sp.get(i).getContactId())
+				&& rc.getSessionType() == (items_sp.get(i).getSessionType()) ){
+				index = i;
+				break;
+			}
+		}
+		
+		if(index >= 0){
+			items_sp.remove(index);
+		}
 	}
 
 

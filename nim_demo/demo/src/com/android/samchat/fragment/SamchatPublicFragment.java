@@ -446,7 +446,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 				@Override
 				public void run() {
 					updateRcvdAdvSessions(session);
-					LogUtil.e("test","rcvd adv session:"+session.getsession()+" "+session.getname()+" "+session.getrecent_adv_content());
+					LogUtil.i(TAG,"rcvd adv session:"+session.getsession()+" "+session.getname()+" "+session.getrecent_adv_content());
 					refreshFollowedSPsList();
 				}
 			}, 0);
@@ -543,7 +543,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 			im.setStatus(MsgStatusEnum.fail);
 			SendIMMessageCache.getInstance().remove(im.getUuid());
 			SamDBManager.getInstance().asyncUpdateSendAdvertisementMessage(null, im);
-			AttachmentStore.deleteOnExit(SamchatFileNameUtils.getTempFileName(abspath_origin, s3name_origin));
+			AttachmentStore.deleteIfExist(SamchatFileNameUtils.getTempFileName(abspath_origin, s3name_origin));
 		}
 
 		@Override
@@ -565,7 +565,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 				String url_origin = NimConstants.S3_URL_UPLOAD+NimConstants.S3_PATH_ADV+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
 				if(im.getMsgType() == MsgTypeEnum.image){
 					sendAdvertisement(Constants.ADV_TYPE_PIC, url_origin, null, im);
-					AttachmentStore.deleteOnExit(SamchatFileNameUtils.getTempFileName(abspath_origin, s3name_origin));
+					AttachmentStore.deleteIfExist(SamchatFileNameUtils.getTempFileName(abspath_origin, s3name_origin));
 				}else{
 					sendAdvertisement(Constants.ADV_TYPE_VEDIO, url_origin, 
 						"http://samchat-test.s3-website-us-west-2.amazonaws.com/advertisement/thumb/thumb_10000000008_1474031723942.jpg", im);
@@ -577,7 +577,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 				im.setStatus(MsgStatusEnum.fail);
 				SendIMMessageCache.getInstance().remove(im.getUuid());
 				SamDBManager.getInstance().asyncUpdateSendAdvertisementMessage(null, im);
-				AttachmentStore.deleteOnExit(SamchatFileNameUtils.getTempFileName(abspath_origin, s3name_origin));
+				AttachmentStore.deleteIfExist(SamchatFileNameUtils.getTempFileName(abspath_origin, s3name_origin));
 			}
 		}
 	}

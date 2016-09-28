@@ -30,12 +30,14 @@ import org.apache.http.message.BasicNameValuePair;
 import com.android.samservice.info.*;
 import com.android.samservice.coreobj.*;
 import com.android.samservice.type.TypeEnum;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 
 public class HttpCommClient {
 	public static final String TAG="HttpCommClient";
 	
 	//public static final String ROOT_URL = "http://ec2-52-40-15-21.us-west-2.compute.amazonaws.com:8081/sam_svr/";
-	public static final String ROOT_URL = "http://service-test.samchat.com:8081/sam_svr/";
+	//public static final String ROOT_URL = "http://service-test.samchat.com:8081/sam_svr/";
+	public static final String ROOT_URL = "http://52.40.15.21:8081/sam_svr/";
 
 	public static final String URL_registerCodeRequest = ROOT_URL+"api_1.0_user_registerCodeRequest.do";
 	public static final String URL_registerCodeVerify =ROOT_URL+"api_1.0_user_signupCodeVerify.do";
@@ -2670,7 +2672,8 @@ public class HttpCommClient {
 			JSONObject header = new JSONObject();
 			header.putOpt("action", "send-clientId");
 			header.putOpt("token", bdobj.token);
-			
+
+			LogUtil.i(TAG,"client id:"+bdobj.clientid);
 			JSONObject body = new JSONObject();
 			body.put("client_id",bdobj.clientid);
 			

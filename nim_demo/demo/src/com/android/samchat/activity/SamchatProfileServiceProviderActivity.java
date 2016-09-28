@@ -402,7 +402,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 
 	private void deleteFile(){
 		String path = getAvatarFilePath();
-		AttachmentStore.deleteOnExit(path);
+		AttachmentStore.deleteIfExist(path);
 	}
 	
 	private void uploadAvatar(String path){

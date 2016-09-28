@@ -17,11 +17,15 @@ package com.android.samservice.utils;
 
 import android.content.Context;
 import android.net.Uri;
+
+import com.amazonaws.ClientConfiguration;
 import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.S3ClientOptions;
+import com.netease.nim.uikit.NimConstants;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -66,7 +70,13 @@ public class S3Util {
      */
     public static AmazonS3Client getS3Client(Context context) {
         if (sS3Client == null) {
-            sS3Client = new AmazonS3Client(getCredProvider(context.getApplicationContext()));
+            ClientConfiguration config = new ClientConfiguration();
+            config.setConnectionTimeout(50000);
+            config.setMaxConnections(500);
+            config.setSocketTimeout(50000);
+            config.setMaxErrorRetry(10);
+            sS3Client = new AmazonS3Client(getCredProvider(context.getApplicationContext()),config);
+            sS3Client.setEndpoint(NimConstants.S3_ENDPOINT);
         }
         return sS3Client;
     }

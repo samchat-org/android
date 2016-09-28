@@ -52,6 +52,14 @@ public class Preferences {
     public static String getCudate() {
         return getString(KEY_CUSTOMER_LIST_UPDATE);
     }
+
+    public static void clearSyncDate(){
+		SharedPreferences.Editor editor = getSharedPreferences().edit();
+       editor.remove(KEY_FOLLOW_LIST_UPDATE);
+		editor.remove(KEY_CONTACT_LIST_UPDATE);
+		editor.remove(KEY_CUSTOMER_LIST_UPDATE);
+		editor.commit();
+    }
     /*SAMC_END(GETU Alias)*/
 
 	/*SAMC_BEGIN(current mode)*/

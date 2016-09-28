@@ -66,6 +66,7 @@
     <string name="samchat_leave_group">leave group</string>
     <string name="samchat_leave_advance_group">leave group</string>
 
+    <string name="samchat_you">you</string>
     <string name="samchat_dimiss_group">dismiss group</string>
     <string name="samchat_group_rename_to">rename to</string>
     <string name="samchat_group_description_rename_to">description change to</string>

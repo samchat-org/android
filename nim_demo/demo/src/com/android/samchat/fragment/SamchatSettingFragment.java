@@ -27,6 +27,8 @@ import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import android.widget.RelativeLayout;
 import com.netease.nim.demo.config.preference.Preferences;
 import android.view.View.OnClickListener;
+import android.widget.Toast;
+
 import com.android.samchat.activity.SamchatCreateSPStepOneActivity;
 import com.android.samchat.activity.SamchatUpdatePasswordActivity;
 import com.netease.nimlib.sdk.NIMClient;
@@ -50,7 +52,10 @@ public class SamchatSettingFragment extends TFragment {
 
 	private RelativeLayout signout_layout;
 	private boolean isSignout = false;
-	
+	private boolean signouting = false;
+
+	private RelativeLayout clear_cache_layout;
+	private boolean clearing = false;
 	
 	//observer and broadcast
 	private boolean isBroadcastRegistered = false;
@@ -168,6 +173,7 @@ public class SamchatSettingFragment extends TFragment {
 		sp_qr_layout= findView(R.id.sp_qr_layout);
 
 		signout_layout = findView(R.id.signout_layout);
+		clear_cache_layout = findView(R.id.clear_cache_layout);
 
 		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
 			switchMode(ModeEnum.CUSTOMER_MODE);
@@ -189,6 +195,9 @@ public class SamchatSettingFragment extends TFragment {
 
 		//signout
 		setupSignoutClick();
+
+		//clear data cache
+		setupClearCacheClick();
 	}
 
 /**********************************Profile View*******************************/
@@ -265,6 +274,16 @@ public class SamchatSettingFragment extends TFragment {
 		});
 	}
 
+/**********************************Signout*******************************/
+	private void setupClearCacheClick(){
+		clear_cache_layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				clearCache();
+			}
+		});
+	}
+
 
 
 /*******************************************************************************************/
@@ -285,6 +304,10 @@ public class SamchatSettingFragment extends TFragment {
 	}
 		
 	private void samchatLogout(){
+		if(signouting){
+			return;
+		}
+		signouting = true;
 		DialogMaker.showProgressDialog(getActivity(), null, getString(R.string.samchat_processing), false, null).setCanceledOnTouchOutside(false);
 		SamService.getInstance().signout(new SMCallBack(){
 				@Override
@@ -315,6 +338,55 @@ public class SamchatSettingFragment extends TFragment {
 							logout();
 						}
 					}, 0);
+				}
+
+		});
+    }
+
+	private void clearCache(){
+		if(clearing){
+			return;
+		}
+		clearing = true;
+		DialogMaker.showProgressDialog(getActivity(), null, getString(R.string.samchat_processing), false, null).setCanceledOnTouchOutside(false);
+		SamService.getInstance().clear_cache(new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+							Toast.makeText(getActivity(), getString(R.string.samchat_clear_cache_finish), Toast.LENGTH_SHORT).show();
+							clearing = false;
+						}
+					}, 0);
+					
+				}
+
+				@Override
+				public void onFailed(int code) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+							Toast.makeText(getActivity(), getString(R.string.samchat_clear_cache_finish), Toast.LENGTH_SHORT).show();
+							clearing = false;
+						}
+					}, 0);
+					
+				}
+
+				@Override
+				public void onError(int code) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+							Toast.makeText(getActivity(), getString(R.string.samchat_clear_cache_finish), Toast.LENGTH_SHORT).show();
+							clearing = false;
+						}
+					}, 0);
+					
 				}
 
 		});

@@ -375,7 +375,7 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 
 	private void deleteFile(){
 		String path = getAvatarFilePath();
-		AttachmentStore.deleteOnExit(path);
+		AttachmentStore.deleteIfExist(path);
 	}
 	
 	private void uploadAvatar(String path){

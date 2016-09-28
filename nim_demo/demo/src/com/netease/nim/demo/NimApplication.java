@@ -73,6 +73,7 @@ public class NimApplication extends Application {
         super.onCreate();
 
         DemoCache.setContext(this);
+        DemoCache.setApp(this);
 
         NIMClient.init(this, getLoginInfo(), getOptions());
 
@@ -303,6 +304,7 @@ public class NimApplication extends Application {
 		try{
 			ret = Long.valueOf(s);
 		}catch(Exception e){
+			e.printStackTrace();
 			return ret;
 		}
 		return ret;
@@ -378,7 +380,13 @@ public class NimApplication extends Application {
 
         @Override
         public String getUserDisplayName(String account) {
-            return NimUserInfoCache.getInstance().getUserDisplayName(account);
+            //return NimUserInfoCache.getInstance().getUserDisplayName(account);
+            ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
+            if(user != null){
+               return user.getusername();
+            }else{
+               return account;
+            }
         }
     };
 

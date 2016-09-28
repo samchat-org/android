@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.activity.UI;
+import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.constant.Extras;
@@ -42,7 +43,8 @@ public abstract class BaseMessageActivity extends UI {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+				
+        sessionId = getIntent().getStringExtra(Extras.EXTRA_ACCOUNT);
         setContentView(getContentViewId());
         initToolBar();
         parseIntent();
@@ -79,7 +81,8 @@ public abstract class BaseMessageActivity extends UI {
         adv_id = getIntent().getLongExtra(Extras.EXTRA_ADVID,0L);
         /*SAMC_BEGIN(support mode setting for p2p activity)*/
 
-        if (customization != null && (!(BaseMessageActivity.this instanceof P2PMessageActivity )|| mode != 0)) {
+		LogUtil.i("test",customization + " " + (BaseMessageActivity.this instanceof P2PMessageActivity ) + " " +mode);
+        if (customization != null && (!(BaseMessageActivity.this instanceof P2PMessageActivity ) || mode != 0)) {
             addRightCustomViewOnActionBar(this, customization.buttons);
         }
     }

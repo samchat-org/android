@@ -285,6 +285,15 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         }
 
         /*SAMC_BEGIN(add local and remote tag)*/
+		CustomMessageConfig config = message.getConfig();
+		if(config == null){
+			config = new CustomMessageConfig();
+			config.enableRoaming = false;
+		}else{
+			config.enableRoaming = false;
+		}
+		message.setConfig(config);
+		
         if(sessionType == SessionTypeEnum.P2P){
             Map<String, Object> msg_from = new HashMap<>();
             msg_from.put(NimConstants.MSG_FROM,new Integer(mode));
@@ -296,14 +305,7 @@ public class MessageFragment extends TFragment implements ModuleProxy {
             }
             message.setRemoteExtension(msg_from);
 
-            CustomMessageConfig config = message.getConfig();
-            if(config == null){
-               config = new CustomMessageConfig();
-               config.enableRoaming = false;
-            }else{
-               config.enableRoaming = false;
-            }
-            message.setConfig(config);
+            
             NimUIKit.getCallback().storeSendMessage(message,new NIMCallback(){
                 @Override
                 public void onResult(Object obj1, Object obj2, int code) {

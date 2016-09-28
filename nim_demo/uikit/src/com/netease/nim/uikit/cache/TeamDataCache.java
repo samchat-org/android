@@ -3,6 +3,7 @@ package com.netease.nim.uikit.cache;
 import android.text.TextUtils;
 
 import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.UIKitLogTag;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.NIMClient;
@@ -381,7 +382,7 @@ public class TeamDataCache {
      */
     public String getTeamMemberDisplayName(String tid, String account) {
         if (account.equals(NimUIKit.getAccount())) {
-            return "我";
+            return NimUIKit.getContext().getString(R.string.samchat_you);
         }
 
         return getDisplayNameWithoutMe(tid, account);

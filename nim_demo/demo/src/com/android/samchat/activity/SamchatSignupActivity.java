@@ -3,7 +3,9 @@ package com.android.samchat.activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -15,21 +17,26 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samchat.factory.UuidFactory;
 import com.android.samservice.info.ContactUser;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
 import com.netease.nim.demo.config.preference.Preferences;
 import com.netease.nim.demo.config.preference.UserPreferences;
 import com.netease.nim.demo.main.activity.MainActivity;
+import com.netease.nim.demo.main.activity.WelcomeActivity;
 import com.netease.nim.uikit.cache.DataCacheManager;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.model.ToolBarOptions;
+import com.netease.nim.uikit.session.viewholder.MsgViewHolderThumbBase;
 import com.netease.nimlib.sdk.AbortableFuture;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
+import com.netease.nimlib.sdk.SDKOptions;
+import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.android.samchat.cache.SamchatDataCacheManager;
@@ -363,16 +370,30 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 	
 	private void onSignupDone(final Object obj){
 		HttpCommClient hcc = (HttpCommClient)obj;
-		final String account = ""+hcc.userinfo.getunique_id();
-		final String token = hcc.token_id + deviceid;
+		String account = ""+hcc.userinfo.getunique_id();
+		String token = hcc.token_id;
+		String final_token = hcc.token_id + deviceid;
 		saveLoginInfo(account,token);
 
-		//login(account,token);
-		autoLogin(account, token);
+		login(account,final_token);
+		//autoLogin(account, final_token);
 	}
+
+	public LoginInfo getLoginInfo() {
+        String account = Preferences.getUserAccount();
+        String token = Preferences.getUserToken();
+        if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(token)) {
+            DemoCache.setAccount(account.toLowerCase());
+            return new LoginInfo(account, token+ UuidFactory.getInstance().getDeviceId());
+        } else {
+            return null;
+        }
+    }
 
 	private void autoLogin( String account,  String token){
 		DemoCache.setAccount(account);
+		NIMClient.init(DemoCache.getContext(), new LoginInfo(account, token), DemoCache.getApp().getOptions());
+		
 		NIMClient.toggleNotification(UserPreferences.getNotificationToggle());
 		if (UserPreferences.getStatusConfig() == null) {
 			UserPreferences.setStatusConfig(DemoCache.getNotificationConfig());

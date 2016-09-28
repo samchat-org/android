@@ -16,6 +16,8 @@ public class DemoCache {
 
     private static StatusBarNotificationConfig notificationConfig;
 
+    private static NimApplication app;
+
     public static void clear() {
         account = null;
     }
@@ -43,6 +45,14 @@ public class DemoCache {
 
     public static void setContext(Context context) {
         DemoCache.context = context.getApplicationContext();
+    }
+
+    public static void setApp(NimApplication app){
+		DemoCache.app = app;
+    }
+
+    public static NimApplication getApp(){
+		return DemoCache.app;
     }
 
     /*SAMC_BEGIN(SamChat Switch Tag)*/

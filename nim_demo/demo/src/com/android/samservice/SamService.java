@@ -22,12 +22,18 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+
+import com.netease.nim.uikit.common.util.file.AttachmentStore;
+import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nim.uikit.common.util.storage.StorageType;
+import com.netease.nim.uikit.common.util.storage.StorageUtil;
 import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.netease.nim.demo.config.preference.Preferences;
 import com.igexin.sdk.PushManager;
 import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samchat.service.SamDBManager;
 import com.android.samservice.coreobj.*;
+import com.nostra13.universalimageloader.utils.StorageUtils;
 
 public class SamService{
 	public static final String TAG="SamService";
@@ -57,8 +63,6 @@ public class SamService{
 	private String dbFolder;
 
 	private String clientID;
-	private boolean startBind;
-
 	private static final int  INITED=0;
 	private static final int  SYNCING=1;
 	private static final int  SYNCED=2;
@@ -129,6 +133,8 @@ public class SamService{
 	public static final int MSG_SYNC_CUSTOMER_LIST_UPDATE = MSG_SYNC_CONTACT_LIST_UPDATE + 1;
 	public static final int MSG_SYNC_BIND_ALIAS_UPDATE = MSG_SYNC_CUSTOMER_LIST_UPDATE + 1;
 	public static final int MSG_SYNC_SEND_CLIENT_ID_UPDATE = MSG_SYNC_BIND_ALIAS_UPDATE + 1;
+
+	public static final int MSG_CLEAR_CACHE = MSG_SYNC_SEND_CLIENT_ID_UPDATE + 1;
 	
 
 	private boolean isTimeOut(SamCoreObj samobj){
@@ -989,6 +995,7 @@ public class SamService{
 
 /***************************************query user precise*******************************************************/
 	public void query_user_precise(TypeEnum type, String cellphone, long unique_id, String username, boolean persist, SMCallBack callback){
+		LogUtil.i(TAG,"query user precise:"+type+" "+cellphone+" "+unique_id+" "+username+" "+persist   );
 		QueryUserPreciseCoreObj samobj = new QueryUserPreciseCoreObj(callback);
 		samobj.init(get_current_token(),  type, cellphone,  unique_id,  username, persist);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_QUERY_USER_PRECISE, samobj);
@@ -1007,7 +1014,6 @@ public class SamService{
 		}else if(http_ret){
 			if(hcc.ret == 0){
 				if(qupobj.persist){
-					SamchatUserInfoCache.getInstance().addUsers(hcc.users.getusers());
 					boolean isDbError = syncUpdateUserInfo(hcc.users);
 					samobj.callback.onSuccess(hcc,isDbError?Constants.DB_OPT_ERROR:0);
 				}else{
@@ -1058,7 +1064,6 @@ public class SamService{
 		}else if(http_ret){
 			if(hcc.ret == 0){
 				if(qumobj.persist){
-					SamchatUserInfoCache.getInstance().addUsers(hcc.users.getusers());
 					boolean isDbError = syncUpdateUserInfo(hcc.users);
 					samobj.callback.onSuccess(hcc,isDbError?Constants.DB_OPT_ERROR:0);
 				}else{
@@ -1337,7 +1342,9 @@ public class SamService{
 					dao.update_ContactList_db(user, true);
 					CustomerDataCache.getInstance().addCustomer(user.getunique_id(), user);
 				}
+
 				
+				SamchatUserInfoCache.getInstance().addUser(hcc.userinfo.getunique_id(), hcc.userinfo);
 				if(dao.update_ContactUser_db(hcc.userinfo) == -1){
 					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
 				}else{
@@ -1500,7 +1507,7 @@ public class SamService{
 				for(Contact contact:hcc.contacts.getcontacts()){
 					ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(contact.getunique_id());
 					if(user == null || user.getlastupdate() != contact.getlastupdate()){
-						SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(contact.getlastupdate());
+						SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(contact.getunique_id());
 					}
 				}
 			}else{
@@ -1805,6 +1812,7 @@ public class SamService{
 
 /********************************************** SYNC OPT ********************************************************/
 	public void client_id_ready(String clid){
+		LogUtil.i(TAG,"clientid:"+clid);
 		clientID = clid;
 		Message msg = mHandlerTimeOutHandler.obtainMessage(MSG_CLIENTID_READY);
 		mHandlerTimeOutHandler.sendMessage(msg);		
@@ -1912,14 +1920,17 @@ public class SamService{
 		public void onSuccess( Object obj,  int WarningCode) {
 			HttpCommClient hcc = (HttpCommClient)obj;
 			set_query_state(hcc.sdinfo,true);
+			LogUtil.i(TAG,"sync Query state succeed");
 		}
 		@Override
 		public void onFailed(int code) {
 			set_query_state(null,false);
+			LogUtil.i(TAG,"sync Query state failed:"+code);
 		}
 		@Override
 		public void onError(int code) {
 			set_query_state(null,false);
+			LogUtil.i(TAG,"sync Query state error:"+code);
 		}
 	};
 
@@ -1927,14 +1938,17 @@ public class SamService{
 		@Override
 		public void onSuccess(Object obj, int WarningCode) {
 			set_sync_follow_list(true);
+			LogUtil.i(TAG,"sync follow list succeed");
 		}
 		@Override
 		public void onFailed(int code) {
 			set_sync_follow_list(false);
+			LogUtil.i(TAG,"sync follow list failed:"+code);
 		}
 		@Override
 		public void onError(int code) {
 			set_sync_follow_list(false);
+			LogUtil.i(TAG,"sync follow list error:"+code);
 		}
 	};
 
@@ -1942,14 +1956,17 @@ public class SamService{
 		@Override
 		public void onSuccess(final Object obj, final int WarningCode) {
 			set_sync_contact_list(true);
+			LogUtil.i(TAG,"sync contact list succeed");
 		}
 		@Override
 		public void onFailed(int code) {
 			set_sync_contact_list(false);
+			LogUtil.i(TAG,"sync contact list failed:"+code);
 		}
 		@Override
 		public void onError(int code) {
 			set_sync_contact_list(false);
+			LogUtil.i(TAG,"sync contact list error:"+code);
 		}
 	};
 
@@ -1958,14 +1975,17 @@ public class SamService{
 		@Override
 		public void onSuccess(final Object obj, final int WarningCode) {
 			set_sync_customer_list(true);
+			LogUtil.i(TAG,"sync customer list succeed");
 		}
 		@Override
 		public void onFailed(int code) {
 			set_sync_customer_list(false);
+			LogUtil.i(TAG,"sync customer list failed:"+code);
 		}
 		@Override
 		public void onError(int code) {
 			set_sync_customer_list(false);
+			LogUtil.i(TAG,"sync customer list error:"+code);
 		}
 	};
 
@@ -1973,14 +1993,17 @@ public class SamService{
 		@Override
 		public void onSuccess(final Object obj, final int WarningCode) {
 			set_sync_bind_alias(true);
+			LogUtil.i(TAG,"sync bind alias succeed");
 		}
 		@Override
 		public void onFailed(int code) {
 			set_sync_bind_alias(false);
+			LogUtil.i(TAG,"sync bind alias failed:"+code);
 		}
 		@Override
 		public void onError(int code) {
 			set_sync_bind_alias(false);
+			LogUtil.i(TAG,"sync bind alias error:"+code);
 		}
 	};
 
@@ -1988,16 +2011,37 @@ public class SamService{
 		@Override
 		public void onSuccess(final Object obj, final int WarningCode) {
 			set_sync_send_clientID(true);
+			LogUtil.i(TAG,"sync send client id succeed");
 		}
 		@Override
 		public void onFailed(int code) {
 			set_sync_send_clientID(false);
+			LogUtil.i(TAG,"sync send client id failed:"+code);
 		}
 		@Override
 		public void onError(int code) {
 			set_sync_send_clientID(false);
+			LogUtil.i(TAG,"sync send client id error:"+code);
 		}
 	};
+
+/***************************************clear data cache in sdcard*******************************************************/
+	public void clear_cache(SMCallBack callback){
+		ClearCacheCoreObj samobj = new ClearCacheCoreObj(callback);
+		samobj.init();
+		Message msg = mSamServiceHandler.obtainMessage(MSG_CLEAR_CACHE, samobj);
+		mSamServiceHandler.sendMessage(msg);
+	}
+
+	private void do_clear_cache(SamCoreObj samobj){
+		//clear image cache
+		File cacheDir = StorageUtils.getOwnCacheDirectory(DemoCache.getContext(), DemoCache.getContext().getPackageName() + "/cache/image/");
+		String imgCachePath = cacheDir.getAbsolutePath();
+		AttachmentStore.deleteFileUnderDir(imgCachePath);
+		
+		samobj.callback.onSuccess(null,0);
+    }
+	
 
 /********************************************** HTTP API END ********************************************************/
 
@@ -2070,7 +2114,6 @@ public class SamService{
 		}
 
 		clientID = null;
-		startBind = false;
 		
 	}
 
@@ -2134,8 +2177,6 @@ public class SamService{
 		current_token = null;
 		current_user = null;
 		clientID = null;
-		startBind = false;
-
 	}
 
 	public void setClientID(String clientID){
@@ -2161,6 +2202,7 @@ public class SamService{
 		
 		if(users.getcount()>0){
 			for(ContactUser user: users.getusers()){
+				SamchatUserInfoCache.getInstance().addUser(user.getunique_id(), user);
 				if(dao.update_ContactUser_db_if_existed(user) == -1){
 					isDbError = true;
 				}
@@ -2187,7 +2229,7 @@ public class SamService{
 
 	private boolean syncUpdateUserInfo(ContactUser user){
 		boolean isDbError = false;
-		
+		SamchatUserInfoCache.getInstance().addUser(user.getunique_id(), user);
 		 if(dao.update_ContactUser_db(user) == -1){
 			isDbError = true;
 		}
@@ -2353,7 +2395,6 @@ public class SamService{
 					}else{
 						syncStatus[SYNC_QUERY_STATE]=INITED;
 						sync_status_check();
-						query_state(syncQueryStateCallback);
 					}
 				break;
 
@@ -2370,7 +2411,6 @@ public class SamService{
 					}else{
 						syncStatus[SYNC_FOLLOW_LIST]=INITED;
 						sync_status_check();
-						sync_follow_list(syncFollowListCallback);
 					}
 				break;
 
@@ -2387,7 +2427,6 @@ public class SamService{
 					}else{
 						syncStatus[SYNC_CONTACT_LIST]=INITED;
 						sync_status_check();
-						sync_contact_list(false, syncContactListCallback);
 					}
 				break;
 				
@@ -2404,7 +2443,6 @@ public class SamService{
 					}else{
 						syncStatus[SYNC_CUSTOMER_LIST]=INITED;
 						sync_status_check();
-						sync_contact_list(true, syncContactListCallback);
 					}
 				break;
 				
@@ -2412,14 +2450,13 @@ public class SamService{
 					SyncCoreObj bindObj = (SyncCoreObj)msg.obj;
 					if(bindObj.succeed){
 						syncStatus[SYNC_BIND]=SYNCED;
-						if(syncStatus[SYNC_SEND_CLIENT_ID]==INITED){
+						if(syncStatus[SYNC_SEND_CLIENT_ID]==INITED && clientidReady){
 							sync_status_check();
 							send_clientid(syncSendClientIDCallback);
 						}
 					}else{
 						syncStatus[SYNC_BIND]=INITED;
 						sync_status_check();
-						bind_alias(syncBindAliasCallback);
 					}
 
 				break;
@@ -2429,7 +2466,6 @@ public class SamService{
 					if(!sendObj.succeed){
 						syncStatus[SYNC_SEND_CLIENT_ID]=INITED;
 						sync_status_check();
-						send_clientid(syncSendClientIDCallback);
 					}else{
 						syncStatus[SYNC_SEND_CLIENT_ID]=SYNCED;
 					}
@@ -2754,6 +2790,14 @@ public class SamService{
 					});
 					break;
 
+				case MSG_CLEAR_CACHE:
+					mFixedHttpThreadPool.execute(new Runnable(){
+						@Override
+						public void run(){
+							do_clear_cache(msgObj);
+						}
+					});
+					break;
 					
 					
 			}

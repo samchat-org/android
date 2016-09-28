@@ -128,6 +128,7 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 		try{
 			unique_id = Long.valueOf(content);
 		}catch(Exception e){
+			e.printStackTrace();
 			LogUtil.i(TAG,"warning: invalid qr code");
 		}finally{
 			return unique_id;
