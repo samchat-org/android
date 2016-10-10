@@ -79,7 +79,6 @@ public class SamchatCountryCodeSelectActivity extends UI implements OnKeyListene
 	
 
 	private FrameLayout back_arrow_layout;
-	private TextView search_textview;
 	private ListView countrylist;
 
 	private List<CountryInfo> items;
@@ -184,23 +183,12 @@ public class SamchatCountryCodeSelectActivity extends UI implements OnKeyListene
 			}
 		});
 	}
-
-	private void setupSearchClick(){
-		search_textview.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				
-			}
-		});
-	}
 	
 	private void setupCountryCodeSelectPanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
-		search_textview = findView(R.id.search);
 		countrylist = findView(R.id.list);
 
 		setupBackArrowClick();
-		setupSearchClick();
 		initCountryList();
 
 	}

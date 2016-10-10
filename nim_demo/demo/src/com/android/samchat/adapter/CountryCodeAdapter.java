@@ -69,6 +69,7 @@ public class CountryCodeAdapter extends BaseAdapter{
 			holder = new ViewHolder();
 			convertView = mInflater.inflate(R.layout.samchat_countrycode_list_item,parent,false);
 			holder.tv_tag = (TextView) convertView.findViewById(R.id.tv_lv_item_tag);
+			holder.content_layout = (LinearLayout) convertView.findViewById(R.id.content);
 			holder.countryname_textview = (TextView) convertView.findViewById(R.id.countryname);
 			holder.countrycode_textview = (TextView) convertView.findViewById(R.id.countrycode); 
 			convertView.setTag(holder);
@@ -78,9 +79,10 @@ public class CountryCodeAdapter extends BaseAdapter{
 		
 		switch(viewType){
 		case TYPE_TOP_HIT:
-			holder.tv_tag.setVisibility(View.GONE);
-			holder.countryname_textview.setText(mContext.getString(R.string.samchat_tophit));
+			holder.tv_tag.setText(mContext.getString(R.string.samchat_tophit));
+			holder.countryname_textview.setVisibility(View.GONE);
 			holder.countrycode_textview.setVisibility(View.GONE);
+			holder.content_layout.setVisibility(View.GONE);
 			break;
 		case TYPE_TOP_CHINA:
 			holder.tv_tag.setVisibility(View.GONE);
@@ -145,6 +147,7 @@ public class CountryCodeAdapter extends BaseAdapter{
 
 	public static class ViewHolder{
 		public TextView tv_tag;
+		public LinearLayout content_layout;
 		public TextView countryname_textview;
 		public TextView countrycode_textview;
 	}

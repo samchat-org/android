@@ -1763,7 +1763,7 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean query_user_without_token(QueryUserWithoutTokenCoreObj quwobj){			
+	public boolean query_user_without_token(QueryUserWithoutTokenCoreObj quwobj){
 		try{
 			JSONObject  data = constructQueryUserWithoutTokenJson(quwobj);
 

@@ -12,6 +12,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,13 +64,13 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 
 	private TextView countrycode_textview;
 	private EditText logininput_edittext;
-	private ImageView hidden_imageview;
+	private RelativeLayout hidden_layout;
 	private EditText password_edittext;
 	private TextView signin_textview;
 	private TextView signup_textview;
 	private TextView forgot_pwd_textview;
 
-	private String countrycode = "1";
+	private String countrycode = "USA";
 	private String input;
 	private String password;
 
@@ -217,7 +218,7 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 	private void setupLoginPanel() {
 		countrycode_textview = findView(R.id.countrycode);
 		logininput_edittext = findView(R.id.logininput);
-		hidden_imageview = findView(R.id.hidden);
+		hidden_layout = findView(R.id.hidden_layout);
 		password_edittext = findView(R.id.password);
 		signin_textview = findView(R.id.signin);
 		signup_textview = findView(R.id.signup);
@@ -240,7 +241,8 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 	}
 
 	private void setupCountrycodeClick(){
-		updateCountryCode();
+		countrycode_textview.setTypeface(Typeface.SANS_SERIF);
+		countrycode_textview.setText(countrycode);
 		countrycode_textview.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
@@ -295,6 +297,7 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 			password = password_edittext.getText().toString();
 			password_ready = password.length()>=Constants.MIN_PASSWORD_LENGTH;
 			updateSigninButton();
+			password_edittext.setTypeface(Typeface.SANS_SERIF);
 		}
 	};
 
@@ -310,10 +313,11 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 			Selection.setSelection(etable, etable.length());
 			isPwdShown = false;
 		}
+		password_edittext.setTypeface(Typeface.SANS_SERIF);
 	}
 
 	private void setupHiddenClick(){
-		hidden_imageview.setOnClickListener(new OnClickListener() {
+		hidden_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				togglePasswordVisibility();
@@ -335,6 +339,7 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 	}
 
 	private void setupSignInClick(){
+		signin_textview.setTypeface(Typeface.SANS_SERIF);
 		signin_textview.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
@@ -352,6 +357,7 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 
 /************************signup view setup********************************************/
 	private void setupSignUpClick(){
+		signup_textview.setTypeface(Typeface.SANS_SERIF);
 		signup_textview.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
@@ -364,6 +370,7 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 
 /************************signup view setup********************************************/
 	private void setupForgotPwdClick(){
+		forgot_pwd_textview.setTypeface(Typeface.SANS_SERIF);
 		forgot_pwd_textview.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
@@ -377,7 +384,13 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 /************************transaction implement********************************************/	
 	private void loginSamchat() {
 		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_loginging), false, null).setCanceledOnTouchOutside(false);
-		SamService.getInstance().signin(countrycode, input, password, UuidFactory.getInstance().getDeviceId(), 
+		String cc="";
+		if(!countrycode.equals("USA")){
+			cc = countrycode;
+		}else{
+			cc = "1";
+		}
+		SamService.getInstance().signin(cc, input, password, UuidFactory.getInstance().getDeviceId(), 
 			new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {

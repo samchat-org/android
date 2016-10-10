@@ -18,11 +18,11 @@ import com.android.samchat.type.ModeEnum;
 
 public enum MainTab {
     /*SAMC_BEGIN(Change the main tab from 3 to 5)*/
-    SAMCHAT_REQUEST(0, ReminderId.SAMCHAT_TAB_REQUEST, SamchatRequestListFragment.class, R.string.main_tab_session, R.layout.samchat_request_list),
-    SAMCHAT_PUBLIC(1, ReminderId.SAMCHAT_TAB_PUBLIC, SamchatPublicListFragment.class, R.string.main_tab_session, R.layout.samchat_public_list),
-    SAMCHAT_CHAT(2, ReminderId.SAMCHAT_TAB_CHAT, SamchatChatListFragment.class, R.string.main_tab_session, R.layout.samchat_chat_list),
-	 SAMCHAT_CONTACT(3, ReminderId.SAMCHAT_TAB_CONTACT, SamchatContactListFragment.class, R.string.main_tab_contact, R.layout.samchat_contacts_list),
-    SAMCHAT_SETTING(4, ReminderId.SAMCHAT_TAB_SETTING, SamchatSettingListFragment.class, R.string.main_tab_contact, R.layout.samchat_setting_list);
+    SAMCHAT_REQUEST(0, ReminderId.SAMCHAT_TAB_REQUEST, SamchatRequestListFragment.class, R.string.samchat_maintab_request, R.layout.samchat_request_list),
+    SAMCHAT_PUBLIC(1, ReminderId.SAMCHAT_TAB_PUBLIC, SamchatPublicListFragment.class, R.string.samchat_maintab_public, R.layout.samchat_public_list),
+    SAMCHAT_CHAT(2, ReminderId.SAMCHAT_TAB_CHAT, SamchatChatListFragment.class, R.string.samchat_maintab_chat, R.layout.samchat_chat_list),
+	 SAMCHAT_CONTACT(3, ReminderId.SAMCHAT_TAB_CONTACT, SamchatContactListFragment.class, R.string.samchat_maintab_contacts, R.layout.samchat_contacts_list),
+    SAMCHAT_SETTING(4, ReminderId.SAMCHAT_TAB_SETTING, SamchatSettingListFragment.class, R.string.samchat_maintab_me, R.layout.samchat_setting_list);
 
 	 //RECENT_CONTACTS(5, ReminderId.SESSION, SessionListFragment.class, R.string.main_tab_session, R.layout.session_list),
     //CONTACT(6, ReminderId.CONTACT, ContactListFragment.class, R.string.main_tab_contact, R.layout.contacts_list),
@@ -154,5 +154,133 @@ public enum MainTab {
 		return icon_id;
 	}
 
-		
+	public static final int getTabRightIcon(int index){
+		int icon_id;
+        MainTab tab = fromTabIndex(index);
+
+		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+			switch (tab){
+             case SAMCHAT_REQUEST:
+				case SAMCHAT_PUBLIC:
+				case SAMCHAT_CHAT:
+				case SAMCHAT_CONTACT:
+				case SAMCHAT_SETTING:
+					icon_id = R.drawable.samchat_titlebar_right_icon_user;
+				default:
+					icon_id = R.drawable.samchat_titlebar_right_icon_user;
+					break;
+			}
+		}else{
+			switch (tab){
+             case SAMCHAT_REQUEST:
+				case SAMCHAT_PUBLIC:
+				case SAMCHAT_CHAT:
+				case SAMCHAT_CONTACT:
+				case SAMCHAT_SETTING:
+					icon_id = R.drawable.samchat_titlebar_right_icon_sp;
+				default:
+					icon_id = R.drawable.samchat_titlebar_right_icon_sp;
+					break;
+			}
+		}
+
+		return icon_id;
+	}
+
+	public static final boolean isTabRightIconShow(int index){
+		boolean show = false;
+		MainTab tab = fromTabIndex(index);
+		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+			switch (tab){
+				case SAMCHAT_REQUEST:
+					show = false;
+					break;
+				case SAMCHAT_PUBLIC:
+				case SAMCHAT_CHAT:
+				case SAMCHAT_CONTACT:
+					show = true;
+					break;
+				case SAMCHAT_SETTING:
+					show = false;
+					break;
+				default:
+					show = false;
+					break;
+			}
+		}else{
+			switch (tab){
+				case SAMCHAT_REQUEST:
+				case SAMCHAT_PUBLIC:
+                    show = false;
+                    break;
+				case SAMCHAT_CHAT:
+				case SAMCHAT_CONTACT:
+					show = true;
+					break;
+				case SAMCHAT_SETTING:
+					show = false;
+					break;
+				default:
+					show = false;
+					break;
+			}
+		}
+		return show;
+	}
+
+	public static final int getMainIcon(int index){
+		int icon_id;
+		MainTab tab = fromTabIndex(index);
+
+		switch (tab){
+		case SAMCHAT_REQUEST:
+			icon_id = R.drawable.samchat_request_icon;
+			break;
+		case SAMCHAT_PUBLIC:
+			icon_id = R.drawable.samchat_public_icon;
+			break;
+		case SAMCHAT_CHAT:
+			icon_id = R.drawable.samchat_chat_icon;
+			break;
+		case SAMCHAT_CONTACT:
+			icon_id = R.drawable.samchat_contacts_icon;
+			break;
+		case SAMCHAT_SETTING:
+			icon_id = R.drawable.samchat_me_icon;
+			break;
+		default:
+			icon_id = R.drawable.samchat_request_icon;
+			break;
+		}
+
+		return icon_id;
+	}
+
+	public static final int getMainIconSelected(int index){
+		int icon_id;
+		MainTab tab = fromTabIndex(index);
+
+		switch (tab){
+		case SAMCHAT_REQUEST:
+			icon_id = R.drawable.samchat_request_icon_selected;
+			break;
+		case SAMCHAT_PUBLIC:
+			icon_id = R.drawable.samchat_public_icon_selected;
+			break;
+		case SAMCHAT_CHAT:
+			icon_id = R.drawable.samchat_chat_icon_selected;
+			break;
+		case SAMCHAT_CONTACT:
+			icon_id = R.drawable.samchat_contacts_icon_selected;
+			break;
+		case SAMCHAT_SETTING:
+			icon_id = R.drawable.samchat_me_icon_selected;
+			break;
+		default:
+			icon_id = R.drawable.samchat_request_icon_selected;
+			break;
+		}
+
+		return icon_id;
+	}
 }

@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samchat.factory.UuidFactory;
 import com.android.samservice.info.ContactUser;
+import com.android.samservice.type.TypeEnum;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
 import com.netease.nim.demo.config.preference.Preferences;
@@ -67,8 +68,14 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 	private EditText username_edittext;
 	private EditText password_edittext;
 	private RelativeLayout hidden_layout;
-	private ImageView selected_imageview;
 	private TextView done_textview;
+	private TextView terms_textview;
+	private ImageView hidden_icon_imageview;
+	private ImageView username_icon_imageview;
+	private ImageView username_ok_imageview;
+	private ImageView password_ok_imageview;
+	private TextView Oops_textview;
+
 
 	private boolean ready_username=false;
 	private boolean ready_password=false;
@@ -128,6 +135,12 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 		onParseIntent();
 		setupSignUpPanel();
 	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		getHandler().removeCallbacksAndMessages(null);
+	}
 	
 	private void setupBackArrowClick(){
 		back_arrow_layout.setOnClickListener(new OnClickListener() {
@@ -151,10 +164,23 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 
 		@Override
 		public void afterTextChanged(Editable s) {
-			ready_username = (username_edittext.getText().toString().trim().length()>=Constants.MIN_USERNAME_LENGTH);
-			updateDoneButton();
-			if(ready_username){
+			if((username_edittext.getText().toString().trim().length()>=Constants.MIN_USERNAME_LENGTH)){
 				username = username_edittext.getText().toString().trim();
+				username_icon_imageview.setImageResource(R.drawable.samchat_user_icon_ok);
+				showOops(false);
+				updateUsernameOKShow(false);
+				ready_username = false;
+				updateDoneButton();
+				getHandler().removeCallbacksAndMessages(null);
+				postCountdownCheckUsername();
+			}else{
+				username = username_edittext.getText().toString().trim();
+				username_icon_imageview.setImageResource(R.drawable.samchat_user_icon);
+				showOops(false);
+				updateUsernameOKShow(false);
+				ready_username = false;
+				updateDoneButton();
+				getHandler().removeCallbacksAndMessages(null);
 			}
 		}
 	};
@@ -193,31 +219,13 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 	}
 
 	private void updateDoneButton(){
-		done_textview.setEnabled(ready_username & ready_password & ready_selected);
-	}
-
-	private void updateSelectImage(){
-		if(ready_selected){
-			selected_imageview.setImageResource(R.drawable.nim_picker_orignal_checked);
+		if(ready_username & ready_password & ready_selected){
+			done_textview.setEnabled(true);
+			done_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
 		}else{
-			selected_imageview.setImageResource(R.drawable.nim_picker_orignal_normal);
+			done_textview.setEnabled(false);
+			done_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_disable);
 		}
-	}
-
-	private void setupSelectedClick(){
-		updateSelectImage();
-		selected_imageview.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				if(ready_selected){
-					ready_selected = false;
-				}else{
-					ready_selected = true;
-				}
-				updateSelectImage();
-				updateDoneButton();
-			}
-		});
 	}
 
 	private TextWatcher password_textWatcher = new TextWatcher() {
@@ -237,6 +245,11 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 			updateDoneButton();
 			if(ready_password){
 				password = password_edittext.getText().toString();
+				hidden_icon_imageview.setImageResource(R.drawable.samchat_hidden_ok);
+				password_ok_imageview.setVisibility(View.VISIBLE);
+			}else{
+				hidden_icon_imageview.setImageResource(R.drawable.samchat_hidden);
+				password_ok_imageview.setVisibility(View.GONE);
 			}
 		}
 	};
@@ -259,6 +272,7 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 			Selection.setSelection(etable, etable.length());
 			isPwdShown = false;
 		}
+		password_edittext.setTypeface(Typeface.SANS_SERIF);
 	}
 
 	private void setupHiddenClick(){
@@ -269,23 +283,56 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 			}
 		});
 	}
+
+	private void setupTermsClick(){
+		terms_textview.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				SamchatTermsActivity.start(SamchatSignupActivity.this);
+			}
+		});
+	}
 	
 	private void setupSignUpPanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
 		username_edittext = findView(R.id.username);
 		password_edittext = findView(R.id.password);
 		hidden_layout = findView(R.id.hidden_layout);
-		selected_imageview = findView(R.id.selected);
 		done_textview = findView(R.id.done);
+		terms_textview = findView(R.id.terms);
+		hidden_icon_imageview	= findView(R.id.hidden_icon);
+		username_icon_imageview = findView(R.id.username_icon);
+		username_ok_imageview = findView(R.id.username_ok);
+		password_ok_imageview = findView(R.id.password_ok);
+		Oops_textview = findView(R.id.Oops);
 
 		setupBackArrowClick();
 		setupUsernameEditClick();
 		setupPasswordEditClick();
 		setupHiddenClick();
-		setupSelectedClick();
 		setupDoneClick();
-
+		setupTermsClick();
 	}
+
+	private void showOops(boolean show){
+		if(show){
+			Oops_textview.setVisibility(View.VISIBLE);
+			username_ok_imageview.setImageResource(R.drawable.samchat_warning);
+			username_ok_imageview.setVisibility(View.VISIBLE);
+			username_icon_imageview.setImageResource(R.drawable.samchat_user_icon_warning);
+			username_edittext.setTextColor(getResources().getColor(R.color.color_orange_f69b5a));
+		}else{
+			Oops_textview.setVisibility(View.GONE);
+			username_ok_imageview.setImageResource(R.drawable.samchat_ok);
+			username_edittext.setTextColor(getResources().getColor(R.color.black));
+		}
+	}
+
+	private void updateUsernameOKShow(boolean show){
+		username_ok_imageview.setVisibility(show ? View.VISIBLE:View.GONE);
+	}
+
+	
 
 /******************************Data Flow Control*************************************************************/
 	private void sendbroadcast(Intent intent){
@@ -299,7 +346,7 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 	}
 
 	private void login(final String account, final String token) {
-        DialogMaker.showProgressDialog(this, null, getString(R.string.logining), false, new DialogInterface.OnCancelListener() {
+        DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_loginging), false, new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
                 if (loginRequest != null) {
@@ -468,6 +515,73 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 					}, 0);
 				}
 
+		});
+	}
+
+
+	private void postCountdownCheckUsername(){
+		getHandler().postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				checkUsername(username);
+			}
+		}, 2000);
+	}
+
+	private void checkUsername(final String checkname){
+		SamService.getInstance().query_user_without_token(TypeEnum.USERNAME, null,  null, checkname, new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					getHandler().postDelayed(new Runnable() {
+                        public void run(){
+                            if(!checkname.equals(username)){
+                                return;
+                            }
+
+                            HttpCommClient hcc = (HttpCommClient)obj;
+                            if(hcc.users!=null && hcc.users.getcount()>0){
+                                //oops, username has been reigistered
+                                showOops(true);
+                                ready_username = false;
+                                updateDoneButton();
+                            }else{
+                                showOops(false);
+                                ready_username = true;
+                                updateUsernameOKShow(true);
+                                updateDoneButton();
+                            }
+                        }
+
+					}, 0);
+				}
+
+				@Override
+				public void onFailed(final int code) {
+					getHandler().postDelayed(new Runnable(){
+                        public void run(){
+						    if(checkname.equals(username)){
+						    	showOops(false);
+						    	updateUsernameOKShow(true);
+							    ready_username = true;
+							    updateDoneButton();
+						    }
+					    }
+                    }, 0);
+				}
+
+				@Override
+				public void onError(int code) {
+                    getHandler().postDelayed(new Runnable(){
+                        public void run(){
+                            if(checkname.equals(username)){
+                                showOops(false);
+                                updateUsernameOKShow(true);
+                                ready_username = true;
+                                updateDoneButton();
+                            }
+                        }
+                    }, 0);
+                }
 		});
 	}
 

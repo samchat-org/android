@@ -4,11 +4,12 @@
              android:id="@+id/messages_list_layout"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
-             android:orientation="vertical">
+             android:orientation="vertical"
+              android:background="@color/color_grey_efeff4">
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/grey"/>
+        android:background="@color/color_grey_d8d2e2"/>
 
     <ListView
         android:id="@+id/listView_customer"

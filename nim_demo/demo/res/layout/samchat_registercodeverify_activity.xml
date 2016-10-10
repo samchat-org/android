@@ -4,10 +4,11 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              android:background="@color/white">
+              android:background="@color/color_grey_efeff4">
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/color_white_ffffffff">
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -28,49 +29,50 @@
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:src="@drawable/samchat_arrow_left"
-                android:layout_gravity="center"/>
+                android:src="@drawable/samchat_cancel"
+                android:layout_gravity="center"
+                android:contentDescription="@null"/>
         </FrameLayout>
 
         <TextView
             android:id="@+id/titlebar_name"
             android:layout_width="wrap_content"
             android:layout_height="?attr/actionBarSize"
+            android:layout_centerVertical="true"
             android:gravity="center"
-            android:text="@string/samchat_confirmation_code"
-            android:layout_centerInParent="true"
-            android:textSize="20sp"/>
+            android:text="@string/samchat_signup"
+            android:layout_toRightOf="@id/back_arrow_layout"
+            android:layout_toEndOf="@id/back_arrow_layout"
+            android:textSize="20sp"
+            android:textColor="@color/black"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@null"
+            android:src="@drawable/samchat_progress_2"/>
     </RelativeLayout>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:textColor="@color/black"
+        android:text="@string/samchat_code_verify_desc"/>
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="5dp"
-        android:background="@color/black"/>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:background="@drawable/samchat_text_radius_border"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="40dp"
         android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp">
-        <TextView
-            android:id="@+id/countrycode"
-            android:layout_width="60dp"
-            android:layout_height="40dp"
-            android:gravity="center"/>
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:background="@color/color_gray_alpha40"/>
-        <TextView
-            android:id="@+id/cellphone"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="15dp"
-            android:gravity="center_vertical"/>
-    </LinearLayout>
-
+        android:layout_marginRight="20dp"
+        android:background="@color/color_gray_d9d9d9"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -78,7 +80,6 @@
         android:layout_marginTop="20dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp">
-
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -87,15 +88,16 @@
             android:layout_marginTop="20dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-             android:background="@drawable/samchat_oval_background_gray">
+            android:background="@drawable/samchat_oval_background_gray">
             <com.android.samchat.ui.CircleEditText
                 android:id="@+id/code_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:textColor="@color/grey_white"
                 android:maxLength="1"
                 android:gravity="center"
-                android:inputType="numberPassword"
+                android:inputType="number"
                 android:background="@null"/>
         </RelativeLayout>
         <RelativeLayout
@@ -112,9 +114,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:textColor="@color/grey_white"
                 android:maxLength="1"
                 android:gravity="center"
-                android:inputType="numberPassword"
+                android:inputType="number"
                 android:background="@null"/>
         </RelativeLayout>
         <RelativeLayout
@@ -131,9 +134,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:textColor="@color/grey_white"
                 android:maxLength="1"
                 android:gravity="center"
-                android:inputType="numberPassword"
+                android:inputType="number"
                 android:background="@null"/>
         </RelativeLayout>
         <RelativeLayout
@@ -150,13 +154,50 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
+                android:textColor="@color/grey_white"
                 android:gravity="center"
                 android:maxLength="1"
-                android:inputType="numberPassword"
+                android:inputType="number"
                 android:background="@null"/>
         </RelativeLayout>
 
     </LinearLayout>
-
-
+    <TextView
+        android:id="@+id/phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:textSize="24sp"/>
+    <LinearLayout
+        android:id="@+id/indication"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/color_grey_999999"
+            android:text="@string/samchat_resend_code_in"/>
+        <TextView
+            android:id="@+id/countdown"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/color_grey_999999"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/color_grey_999999"
+            android:text="@string/samchat_resend_code_seconds"/>
+    </LinearLayout>
 </LinearLayout>

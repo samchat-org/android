@@ -10,6 +10,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +50,9 @@ public class SamchatRegisterCodeRequestActivity extends UI implements OnKeyListe
 	private TextView countrycode_textview;
 	private EditText cellphone_edittext;
 	private TextView send_textview;
+	private ImageView cellphone_ok_imageview;
+	private LinearLayout indication_layout;
+	private TextView countdown_textview;
 
 	private String countrycode = "1";
 	private String cellphone;
@@ -176,7 +181,7 @@ public class SamchatRegisterCodeRequestActivity extends UI implements OnKeyListe
 				if(!ready_send && countdown == 0){
 					
 				}else if(countdown > 0){
-					SamchatRegisterCodeVerifyActivity.start(SamchatRegisterCodeRequestActivity.this,countrycode,cellphone,deviceid,from);
+					SamchatRegisterCodeVerifyActivity.start(SamchatRegisterCodeRequestActivity.this,countrycode,cellphone,deviceid,from,countdown);
 				}else{
 					if(from == Constants.FROM_SIGNUP){
 						isRequesting = true;
@@ -192,21 +197,23 @@ public class SamchatRegisterCodeRequestActivity extends UI implements OnKeyListe
 	}
 
 	private void setCountDown(){
-		if(countdown > 0){
-			send_textview.setText(getString(R.string.samchat_next)+"("+countdown+")");
-		}
+		indication_layout.setVisibility(View.GONE);
+		countdown_textview.setText(" "+countdown+" ");
 	}
 	
 	private void updateSendButton(){
 		if(!ready_send && countdown == 0){
 			send_textview.setEnabled(false);
-			send_textview.setText(getString(R.string.samchat_send_confirmation_code));
+			send_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_disable);
+			indication_layout.setVisibility(View.GONE);
 		}else if(countdown > 0){
 			send_textview.setEnabled(true);
+			send_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
 			setCountDown();
 		}else{
 			send_textview.setEnabled(true);
-			send_textview.setText(getString(R.string.samchat_send_confirmation_code));
+			send_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
+			indication_layout.setVisibility(View.GONE);
 		}
 	}
 
@@ -223,10 +230,13 @@ public class SamchatRegisterCodeRequestActivity extends UI implements OnKeyListe
 
 		@Override
 		public void afterTextChanged(Editable s) {
-			ready_send = (cellphone_edittext.getText().length()>=5 && cellphone_edittext.getText().toString().trim().length()>=5);
+			ready_send = cellphone_edittext.getText().toString().trim().length()>=5;
 			updateSendButton();
 			if(ready_send){
 				cellphone = cellphone_edittext.getText().toString().trim();
+				cellphone_ok_imageview.setVisibility(View.VISIBLE);
+			}else{
+				cellphone_ok_imageview.setVisibility(View.GONE);
 			}
 		}
 	};
@@ -242,6 +252,9 @@ public class SamchatRegisterCodeRequestActivity extends UI implements OnKeyListe
 		countrycode_textview = findView(R.id.countrycode);
 		cellphone_edittext = findView(R.id.cellphone);
 		send_textview = findView(R.id.send);
+		cellphone_ok_imageview = findView(R.id.cellphone_ok);
+		indication_layout = findView(R.id.indication);
+		countdown_textview = findView(R.id.countdown);
 
 		if(from == Constants.FROM_SIGNUP){
 			titlebar_name_textview.setText(getString(R.string.samchat_signup));
@@ -253,7 +266,7 @@ public class SamchatRegisterCodeRequestActivity extends UI implements OnKeyListe
 		setupCountryCodeClick();
 		setupCellphoneEditClick();
 		setupSendClick();
-
+		
 	}
 
 	private void updateCountryCode(){
@@ -269,7 +282,6 @@ public class SamchatRegisterCodeRequestActivity extends UI implements OnKeyListe
 					postCountdownMsg();
 				}
 			}, 1000);
-
 			countdown--;
 		}
 	}
@@ -308,8 +320,8 @@ public class SamchatRegisterCodeRequestActivity extends UI implements OnKeyListe
 						@Override
 						public void run() {
 							DialogMaker.dismissProgressDialog();
-							SamchatRegisterCodeVerifyActivity.start(SamchatRegisterCodeRequestActivity.this,countrycode,cellphone,deviceid,from);
 							countdown = COUNT_DOWN_MAXIUM;
+							SamchatRegisterCodeVerifyActivity.start(SamchatRegisterCodeRequestActivity.this,countrycode,cellphone,deviceid,from,countdown);
 							isRequesting = false;
 							updateSendButton();
 							postCountdownMsg();
@@ -371,8 +383,8 @@ public class SamchatRegisterCodeRequestActivity extends UI implements OnKeyListe
 						@Override
 						public void run() {
 							DialogMaker.dismissProgressDialog();
-							SamchatRegisterCodeVerifyActivity.start(SamchatRegisterCodeRequestActivity.this,countrycode,cellphone,deviceid,from);
 							countdown = COUNT_DOWN_MAXIUM;
+							SamchatRegisterCodeVerifyActivity.start(SamchatRegisterCodeRequestActivity.this,countrycode,cellphone,deviceid,from,countdown);
 							isRequesting = false;
 							updateSendButton();
 							postCountdownMsg();

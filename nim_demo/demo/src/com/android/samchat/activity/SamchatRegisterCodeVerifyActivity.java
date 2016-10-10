@@ -10,6 +10,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.netease.nim.demo.DemoCache;
@@ -33,8 +34,9 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 
 	private FrameLayout back_arrow_layout;
 	private TextView titlebar_name_textview;
-	private TextView countrycode_textview;
-	private TextView cellphone_textview;
+	private TextView phone_textview;
+	private TextView countdown_textview;
+	private LinearLayout indication_layout;
 
 	private EditText code_1_edittext;
 	private EditText code_2_edittext;
@@ -50,12 +52,14 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 	private static final String CELLPHONE = "CELLPHONE";
 	private static final String DEVICEID = "DEVICEID";
 	private static final String FROM = "FROM";
+	private static final String COUNTDOWN="COUNTDOWN";
 	
 	private int from;
 	private String countrycode;
 	private String cellphone;
 	private String verifycode;
 	private String deviceid;
+	private int countdown;
 
 	private boolean isVerifying = false;
 
@@ -90,13 +94,14 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 	    broadcastManager.unregisterReceiver(broadcastReceiver);
 	}
 	
-	public static void start(Context context,String countrycode, String cellphone,String deviceid,int from) {
+	public static void start(Context context,String countrycode, String cellphone,String deviceid,int from, int countdown) {
 		Intent intent = new Intent(context, SamchatRegisterCodeVerifyActivity.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		intent.putExtra(COUNTRYCODE,countrycode);
 		intent.putExtra(CELLPHONE,cellphone);
 		intent.putExtra(DEVICEID,deviceid);
 		intent.putExtra(FROM,from);
+		intent.putExtra(COUNTDOWN,countdown);
 		context.startActivity(intent);
 	}
 
@@ -124,6 +129,9 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 		setupConfirmationCodePanel();
 
 		registerBroadcastReceiver();
+
+		updateCountdown();
+		postCountdownMsg();
 	}
 
 	@Override
@@ -132,31 +140,59 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 		unregisterBroadcastReceiver();
 	}
 
+	private void postCountdownMsg(){
+		if(isDestroyedCompatible()){
+			return;
+		}
+		
+		if(countdown > 0){
+			getHandler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					updateCountdown();
+					postCountdownMsg();
+				}
+			}, 1000);
+			countdown--;
+		}
+	}
+
+	private void updateCountdown(){
+		if(countdown>0){
+			indication_layout.setVisibility(View.VISIBLE);
+			countdown_textview.setText(" "+countdown+" ");
+		}else{
+			indication_layout.setVisibility(View.GONE);
+			countdown_textview.setText(" "+countdown+" ");
+		}
+	}
+		
 	private void onParseIntent() {
 		countrycode = getIntent().getStringExtra(COUNTRYCODE);
 		cellphone = getIntent().getStringExtra(CELLPHONE);
 		deviceid = getIntent().getStringExtra(DEVICEID);
 		from = getIntent().getIntExtra(FROM,Constants.FROM_SIGNUP);
+		countdown = getIntent().getIntExtra(COUNTDOWN,0);
 	}
 
 	private void setupConfirmationCodePanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
 		titlebar_name_textview = findView(R.id.titlebar_name);
-		countrycode_textview = findView(R.id.countrycode);
-		cellphone_textview = findView(R.id.cellphone);
+		phone_textview = findView(R.id.phone);
 		code_1_edittext = findView(R.id.code_1);
 		code_2_edittext = findView(R.id.code_2);
 		code_3_edittext = findView(R.id.code_3);
 		code_4_edittext = findView(R.id.code_4);
+		countdown_textview = findView(R.id.countdown);
+		indication_layout = findView(R.id.indication);
 
 		if(from == Constants.FROM_SIGNUP){
-			titlebar_name_textview.setText(getString(R.string.samchat_confirmation_code));
+			titlebar_name_textview.setText(getString(R.string.samchat_signup));
 		}else{
 			titlebar_name_textview.setText(getString(R.string.samchat_reset_password));
 		}
 
 		setupBackArrowClick();
-		updateCountryCode();
 		updateCellphone();
 		setupInputCode();
 	}
@@ -186,8 +222,11 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 			code_1_ready = code_1_edittext.getText().length() == 1;
 			verify();
 			if(code_1_ready){
+				code_1_edittext.setBackgroundResource(R.drawable.samchat_oval_background_green);
 				code_1_edittext.clearFocus();
 				code_2_edittext.requestFocus();
+			}else{
+				code_1_edittext.setBackgroundResource(R.drawable.samchat_oval_background_gray);
 			}
 		}
     };
@@ -208,9 +247,12 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 			code_2_ready = code_2_edittext.getText().length() == 1;
 			verify();
 			if(code_2_ready){
+                code_2_edittext.setBackgroundResource(R.drawable.samchat_oval_background_green);
 				code_2_edittext.clearFocus();
 				code_3_edittext.requestFocus();
-			}
+			}else{
+                code_2_edittext.setBackgroundResource(R.drawable.samchat_oval_background_gray);
+            }
 		}
     };
 
@@ -230,9 +272,12 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 			code_3_ready = code_3_edittext.getText().length() == 1;
 			verify();
 			if(code_3_ready){
+                code_3_edittext.setBackgroundResource(R.drawable.samchat_oval_background_green);
 				code_3_edittext.clearFocus();
 				code_4_edittext.requestFocus();
-			}
+			}else{
+                code_3_edittext.setBackgroundResource(R.drawable.samchat_oval_background_gray);
+            }
 		}
     };
 
@@ -252,9 +297,12 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 			code_4_ready = code_4_edittext.getText().length() == 1;
 			verify();
 			if(code_4_ready){
+                code_4_edittext.setBackgroundResource(R.drawable.samchat_oval_background_green);
 				code_4_edittext.clearFocus();
 				code_1_edittext.requestFocus();
-			}
+			}else{
+                code_4_edittext.setBackgroundResource(R.drawable.samchat_oval_background_gray);
+            }
 		}
     };
 	
@@ -265,12 +313,8 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 		code_4_edittext.addTextChangedListener(code_4_textWatcher);
 	}
 
-	private void updateCountryCode(){
-		countrycode_textview.setText("+" + countrycode);
-	}
-
 	private void updateCellphone(){
-		cellphone_textview.setText(cellphone);
+		phone_textview.setText("+" + countrycode+" "+cellphone);
 	}
 	
 	
@@ -382,9 +426,8 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 						verifycode, deviceid);
 
 					Intent intent = new Intent();
-                intent.setAction(Constants.BROADCAST_FINDPWD_ALREADY);
-                sendbroadcast(intent);
-					
+					intent.setAction(Constants.BROADCAST_FINDPWD_ALREADY);
+					sendbroadcast(intent);
 				}
 
 				@Override

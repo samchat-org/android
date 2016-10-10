@@ -3,12 +3,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval"
     android:useLevel="false" >
-    <solid android:color="@color/color_gray_cbd0d8" />
-    <padding
-        android:left="2dp"
-        android:top="2dp"
-        android:right="2dp"
-        android:bottom="2dp" />
     <solid
         android:color="@color/color_gray_cbd0d8" />
     <stroke

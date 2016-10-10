@@ -10,6 +10,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.android.samchat.R;
@@ -38,6 +39,9 @@ public class SamchatResetPasswordActivity extends UI implements OnKeyListener {
 	private FrameLayout back_arrow_layout;
 	private EditText password_edittext;
 	private RelativeLayout hidden_layout;
+	private ImageView hidden_icon_imageview;
+	private ImageView password_ok_imageview;
+	
 	private TextView done_textview;
 
 	private boolean ready_password=false;
@@ -130,7 +134,13 @@ public class SamchatResetPasswordActivity extends UI implements OnKeyListener {
 	}
 
 	private void updateDoneButton(){
-		done_textview.setEnabled( ready_password );
+		if(ready_password){
+			done_textview.setEnabled( true );
+			done_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
+		}else{
+			done_textview.setEnabled( false );
+			done_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_disable);
+		}
 	}
 
 
@@ -151,6 +161,11 @@ public class SamchatResetPasswordActivity extends UI implements OnKeyListener {
 			updateDoneButton();
 			if(ready_password){
 				password = password_edittext.getText().toString();
+				hidden_icon_imageview.setImageResource(R.drawable.samchat_hidden_ok);
+				password_ok_imageview.setVisibility(View.VISIBLE);
+			}else{
+				hidden_icon_imageview.setImageResource(R.drawable.samchat_hidden);
+				password_ok_imageview.setVisibility(View.GONE);
 			}
 		}
 	};
@@ -173,6 +188,7 @@ public class SamchatResetPasswordActivity extends UI implements OnKeyListener {
 			Selection.setSelection(etable, etable.length());
 			isPwdShown = false;
 		}
+		password_edittext.setTypeface(Typeface.SANS_SERIF);
 	}
 
 	private void setupHiddenClick(){
@@ -189,6 +205,8 @@ public class SamchatResetPasswordActivity extends UI implements OnKeyListener {
 		password_edittext = findView(R.id.password);
 		hidden_layout = findView(R.id.hidden_layout);
 		done_textview = findView(R.id.done);
+		hidden_icon_imageview = findView(R.id.hidden_icon);
+		password_ok_imageview = findView(R.id.password_ok);
 
 		setupBackArrowClick();
 		setupPasswordEditClick();

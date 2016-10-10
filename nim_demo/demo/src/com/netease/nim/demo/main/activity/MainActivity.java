@@ -554,13 +554,20 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	public void refreshToolBar(int position){
 		switch_icon.setImageResource(MainTab.getTabIcon(position));
 		titlebar_name.setText(MainTab.getTabTitle(position));
+		titlebar_right_icon.setImageResource(MainTab.getTabRightIcon(position));
 
 		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
-			app_bar_layout.setBackgroundColor(Color.rgb(255,255,255));
-			titlebar_name.setTextColor(getResources().getColor(R.color.color_black_b3000000));
+			app_bar_layout.setBackgroundColor(getResources().getColor(R.color.color_white_f8f9f9));
+			titlebar_name.setTextColor(getResources().getColor(R.color.black));
 		}else{
-			app_bar_layout.setBackgroundColor(Color.rgb(19,36,63));
+			app_bar_layout.setBackgroundColor(getResources().getColor(R.color.color_black_13243F));
 			titlebar_name.setTextColor(getResources().getColor(R.color.color_white_ffffffff));
+		}
+
+		if(MainTab.isTabRightIconShow(position)){
+			titlebar_right_icon.setVisibility(View.VISIBLE);
+		}else{
+			titlebar_right_icon.setVisibility(View.GONE);
 		}
 	}
 

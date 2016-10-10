@@ -44,6 +44,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.samchat.R;
+import com.netease.nim.demo.main.model.MainTab;
 import com.netease.nim.demo.main.reminder.ReminderItem;
 import com.netease.nim.demo.main.reminder.ReminderSettings;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
@@ -85,9 +86,10 @@ public class PagerSlidingTabStrip extends HorizontalScrollView implements OnPage
 
     private int dividerColor = 0x00000000;
 
-    private int checkedTextColor = R.color.color_blue_0888ff;
-
-    private int unCheckedTextColor = R.color.action_bar_tittle_color_555555;
+    private int checkedTextColor = R.color.color_black_1d4d73;
+    private int unCheckedTextColor = R.color.color_black_819cb1;
+    private int checkedTextSize =18;
+    private int unCheckedTextSize =14;
 
     private boolean textAllCaps = true;
 
@@ -155,9 +157,8 @@ public class PagerSlidingTabStrip extends HorizontalScrollView implements OnPage
         underlineColor = a.getColor(R.styleable.PagerSlidingTabStrip_pstsUnderlineColor, underlineColor);
         dividerColor = a.getColor(R.styleable.PagerSlidingTabStrip_pstsDividerColor, dividerColor);
 
-        checkedTextColor = a.getResourceId(R.styleable.TwoTextView_ttLeftTextColor, R.color.color_blue_0888ff);
-        unCheckedTextColor = a.getResourceId(R.styleable.TwoTextView_ttLeftTextColor,
-                R.color.action_bar_tittle_color_555555);
+        //checkedTextColor = a.getResourceId(R.styleable.TwoTextView_ttLeftTextColor, R.color.color_blue_0888ff);
+        //unCheckedTextColor = a.getResourceId(R.styleable.TwoTextView_ttLeftTextColor,R.color.action_bar_tittle_color_555555);
         indicatorHeight = a
                 .getDimensionPixelSize(R.styleable.PagerSlidingTabStrip_pstsIndicatorHeight, indicatorHeight);
         underlineHeight = a
@@ -207,6 +208,7 @@ public class PagerSlidingTabStrip extends HorizontalScrollView implements OnPage
     @Override
     public void onPageSelected(int position) {
         setChooseTabViewTextColor(position);
+        setChooseTabViewIcon(position);
     }
 
     //
@@ -250,6 +252,7 @@ public class PagerSlidingTabStrip extends HorizontalScrollView implements OnPage
 
                 currentPosition = pager.getCurrentItem();
                 setChooseTabViewTextColor(currentPosition);
+                setChooseTabViewIcon(currentPosition);
                 scrollToChild(currentPosition, 0);
             }
         });
@@ -269,8 +272,30 @@ public class PagerSlidingTabStrip extends HorizontalScrollView implements OnPage
             textView = (TextView) tabView.findViewById(R.id.tab_title_label);
             if (i == position) {
                 textView.setTextColor(getResources().getColor(checkedTextColor));
+                textView.setTextSize(checkedTextSize);
             } else {
                 textView.setTextColor(getResources().getColor(unCheckedTextColor));
+                textView.setTextSize(unCheckedTextSize);
+            }
+        }
+    }
+
+    private void setChooseTabViewIcon(int position) {
+        int childCount = tabsContainer.getChildCount();
+        /*SAMC_BEGIN(change to samchat tab layout)*/
+        LinearLayout tabView;
+        /*SAMC_END(change to samchat tab layout)*/
+        TextView textView;
+        ImageView titleImg;
+        for (int i = 0; i < childCount; ++i) {
+            /*SAMC_BEGIN(change to samchat tab layout)*/
+            tabView = (LinearLayout) tabsContainer.getChildAt(i);
+            /*SAMC_END(change to samchat tab layout)*/
+            titleImg = ((ImageView) tabView.findViewById(R.id.samchat_tab_icon));
+            if (i == position) {
+                titleImg.setImageResource(MainTab.getMainIconSelected(i));
+            } else {
+                titleImg.setImageResource(MainTab.getMainIcon(i));
             }
         }
     }
@@ -304,6 +329,9 @@ public class PagerSlidingTabStrip extends HorizontalScrollView implements OnPage
         if (unreadTV != null) {
             unreadTV.setTextSize(TypedValue.COMPLEX_UNIT_PX, needAdaptation ? resources.getDimensionPixelSize(R.dimen.text_size_9) : resources.getDimensionPixelSize(R.dimen.text_size_12));
         }
+
+        ImageView titleImg = ((ImageView) tabView.findViewById(R.id.samchat_tab_icon));
+        titleImg.setImageResource(MainTab.getMainIcon(position));
 	
         addTab(position, tabView);
     }
