@@ -167,7 +167,7 @@ public class ReceivedQuestionAdapter extends BaseAdapter{
 			holder.request.setText(items.get(index).getquestion());
 			long showtime = items.get(index).getdatetime();
 			holder.date.setText(TimeUtil.getTimeShowString(showtime,false));
-			holder.location.setText(items.get(index).getaddress());
+			holder.location.setText(items.get(index).getaddress()==null?"":items.get(index).getaddress());
 			holder.avatar.loadBuddyAvatar(""+items.get(index).getsender_unique_id(),30);
 			break;
 		case TYPE_LABEL_NEW:

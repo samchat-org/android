@@ -191,9 +191,11 @@ public class SendQuestionAdapter extends BaseAdapter{
 			break;
 		case TYPE_LABEL_ACTIVE:
 			holder.label.setText(mContext.getString(R.string.active_requests));
+			holder.label.setVisibility(View.GONE);
 			break;
 		case TYPE_LABEL_HISTORY:
 			holder.label.setText(mContext.getString(R.string.history));
+			holder.label.setVisibility(View.GONE);
 			break;
 		}
 		

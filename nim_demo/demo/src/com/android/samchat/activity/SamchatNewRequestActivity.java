@@ -2,18 +2,26 @@ package com.android.samchat.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
+import android.text.Selection;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.widget.AdapterView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.android.samchat.adapter.PlaceInfoAdapter;
+import com.android.samchat.adapter.SimpleListAdapter;
+import com.android.samchat.common.SCell;
 import com.android.samchat.factory.LocationFactory;
 import com.android.samservice.info.QuestionInfo;
 import com.android.samservice.info.PlacesInfo;
@@ -32,24 +40,47 @@ import com.android.samservice.Constants;
 import com.android.samservice.callback.SMCallBack;
 import com.android.samchat.service.ErrorString;
 import com.android.samservice.HttpCommClient;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatNewRequestActivity.class.getSimpleName();
-	private static final int MSG_COUNT_DOWN = 100;
-	private static final int TIME_COUNT_DOWN = 2000;
+	public static final int CONFIRM_ID_LOCATION_FOUND=300;
 	
 	private FrameLayout back_arrow_layout;
 	private TextView send_textview;
 	private EditText question_edittext;
 	private EditText location_edittext;
+	private LinearLayout popular_request_layout;
+	private ListView request_listview;
+
+	private String[] testRequest={
+		"A host family for 2 teen girls",
+		"Contractor to remodel my bathroom",
+		"Mandarin Chinese School for 2 teens",
+		"A host family for 2 teen girls",
+		"Contractor to remodel my bathroom",
+		"Mandarin Chinese School for 2 teens",
+		"A host family for 2 teen girls",
+		"Contractor to remodel my bathroom",
+		"Mandarin Chinese School for 2 teens",
+		"A host family for 2 teen girls",
+		"Contractor to remodel my bathroom",
+		"Mandarin Chinese School for 2 teens"
+	};
+	private List<String> popular_request;
+	private SimpleListAdapter requestAdapter;
 
 	private String question = null;
-	private String location = null;
 	private String locationInput = null;
 	private String pre_locationInput=null;
 
 	private boolean ready_send = false;
 
 	private boolean isSending = false;
+
+	private PlacesInfo infoFound=null;
 	
 	public static void startActivityForResult(Activity activity, TFragment fragment, int requestCode) {
 		Intent intent = new Intent(activity, SamchatNewRequestActivity.class);
@@ -77,18 +108,15 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 		setToolBar(R.id.toolbar, options);
 
 		setupPanel();
+		initPopularRequestList();
 
 		LocationFactory.getInstance().startLocationMonitor();
-
-		handler = new LocationHandler();
-
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		LocationFactory.getInstance().stopLocationMonitor();
-		handler.removeCallbacksAndMessages(null);
 	}
 
 	private void setupPanel() {
@@ -96,11 +124,37 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 		send_textview = findView(R.id.send);
 		question_edittext = findView(R.id.question);
 		location_edittext = findView(R.id.location);
-
+		popular_request_layout = findView(R.id.popular_request);
+		request_listview = findView(R.id.request);
+	
 		setupBackArrowClick();
 		setupSendClick();
 		setupQuestionEditClick();
 		setupLocationEditClick();
+	}
+	
+
+	private void initPopularRequestList(){
+		popular_request = new ArrayList<>();
+		for(String s:testRequest){
+			popular_request.add(s);
+		}
+		requestAdapter = new SimpleListAdapter(SamchatNewRequestActivity.this,popular_request);
+		request_listview.setAdapter(requestAdapter);
+		request_listview.setItemsCanFocus(true);
+		request_listview.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				String request = (String)parent.getAdapter().getItem(position);
+				question_edittext.setText(request);
+			}
+		});
+
+		request_listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                return true;
+			}
+		});
+		
 	}
 	
 	private void setupBackArrowClick(){
@@ -113,8 +167,13 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 	}
 
 	private void updateSend(){
-		boolean enable = ready_send;
-		send_textview.setEnabled(enable);
+		if(ready_send){
+			send_textview.setEnabled(true);
+			send_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
+		}else{
+			send_textview.setEnabled(false);
+			send_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_disable);
+		}
 	}
 
 	private void setupSendClick(){
@@ -145,6 +204,7 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 
 		@Override
 		public void afterTextChanged(Editable s) {
+			Selection.setSelection(s, s.length());
 			question = question_edittext.getText().toString().trim();
 			if(question.length() > 0){
 				ready_send = true;
@@ -156,7 +216,7 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 	};
 
 	private void setupQuestionEditClick(){
-		question_edittext.addTextChangedListener(question_textWatcher);	
+		question_edittext.addTextChangedListener(question_textWatcher);
 	}
 
 	private boolean stringEquals(String s1, String s2){
@@ -184,48 +244,63 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 
 		@Override
 		public void afterTextChanged(Editable s) {
-			pre_locationInput = locationInput;
+			Selection.setSelection(s, s.length());
 			locationInput = location_edittext.getText().toString().trim();
-			if(!stringEquals(pre_locationInput,locationInput)){
-				cancelQueryCountDown();
-				startQueryCountDown();
-			}else if(TextUtils.isEmpty(locationInput)){
-				cancelQueryCountDown();
-			}
 		}
 	};
 
 	private void setupLocationEditClick(){
-		location_edittext.addTextChangedListener(location_textWatcher);	
-	}
-
-	private LocationHandler handler;
-
-	private class LocationHandler extends Handler {
-		@Override
-		public void handleMessage(Message msg){
-			switch(msg.what){
-				case MSG_COUNT_DOWN:
-					getPlacesInfo(locationInput);	
-					break;
+		location_edittext.addTextChangedListener(location_textWatcher);
+		location_edittext.setOnFocusChangeListener(new android.view.View.OnFocusChangeListener() {  
+			@Override  
+			public void onFocusChange(View v, boolean hasFocus) {  
+				if(hasFocus) {
+					SamchatLocationSearchActivity.startActivityForResult(SamchatNewRequestActivity.this, CONFIRM_ID_LOCATION_FOUND);
 				}
+			}
+		});
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data){
+		if(requestCode == CONFIRM_ID_LOCATION_FOUND && resultCode == RESULT_OK){
+			infoFound = (PlacesInfo) data.getSerializableExtra(SamchatLocationSearchActivity.PLACE_INFO);
+			if(infoFound != null){
+				location_edittext.setText(infoFound.getdescription());
+			}
 		}
-	}
 
-	private void cancelQueryCountDown() {
-		handler.removeMessages(MSG_COUNT_DOWN);
-	}
-
-	private void startQueryCountDown() {
-		Message msg = handler.obtainMessage(MSG_COUNT_DOWN);
-		handler.sendMessageDelayed(msg, TIME_COUNT_DOWN);
+		super.onActivityResult( requestCode,  resultCode,  data);
 	}
 
 /******************************************Data Flow Control***********************************************************/
 	private void sendQuestion(){
 		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_sending), false, null).setCanceledOnTouchOutside(false);
-		SamService.getInstance().send_question(question,Constants.CONSTANTS_LONGITUDE_LATITUDE_NULL,Constants.CONSTANTS_LONGITUDE_LATITUDE_NULL,
-				null,location,new SMCallBack(){
+		String placeId = null;
+		String location = null;
+		double latitude =  Constants.CONSTANTS_LONGITUDE_LATITUDE_NULL;
+		double longitude = Constants.CONSTANTS_LONGITUDE_LATITUDE_NULL;
+		SCell cell = null;
+		if(TextUtils.isEmpty(locationInput) || locationInput.equals(getString(R.string.samchat_current_location))){
+			location = null;
+			placeId = null;
+			Location loc = LocationFactory.getInstance().getCurrentBestLocation();
+			cell = LocationFactory.getInstance().getCurrentCellInfo();
+			if(loc!=null){
+				latitude = loc.getLatitude();
+				longitude = loc.getLongitude();
+			}
+		}else{
+			location = locationInput;
+			if(infoFound != null){
+				placeId = infoFound.place_id;
+			}
+		}
+		LogUtil.i(TAG,"latitude:"+latitude+" longitude:"+longitude+" placeId:"+placeId +" cell:"+cell);
+		if(cell != null){
+			LogUtil.i(TAG,"mcc:"+cell.mcc+" mnc:"+cell.mnc+" lac:"+cell.lac +" cid:"+cell.cid);
+		}
+		SamService.getInstance().send_question(question,latitude,longitude,placeId,location,cell,new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
 					getHandler().postDelayed(new Runnable() {
@@ -234,12 +309,12 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 							DialogMaker.dismissProgressDialog();
 							QuestionInfo qinfo = ((HttpCommClient)obj).qinfo;
 							SamchatRequestDetailsActivity.start(SamchatNewRequestActivity.this, qinfo);
-							SendQuestion sq = new SendQuestion(qinfo.question_id,qinfo.question, qinfo.datetime,location);
+							SendQuestion sq = new SendQuestion(qinfo.question_id,qinfo.question, qinfo.datetime,qinfo.address);
 							Intent data = new Intent();
 							Bundle bundle = new Bundle();
 							bundle.putSerializable("send_question", sq);
 							data.putExtras(bundle);
-							SamchatNewRequestActivity.this.setResult(SamchatNewRequestActivity.this.RESULT_OK, data);
+							SamchatNewRequestActivity.this.setResult(RESULT_OK, data);
 							finish();
 						}
 					}, 0);
@@ -273,32 +348,7 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 						}
 					}, 0);
 				}
-
 		} );
-	}
-
-
-	private void getPlacesInfo(String key){
-		if(key == null){
-			return;
-		}
-
-		SamService.getInstance().get_places_info(key, new SMCallBack(){
-			@Override
-			public void onSuccess(final Object obj, final int WarningCode) {
-				HttpCommClient hcc = (HttpCommClient)obj;
-				for(PlacesInfo info: hcc.placesinfos.getinfo()){
-					LogUtil.e(TAG,"description:"+info.description+" place_id:"+info.place_id);
-				}
-				if(hcc.placesinfos.getkey().equals(locationInput)){
-					LogUtil.e(TAG,"show drag down menu");
-				}
-			}
-			@Override
-			public void onFailed(int code) {}
-			@Override
-			public void onError(int code) {}
-		 });
 	}
 }
 

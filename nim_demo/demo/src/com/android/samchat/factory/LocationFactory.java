@@ -10,6 +10,7 @@ import android.telephony.gsm.GsmCellLocation;
 
 import java.util.UUID;
 
+import com.android.samchat.common.SCell;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.netease.nim.demo.DemoCache;
@@ -205,19 +206,6 @@ public class LocationFactory {
         }    
         return provider1.equals(provider2);    
     }
-
-
-	public class SCell{
-		public int mcc;
-		public int mnc;
-		public int cid;
-		public int lac;
-		
-		public SCell(){
-
-		}
-	}
-
 
 	public SCell getCurrentCellInfo() {
 		SCell cell = new SCell();

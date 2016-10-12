@@ -7,6 +7,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.samchat.cache.MsgSessionDataCache;
@@ -15,6 +16,7 @@ import com.netease.nim.uikit.NIMCallback;
 import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nim.uikit.recent.viewholder.SamchatRecentContactAdapter;
 import com.netease.nimlib.sdk.NIMClient;
@@ -90,9 +92,11 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 	};
 
 	private FrameLayout back_arrow_layout;
-	private HeadImageView avatar_headimageview;
 	private TextView question_textview;
 	private TextView location_textview;
+	private TextView date_textview;
+	private LinearLayout wait_layout;
+	private LinearLayout responses_layout;
 
 	private QuestionInfo info;
 
@@ -171,6 +175,8 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 
 		requestMessagesCustomer();
 
+		updateListView();
+
 	}
 
 	@Override
@@ -191,19 +197,30 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 		info = (QuestionInfo)getIntent().getSerializableExtra("info");
 	}
 
+	private void updateListView(){
+		if(items_customer!=null && items_customer.size()>0){
+			wait_layout.setVisibility(View.GONE);
+			responses_layout.setVisibility(View.VISIBLE);
+		}else{
+			wait_layout.setVisibility(View.VISIBLE);
+			responses_layout.setVisibility(View.GONE);
+		}
+	}
+
 	private void setupPanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
-		avatar_headimageview = findView(R.id.avatar);
 		question_textview = findView(R.id.question);
 		location_textview = findView(R.id.location);
+		date_textview = findView(R.id.date);
 		listView_customer = findView(R.id.listView_customer);
+		wait_layout = findView(R.id.wait); 
+		responses_layout = findView(R.id.responses);
 
-		avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
 		question_textview.setText(info.getquestion());
 		location_textview.setText(info.getaddress());
+		date_textview.setText(TimeUtil.getTimeShowString(info.getdatetime(),false));
 
 		setupBackArrowClick();
-
 	}
 	
 	private void setupBackArrowClick(){
@@ -391,6 +408,7 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 
 	private void notifyDataSetChangedCustomer() {
 		adapter_customer.notifyDataSetChanged();
+		updateListView();
 	}
 
 	private void sortRecentContactsCustomer(List<RecentContact> list) {

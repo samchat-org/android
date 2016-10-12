@@ -269,7 +269,7 @@ public class HttpCommClient {
 	private void parseUsersJson(MultipleUserProfile users,JSONArray jsonUsers) throws JSONException{
 		for (int i = 0; i < jsonUsers.length(); i++) {
 			JSONObject user = (JSONObject) jsonUsers.get(i);
-			ContactUser ui = new ContactUser();;
+			ContactUser ui = new ContactUser();
 			
 			ui.setunique_id(user.getLong("id"));
 			ui.setusername(user.getString("username"));
@@ -1147,6 +1147,16 @@ public class HttpCommClient {
 
 			if(sqobj.address != null){
 				location.putOpt("address",sqobj.address);
+				location_existed = true;
+			}
+
+			if(sqobj.cell != null){
+				JSONObject scell = new JSONObject();
+				scell.putOpt("mcc",sqobj.cell.mcc);
+				scell.putOpt("mnc",sqobj.cell.mnc);
+				scell.putOpt("lac",sqobj.cell.lac);
+				scell.putOpt("cellid",sqobj.cell.cid);
+				location.put("scell",scell);
 				location_existed = true;
 			}
 

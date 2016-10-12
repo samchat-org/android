@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.android.samchat.activity.SamchatAddCustomerActivity;
 import com.android.samchat.activity.SamchatAddServiceProviderActivity;
 import com.android.samchat.activity.SamchatMemberSelectActivity;
+import com.android.samchat.activity.SamchatSearchPublicActivity;
 import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samchat.receiver.NetworkStateBroadcastReceiver;
 import com.android.samchat.receiver.PushReceiver;
@@ -666,7 +667,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 					if(current_position == MainTab.SAMCHAT_REQUEST.tabIndex){
 
 					}else if(current_position == MainTab.SAMCHAT_PUBLIC.tabIndex){
-
+						SamchatSearchPublicActivity.start(MainActivity.this);
 					}else if(current_position == MainTab.SAMCHAT_CHAT.tabIndex){
 
 					}else if(current_position == MainTab.SAMCHAT_CONTACT.tabIndex){

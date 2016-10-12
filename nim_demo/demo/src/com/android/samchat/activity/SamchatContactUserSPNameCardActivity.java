@@ -4,10 +4,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.samchat.cache.FollowDataCache;
@@ -33,9 +36,15 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 	private FrameLayout back_arrow_layout;
 	private TextView titlebar_name_textview;
 	private HeadImageView avatar_headimageview;
-	private TextView follow_textview;
-	private TextView chat_textview;
-	private TextView service_description_textview;
+	private TextView company_name_tv;
+	private TextView service_category_tv;
+	private TextView service_description_tv;
+	private LinearLayout chat_layout;
+	private LinearLayout follow_layout;
+	private ImageView follow_button_iv;
+	private TextView work_phone_tv;
+	private TextView email_tv;
+	private TextView location_tv;
 
 	private ContactUser sp;
 
@@ -115,17 +124,39 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		back_arrow_layout = findView(R.id.back_arrow_layout);
 		titlebar_name_textview = findView(R.id.titlebar_name);
 		avatar_headimageview = findView(R.id.avatar);
-		follow_textview = findView(R.id.follow);
-		chat_textview = findView(R.id.chat);
-		service_description_textview =  findView(R.id.service_description);
+		company_name_tv = findView(R.id.company_name);
+		service_category_tv = findView(R.id.service_category);
+		service_description_tv = findView(R.id.service_description);
+		chat_layout = findView(R.id.chat_layout);
+		follow_layout = findView(R.id.follow_layout);
+		follow_button_iv = findView(R.id.follow_button);
+		work_phone_tv = findView(R.id.work_phone);
+		email_tv = findView(R.id.email);
+		location_tv = findView(R.id.location);
 
 		setupBackArrowClick();
-		setFollowClick();
-		setChatClick();
-
+		setupChatClick();
+		setupFollowClick();
 		updateFollow();
+		
 		avatar_headimageview.loadBuddyAvatar(sp.getAccount(), 90);
 		titlebar_name_textview.setText(sp.getusername());
+		company_name_tv.setText(sp.getcompany_name());
+		service_category_tv.setText(sp.getservice_category());
+		service_description_tv.setText(sp.getservice_description());
+		if(!TextUtils.isEmpty(sp.getphone_sp())){
+			if(TextUtils.isEmpty(sp.getcountrycode_sp())){
+				work_phone_tv.setText("+"+sp.getcountrycode_sp()+sp.getphone_sp());
+			}else{
+				work_phone_tv.setText(sp.getphone_sp());
+			}
+		}
+		if(!TextUtils.isEmpty(sp.getemail_sp())){
+			email_tv.setText(sp.getemail_sp());
+		}
+		if(!TextUtils.isEmpty(sp.getaddress_sp())){
+			location_tv.setText(sp.getaddress_sp());
+		}
 
 	}
 
@@ -144,14 +175,14 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 
 	private void updateFollow(){
 		if(FollowDataCache.getInstance().getFollowSPByUniqueID(sp.getunique_id()) != null){
-			follow_textview.setText(getString(R.string.samchat_unfollow));
+			follow_button_iv.setImageResource(R.drawable.samchat_follow_toggle_on);
 		}else{
-			follow_textview.setText(getString(R.string.samchat_follow));
+			follow_button_iv.setImageResource(R.drawable.samchat_follow_toggle_off);
 		}
 	}
 
-	private void setFollowClick(){
-		follow_textview.setOnClickListener(new OnClickListener() {
+	private void setupFollowClick(){
+		follow_button_iv.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				if(isFollowing){
@@ -168,8 +199,8 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		});
 	}
 
-	private void setChatClick(){
-		chat_textview.setOnClickListener(new OnClickListener() {
+	private void setupChatClick(){
+		chat_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				SessionHelper.startP2PSession(SamchatContactUserSPNameCardActivity.this, sp.getAccount());

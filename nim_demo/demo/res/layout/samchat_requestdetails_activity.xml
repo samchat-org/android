@@ -4,10 +4,11 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              android:background="@color/white">
+              android:background="@color/color_grey_efeff4">
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/color_white_f8f9f9">
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -29,66 +30,127 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:src="@drawable/samchat_arrow_left"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:contentDescription="@null"/>
         </FrameLayout>
 
         <TextView
             android:id="@+id/titlebar_name"
             android:layout_width="wrap_content"
             android:layout_height="?attr/actionBarSize"
+            android:layout_centerVertical="true"
             android:gravity="center"
             android:text="@string/samchat_request_details"
-            android:layout_centerInParent="true"
-            android:textSize="20sp"/>
+            android:layout_toRightOf="@id/back_arrow_layout"
+            android:layout_toEndOf="@id/back_arrow_layout"
+            android:textSize="20sp"
+            android:textColor="@color/black"/>
     </RelativeLayout>
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="5dp"
-        android:background="@color/black"/>
+        android:layout_height="5dp"
+        android:background="@color/color_green_67d45f"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="20dp">
-        <com.netease.nim.uikit.common.ui.imageview.HeadImageView
-            android:id="@+id/avatar"
-            android:layout_width="@dimen/avatar_size_in_profile"
-            android:layout_height="@dimen/avatar_size_in_profile"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"/>
+        android:background="@color/color_white_f8f9f9">
+        <LinearLayout
+            android:id="@+id/head"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="@dimen/body_left_margin"
+            android:layout_marginStart="@dimen/body_left_margin"
+            android:layout_marginRight="@dimen/body_right_margin"
+            android:layout_marginEnd="@dimen/body_right_margin">
+            <TextView
+                android:id="@+id/location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="20dp"
+                android:layout_marginEnd="20dp"
+                android:textSize="12sp"
+                android:textColor="@color/color_grey_76767b"
+                android:maxLines="1"/>
+            <TextView
+                android:id="@+id/date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/color_grey_76767b"/>
+        </LinearLayout>
         <TextView
             android:id="@+id/question"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/avatar"
-            android:layout_alignParentTop="true"
-            android:layout_marginLeft="10dp"
-            android:textSize="13sp"/>
-        <TextView
-            android:id="@+id/location"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/question"
-            android:layout_alignLeft="@id/question"
-            android:layout_marginTop="5dp"
-            android:textSize="15sp"/>
+            android:layout_below="@id/head"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="@dimen/body_left_margin"
+            android:layout_marginStart="@dimen/body_left_margin"
+            android:layout_marginRight="@dimen/body_right_margin"
+            android:layout_marginEnd="@dimen/body_right_margin"
+            android:textColor="@color/black"
+            android:textSize="16sp"/>
     </RelativeLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/black"/>
-    <ListView
-        android:id="@+id/listView_customer"
+    <LinearLayout
+        android:id="@+id/wait"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:cacheColorHint="@android:color/transparent"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dip"
-        android:fadingEdge="none"/>
-
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/samchat_wait_response"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="@string/samchat_request_sent"
+            android:textColor="@color/color_black_1d4d73"
+            android:textSize="18sp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
+            android:gravity="center"
+            android:text="@string/samchat_request_sent_desc"
+            android:textColor="@color/color_grey_76767b"
+            android:textSize="15sp"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/responses"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="@dimen/body_left_margin"
+            android:layout_marginStart="@dimen/body_left_margin"
+            android:textSize="16sp"
+            android:textColor="@color/color_grey_76767b"
+            android:text="@string/samchat_responses"/>
+        <ListView
+            android:id="@+id/listView_customer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/color_white_f8f9f9"
+            android:layout_marginTop="10dp"
+            android:cacheColorHint="@android:color/transparent"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="0dip"
+            android:fadingEdge="none"/>
+    </LinearLayout>
 
 </LinearLayout>

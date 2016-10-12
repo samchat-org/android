@@ -139,7 +139,7 @@ public class SamchatSettingFragment extends TFragment {
 	@Override
 	public void onResume(){
 		super.onResume();
-		if(!isSignout){
+		if(!isSignout && SamService.getInstance().get_current_user()!=null){
 			updateCreateSPLayout();
 			customer_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
 			sp_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());

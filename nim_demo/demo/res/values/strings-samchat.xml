@@ -22,7 +22,7 @@
     <string name="history">History</string>
     <string name="rq_new">New</string>
     <string name="rq_answered">Answered</string>
-    <string name="mode_switching">mode switching ...</string>
+    <string name="mode_switching">mode switching \u2026</string>
     <string name="search">Search</string>
     <string name="delete_chatting">Delete this chat ?</string>
     <string name="sticky_on_top">Sticky on top</string>
@@ -77,7 +77,7 @@
 
     <string name="China">China</string>
     <string name="USA">USA</string>
-    <string name="samchat_sending">Sending...</string>
+    <string name="samchat_sending">Sending\u2026</string>
     <string name="samchat_confirmation_code">Confirmation Code</string>
 
     <string name="samchat_default_error">Make sure network is available and try it again</string>
@@ -112,7 +112,7 @@
     <string name="samchat_terms">Terms of Use and User Agreement</string>
     <string name="samchat_user_agreement">Samchat User Agreement</string>
     <string name="samchat_done">Done</string>
-    <string name="samchat_signuping">Sign up now ....</string>
+    <string name="samchat_signuping">Sign up now\u2026</string>
     <string name="samchat_signup_oops">Ooops,username already taken.Try a combination of letter and numbers</string>
 
     <string name="samchat_next">Next step</string>
@@ -142,20 +142,24 @@
     <string name="samchat_my_qrcode">My QR code</string>
     <string name="samchat_samchat_id">samchat id:</string>
     <string name="samchat_phone_id">phone:</string>
-    <string name="samchat_qr_bussiness_card">QR Bussiness Card</string>
+    <string name="samchat_qr_bussiness_card">QR Business Card</string>
 
     <string name="samchat_new_request">New Request</string>
     <string name="samchat_your_request">Your Request</string>
     <string name="samchat_send">Send</string>
     <string name="samchat_request_hint">How can we help ?</string>
-    <string name="samchat_current_loaction">Current location</string>
+    <string name="samchat_what_service">What service do you need today?</string>
+    <string name="samchat_current_location">Current location</string>
+    <string name="samchat_search_location">Search location</string>
     <string name="samchat_request_details">Request Details</string>
     <string name="samchat_new_response">New Response</string>
+    <string name="samchat_responses">RESPONSES</string>
 
     <string name="samchat_public_search">Public Search</string>
+    <string name="samchat_search_public">Search public</string>
     <string name="samchat_search">Search</string>
     <string name="samchat_public_search_hint">Search by keywords,username,phone no</string>
-    <string name="samchat_searching">Searching...</string>
+    <string name="samchat_searching">Searching\u2026</string>
 
     <string name="samchat_chat">Chat Now</string>
     <string name="samchat_follow">Follow</string>
@@ -221,7 +225,7 @@
     <string name="samchat_enter_phonenumber_to_start">Enter phone number to start</string>
     <string name="samchat_code_send_desc">A confirmation code will be sent to the phone number your entered via SMS</string>
     <string name="samchat_resend_code_in">Resend code in</string>
-    <string name="samchat_resend_code_seconds">seconds....</string>
+    <string name="samchat_resend_code_seconds">seconds\u2026</string>
     <string name="samchat_code_verify_desc">Check your SMS and enter the code below to continue</string>
     <string name="samchat_agreement_1">
         1. By using our website, you accept these terms and conditions in full; accordingly, if you disagree with these terms and conditions,
@@ -238,4 +242,12 @@
     <string name="samchat_maintab_chat">Chat</string>
     <string name="samchat_maintab_contacts">Contacts</string>
     <string name="samchat_maintab_me">Me</string>
+    <string name="samchat_popular_requests">POPULAR REQUESTS</string>
+
+    <string name="samchat_request_sent">Request sent!</string>
+    <string name="samchat_request_sent_desc">We are on the hunt for the best service providers.We will let you know soon</string>
+    <string name="samchat_contact_details">CONTACT DETAILS</string>
+    <string name="samchat_work_phone">Work phone</string>
+    <string name="samchat_email">Email</string>
+    <string name="samchat_location">Location</string>
 </resources>

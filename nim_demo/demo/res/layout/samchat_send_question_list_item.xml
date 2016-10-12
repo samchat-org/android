@@ -16,14 +16,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginBottom="5dp"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:textColor="@color/black"
             android:maxLines="2"/>
         <TextView
             android:id="@+id/date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="14sp"
+            android:textSize="12sp"
             android:textColor="@color/color_grey_999999"
             android:maxLines="1"/>
     </LinearLayout>
@@ -55,14 +55,21 @@
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_toRightOf="@id/sp3"
-                android:layout_marginLeft="5dp"/>
+                android:layout_toEndOf="@id/sp3"
+                android:layout_marginLeft="2dp"
+                android:layout_marginStart="2dp"/>
             <com.netease.nim.uikit.common.ui.imageview.HeadImageView
                 android:id="@+id/sp1"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_toRightOf="@id/sp2"
-                android:layout_marginLeft="5dp"/>
+                android:layout_toEndOf="@id/sp2"
+                android:layout_marginLeft="2dp"
+                android:layout_marginStart="2dp"/>
         </RelativeLayout>
     </LinearLayout>
-
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_grey_999999"/>
 </LinearLayout>

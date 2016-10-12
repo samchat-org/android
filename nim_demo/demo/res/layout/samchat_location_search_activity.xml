@@ -4,7 +4,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              android:background="@color/color_white_f8f9f9">
+              android:background="@color/color_grey_efeff4">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,7 +26,7 @@
                 android:layout_gravity="center"/>
         </FrameLayout>
         <EditText
-            android:id="@+id/key"
+            android:id="@+id/location"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -37,20 +37,20 @@
             android:layout_marginBottom="10dp"
             android:background="@null"
             android:singleLine="true"
-            android:hint="@string/samchat_search_public"
+            android:hint="@string/samchat_search_location"
             android:textColorHint="@color/color_grey_999999"
             android:textSize="16sp"
             android:textColor="@color/black"
             android:textCursorDrawable="@null"/>
         <TextView
-            android:id="@+id/search"
+            android:id="@+id/send"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginRight="@dimen/body_right_margin"
             android:layout_marginEnd="@dimen/body_right_margin"
             android:gravity="center"
-            android:text="@string/samchat_search"
+            android:text="@string/samchat_done"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:paddingTop="5dp"
@@ -63,20 +63,13 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginLeft="@dimen/body_left_margin"
-        android:layout_marginStart="@dimen/body_left_margin"
-        android:layout_marginRight="@dimen/body_right_margin"
-        android:layout_marginEnd="@dimen/body_right_margin"
         android:background="@color/color_grey_d8d2e2"/>
     <ListView
-        android:id="@+id/searchResultList"
-        android:layout_marginLeft="@dimen/body_left_margin"
-        android:layout_marginStart="@dimen/body_left_margin"
-        android:layout_marginRight="@dimen/body_right_margin"
-        android:layout_marginEnd="@dimen/body_right_margin"
+        android:id="@+id/address"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:divider="@null"
         android:scrollbars="none">
     </ListView>
-
 </LinearLayout>

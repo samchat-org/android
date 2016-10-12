@@ -3,6 +3,7 @@ package com.android.samchat.adapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.android.samchat.cache.FollowDataCache;
 import com.android.samservice.info.ContactUser;
 import com.android.samchat.R;
 import com.android.samservice.info.SendQuestion;
@@ -60,6 +61,7 @@ public class ContactUserAdapter extends BaseAdapter{
 			holder.avatar= (HeadImageView) convertView.findViewById(R.id.avatar);
 			holder.username = (TextView) convertView.findViewById(R.id.username);
 			holder.service_category= (TextView) convertView.findViewById(R.id.service_category);
+			holder.follow_tag = (TextView) convertView.findViewById(R.id.follow_tag);
 
 			convertView.setTag(holder);
 		}else{
@@ -71,7 +73,14 @@ public class ContactUserAdapter extends BaseAdapter{
 			ContactUser user = items.get(position);
 			holder.username.setText(user.getusername());
 			holder.service_category.setText(user.getservice_category());
-			holder.avatar.loadBuddyAvatar(Long.toString(user.getunique_id()));
+			holder.avatar.loadBuddyAvatar(Long.toString(user.getunique_id()),40);
+			if(FollowDataCache.getInstance().getFollowSPByUniqueID(user.getunique_id())!=null){
+				holder.follow_tag.setText(mContext.getString(R.string.samchat_follow));
+				holder.follow_tag.setTextColor(mContext.getResources().getColor(R.color.color_black_1d4d73));
+			}else{
+				holder.follow_tag.setText(mContext.getString(R.string.samchat_unfollow));
+				holder.follow_tag.setTextColor(mContext.getResources().getColor(R.color.color_grey_d8d2e2));
+			}
 			break;
 		}
 		
@@ -92,6 +101,7 @@ public class ContactUserAdapter extends BaseAdapter{
 		public HeadImageView avatar;
 		public TextView username;
 		public TextView service_category;
+		public TextView follow_tag;
 	}
 	
 	

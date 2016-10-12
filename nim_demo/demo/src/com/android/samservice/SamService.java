@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import com.android.samchat.cache.ContactDataCache;
 import com.android.samchat.cache.CustomerDataCache;
 import com.android.samchat.cache.FollowDataCache;
+import com.android.samchat.common.SCell;
 import com.android.samservice.callback.SMCallBack;
 import com.android.samservice.dao.SamDBDao;
 import com.android.samservice.info.*;
@@ -649,9 +650,9 @@ public class SamService{
 	}
 
 /***************************************send question*******************************************************/
-	public void send_question(String question,double latitude, double longitude, String place_id, String address, SMCallBack callback){
+	public void send_question(String question, double latitude, double longitude, String place_id, String address, SCell cell, SMCallBack callback){
 		SendqCoreObj samobj = new SendqCoreObj(callback);
-		samobj.init(get_current_token(),  question,  latitude,  longitude,  place_id,  address);
+		samobj.init(get_current_token(),  question,  latitude,  longitude,  place_id,  address, cell);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_SEND_QUESTION, samobj);
 		mSamServiceHandler.sendMessage(msg);
 		startTimeOut(samobj);
@@ -690,7 +691,7 @@ public class SamService{
 	private void retry_send_question(SendqCoreObj samobj){
 		SendqCoreObj  retryobj = new SendqCoreObj(samobj.callback);
 		
-		retryobj.init(samobj.token, samobj.question, samobj.latitude, samobj.longitude, samobj.place_id, samobj.address);
+		retryobj.init(samobj.token, samobj.question, samobj.latitude, samobj.longitude, samobj.place_id, samobj.address,samobj.cell);
 		
 		retryobj.setRetryCount(samobj.retry_count);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_SEND_QUESTION, retryobj);

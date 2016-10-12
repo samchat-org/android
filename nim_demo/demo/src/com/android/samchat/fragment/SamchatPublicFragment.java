@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
@@ -97,7 +98,6 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 	/*customer mode*/
 	//view
 	private LinearLayout customer_public_layout;
-	private TextView search_textview;
 	private ListView customer_public_list;
 	
 	//data
@@ -109,7 +109,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 	
 	/*sp mode*/
 	//view
-	private LinearLayout sp_public_layout;
+	private RelativeLayout sp_public_layout;
 	private View rootView;
 	private SessionCustomization customization;
 	protected String sessionId;
@@ -192,7 +192,6 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		findViews();
-		setupSearchClick();
 		initFollowedSPList();
 		LoadRcvdAdvSessions();
 		LoadFollowedSPs(true);
@@ -226,10 +225,9 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 	private void findViews() {
 		//customer mode views
 		customer_public_layout = (LinearLayout) findView(R.id.customer_public_layout);
-		search_textview = (TextView) findView(R.id.search);
 		customer_public_list = (ListView) findView(R.id.customer_public_list);
 		//sp mode views
-		sp_public_layout = (LinearLayout) findView(R.id.sp_public_layout);
+		sp_public_layout = (RelativeLayout) findView(R.id.sp_public_layout);
 
 		if(SamchatGlobal.getmode()== ModeEnum.CUSTOMER_MODE){
 			customer_public_layout.setVisibility(View.VISIBLE);
@@ -239,15 +237,6 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 			sp_public_layout.setVisibility(View.VISIBLE);
 		}
     }
-
-	private void setupSearchClick(){
-		search_textview.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				SamchatSearchPublicActivity.start(getActivity());
-			}
-		});
-	}
 
 	private void initFollowedSPList(){
 		rcvdSessions = new ArrayList<RcvdAdvSession>();

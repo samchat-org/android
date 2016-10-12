@@ -14,36 +14,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-        <TextView
-            android:id="@+id/search"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginBottom="15dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:background="@drawable/samchat_text_radius_border"
-            android:text="@string/search"
-            android:textSize="@dimen/text_size_20"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:gravity="center"/>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1px"
-            android:background="@color/color_grey_999999"/>
         <ListView
             android:id="@+id/customer_public_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:divider="@color/color_grey_999999"
-            android:dividerHeight="1px"
+            android:divider="@null"
             android:scrollbars="none">
         </ListView>
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/sp_public_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -125,13 +106,20 @@
                             android:textSize="20sp"/>
                     </LinearLayout>
                 </FrameLayout>
-
             </FrameLayout>
-
             <include layout="@layout/nim_message_activity_bottom_layout"/>
-
         </LinearLayout>
-
-    </LinearLayout>
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:contentDescription="@null"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginBottom="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginEnd="30dp"
+            android:src="@drawable/samchat_add_float_button"/>
+    </RelativeLayout>
 
 </LinearLayout>
