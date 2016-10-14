@@ -1,5 +1,6 @@
 package com.android.samchat.fragment;
 
+import android.app.Activity;
 import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -15,6 +17,7 @@ import android.widget.TextView;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.android.samchat.activity.SamchatAdvertisementPostActivity;
 import com.android.samchat.activity.SamchatSearchPublicActivity;
 import com.android.samchat.cache.FollowDataCache;
 import com.android.samchat.cache.MsgSessionDataCache;
@@ -71,6 +74,7 @@ import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.actions.BaseAction;
 import com.netease.nim.uikit.session.actions.ImageAction;
 import com.netease.nim.uikit.session.actions.VideoAction;
+import com.netease.nim.uikit.session.constant.RequestCode;
 import com.netease.nim.uikit.session.module.Container;
 import com.netease.nim.uikit.session.module.ModuleProxy;
 import com.netease.nim.uikit.session.module.input.SamchatAdvertisementInputPanel;
@@ -95,6 +99,7 @@ import android.widget.Toast;
  */
 public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 	public static String TAG="SamchatPublicFragment";
+	public static final int CONFIRM_ID_GET_POST_CONENT=2000;
 	/*customer mode*/
 	//view
 	private LinearLayout customer_public_layout;
@@ -116,6 +121,8 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 	protected SessionTypeEnum sessionType;
 	protected SamchatAdvertisementInputPanel inputPanel;
 	protected SamchatAdvertisementMessageListPanel messageListPanel;
+	protected ImageView post_iv;
+	protected List<BaseAction> actions;
 	
 	//observer and broadcast
 	private boolean isBroadcastRegistered = false;
@@ -140,6 +147,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		filter.addAction(Constants.BROADCAST_SWITCH_MODE);
 		filter.addAction(Constants.BROADCAST_FOLLOWEDSP_UPDATE);
 		filter.addAction(Constants.BROADCAST_USER_INFO_UPDATE);
+		filter.addAction(Constants.BROADCAST_POST_ADV);
 
 		broadcastReceiver = new BroadcastReceiver() {
 			@Override
@@ -158,6 +166,8 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 				}else if(intent.getAction().equals(Constants.BROADCAST_USER_INFO_UPDATE)){
 					loadedFollowSPs= FollowDataCache.getInstance().getMyFollowSPsList();
 					onFollowedSPsLoaded();
+				}else if(intent.getAction().equals(Constants.BROADCAST_POST_ADV)){
+					launchAdvertisementPostActivity();
 				}
 			}
 		};
@@ -445,7 +455,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 
 /*************************************Service Provide Mode***************************/
     protected List<BaseAction> getActionList() {
-        List<BaseAction> actions = new ArrayList<>();
+        actions = new ArrayList<>();
         actions.add(new ImageAction());
         actions.add(new VideoAction());
         /*actions.add(new LocationAction());
@@ -496,6 +506,19 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		if(customization!=null){
 			messageListPanel.setChattingBackground(customization.backgroundUri, customization.backgroundColor);
 		}
+
+		post_iv = (ImageView) findView(R.id.post);
+		post_iv.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				
+			}
+		});
+		post_iv.setVisibility(View.GONE);
+	}
+
+	private void launchAdvertisementPostActivity(){
+		SamchatAdvertisementPostActivity.startActivityForResult(getActivity(), SamchatPublicFragment.this, CONFIRM_ID_GET_POST_CONENT);
 	}
 
 	protected boolean isAllowSendMessage(final IMMessage message) {
@@ -699,12 +722,20 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
         return !inputPanel.isRecording();
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        inputPanel.onActivityResult(requestCode, resultCode, data);
-        //messageListPanel.onActivityResult(requestCode, resultCode, data);
-    }
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		//inputPanel.onActivityResult(requestCode, resultCode, data);
+		//messageListPanel.onActivityResult(requestCode, resultCode, data);
+		if(requestCode == CONFIRM_ID_GET_POST_CONENT && resultCode == Activity.RESULT_OK){
+			if(data.getBooleanExtra(SamchatAdvertisementPostActivity.EXTRA_IS_TEXT,false)){
+				String adv_text = data.getStringExtra(SamchatAdvertisementPostActivity.EXTRA_TEXT);
+				inputPanel.onTextMessageSendButtonPressed(adv_text);
+			}else{
+				inputPanel.onActivityResult(((ImageAction)actions.get(0)).makeRequestCode(RequestCode.PICK_IMAGE), Activity.RESULT_OK,data);
+			}
+		}
+	}
 
 
 

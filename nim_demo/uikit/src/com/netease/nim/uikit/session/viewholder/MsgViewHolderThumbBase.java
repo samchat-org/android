@@ -112,6 +112,9 @@ public abstract class MsgViewHolderThumbBase extends MsgViewHolderBase {
     public static int getImageMaxEdge() {
         return (int) (165.0 / 320.0 * ScreenUtil.screenWidth);
     }
+    public static int getImageMaxEdge2() {
+        return (int) (240.0 / 320.0 * ScreenUtil.screenWidth);
+    }
 
     public static int getImageMinEdge() {
         return (int) (76.0 / 320.0 * ScreenUtil.screenWidth);

@@ -49,7 +49,7 @@
     <dimen name="avatar_max_size">60dip</dimen>
     <dimen name="avatar_size_default">50dip</dimen>
     <dimen name="avatar_size_in_session">40dip</dimen>
-    <dimen name="avatar_size_in_contact">30dip</dimen>
+    <dimen name="avatar_size_in_contact">40dip</dimen>
     <dimen name="avatar_size_in_profile">60dip</dimen>
 
     <!-- bubble -->

@@ -141,6 +141,29 @@ public class ImageUtil {
     	
     	return thumbFilePath;
     }
+
+    public static String makeThumbnail2(Context context, File imageFile) {
+    	String thumbFilePath = StorageUtil.getWritePath(imageFile.getName(),
+    			StorageType.TYPE_THUMB_IMAGE);
+    	File thumbFile = AttachmentStore.create(thumbFilePath);
+    	if (thumbFile == null) {
+    		return null;
+    	}
+    	
+    	boolean result = scaleThumbnail(
+                imageFile,
+                thumbFile,
+                MsgViewHolderThumbBase.getImageMaxEdge2(),
+                MsgViewHolderThumbBase.getImageMinEdge(),
+                CompressFormat.JPEG,
+                60);
+    	if (!result) {
+    		AttachmentStore.delete(thumbFilePath);
+    		return null;
+    	}
+    	
+    	return thumbFilePath;
+    }
     
     public static Boolean scaleThumbnail(File srcFile, File dstFile, int dstMaxWH, int dstMinWH, CompressFormat compressFormat, int quality) {
         Boolean bRet = false;

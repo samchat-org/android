@@ -3,10 +3,12 @@ package com.android.samchat.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -97,6 +99,10 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 	private TextView date_textview;
 	private LinearLayout wait_layout;
 	private LinearLayout responses_layout;
+	private ImageView bar_iv;
+	private ImageView emoji_iv;
+	private TextView send_title_tv;
+	private TextView send_desc_tv;
 
 	private QuestionInfo info;
 
@@ -201,9 +207,35 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 		if(items_customer!=null && items_customer.size()>0){
 			wait_layout.setVisibility(View.GONE);
 			responses_layout.setVisibility(View.VISIBLE);
+			bar_iv.setImageResource(R.drawable.samchat_request_detail_bar_done);
 		}else{
 			wait_layout.setVisibility(View.VISIBLE);
 			responses_layout.setVisibility(View.GONE);
+		}
+	}
+
+	private void updateEmoji(){
+		long elapse = TimeUtil.currentTimeMillis() - info.getdatetime();
+		if(TimeUtil.currentTimeMillis() - info.getdatetime() < 24*60*60*1000L){
+			bar_iv.setImageResource(R.drawable.samchat_request_detail_bar_ongoing);
+			emoji_iv.setImageResource(R.drawable.samchat_request_detail_emoji_just_now);
+			send_title_tv.setText(R.string.samchat_request_sent_just_now);
+			send_desc_tv.setText(R.string.samchat_request_sent_desc_just_now);
+		}else if(TimeUtil.currentTimeMillis() - info.getdatetime() < 2*24*60*60*1000L){
+			bar_iv.setImageResource(R.drawable.samchat_request_detail_bar_ongoing);
+			emoji_iv.setImageResource(R.drawable.samchat_request_detail_emoji_1_day);
+			send_title_tv.setText(R.string.samchat_request_sent_1_day);
+			send_desc_tv.setText(R.string.samchat_request_sent_desc_1_day);
+		}else if(TimeUtil.currentTimeMillis() - info.getdatetime() < 3*24*60*60*1000L){
+			bar_iv.setImageResource(R.drawable.samchat_request_detail_bar_ongoing);
+			emoji_iv.setImageResource(R.drawable.samchat_request_detail_emoji_2_day);
+			send_title_tv.setText(R.string.samchat_request_sent_2_day);
+			send_desc_tv.setText(R.string.samchat_request_sent_desc_2_day);
+		}else{
+			bar_iv.setImageResource(R.drawable.samchat_request_detail_bar_no_response);
+			emoji_iv.setImageResource(R.drawable.samchat_request_detail_emoji_3_day);
+			send_title_tv.setText(R.string.samchat_request_sent_3_day);
+			send_desc_tv.setText(R.string.samchat_request_sent_desc_3_day);
 		}
 	}
 
@@ -215,9 +247,18 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 		listView_customer = findView(R.id.listView_customer);
 		wait_layout = findView(R.id.wait); 
 		responses_layout = findView(R.id.responses);
+		bar_iv= findView(R.id.bar);
+		emoji_iv= findView(R.id.emoji);
+		send_title_tv= findView(R.id.send_title);
+		send_desc_tv= findView(R.id.send_desc);
 
 		question_textview.setText(info.getquestion());
-		location_textview.setText(info.getaddress());
+		if(TextUtils.isEmpty(info.getaddress())){
+			location_textview.setVisibility(View.GONE);
+		}else{
+			location_textview.setVisibility(View.VISIBLE);
+			location_textview.setText(info.getaddress());
+		}
 		date_textview.setText(TimeUtil.getTimeShowString(info.getdatetime(),false));
 
 		setupBackArrowClick();

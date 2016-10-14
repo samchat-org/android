@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp">
         <FrameLayout
             android:id="@+id/avatar_layout"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp">
+            android:layout_height="wrap_content">
             <com.netease.nim.uikit.common.ui.imageview.HeadImageView
                 android:id="@+id/avatar"
                 android:layout_width="50dp"
@@ -35,7 +39,6 @@
             android:layout_marginStart="5dp"
             android:layout_marginRight="@dimen/body_right_margin"
             android:layout_marginEnd="@dimen/body_right_margin"
-            android:layout_marginBottom="10dp"
             android:layout_toRightOf="@id/avatar_layout"
             android:layout_toEndOf="@id/avatar_layout"
             android:layout_alignTop="@id/avatar_layout"
@@ -71,11 +74,12 @@
                 android:textColor="@color/black"
                 android:maxLines="2"/>
         </LinearLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1px"
-            android:layout_alignParentBottom="true"
-            android:layout_alignLeft="@id/body_layout"
-            android:layout_alignStart="@id/body_layout"
-            android:background="@color/color_grey_999999"/>
     </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="35dp"
+        android:layout_marginStart="35dp"
+        android:background="@color/color_grey_999999"/>
+</LinearLayout>

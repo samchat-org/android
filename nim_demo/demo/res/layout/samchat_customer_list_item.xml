@@ -14,7 +14,13 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="@dimen/body_left_margin"
+        android:layout_marginStart="@dimen/body_left_margin"
+        android:layout_marginRight="@dimen/body_right_margin"
+        android:layout_marginEnd="@dimen/body_right_margin">
         <com.netease.nim.uikit.common.ui.imageview.HeadImageView
             android:id="@+id/avatar"
             android:layout_width="@dimen/avatar_size_in_contact"
@@ -27,13 +33,21 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
             android:layout_gravity="center_vertical">
             <TextView
                 android:id="@+id/username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
-                android:textSize="14sp"/>
+                android:textSize="16sp"/>
         </LinearLayout>
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginLeft="30dp"
+        android:layout_marginStart="30dp"
+        android:background="@color/color_grey_999999"/>
 </LinearLayout>

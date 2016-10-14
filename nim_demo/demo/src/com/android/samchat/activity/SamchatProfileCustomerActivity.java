@@ -216,7 +216,8 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 
     private void update(boolean afterCrop){
 		if(afterCrop){
-			avatar_headimageview.setImageURI(cropImageUri);
+			//avatar_headimageview.setImageURI(cropImageUri);
+			avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90);
 		}else{
 			avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90);
 		}
@@ -341,17 +342,23 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		// Simply updates the UI list when notified.
 		@Override
 		public void onError(int id, Exception e) {
+			LogUtil.e(TAG,"onError upload avatar customer");
 			observer.cleanTransferListener();
 			S3Util.getTransferUtility(SamchatProfileCustomerActivity.this).deleteTransferRecord(observer.getId());
+			deleteFile();
+			DialogMaker.dismissProgressDialog();
+			EasyAlertDialogHelper.showOneButtonDiolag(SamchatProfileCustomerActivity.this, null,
+                    			getString(R.string.samchat_upload_failed), getString(R.string.samchat_ok), true, null);
 		}
 
 		@Override
 		public void onProgressChanged(int id, final long bytesCurrent, final long bytesTotal) {
-
+			LogUtil.i(TAG,"onProgressChanged "+bytesCurrent+"/"+bytesTotal);
 		}
 
 		@Override
 		public void onStateChanged(int id, TransferState newState) {
+			LogUtil.e(TAG,"onStateChanged "+newState);
 			if(newState == TransferState.COMPLETED) {
 				observer.cleanTransferListener();
 				S3Util.getTransferUtility(SamchatProfileCustomerActivity.this).deleteTransferRecord(observer.getId());

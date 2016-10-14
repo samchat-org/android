@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.content.Context;
 import android.telephony.gsm.GsmCellLocation;
+import android.text.TextUtils;
 
 import java.util.UUID;
 
@@ -211,11 +212,17 @@ public class LocationFactory {
 		SCell cell = new SCell();
  
 		TelephonyManager mTelNet = (TelephonyManager) DemoCache.getContext().getSystemService(Context.TELEPHONY_SERVICE);
+        if (mTelNet == null){
+            return null;
+        }
 		GsmCellLocation location = (GsmCellLocation) mTelNet.getCellLocation();
-		if (location == null)
+		if (location == null){
 			return null;
- 
+        }
 		String operator = mTelNet.getNetworkOperator();
+        if(TextUtils.isEmpty(operator)){
+            return null;
+        }
 		int mcc = Integer.parseInt(operator.substring(0, 3));
 		int mnc = Integer.parseInt(operator.substring(3));
 		int cid = location.getCid();

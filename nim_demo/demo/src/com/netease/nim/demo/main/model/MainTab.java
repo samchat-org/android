@@ -228,6 +228,43 @@ public enum MainTab {
 		return show;
 	}
 
+	public static final boolean isTabRightTextShow(int index){
+		boolean show = false;
+		MainTab tab = fromTabIndex(index);
+		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+			switch (tab){
+				case SAMCHAT_REQUEST:
+				case SAMCHAT_PUBLIC:
+				case SAMCHAT_CHAT:
+				case SAMCHAT_CONTACT:
+				case SAMCHAT_SETTING:
+					show = false;
+					break;
+				default:
+					show = false;
+					break;
+			}
+		}else{
+			switch (tab){
+				case SAMCHAT_REQUEST:
+					show = false;
+                    break;
+				case SAMCHAT_PUBLIC:
+                    show = true;
+                    break;
+				case SAMCHAT_CHAT:
+				case SAMCHAT_CONTACT:
+				case SAMCHAT_SETTING:
+					show = false;
+					break;
+				default:
+					show = false;
+					break;
+			}
+		}
+		return show;
+	}
+
 	public static final int getMainIcon(int index){
 		int icon_id;
 		MainTab tab = fromTabIndex(index);

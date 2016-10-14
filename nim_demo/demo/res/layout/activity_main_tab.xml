@@ -70,6 +70,20 @@
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:contentDescription="@null"/>
+            <TextView
+                android:id="@+id/titlebar_right_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:textColor="@color/color_white_ffffffff"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:text="@string/samchat_update"
+                android:visibility="gone"/>
         </RelativeLayout>
 
     </android.support.design.widget.AppBarLayout>

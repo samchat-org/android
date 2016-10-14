@@ -110,6 +110,7 @@
             <include layout="@layout/nim_message_activity_bottom_layout"/>
         </LinearLayout>
         <ImageView
+            android:id="@+id/post"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:contentDescription="@null"

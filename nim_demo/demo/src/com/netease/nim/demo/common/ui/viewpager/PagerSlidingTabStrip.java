@@ -88,8 +88,8 @@ public class PagerSlidingTabStrip extends HorizontalScrollView implements OnPage
 
     private int checkedTextColor = R.color.color_black_1d4d73;
     private int unCheckedTextColor = R.color.color_black_819cb1;
-    private int checkedTextSize =18;
-    private int unCheckedTextSize =14;
+    private int checkedTextSize =15;
+    private int unCheckedTextSize =13;
 
     private boolean textAllCaps = true;
 

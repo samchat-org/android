@@ -210,7 +210,8 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 
 	private void update(boolean afterCrop){
 		if(afterCrop){
-			avatar_headimageview.setImageURI(cropImageUri);
+			//avatar_headimageview.setImageURI(cropImageUri);
+			avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90);
 		}else{
 			avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90);
 		}
@@ -368,21 +369,27 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		// Simply updates the UI list when notified.
 		@Override
 		public void onError(int id, Exception e) {
+			LogUtil.e(TAG,"onError upload avatar sp");
 			observer.cleanTransferListener();
 			S3Util.getTransferUtility(SamchatProfileServiceProviderActivity.this).deleteTransferRecord(observer.getId());
+			deleteFile();
+			DialogMaker.dismissProgressDialog();
+			EasyAlertDialogHelper.showOneButtonDiolag(SamchatProfileServiceProviderActivity.this, null,
+                    			getString(R.string.samchat_upload_failed), getString(R.string.samchat_ok), true, null);
 		}
 
 		@Override
 		public void onProgressChanged(int id, final long bytesCurrent, final long bytesTotal) {
-
+			LogUtil.i(TAG,"onProgressChanged "+bytesCurrent+"/"+bytesTotal);
 		}
 
 		@Override
 		public void onStateChanged(int id, TransferState newState) {
+			LogUtil.e(TAG,"onStateChanged "+newState);
 			if(newState == TransferState.COMPLETED) {
 				observer.cleanTransferListener();
 				S3Util.getTransferUtility(SamchatProfileServiceProviderActivity.this).deleteTransferRecord(observer.getId());
-				String avatar_orig = NimConstants.S3_URL_UPLOAD + NimConstants.S3_PATH_AVATAR+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
+				String avatar_orig = NimConstants.S3_URL_UPLOAD+ NimConstants.S3_PATH_AVATAR+NimConstants.S3_FOLDER_ORIGIN+s3name_origin;
 				ContactUser user = new ContactUser(SamService.getInstance().get_current_user());
 				user.setavatar_original(avatar_orig);
 				user.setavatar(null);

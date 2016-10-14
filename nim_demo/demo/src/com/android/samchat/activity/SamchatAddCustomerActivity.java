@@ -33,6 +33,7 @@ import com.android.samservice.info.PhoneContact;
 import com.karics.library.zxing.android.CaptureActivity;
 import com.android.samchat.R;
 import com.netease.nim.uikit.common.activity.UI;
+import com.netease.nim.uikit.common.framework.NimSingleThreadExecutor;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
@@ -183,11 +184,9 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 			}
 		});
 	}
-		
+
 	private void setupPhoneContactsListView(){
 		contacts = new ArrayList<>();
-		getPhoneContacts();
-		sortUsers(contacts);
 		adapter = new PhoneContactsAdapter(SamchatAddCustomerActivity.this, contacts);
 		phone_contacts_listview.setAdapter(adapter);
        phone_contacts_listview.setItemsCanFocus(true);
@@ -200,45 +199,67 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 				query_user_precise(contact);
 			}
 		});
+
+		LoadPhoneContacts();
 	}
 
-	private void getPhoneContacts() {  
-		ContentResolver resolver = getBaseContext().getContentResolver();
-		Cursor phoneCursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,PHONES_PROJECTION, null, null, null);
+	private List<PhoneContact> loadedContacts;
+	private void LoadPhoneContacts() {
+		NimSingleThreadExecutor.getInstance().execute(new Runnable() {
+			@Override
+			public void run() {
+				loadedContacts = new ArrayList<>();
+				ContentResolver resolver = getBaseContext().getContentResolver();
+				Cursor phoneCursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,PHONES_PROJECTION, null, null, null);
       
-		if (phoneCursor != null) {  
-			while (phoneCursor.moveToNext()) {  
-
-			String phoneNumber = phoneCursor.getString(PHONES_NUMBER_INDEX);  
-
-			if (TextUtils.isEmpty(phoneNumber))
-				continue;  
- 
-				String contactName = phoneCursor.getString(PHONES_DISPLAY_NAME_INDEX);  
-          
-				Long contactid = phoneCursor.getLong(PHONES_CONTACT_ID_INDEX);  
-
-				Long photoid = phoneCursor.getLong(PHONES_PHOTO_ID_INDEX);  
-          
-				Bitmap contactPhoto = null;
-        
-				if(photoid > 0 ) {  
-					Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactid);
-					InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(resolver, uri);
-					contactPhoto = BitmapFactory.decodeStream(input);
-				}else {  
-					contactPhoto = BitmapFactory.decodeResource(getResources(), R.drawable.avatar_def);  
+				if (phoneCursor != null) {  
+					while (phoneCursor.moveToNext()) {  
+						String phoneNumber = phoneCursor.getString(PHONES_NUMBER_INDEX);  
+						if (TextUtils.isEmpty(phoneNumber))
+							continue;  
+						String contactName = phoneCursor.getString(PHONES_DISPLAY_NAME_INDEX);  
+						Long contactid = phoneCursor.getLong(PHONES_CONTACT_ID_INDEX);  
+						Long photoid = phoneCursor.getLong(PHONES_PHOTO_ID_INDEX);  
+						Bitmap contactPhoto = null;
+						if(photoid > 0 ) {  
+							Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactid);
+							InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(resolver, uri);
+							contactPhoto = BitmapFactory.decodeStream(input);
+						}else {  
+							contactPhoto = BitmapFactory.decodeResource(getResources(), R.drawable.avatar_def);  
+						}  
+						loadedContacts.add(new PhoneContact(contactName, phoneNumber, contactPhoto));
+					}  
+					phoneCursor.close();  
 				}  
-          
-				contacts.add(new PhoneContact(contactName, phoneNumber, contactPhoto));
-			}  
 
-			phoneCursor.close();  
-			
-		}  
-		
+				getHandler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						if (((UI)SamchatAddCustomerActivity.this).isDestroyedCompatible()){
+							return;
+						}
+						onContactsLoaded();
+					}
+				}, 0);
+			}
+		});
 	}  
 
+	private void onContactsLoaded(){
+		contacts.clear();
+		if(loadedContacts != null){
+			contacts.addAll(loadedContacts);
+			loadedContacts = null;
+		}
+		sortUsers(contacts);
+		notifyDataSetChanged();
+	}
+
+	private void notifyDataSetChanged() {
+		adapter.notifyDataSetChanged();
+	}
+	
 	private void sortUsers(List<PhoneContact> list) {
 		if (list.size() == 0) {
 			return;
@@ -260,6 +281,7 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 				return lhs.getPinYin().compareTo(rhs.getPinYin());
 		}
 	};
+
 
 /******************************************Data Flow Control***********************************************************/
 	private void query_user_precise(long unique_id){

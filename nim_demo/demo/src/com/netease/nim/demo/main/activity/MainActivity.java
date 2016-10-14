@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -23,6 +24,7 @@ import com.android.samchat.activity.SamchatAddServiceProviderActivity;
 import com.android.samchat.activity.SamchatMemberSelectActivity;
 import com.android.samchat.activity.SamchatSearchPublicActivity;
 import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samchat.fragment.SamchatPublicFragment;
 import com.android.samchat.receiver.NetworkStateBroadcastReceiver;
 import com.android.samchat.receiver.PushReceiver;
 import com.android.samchat.R;
@@ -114,6 +116,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
     private TextView switch_reminder;
     private TextView titlebar_name;
     private ImageView titlebar_right_icon;
+    private TextView titlebar_right_text;
     private int current_position = 0;
     /*SAMC_END(Customized title bar)*/ 
 
@@ -570,6 +573,12 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 		}else{
 			titlebar_right_icon.setVisibility(View.GONE);
 		}
+
+		if(MainTab.isTabRightTextShow(position)){
+			titlebar_right_text.setVisibility(View.VISIBLE);
+		}else{
+			titlebar_right_text.setVisibility(View.GONE);
+		}
 	}
 
 	public void refreshTabUnreadCount(ModeEnum currentMode){
@@ -649,6 +658,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 		switch_reminder = (TextView) findViewById(R.id.switch_reminder);
 		titlebar_name = (TextView) findViewById(R.id.titlebar_name);
 		titlebar_right_icon = (ImageView) findViewById(R.id.titlebar_right_icon);
+		titlebar_right_text = (TextView) findViewById(R.id.titlebar_right_text);
 
 		refreshToolBar(current_position);
 		switch_layout.setOnClickListener(new View.OnClickListener() {
@@ -692,7 +702,15 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 				
 			}
 		});
-		
+
+		titlebar_right_text.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {			
+				Intent intent = new Intent();
+				intent.setAction(Constants.BROADCAST_POST_ADV);
+				sendbroadcast(intent);
+			}
+		});
 	}
 
 	public void startSwitchProgress(){

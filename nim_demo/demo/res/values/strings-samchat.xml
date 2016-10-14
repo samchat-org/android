@@ -17,7 +17,7 @@
     <string name="sp_client">My Clients</string>
     <string name="sp_setting">Service Settings</string>
 
-    <string name="make_new_request">+ Make a new service request</string>
+    <string name="make_new_request">MAKE A REQUEST</string>
     <string name="active_requests">Active requests</string>
     <string name="history">History</string>
     <string name="rq_new">New</string>
@@ -244,10 +244,21 @@
     <string name="samchat_maintab_me">Me</string>
     <string name="samchat_popular_requests">POPULAR REQUESTS</string>
 
-    <string name="samchat_request_sent">Request sent!</string>
-    <string name="samchat_request_sent_desc">We are on the hunt for the best service providers.We will let you know soon</string>
+    <string name="samchat_request_sent_just_now">Request sent!</string>
+    <string name="samchat_request_sent_desc_just_now">We are on the hunt for the best service providers.We will let you know soon</string>
+    <string name="samchat_request_sent_1_day">Looking for service providers</string>
+    <string name="samchat_request_sent_desc_1_day">Hang on there,we are on this!</string>
+    <string name="samchat_request_sent_2_day">Still looking for service providers</string>
+    <string name="samchat_request_sent_desc_2_day">We have not given up yet.We will leave no rocks unturned.</string>
+    <string name="samchat_request_sent_3_day">No service providers responded\u2026</string>
+    <string name="samchat_request_sent_desc_3_day">Well that was kinda embarrassing.How about try another search instead?</string>
     <string name="samchat_contact_details">CONTACT DETAILS</string>
     <string name="samchat_work_phone">Work phone</string>
     <string name="samchat_email">Email</string>
     <string name="samchat_location">Location</string>
+    <string name="samchat_new_post">New Post</string>
+    <string name="samchat_post">Post</string>
+    <string name="samchat_hint_adv_text">Tell us about new updates, deals or promotions with your service or business(only support text or image now)</string>
+    <string name="samchat_album">Album</string>
+    <string name="samchat_update">Update</string>
 </resources>

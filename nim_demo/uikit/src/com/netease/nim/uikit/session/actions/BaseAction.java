@@ -68,7 +68,7 @@ public abstract class BaseAction implements Serializable {
         container.proxy.sendMessage(message);
     }
 
-    protected int makeRequestCode(int requestCode) {
+    public int makeRequestCode(int requestCode) {
         if ((requestCode & 0xffffff00) != 0) {
             throw new IllegalArgumentException("Can only use lower 8 bits for requestCode");
         }

@@ -7,7 +7,12 @@
         android:id="@+id/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:textSize="18sp"
-        android:textColor="@color/color_black_ff999999"/>
+        android:layout_marginLeft="@dimen/body_left_margin"
+        android:layout_marginStart="@dimen/body_left_margin"
+        android:layout_marginRight="@dimen/body_right_margin"
+        android:layout_marginEnd="@dimen/body_right_margin"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:textSize="16sp"
+        android:textColor="@color/color_grey_999999"/>
 </LinearLayout>

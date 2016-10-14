@@ -53,7 +53,6 @@ public class SamchatContactFragment extends TFragment {
 	/*customer mode*/
 	//view
 	private LinearLayout customer_contact_layout;
-	private TextView customer_search;
 	private ListView customer_contact_list;
 	private RelativeLayout customer_main;
 	private TextView customer_dialog;
@@ -68,7 +67,6 @@ public class SamchatContactFragment extends TFragment {
 	/*sp mode*/
 	//view
 	private LinearLayout sp_contact_layout;
-	private TextView sp_search;
 	private ListView sp_contact_list;
 	private RelativeLayout sp_main;
 	private TextView sp_dialog;
@@ -163,7 +161,6 @@ public class SamchatContactFragment extends TFragment {
 	private void findViews() {
 		//customer mode views
 		customer_contact_layout= (LinearLayout) findView(R.id.customer_contact_layout);
-		customer_search = (TextView) findView(R.id.customer_search);
 		customer_contact_list = (ListView) findView(R.id.customer_contact_list);
 		customer_main = (RelativeLayout) findView(R.id.customer_main);
 		customer_dialog = (TextView) findView(R.id.customer_dialog);
@@ -182,7 +179,6 @@ public class SamchatContactFragment extends TFragment {
 		});
 		//sp mode views
 		sp_contact_layout= (LinearLayout) findView(R.id.sp_contact_layout);
-		sp_search = (TextView) findView(R.id.sp_search);
 		sp_contact_list = (ListView) findView(R.id.sp_contact_list);
 		sp_main = (RelativeLayout) findView(R.id.sp_main);
 		sp_dialog = (TextView) findView(R.id.sp_dialog);

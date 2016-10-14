@@ -34,14 +34,14 @@
                 android:layout_marginTop="20dp"
                 android:textColor="@color/black"
                 android:gravity="center_horizontal"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:text="@string/samchat_make_your_first_request"/>
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:textColor="@color/color_grey_999999"
-                android:textSize="15sp"
+                android:textSize="14sp"
                 android:gravity="center"
                 android:text="@string/samchat_customer_welcome_board"/>
             <TextView
@@ -59,12 +59,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
             android:background="@drawable/samchat_text_radius_border_green"
             android:textColor="@color/color_white_ffffffff"
             android:text="@string/make_new_request"
-            android:textSize="@dimen/text_size_20"
+            android:textSize="@dimen/text_size_16"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             android:gravity="center"/>

@@ -4,34 +4,12 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:background="@color/color_grey_efeff4">
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/color_grey_d8d2e2"/>
-
     <LinearLayout
         android:id="@+id/customer_contact_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <TextView
-            android:id="@+id/customer_search"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginBottom="15dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:background="@drawable/samchat_text_radius_border"
-            android:text="@string/search"
-            android:textSize="@dimen/text_size_20"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:gravity="center"/>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/grey"/>
+        android:orientation="vertical"
+        android:background="@color/color_white_ffffffff">
         <RelativeLayout
             android:id="@+id/customer_main"
             android:layout_width="match_parent"
@@ -69,25 +47,8 @@
         android:id="@+id/sp_contact_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <TextView
-            android:id="@+id/sp_search"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginBottom="15dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
-            android:background="@drawable/samchat_text_radius_border"
-            android:text="@string/search"
-            android:textSize="@dimen/text_size_20"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:gravity="center"/>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/grey"/>
+        android:orientation="vertical"
+        android:background="@color/color_white_ffffffff">
         <RelativeLayout
             android:id="@+id/sp_main"
             android:layout_width="match_parent"

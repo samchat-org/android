@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.android.samchat.R;
 import com.android.samservice.info.SendQuestion;
+
+import android.text.TextUtils;
 import android.widget.BaseAdapter;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -152,6 +154,7 @@ public class ReceivedQuestionAdapter extends BaseAdapter{
 			}else{
 				convertView = mInflater.inflate(R.layout.samchat_received_question_list_item,parent,false);
 				holder.request = (TextView) convertView.findViewById(R.id.request);
+				holder.username = (TextView) convertView.findViewById(R.id.username);
 				holder.date = (TextView) convertView.findViewById(R.id.date);
 				holder.location = (TextView) convertView.findViewById(R.id.location);
 				holder.avatar = (HeadImageView) convertView.findViewById(R.id.avatar);
@@ -167,8 +170,13 @@ public class ReceivedQuestionAdapter extends BaseAdapter{
 			holder.request.setText(items.get(index).getquestion());
 			long showtime = items.get(index).getdatetime();
 			holder.date.setText(TimeUtil.getTimeShowString(showtime,false));
-			holder.location.setText(items.get(index).getaddress()==null?"":items.get(index).getaddress());
+			if(!TextUtils.isEmpty(items.get(index).getaddress())){
+				holder.location.setText(items.get(index).getaddress());
+			}else{
+				holder.location.setText("");
+			}
 			holder.avatar.loadBuddyAvatar(""+items.get(index).getsender_unique_id(),30);
+			holder.username.setText(items.get(index).getsender_username());
 			break;
 		case TYPE_LABEL_NEW:
 			holder.label.setText(mContext.getString(R.string.rq_new));
@@ -199,6 +207,7 @@ public class ReceivedQuestionAdapter extends BaseAdapter{
 		//received question view
 		public HeadImageView avatar;
 		public TextView request;
+		public TextView username;
 		public TextView date;
 		public TextView location;
 		//label view

@@ -159,6 +159,7 @@ public class SamchatAdvertisementInputPanel implements IEmoticonSelectedListener
     private void initViews() {
         // input bar
         messageActivityBottomLayout = (LinearLayout) view.findViewById(R.id.messageActivityBottomLayout);
+        messageActivityBottomLayout.setVisibility(View.GONE);
         messageInputBar = view.findViewById(R.id.textMessageLayout);
         switchToTextButtonInInputBar = view.findViewById(R.id.buttonTextMessage);
         switchToAudioButtonInInputBar = view.findViewById(R.id.buttonAudioMessage);
@@ -325,6 +326,15 @@ public class SamchatAdvertisementInputPanel implements IEmoticonSelectedListener
     // 发送文本消息
     private void onTextMessageSendButtonPressed() {
         String text = messageEditText.getText().toString();
+        IMMessage textMessage = createTextMessage(text);
+
+        if (container.proxy.sendMessage(textMessage)) {
+            restoreText(true);
+        }
+    }
+
+	public void onTextMessageSendButtonPressed(String adv_text) {
+        String text = adv_text;
         IMMessage textMessage = createTextMessage(text);
 
         if (container.proxy.sendMessage(textMessage)) {
