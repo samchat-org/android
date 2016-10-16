@@ -47,19 +47,24 @@
             android:textSize="20sp"
             android:textColor="@color/black"/>
     </RelativeLayout>
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/samchat_profile_wall">
+        android:orientation="vertical">
+        <ImageView
+            android:id="@+id/wall"
+            android:layout_width="match_parent"
+            android:layout_height="130dp"
+            android:scaleType="fitXY"
+            android:contentDescription="@null"/>
         <com.netease.nim.uikit.common.ui.imageview.HeadImageView
             android:id="@+id/avatar"
             android:layout_width="90dp"
             android:layout_height="90dp"
-            android:layout_gravity="center_horizontal"
+            android:layout_centerInParent="true"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"/>
-    </LinearLayout>
+    </RelativeLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -133,6 +138,37 @@
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 android:text="@string/samchat_chat"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:src="@drawable/samchat_right_arrow_grey"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/qr_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="@dimen/body_left_margin"
+            android:layout_marginStart="@dimen/body_left_margin"
+            android:layout_marginRight="@dimen/body_right_margin"
+            android:layout_marginEnd="@dimen/body_right_margin"
+            android:orientation="horizontal">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@null"
+                android:src="@drawable/samchat_profile_qr_code_icon"/>
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_gravity="center_vertical"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:text="@string/samchat_qr_code"/>
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

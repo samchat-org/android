@@ -87,6 +87,46 @@ public class HeadImageView extends CircleImageView {
         doLoadImage(needLoad, account, userInfo != null ? userInfo.getAvatar() : null, thumbSize);
     }
 
+	public interface OnImageLoadedListener {
+		public void OnImageLoadedListener(Bitmap bitmap);
+	}
+
+	public void loadBuddyAvatar(final String account, final int thumbSize, final OnImageLoadedListener callback) {
+        // 先显示默认头像
+        setImageResource(NimUIKit.getUserInfoProvider().getDefaultIconResId());
+
+        // 判断是否需要ImageLoader加载
+        final UserInfoProvider.UserInfo userInfo = NimUIKit.getUserInfoProvider().getUserInfo(account);
+        boolean needLoad = userInfo != null && ImageLoaderKit.isImageUriValid(userInfo.getAvatar());
+
+        doLoadImage(needLoad, account, userInfo != null ? userInfo.getAvatar() : null, thumbSize,callback);
+    }
+
+	private void doLoadImage(final boolean needLoad, final String tag, final String url, final int thumbSize,final OnImageLoadedListener callback) {
+        if (needLoad) {
+            setTag(tag); // 解决ViewHolder复用问题
+            /**
+             * 若使用网易云信云存储，这里可以设置下载图片的压缩尺寸，生成下载URL
+             * 如果图片来源是非网易云信云存储，请不要使用NosThumbImageUtil
+             */
+            final String thumbUrl = makeAvatarThumbNosUrl(url, thumbSize);
+
+            // 异步从cache or NOS加载图片
+            ImageLoader.getInstance().displayImage(thumbUrl, new NonViewAware(new ImageSize(thumbSize, thumbSize),
+                    ViewScaleType.CROP), options, new SimpleImageLoadingListener() {
+                @Override
+                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                    if (getTag() != null && getTag().equals(tag)) {
+                        setImageBitmap(loadedImage);
+                        callback.OnImageLoadedListener(loadedImage);
+                    }
+                }
+            });
+        } else {
+            setTag(null);
+        }
+    }
+
     public void loadTeamIcon(String tid) {
         Bitmap bitmap = NimUIKit.getUserInfoProvider().getTeamIcon(tid);
         setImageBitmap(bitmap);

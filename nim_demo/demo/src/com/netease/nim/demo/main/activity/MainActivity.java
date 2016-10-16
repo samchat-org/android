@@ -645,7 +645,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 		sendbroadcast(intent);
 	}
 
-	private void switchMode(){
+	public void switchMode(){
 		LogUtil.e(TAG,"start switch samchat Mode");
 		startSwitchProgress();
 		sendSwitchModeBroadcast();

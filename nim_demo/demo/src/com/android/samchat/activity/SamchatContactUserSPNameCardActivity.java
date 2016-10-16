@@ -3,6 +3,7 @@ package com.android.samchat.activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 
 import com.android.samchat.cache.FollowDataCache;
 import com.android.samchat.R;
+import com.android.samchat.common.FastBlurUtils;
 import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
@@ -40,11 +42,13 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 	private TextView service_category_tv;
 	private TextView service_description_tv;
 	private LinearLayout chat_layout;
+	private LinearLayout qr_layout;
 	private LinearLayout follow_layout;
 	private ImageView follow_button_iv;
 	private TextView work_phone_tv;
 	private TextView email_tv;
 	private TextView location_tv;
+	private ImageView wall_iv;
 
 	private ContactUser sp;
 
@@ -128,18 +132,25 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		service_category_tv = findView(R.id.service_category);
 		service_description_tv = findView(R.id.service_description);
 		chat_layout = findView(R.id.chat_layout);
+		qr_layout = findView(R.id.qr_layout);
 		follow_layout = findView(R.id.follow_layout);
 		follow_button_iv = findView(R.id.follow_button);
 		work_phone_tv = findView(R.id.work_phone);
 		email_tv = findView(R.id.email);
 		location_tv = findView(R.id.location);
+		wall_iv = findView(R.id.wall);
 
 		setupBackArrowClick();
 		setupChatClick();
 		setupFollowClick();
 		updateFollow();
 		
-		avatar_headimageview.loadBuddyAvatar(sp.getAccount(), 90);
+		avatar_headimageview.loadBuddyAvatar(sp.getAccount(), 90, new HeadImageView.OnImageLoadedListener(){
+			@Override
+			public void OnImageLoadedListener(Bitmap bitmap){
+				FastBlurUtils.blur(bitmap, wall_iv);
+			}
+		});
 		titlebar_name_textview.setText(sp.getusername());
 		company_name_tv.setText(sp.getcompany_name());
 		service_category_tv.setText(sp.getservice_category());
@@ -157,6 +168,9 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		if(!TextUtils.isEmpty(sp.getaddress_sp())){
 			location_tv.setText(sp.getaddress_sp());
 		}
+
+		
+		
 
 	}
 
@@ -204,6 +218,15 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 			@Override
 			public void onClick(View arg0) {
 				SessionHelper.startP2PSession(SamchatContactUserSPNameCardActivity.this, sp.getAccount());
+			}
+		});
+	}
+
+	private void setupQrcodeClick(){
+		qr_layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				SamchatQRCodeActivity.start(SamchatContactUserSPNameCardActivity.this, Constants.FROM_SP_ACTIVITY_LAUNCH);
 			}
 		});
 	}

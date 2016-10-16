@@ -69,7 +69,11 @@ public class PhoneContactsAdapter extends BaseAdapter{
 		switch(viewType){
 		case TYPE_PHONECONTACT:
 			holder.name.setText(items.get(position).getname());
-			holder.avatar.setImageBitmap(items.get(position).getavatar());
+			if(items.get(position).getavatar() == null){
+				holder.avatar.setImageResource(R.drawable.avatar_def);
+			}else{
+				holder.avatar.setImageBitmap(items.get(position).getavatar());
+			}
 			break;
 		}
 		

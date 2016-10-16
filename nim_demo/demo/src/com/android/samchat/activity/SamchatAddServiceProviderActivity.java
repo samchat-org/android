@@ -227,7 +227,7 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 							InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(resolver, uri);
 							contactPhoto = BitmapFactory.decodeStream(input);
 						}else {  
-							contactPhoto = BitmapFactory.decodeResource(getResources(), R.drawable.avatar_def);  
+							contactPhoto = null;//BitmapFactory.decodeResource(getResources(), R.drawable.avatar_def);  
 						}  
 						loadedContacts.add(new PhoneContact(contactName, phoneNumber, contactPhoto));
 					}  

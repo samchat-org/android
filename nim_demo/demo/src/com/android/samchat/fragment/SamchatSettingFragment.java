@@ -1,5 +1,6 @@
 package com.android.samchat.fragment;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,10 +8,13 @@ import android.view.ViewGroup;
 
 import com.android.samchat.activity.SamchatProfileCustomerActivity;
 import com.android.samchat.activity.SamchatProfileServiceProviderActivity;
+import com.android.samchat.common.FastBlurUtils;
 import com.android.samservice.callback.SMCallBack;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import com.android.samchat.R;
+
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import com.android.samservice.SamService;
 import com.android.samchat.SamchatGlobal;
@@ -27,6 +31,7 @@ import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import android.widget.RelativeLayout;
 import com.netease.nim.demo.config.preference.Preferences;
 import android.view.View.OnClickListener;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.samchat.activity.SamchatCreateSPStepOneActivity;
@@ -38,23 +43,32 @@ import com.android.samchat.activity.SamchatQRCodeActivity;
  * Main Fragment in SamchatSettingListFragment
  */
 public class SamchatSettingFragment extends TFragment {
+	private RelativeLayout avatar_layout;
+	private HeadImageView avatar_hiv;
+	private ImageView wall_iv;
+
 	private LinearLayout customer_setting_layout;
-	private HeadImageView customer_avatar;
-	private RelativeLayout customer_profile_layout;
-	private RelativeLayout customer_qr_layout;
-	private RelativeLayout customer_create_sp_layout;
-	private RelativeLayout update_password_layout;
+	private LinearLayout customer_my_profile_layout;
+	private LinearLayout customer_my_qrcode_layout;
+	private LinearLayout customer_change_password_layout;
+	private LinearLayout customer_notificaition_layout;
+	private LinearLayout customer_logout_layout;
+	private LinearLayout customer_clear_cache_layout;
+	private LinearLayout customer_create_sp_layout;
+	private LinearLayout customer_about_layout;
+	private LinearLayout customer_faq_layout;
+	private TextView learn_more_tv;
+	private ImageView create_sp_img_iv;
+	private TextView create_sp_text_tv;
 
 	private LinearLayout sp_setting_layout;
-	private HeadImageView sp_avatar;
-	private RelativeLayout sp_profile_layout;
-	private RelativeLayout sp_qr_layout;
-
-	private RelativeLayout signout_layout;
+	private LinearLayout sp_my_profile_layout;
+	private LinearLayout sp_my_qrcode_layout;
+	private LinearLayout sp_switch_layout;
+	
 	private boolean isSignout = false;
 	private boolean signouting = false;
 
-	private RelativeLayout clear_cache_layout;
 	private boolean clearing = false;
 	
 	//observer and broadcast
@@ -90,16 +104,18 @@ public class SamchatSettingFragment extends TFragment {
 					}
 					((MainActivity)getActivity()).dimissSwitchProgress();
 				}else if(intent.getAction().equals(Constants.BROADCAST_MYSELF_AVATAR_UPDATE)){
-					customer_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
-					sp_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
+					avatar_hiv.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90, new HeadImageView.OnImageLoadedListener(){
+						@Override
+						public void OnImageLoadedListener(Bitmap bitmap){
+							FastBlurUtils.blur(bitmap, wall_iv);
+						}
+					});
 				}
 			}
 		};
 		
 		broadcastManager.registerReceiver(broadcastReceiver, filter);
 	}
-		
-
 	
 	private void unregisterBroadcastReceiver(){
 	    broadcastManager.unregisterReceiver(broadcastReceiver);
@@ -125,8 +141,12 @@ public class SamchatSettingFragment extends TFragment {
 		super.onActivityCreated(savedInstanceState);
 		setupSettingPanel();
 
-		customer_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
-		sp_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
+		avatar_hiv.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90, new HeadImageView.OnImageLoadedListener(){
+			@Override
+			public void OnImageLoadedListener(Bitmap bitmap){
+				FastBlurUtils.blur(bitmap, wall_iv);
+			}
+		});
 
 		registerBroadcastReceiver();
 	}
@@ -140,40 +160,50 @@ public class SamchatSettingFragment extends TFragment {
 	public void onResume(){
 		super.onResume();
 		if(!isSignout && SamService.getInstance().get_current_user()!=null){
-			updateCreateSPLayout();
-			customer_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
-			sp_avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
+			updateCustomerCreateSpLayout();
 		}
 	}
 
-	private void updateCreateSPLayout(){
+	private void updateCustomerCreateSpLayout(){
 		if(SamService.getInstance().get_current_user() == null){
 			return;
 		}
 		
-		if(SamService.getInstance().get_current_user().getusertype() == Constants.USER
-			&& SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
-			customer_create_sp_layout.setVisibility(View.VISIBLE);
-		}else{
-			customer_create_sp_layout.setVisibility(View.GONE);
+		if(SamService.getInstance().get_current_user().getusertype() == Constants.USER){
+			create_sp_img_iv.setImageResource(R.drawable.samchat_setting_list_my_service);
+			create_sp_text_tv.setText(R.string.samchat_create_sp);
+			learn_more_tv.setVisibility(View.VISIBLE);
+		}else if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+			create_sp_img_iv.setImageResource(R.drawable.samchat_setting_switch_icon);
+			create_sp_text_tv.setText(R.string.samchat_switch_to_service_account);
+			learn_more_tv.setVisibility(View.GONE);
 		}
 	}
 
 	private void findViews() {
-		customer_setting_layout = findView(R.id.customer_setting_layout);
-		customer_avatar = findView(R.id.customer_avatar);
-		customer_profile_layout = findView(R.id.customer_profile_layout);
-		customer_qr_layout = findView(R.id.customer_qr_layout);
-		customer_create_sp_layout = findView(R.id.customer_create_sp_layout);
-		update_password_layout = findView(R.id.update_password_layout);
+		avatar_layout = findView(R.id.avatar_layout);
+		avatar_hiv = findView(R.id.avatar);
+		wall_iv = findView(R.id.wall);
 
-		sp_setting_layout= findView(R.id.sp_setting_layout);
-		sp_avatar= findView(R.id.sp_avatar);
-		sp_profile_layout= findView(R.id.sp_profile_layout);
-		sp_qr_layout= findView(R.id.sp_qr_layout);
+		customer_setting_layout= findView(R.id.customer_setting_layout);
+		customer_my_profile_layout= findView(R.id.customer_my_profile_layout);
+		customer_my_qrcode_layout= findView(R.id.customer_my_qrcode_layout);
+		customer_change_password_layout= findView(R.id.customer_change_password_layout);
+		customer_notificaition_layout= findView(R.id.customer_notificaition_layout);
+		customer_logout_layout= findView(R.id.customer_logout_layout);
+		customer_clear_cache_layout= findView(R.id.customer_clear_cache_layout);
+		customer_create_sp_layout= findView(R.id.customer_create_sp_layout);
+		customer_about_layout= findView(R.id.customer_about_layout);
+		customer_faq_layout= findView(R.id.customer_faq_layout);
 
-		signout_layout = findView(R.id.signout_layout);
-		clear_cache_layout = findView(R.id.clear_cache_layout);
+		sp_setting_layout = findView(R.id.sp_setting_layout);
+		sp_my_profile_layout= findView(R.id.sp_my_profile_layout);
+		sp_my_qrcode_layout= findView(R.id.sp_my_qrcode_layout);
+		sp_switch_layout= findView(R.id.sp_switch_layout);
+
+		learn_more_tv = findView(R.id.learn_more);
+		create_sp_img_iv = findView(R.id.create_sp_img);
+		create_sp_text_tv = findView(R.id.create_sp_text);
 
 		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
 			switchMode(ModeEnum.CUSTOMER_MODE);
@@ -187,22 +217,24 @@ public class SamchatSettingFragment extends TFragment {
 		//customer view
 		setupCustomerProfileClick();
 		setupCustomerQRCodeClick();
+		setupCustomerChangePasswordClick();
+		setupCustomerNotificationClick();
+		setupCustomerSignoutClick();
+		setupCustomerClearCacheClick();
 		setupCustomerCreateSPClick();
-		setupUpdatePasswordClick();
+		setupCustomerLearnMoreClick();
+		setupCustomerAboutClick();
+		setupCustomerFAQClick();
+		
 		//sp view
        setupSPProfileClick();
 		setupSPQRCodeClick();
-
-		//signout
-		setupSignoutClick();
-
-		//clear data cache
-		setupClearCacheClick();
+		setupSPSwitchClick();
 	}
 
 /**********************************Profile View*******************************/
 	private void setupCustomerProfileClick(){
-		customer_profile_layout.setOnClickListener(new OnClickListener() {
+		customer_my_profile_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				SamchatProfileCustomerActivity.start(getActivity());
@@ -212,12 +244,51 @@ public class SamchatSettingFragment extends TFragment {
 
 /**********************************Setup QR Scan View*******************************/
 	private void setupCustomerQRCodeClick(){
-		customer_qr_layout.setOnClickListener(new OnClickListener() {
+		customer_my_qrcode_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				//ScanCaptureAct.start(getActivity());
 				//CaptureActivity.start(getActivity());
 				SamchatQRCodeActivity.start(getActivity(),SamchatGlobal.getmode().ordinal());
+			}
+		});
+	}
+/**********************************Setup Change paasword View*******************************/
+	private void setupCustomerChangePasswordClick(){
+		customer_change_password_layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				SamchatUpdatePasswordActivity.start(getActivity());
+			}
+		});
+	}
+/**********************************Setup Notification View*******************************/
+	private void setupCustomerNotificationClick(){
+		customer_notificaition_layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+			
+			}
+		});
+	}
+
+/**********************************Signout*******************************/
+	private void setupCustomerSignoutClick(){
+		customer_logout_layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				isSignout = true;
+				samchatLogout();
+			}
+		});
+	}
+
+/**********************************Signout*******************************/
+	private void setupCustomerClearCacheClick(){
+		customer_clear_cache_layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				clearCache();
 			}
 		});
 	}
@@ -227,24 +298,50 @@ public class SamchatSettingFragment extends TFragment {
 		customer_create_sp_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				SamchatCreateSPStepOneActivity.start(getActivity());
+				if(SamService.getInstance().get_current_user().getusertype() == Constants.USER){
+					SamchatCreateSPStepOneActivity.start(getActivity());
+				}else{
+					((MainActivity)getActivity()).switchMode();
+				}
 			}
 		});
 	}
 
-/**********************************Reset Password  View*******************************/
-	private void setupUpdatePasswordClick(){
-		update_password_layout.setOnClickListener(new OnClickListener() {
+/**********************************Setup learn more*******************************/
+	private void setupCustomerLearnMoreClick(){
+		learn_more_tv.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				SamchatUpdatePasswordActivity.start(getActivity());
+				
 			}
 		});
 	}
+
+/**********************************Setup About*******************************/
+	private void setupCustomerAboutClick(){
+		customer_about_layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				
+			}
+		});
+	}
+
+/**********************************Setup About*******************************/
+	private void setupCustomerFAQClick(){
+		customer_faq_layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				
+			}
+		});
+	}
+
+
 
 /**********************************Setup QR Scan View*******************************/
 	private void setupSPQRCodeClick(){
-		sp_qr_layout.setOnClickListener(new OnClickListener() {
+		sp_my_qrcode_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				//ScanCaptureAct.start(getActivity());
@@ -255,7 +352,7 @@ public class SamchatSettingFragment extends TFragment {
 	}
 /**********************************Profile View*******************************/
 	private void setupSPProfileClick(){
-		sp_profile_layout.setOnClickListener(new OnClickListener() {
+		sp_my_profile_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				SamchatProfileServiceProviderActivity.start(getActivity());
@@ -263,26 +360,17 @@ public class SamchatSettingFragment extends TFragment {
 		});
 	}
 
-/**********************************Signout*******************************/
-	private void setupSignoutClick(){
-		signout_layout.setOnClickListener(new OnClickListener() {
+/**********************************Profile View*******************************/
+	private void setupSPSwitchClick(){
+		sp_switch_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				isSignout = true;
-				samchatLogout();
+				((MainActivity)getActivity()).switchMode();
 			}
 		});
 	}
 
-/**********************************Signout*******************************/
-	private void setupClearCacheClick(){
-		clear_cache_layout.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				clearCache();
-			}
-		});
-	}
+
 
 
 

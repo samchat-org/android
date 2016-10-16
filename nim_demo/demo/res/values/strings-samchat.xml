@@ -10,12 +10,12 @@
     <string name="customer_public">Public</string>
     <string name="customer_chat">Chat</string>
     <string name="customer_service_provider">Services Providers</string>
-    <string name="customer_setting">Settings</string>
+    <string name="customer_setting">My Account</string>
     <string name="sp_service_request">Service Requests</string>
     <string name="sp_public">My Public Updates</string>
     <string name="sp_chat">Chat</string>
     <string name="sp_client">My Clients</string>
-    <string name="sp_setting">Service Settings</string>
+    <string name="sp_setting">My Service Account</string>
 
     <string name="make_new_request">MAKE A REQUEST</string>
     <string name="active_requests">Active requests</string>
@@ -35,10 +35,10 @@
     <string name="samchat_notification">Notifications</string>
     <string name="samchat_option">Options</string>
     <string name="samchat_aboutSamchat">About Samchat</string>
-    <string name="samchat_faq">FAQ</string>
+    <string name="samchat_faq">F.A.Q.</string>
 
     <string name="samchat_service_account">Service Account</string>
-    <string name="samchat_service_profile">Service Profile</string>
+    <string name="samchat_service_profile">Service profile</string>
     <string name="samchat_service_qr">Service QR code</string>
     <string name="samchat_service_preference">Service Preferences</string>
     <string name="samchat_service_notification">Notifications</string>
@@ -123,7 +123,7 @@
     <string name="samchat_loginging">Logining\u2026</string>
     <string name="samchat_connecting">Connecting\u2026</string>
 
-    <string name="samchat_create_sp">Account</string>
+    <string name="samchat_create_sp">List my service</string>
     <string name="samchat_next2">Next</string>
     <string name="samchat_bussiness_name">Your business name(optional)</string>
     <string name="samchat_service_category">Service category</string>
@@ -219,7 +219,7 @@
     <string name="samchat_file_transfer_state_downloaded">download</string>
     <string name="samchat_file_transfer_state_undownloaded">undownload</string>
 
-    <string name="samchat_clear_cache">Clear Cache</string>
+    <string name="samchat_clear_cache">Clear cache</string>
     <string name="samchat_clear_cache_finish">clear cache finish</string>
 
     <string name="samchat_enter_phonenumber_to_start">Enter phone number to start</string>
@@ -261,4 +261,11 @@
     <string name="samchat_hint_adv_text">Tell us about new updates, deals or promotions with your service or business(only support text or image now)</string>
     <string name="samchat_album">Album</string>
     <string name="samchat_update">Update</string>
+    <string name="samchat_qr_code">QR code</string>
+    <string name="samchat_change_profile_photo">Change Profile Photo</string>
+    <string name="samchat_change_password">Change password</string>
+    <string name="samchat_logout">Log out</string>
+    <string name="samchat_learn_more">Learn more</string>
+    <string name="samchat_switch_to_personal_account">Switch to Personal account</string>
+    <string name="samchat_switch_to_service_account">Switch to Service account</string>
 </resources>
