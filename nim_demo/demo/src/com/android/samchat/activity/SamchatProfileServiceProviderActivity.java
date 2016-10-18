@@ -8,10 +8,12 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,6 +21,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.android.samchat.common.FastBlurUtils;
 import com.android.samservice.utils.S3Util;
 import com.android.samchat.R;
 import com.netease.nim.uikit.NimConstants;
@@ -57,6 +60,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 
 	private FrameLayout back_arrow_layout;
 	private HeadImageView avatar_headimageview;
+	private ImageView wall_iv;
 	private TextView company_name_textview;
 	private TextView service_category_textview;
 	private TextView service_description_textview;
@@ -209,13 +213,25 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 
 
 	private void update(boolean afterCrop){
-		if(afterCrop){
+		/*if(afterCrop){
 			//avatar_headimageview.setImageURI(cropImageUri);
 			avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90);
 		}else{
 			avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90);
+		}*/
+		avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90, new HeadImageView.OnImageLoadedListener(){
+			@Override
+			public void OnImageLoadedListener(Bitmap bitmap){
+				FastBlurUtils.blur(bitmap, wall_iv);
+			}
+		});
+
+		if(!TextUtils.isEmpty(SamService.getInstance().get_current_user().getcountrycode_sp())){
+			countrycode_textview.setVisibility(View.VISIBLE);
+			countrycode_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode_sp());
+		}else{
+			countrycode_textview.setVisibility(View.GONE);
 		}
-		countrycode_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode_sp());
 		phonenumber_textview.setText(SamService.getInstance().get_current_user().getphone_sp());
 		company_name_textview.setText(SamService.getInstance().get_current_user().getcompany_name());
 		service_category_textview.setText(SamService.getInstance().get_current_user().getservice_category());
@@ -225,7 +241,13 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 	}
 
 	private void updateWithoutAvatar(){
-		countrycode_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode_sp());
+		if(!TextUtils.isEmpty(SamService.getInstance().get_current_user().getcountrycode_sp())){
+			countrycode_textview.setVisibility(View.VISIBLE);
+			countrycode_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode_sp());
+		}else{
+			countrycode_textview.setVisibility(View.GONE);
+		}
+		
 		phonenumber_textview.setText(SamService.getInstance().get_current_user().getphone_sp());
 		company_name_textview.setText(SamService.getInstance().get_current_user().getcompany_name());
 		service_category_textview.setText(SamService.getInstance().get_current_user().getservice_category());
@@ -237,6 +259,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 	private void setupPanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
 		avatar_headimageview= findView(R.id.avatar);
+		wall_iv = findView(R.id.wall);
 		countrycode_textview = findView(R.id.countrycode);
 		phonenumber_textview= findView(R.id.phonenumber);
 		company_name_textview = findView(R.id.company_name);
@@ -338,7 +361,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		avatar_headimageview.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				launchAvatarActivity();
+				//launchAvatarActivity();
 			}
 		});
 	}

@@ -47,6 +47,17 @@
                     android:background="@drawable/nim_g_unread_badge"
                     android:textSize="12sp"
                     android:visibility="gone"/>
+                <ImageView
+                    android:id="@+id/switch_reminder_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_gravity="end"
+                    android:contentDescription="@null"
+                    android:gravity="center"
+                    android:textColor="#FFFFFF"
+                    android:background="@drawable/nim_icon_reddot"/>
             </FrameLayout>
 
             <TextView

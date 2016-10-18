@@ -221,13 +221,13 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 						Long contactid = phoneCursor.getLong(PHONES_CONTACT_ID_INDEX);  
 						Long photoid = phoneCursor.getLong(PHONES_PHOTO_ID_INDEX);  
 						Bitmap contactPhoto = null;
-						if(photoid > 0 ) {  
+						/*if(photoid > 0 ) {  
 							Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactid);
 							InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(resolver, uri);
 							contactPhoto = BitmapFactory.decodeStream(input);
 						}else {  
 							contactPhoto = BitmapFactory.decodeResource(getResources(), R.drawable.avatar_def);  
-						}  
+						}*/
 						loadedContacts.add(new PhoneContact(contactName, phoneNumber, contactPhoto));
 					}  
 					phoneCursor.close();  

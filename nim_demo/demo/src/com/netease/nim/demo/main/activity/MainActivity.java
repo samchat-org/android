@@ -114,6 +114,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
     private ImageView switch_icon;
     private FrameLayout switch_layout;
     private TextView switch_reminder;
+    private ImageView switch_reminder_icon;
     private TextView titlebar_name;
     private ImageView titlebar_right_icon;
     private TextView titlebar_right_text;
@@ -587,18 +588,20 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 			ReminderManager.getInstance().updateReceivedAdvertisementUnreadNum(advertisement_unread_count_customer);
 			ReminderManager.getInstance().updateSessionUnreadNum(chat_unread_count_customer);
 			int sp_total_reminder = request_unread_count_sp + chat_unread_count_sp;
-			switch_reminder.setVisibility(sp_total_reminder > 0 ? View.VISIBLE : View.GONE);
+			//switch_reminder.setVisibility(sp_total_reminder > 0 ? View.VISIBLE : View.GONE);
+			switch_reminder_icon.setVisibility(sp_total_reminder > 0 ? View.VISIBLE : View.GONE);
 			if (sp_total_reminder > 0) {
-				switch_reminder.setText(String.valueOf(ReminderSettings.unreadMessageShowRule(sp_total_reminder)));
+				//switch_reminder.setText(String.valueOf(ReminderSettings.unreadMessageShowRule(sp_total_reminder)));
 			}
 		}else{
 			ReminderManager.getInstance().updateRequestUnreadNum(request_unread_count_sp);
 			ReminderManager.getInstance().updateReceivedAdvertisementUnreadNum(0);
 			ReminderManager.getInstance().updateSessionUnreadNum(chat_unread_count_sp);
 			int customer_total_reminder = request_unread_count_customer + advertisement_unread_count_customer+chat_unread_count_customer;
-			switch_reminder.setVisibility(customer_total_reminder > 0 ? View.VISIBLE : View.GONE);
+			//switch_reminder.setVisibility(customer_total_reminder > 0 ? View.VISIBLE : View.GONE);
+			switch_reminder_icon.setVisibility(customer_total_reminder > 0 ? View.VISIBLE : View.GONE);
 			if (customer_total_reminder > 0) {
-				switch_reminder.setText(String.valueOf(ReminderSettings.unreadMessageShowRule(customer_total_reminder)));
+				//switch_reminder.setText(String.valueOf(ReminderSettings.unreadMessageShowRule(customer_total_reminder)));
 			}
 		}
 	}
@@ -606,9 +609,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	private void updateSpUnreadTotalCount(){
 		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
 			int sp_total_reminder = request_unread_count_sp + chat_unread_count_sp;
-			switch_reminder.setVisibility(sp_total_reminder > 0 ? View.VISIBLE : View.GONE);
+			switch_reminder_icon.setVisibility(sp_total_reminder > 0 ? View.VISIBLE : View.GONE);
+			//switch_reminder.setVisibility(sp_total_reminder > 0 ? View.VISIBLE : View.GONE);
 			if (sp_total_reminder > 0) {
-				switch_reminder.setText(String.valueOf(ReminderSettings.unreadMessageShowRule(sp_total_reminder)));
+				//switch_reminder.setText(String.valueOf(ReminderSettings.unreadMessageShowRule(sp_total_reminder)));
 			}
 		}
 	}
@@ -617,9 +621,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	private void updateCustomerUnreadTotalCount(){
 		if(SamchatGlobal.getmode() == ModeEnum.SP_MODE){
 			int customer_total_reminder = request_unread_count_customer + advertisement_unread_count_customer+chat_unread_count_customer;
-			switch_reminder.setVisibility(customer_total_reminder > 0 ? View.VISIBLE : View.GONE);
+			//switch_reminder.setVisibility(customer_total_reminder > 0 ? View.VISIBLE : View.GONE);
+			switch_reminder_icon.setVisibility(customer_total_reminder > 0 ? View.VISIBLE : View.GONE);
 			if (customer_total_reminder > 0) {
-				switch_reminder.setText(String.valueOf(ReminderSettings.unreadMessageShowRule(customer_total_reminder)));
+				//switch_reminder.setText(String.valueOf(ReminderSettings.unreadMessageShowRule(customer_total_reminder)));
 			}
 		}
 	}
@@ -656,6 +661,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 		switch_icon = (ImageView) findViewById(R.id.switch_icon);
 		switch_layout = (FrameLayout) findViewById(R.id.switch_layout);
 		switch_reminder = (TextView) findViewById(R.id.switch_reminder);
+		switch_reminder_icon = (ImageView) findViewById(R.id.switch_reminder_icon);
 		titlebar_name = (TextView) findViewById(R.id.titlebar_name);
 		titlebar_right_icon = (ImageView) findViewById(R.id.titlebar_right_icon);
 		titlebar_right_text = (TextView) findViewById(R.id.titlebar_right_text);

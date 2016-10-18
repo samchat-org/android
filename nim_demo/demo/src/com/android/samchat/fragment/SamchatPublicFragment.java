@@ -551,6 +551,8 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 		// Simply updates the UI list when notified.
 		@Override
 		public void onError(int id, Exception e) {
+			LogUtil.i(TAG,"onStateChanged error");
+			e.printStackTrace();
 			releaseTransferObserver(im.getUuid(),false);
 			im.setStatus(MsgStatusEnum.fail);
 			SendIMMessageCache.getInstance().remove(im.getUuid());

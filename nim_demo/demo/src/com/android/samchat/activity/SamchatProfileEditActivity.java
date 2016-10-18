@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Selection;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -47,7 +48,7 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 	private TextView save_textview;
 	private ClearableEditTextWithIcon edit_edittext;
 	private TextView countrycode_textview;
-	private View split_view;
+	private TextView titlebar_name_tv;
 
 	private String data;
 	private String new_data;
@@ -97,7 +98,7 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 
 		parseIntent();
 		setupPanel();
-
+		updateTitleName();
 	}
 
 	@Override
@@ -126,9 +127,45 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 			data = getIntent().getStringExtra("data");
 		}
     }
+	
+	private void updateTitleName(){
+		switch(type){
+			case EDIT_PROFILE_TYPE_CUSTOMER_EMAIL:
+				titlebar_name_tv.setText(R.string.samchat_edit_email);
+				break;
+			case EDIT_PROFILE_TYPE_CUSTOMER_ADDRESS:
+				titlebar_name_tv.setText(R.string.samchat_edit_address);
+				break;
+			case EDIT_PROFILE_TYPE_SP_EMAIL:
+				titlebar_name_tv.setText(R.string.samchat_edit_email);
+				break;
+			case EDIT_PROFILE_TYPE_SP_ADDRESS:
+				titlebar_name_tv.setText(R.string.samchat_edit_address);
+				break;
+			case EDIT_PROFILE_TYPE_SP_COMPANY_NAME:
+				titlebar_name_tv.setText(R.string.samchat_edit_company);
+				break;
+			case EDIT_PROFILE_TYPE_SP_SERVICE_CATEGORY:
+				titlebar_name_tv.setText(R.string.samchat_edit_category);
+				break;
+			case EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION:
+				titlebar_name_tv.setText(R.string.samchat_edit_description);
+				break;
+			case EDIT_PROFILE_TYPE_CUSTOMER_PHONE:
+				titlebar_name_tv.setText(R.string.samchat_edit_phone_number);
+				break;
+			case EDIT_PROFILE_TYPE_SP_PHONE:
+				titlebar_name_tv.setText(R.string.samchat_edit_phone_number);
+				break;
+		}
+	}
 
 	private void updateCountryCode(String c){
-		countrycode_textview.setText("+"+c);
+		if(TextUtils.isEmpty(c)){
+			countrycode_textview.setText("+");
+		}else{
+			countrycode_textview.setText("+"+c);
+		}
 	}
 
 	private void setupPanel() {
@@ -136,27 +173,49 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 		save_textview= findView(R.id.save);
 		edit_edittext= findView(R.id.edit);
 		countrycode_textview = findView(R.id.countrycode);
-		split_view = findView(R.id.split);
+		titlebar_name_tv = findView(R.id.titlebar_name);
 
 		if(type == EDIT_PROFILE_TYPE_CUSTOMER_PHONE || type == EDIT_PROFILE_TYPE_SP_PHONE){
 			countrycode_textview.setVisibility(View.VISIBLE);
 			updateCountryCode(countrycode);
-			split_view.setVisibility(View.VISIBLE);
 		}else{
 			countrycode_textview.setVisibility(View.GONE);
-			split_view.setVisibility(View.GONE);
 		}
-
-		edit_edittext.setDeleteImage(R.drawable.nim_grey_delete_icon);
-		edit_edittext.setText(data);
-       Editable etext = edit_edittext.getText();
-		Selection.setSelection(etext, etext.length());
-
 
 		setupBackArrowClick();
 		setupSaveClick();
 		setupCountryCodeClick();
-		
+		edit_edittext.setDeleteImage(R.drawable.nim_grey_delete_icon);
+		edit_edittext.setText(data);
+        Editable etext = edit_edittext.getText();
+		Selection.setSelection(etext, etext.length());
+		edit_edittext.setAfterTextChangedListener(new ClearableEditTextWithIcon.afterTextChangedListener(){
+			@Override
+			public void afterTextChangedCallback(Editable s){
+				updateSaveButton(s);
+			}
+		});
+	}
+
+	private void updateSaveButton(Editable s){
+		if(type == EDIT_PROFILE_TYPE_CUSTOMER_PHONE || type == EDIT_PROFILE_TYPE_SP_PHONE){
+			if( s.length()>=Constants.MIN_MPHONE_NUMBER_LENGTH
+				&& countrycode_textview.getText().toString().trim().length()>=2){
+				save_textview.setEnabled(true);
+				save_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
+			}else{
+				save_textview.setEnabled(false);
+				save_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_disable);
+			}
+		}else{
+			if(s.length()>0){
+				save_textview.setEnabled(true);
+				save_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
+			}else{
+				save_textview.setEnabled(false);
+				save_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_disable);
+			}
+		}
 	}
 	
 	private void setupBackArrowClick(){

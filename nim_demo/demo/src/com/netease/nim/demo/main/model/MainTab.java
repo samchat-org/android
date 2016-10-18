@@ -196,7 +196,11 @@ public enum MainTab {
 					show = false;
 					break;
 				case SAMCHAT_PUBLIC:
+					show = true;
+					break;
 				case SAMCHAT_CHAT:
+					show = false;
+					break;
 				case SAMCHAT_CONTACT:
 					show = true;
 					break;
@@ -211,9 +215,9 @@ public enum MainTab {
 			switch (tab){
 				case SAMCHAT_REQUEST:
 				case SAMCHAT_PUBLIC:
+				case SAMCHAT_CHAT:
                     show = false;
                     break;
-				case SAMCHAT_CHAT:
 				case SAMCHAT_CONTACT:
 					show = true;
 					break;
@@ -248,7 +252,7 @@ public enum MainTab {
 			switch (tab){
 				case SAMCHAT_REQUEST:
 					show = false;
-                    break;
+					break;
 				case SAMCHAT_PUBLIC:
                     show = true;
                     break;

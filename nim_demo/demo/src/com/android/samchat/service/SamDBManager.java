@@ -1444,7 +1444,6 @@ public class SamDBManager{
 								saveSAimsToMsgDB(changedSession, ims_sp_mode);
 							}
 						}
-						
 					}
 			});
 		}

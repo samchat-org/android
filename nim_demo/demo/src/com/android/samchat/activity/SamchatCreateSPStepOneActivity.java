@@ -66,18 +66,15 @@ public class SamchatCreateSPStepOneActivity extends UI implements OnKeyListener 
 	private static final String TAG = SamchatCreateSPStepOneActivity.class.getSimpleName();
 
 	private FrameLayout back_arrow_layout;
-	private FrameLayout right_button_layout;
-	private TextView username_textview;
 	private EditText company_name_edittext;
 	private EditText service_category_edittext;
-	private EditText service_description_edittext;
+	private TextView next_tv;
 
 	String company_name;
 	String service_category;
-	String service_description;
 
+	boolean ready_company_name = false;
 	boolean ready_service_category = false;
-	boolean ready_service_description = false;
 
 	//observer and broadcast
 	private boolean isBroadcastRegistered = false;
@@ -146,19 +143,14 @@ public class SamchatCreateSPStepOneActivity extends UI implements OnKeyListener 
 
 	private void setupPanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
-		right_button_layout = findView(R.id.right_button_layout);
-		username_textview = findView(R.id.username);	
 		company_name_edittext = findView(R.id.company_name);
 		service_category_edittext = findView(R.id.service_category);
-		service_description_edittext = findView(R.id.service_description);
-
+		next_tv = findView(R.id.next);
+			
 		setupBackArrowClick();
 		setupNextClick();
 		setupCompanyNameEditClick();
 		setupServiceCategoryEditClick();
-		setupServiceDescriptionEditClick();
-
-		username_textview.setText(SamService.getInstance().get_current_user().getusername());
 	}
 	
 	private void setupBackArrowClick(){
@@ -171,19 +163,18 @@ public class SamchatCreateSPStepOneActivity extends UI implements OnKeyListener 
 	}
 
 	private void updateNext(){
-		boolean enable = ready_service_category & ready_service_description;
-		right_button_layout.setEnabled(enable);
+		boolean enable = ready_service_category & ready_company_name;
+		next_tv.setEnabled(enable);
 	}
 
 	private void setupNextClick(){
 		updateNext();
-		right_button_layout.setOnClickListener(new OnClickListener() {
+		next_tv.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				ContactUser sp = new ContactUser(SamService.getInstance().get_current_user());
 				sp.setcompany_name(company_name);
 				sp.setservice_category(service_category);
-				sp.setservice_description(service_description);
 				SamchatCreateSPStepTwoActivity.start(SamchatCreateSPStepOneActivity.this,sp);
 			}
 		});
@@ -203,6 +194,12 @@ public class SamchatCreateSPStepOneActivity extends UI implements OnKeyListener 
 		@Override
 		public void afterTextChanged(Editable s) {
 			company_name = company_name_edittext.getText().toString().trim();
+			if(company_name.length() > 0){
+				ready_company_name = true;
+			}else{
+				ready_company_name = false;
+			}
+			updateNext();
 		}
 	};
 
@@ -225,7 +222,7 @@ public class SamchatCreateSPStepOneActivity extends UI implements OnKeyListener 
 		public void afterTextChanged(Editable s) {
 			service_category = service_category_edittext.getText().toString().trim();
 			if(service_category.length() > 0){
-				ready_service_category = true;
+				ready_service_category= true;
 			}else{
 				ready_service_category = false;
 			}
@@ -235,33 +232,6 @@ public class SamchatCreateSPStepOneActivity extends UI implements OnKeyListener 
 
 	private void setupServiceCategoryEditClick(){
 		service_category_edittext.addTextChangedListener(service_category_textWatcher);	
-	}
-
-	private TextWatcher service_description_textWatcher = new TextWatcher() {
-		@Override
- 		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-		}
-
-		@Override
-		public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-		}
-
-		@Override
-		public void afterTextChanged(Editable s) {
-			service_description= service_description_edittext.getText().toString().trim();
-			if(service_description.length() > 0){
-				ready_service_description= true;
-			}else{
-				ready_service_description = false;
-			}
-			updateNext();
-		}
-	};
-
-	private void setupServiceDescriptionEditClick(){
-		service_description_edittext.addTextChangedListener(service_description_textWatcher);	
 	}
 
 }

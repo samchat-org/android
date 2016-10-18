@@ -29,6 +29,11 @@ public class ContactUserAdapter extends BaseAdapter{
 	private LayoutInflater mInflater;
 	private List<ContactUser> items;
 
+	private boolean isFollowVisible=true;
+	public void setFollowVisible(boolean visible){
+		isFollowVisible = visible;
+	}
+
 	public ContactUserAdapter(Context context,List<ContactUser> list){
 		mContext = context;
 		mInflater = LayoutInflater.from(mContext);
@@ -74,12 +79,17 @@ public class ContactUserAdapter extends BaseAdapter{
 			holder.username.setText(user.getusername());
 			holder.service_category.setText(user.getservice_category());
 			holder.avatar.loadBuddyAvatar(Long.toString(user.getunique_id()),40);
-			if(FollowDataCache.getInstance().getFollowSPByUniqueID(user.getunique_id())!=null){
-				holder.follow_tag.setText(mContext.getString(R.string.samchat_follow));
-				holder.follow_tag.setTextColor(mContext.getResources().getColor(R.color.color_black_1d4d73));
+			if(isFollowVisible){
+				if(FollowDataCache.getInstance().getFollowSPByUniqueID(user.getunique_id())!=null){
+					holder.follow_tag.setText(mContext.getString(R.string.samchat_follow));
+					holder.follow_tag.setTextColor(mContext.getResources().getColor(R.color.color_black_1d4d73));
+				}else{
+					holder.follow_tag.setText(mContext.getString(R.string.samchat_unfollow));
+					holder.follow_tag.setTextColor(mContext.getResources().getColor(R.color.color_grey_d8d2e2));
+				}
+				holder.follow_tag.setVisibility(View.VISIBLE);
 			}else{
-				holder.follow_tag.setText(mContext.getString(R.string.samchat_unfollow));
-				holder.follow_tag.setTextColor(mContext.getResources().getColor(R.color.color_grey_d8d2e2));
+				holder.follow_tag.setVisibility(View.GONE);
 			}
 			break;
 		}

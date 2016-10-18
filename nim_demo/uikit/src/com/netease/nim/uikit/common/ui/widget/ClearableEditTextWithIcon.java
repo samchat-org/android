@@ -112,7 +112,19 @@ public class ClearableEditTextWithIcon extends EditText implements OnTouchListen
 
 	@Override
 	public void afterTextChanged(Editable s) {
+		if(callback != null){
+			callback.afterTextChangedCallback(s);
+		}
+	}
 
+	public interface afterTextChangedListener {
+        void afterTextChangedCallback(Editable s);
+	}
+
+	private afterTextChangedListener callback=null;
+
+	public void setAfterTextChangedListener(afterTextChangedListener cb){
+		callback = cb;
 	}
 
 }

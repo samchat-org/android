@@ -25,17 +25,19 @@ import com.android.samchat.service.ErrorString;
 import android.content.BroadcastReceiver;
 import android.support.v4.content.LocalBroadcastManager;
 import android.content.IntentFilter;
+import android.widget.TextView;
+
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.android.samservice.info.ContactUser;
 public class SamchatCreateSPStepTwoActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatCreateSPStepTwoActivity.class.getSimpleName();
 
 	private FrameLayout back_arrow_layout;
-	private FrameLayout right_button_layout;
-	private HeadImageView avatar_headimageview;
 	private EditText cellphone_edittext;
 	private EditText email_edittext;
 	private EditText address_edittext;
+	private TextView skip_tv;
+	private TextView next_tv;
 
 	private ContactUser info;
 	private String cellphone=null;
@@ -46,8 +48,6 @@ public class SamchatCreateSPStepTwoActivity extends UI implements OnKeyListener 
 	private boolean isBroadcastRegistered = false;
 	private BroadcastReceiver broadcastReceiver;
 	private LocalBroadcastManager broadcastManager;
-
-	private boolean isCreating = false;
 
 	private void registerBroadcastReceiver() {
 		broadcastManager = LocalBroadcastManager.getInstance(SamchatCreateSPStepTwoActivity.this);
@@ -120,19 +120,22 @@ public class SamchatCreateSPStepTwoActivity extends UI implements OnKeyListener 
 
 	private void setupPanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
-		right_button_layout = findView(R.id.right_button_layout);
-		avatar_headimageview = findView(R.id.avatar);
+		
 		cellphone_edittext = findView(R.id.cellphone);
 		email_edittext = findView(R.id.email);
 		address_edittext = findView(R.id.address);
 
+		skip_tv = findView(R.id.skip);
+		next_tv = findView(R.id.next);
+
 		setupBackArrowClick();
-		setupNextClick();
+
 		setupCellphoneEditClick();
 		setupEmailEditClick();
 		setupAddressEditClick();
 
-		avatar_headimageview.loadBuddyAvatar(DemoCache.getAccount());
+		setupNextClick();
+       setupSkipClick();
 	}
 	
 	private void setupBackArrowClick(){
@@ -145,18 +148,32 @@ public class SamchatCreateSPStepTwoActivity extends UI implements OnKeyListener 
 	}
 
 	private void setupNextClick(){
-		right_button_layout.setOnClickListener(new OnClickListener() {
+		next_tv.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				if(isCreating){
-					return;
-				}
 				info.setphone_sp(cellphone);
 				info.setemail_sp(email);
 				info.setaddress_sp(address);
+				SamchatCreateSPStepThreeActivity.start(SamchatCreateSPStepTwoActivity.this,info);
+			}
+		});
+	}
 
-				isCreating = true;
-				createSPAccount();
+	private void setupSkipClick(){
+		skip_tv.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				cellphone = "";
+				email = "";
+				address = "";
+				info.setphone_sp(cellphone);
+				info.setemail_sp(email);
+				info.setaddress_sp(address);
+				SamchatCreateSPStepThreeActivity.start(SamchatCreateSPStepTwoActivity.this,info);
+
+				cellphone_edittext.setText("");
+				email_edittext.setText("");
+				address_edittext.setText("");
 			}
 		});
 	}
@@ -223,63 +240,6 @@ public class SamchatCreateSPStepTwoActivity extends UI implements OnKeyListener 
 	private void setupAddressEditClick(){
         address_edittext.addTextChangedListener(address_textWatcher);
 	}
-
-/************************************date flow control************************************/
-	private void sendbroadcast(Intent intent){
-		LocalBroadcastManager manager = LocalBroadcastManager.getInstance(DemoCache.getContext());
-		manager.sendBroadcast(intent);
-	}
-
-	private void createSPAccount(){
-		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_create_sp), false, null).setCanceledOnTouchOutside(false);
-		SamService.getInstance().create_sam_pros(info,new SMCallBack(){
-				@Override
-				public void onSuccess(final Object obj, final int WarningCode) {
-					getHandler().postDelayed(new Runnable() {
-						@Override
-						public void run() {
-							DialogMaker.dismissProgressDialog();
-							SamchatCreateSPStepThreeActivity.start(SamchatCreateSPStepTwoActivity.this);
-							Intent intent = new Intent();
-                		intent.setAction(Constants.BROADCAST_CREATE_SP_SUCCESS);
-                		sendbroadcast(intent);
-						}
-					}, 0);
-				}
-
-				@Override
-				public void onFailed(int code) {
-					DialogMaker.dismissProgressDialog();
-					final ErrorString error = new ErrorString(SamchatCreateSPStepTwoActivity.this,code);
-					
-					getHandler().postDelayed(new Runnable() {
-						@Override
-						public void run() {
-							EasyAlertDialogHelper.showOneButtonDiolag(SamchatCreateSPStepTwoActivity.this, null,
-                    			error.reminder, getString(R.string.samchat_ok), true, null);
-							isCreating = false;
-						}
-					}, 0);
-				}
-
-				@Override
-				public void onError(int code) {
-					DialogMaker.dismissProgressDialog();
-					final ErrorString error = new ErrorString(SamchatCreateSPStepTwoActivity.this,code);
-					getHandler().postDelayed(new Runnable() {
-						@Override
-						public void run() {
-							EasyAlertDialogHelper.showOneButtonDiolag(SamchatCreateSPStepTwoActivity.this, null,
-                    			error.reminder, getString(R.string.samchat_ok), true, null);
-							isCreating = false;
-						}
-					}, 0);
-				}
-
-		} );
-
-	}
-
 
 }
 

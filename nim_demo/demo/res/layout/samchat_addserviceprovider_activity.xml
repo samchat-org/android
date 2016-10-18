@@ -4,7 +4,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              android:background="@color/white">
+              android:background="@color/color_white_ffffffff">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -31,80 +31,97 @@
                 android:src="@drawable/samchat_arrow_left"
                 android:layout_gravity="center"/>
         </FrameLayout>
-
-        <TextView
-            android:id="@+id/titlebar_name"
-            android:layout_width="wrap_content"
-            android:layout_height="?attr/actionBarSize"
-            android:gravity="center"
-            android:text="@string/samchat_add_service_provider"
-            android:layout_centerInParent="true"
-            android:textSize="20sp"/>
-
-        <ImageView
-            android:id="@+id/scan"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/samchat_scan"
-            android:contentDescription="@null"/>
+            android:orientation="horizontal"
+            android:layout_toRightOf="@id/back_arrow_layout"
+            android:layout_toEndOf="@id/back_arrow_layout">
+            <TextView
+                android:id="@+id/titlebar_name"
+                android:layout_width="0dp"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="@string/samchat_add_service_provider"
+                android:textSize="20sp"
+                android:textColor="@color/black"/>
+            <ImageView
+                android:id="@+id/scan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/samchat_scan"
+                android:contentDescription="@null"/>
+        </LinearLayout>
+
+
+
+
     </RelativeLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="5dp"
-        android:background="@color/black"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
         android:layout_marginTop="10dp"
-        android:background="@drawable/samchat_text_radius_border">
-        <ImageView
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginEnd="20dp"
+        android:orientation="horizontal">
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/nim_actionbar_search_dark_icon"
-            android:layout_margin="10dp"/>
+            android:layout_height="40dp">
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:contentDescription="@null"
+                android:src="@drawable/nim_actionbar_search_dark_icon"/>
+        </RelativeLayout>
         <EditText
             android:id="@+id/key"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
+            android:textCursorDrawable="@null"
+            android:hint="@string/samchat_public_search_hint"
+            android:textColorHint="@color/color_grey_999999"
+            android:background="@null"
             android:maxLength="100"
             android:maxLines="1"
             android:singleLine="true"
-            android:hint="@string/samchat_public_search_hint"
-            android:background="@null"
-            android:textColor="@color/black"/>
-    </LinearLayout>
+            android:textColor="@color/black"
+            android:textSize="@dimen/text_size_16"
+            android:imeOptions="actionSearch"/>
 
+    </LinearLayout>
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginTop="10dp"
-        android:background="@color/black"/>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
-        android:textColor="@color/color_grey_999999"
-        android:textSize="18sp"
-        android:text="@string/samchat_invite_contacts"/>
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginEnd="20dp"
+        android:background="@color/color_grey_999999"/>
     <ListView
         android:id="@+id/phone_contacts"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:scrollbars="none"
-        android:dividerHeight="1px"
+        android:dividerHeight="1dp"
+        android:divider="@color/color_grey_999999"/>
+    <ListView
+        android:id="@+id/search_result"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:scrollbars="none"
+        android:dividerHeight="1dp"
         android:divider="@color/color_grey_999999"
-        />
+        android:visibility="gone"/>
 </LinearLayout>

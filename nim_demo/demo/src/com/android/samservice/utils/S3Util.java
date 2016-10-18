@@ -74,7 +74,7 @@ public class S3Util {
             config.setConnectionTimeout(50000);
             config.setMaxConnections(500);
             config.setSocketTimeout(50000);
-            config.setMaxErrorRetry(10);
+            config.setMaxErrorRetry(100);
             sS3Client = new AmazonS3Client(getCredProvider(context.getApplicationContext()),config);
             sS3Client.setEndpoint(NimConstants.S3_ENDPOINT);
         }

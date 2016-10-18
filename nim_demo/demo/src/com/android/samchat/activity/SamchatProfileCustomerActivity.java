@@ -8,10 +8,12 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,11 +21,15 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.android.samchat.common.FastBlurUtils;
 import com.android.samservice.utils.S3Util;
 import com.android.samchat.R;
 import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.common.activity.UI;
+import com.netease.nim.uikit.common.media.picker.activity.PickerAlbumActivity;
+import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
+import com.netease.nim.uikit.common.media.picker.model.PickerContract;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
@@ -46,6 +52,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 import com.android.samservice.info.ContactUser;
+import com.netease.nim.uikit.session.constant.Extras;
 
 import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 
@@ -57,6 +64,7 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 
 	private FrameLayout back_arrow_layout;
 	private HeadImageView avatar_headimageview;
+	private ImageView wall_iv;
 	private TextView countrycode_textview;
 	private TextView phonenumber_textview;
 	private TextView username_textview;
@@ -126,6 +134,17 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 					if(resultList.get(0)!=null){
 						try{
 							startCropIntent(resultList.get(0));
+						}catch(IOException e){
+							e.printStackTrace();
+							Toast.makeText(this, R.string.samchat_start_crop_window_failed, Toast.LENGTH_SHORT).show();
+							cropImageUri = null;
+						}
+					}
+				}else if(data.hasExtra(Extras.EXTRA_PHOTO_LISTS)){
+					List<PhotoInfo> photoes = PickerContract.getPhotos(data);
+					if(photoes !=null && photoes.size()>0 && photoes.get(0)!=null){
+						try{
+							startCropIntent(photoes.get(0).getAbsolutePath());
 						}catch(IOException e){
 							e.printStackTrace();
 							Toast.makeText(this, R.string.samchat_start_crop_window_failed, Toast.LENGTH_SHORT).show();
@@ -215,26 +234,40 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 
 
     private void update(boolean afterCrop){
-		if(afterCrop){
+		/*if(afterCrop){
 			//avatar_headimageview.setImageURI(cropImageUri);
 			avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90);
 		}else{
 			avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90);
+		}*/
+
+		avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90, new HeadImageView.OnImageLoadedListener(){
+			@Override
+			public void OnImageLoadedListener(Bitmap bitmap){
+				FastBlurUtils.blur(bitmap, wall_iv);
+			}
+		});
+
+		if(!TextUtils.isEmpty(SamService.getInstance().get_current_user().getcountrycode())){
+			countrycode_textview.setVisibility(View.VISIBLE);
+			countrycode_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode());
+		}else{
+			countrycode_textview.setVisibility(View.GONE);
 		}
-		String countrycode = "+" + SamService.getInstance().get_current_user().getcountrycode();
-		String phonenumber = SamService.getInstance().get_current_user().getcellphone();
-		countrycode_textview.setText(countrycode);
-		phonenumber_textview.setText(phonenumber);
+		phonenumber_textview.setText(SamService.getInstance().get_current_user().getcellphone());
 		username_textview.setText(SamService.getInstance().get_current_user().getusername());
 		email_textview.setText(SamService.getInstance().get_current_user().getemail());
 		address_textview.setText(SamService.getInstance().get_current_user().getaddress());
 	}
 
 	private void updateWithoutAvatar(){
-		String countrycode = "+" + SamService.getInstance().get_current_user().getcountrycode();
-		String phonenumber = SamService.getInstance().get_current_user().getcellphone();
-		countrycode_textview.setText(countrycode);
-		phonenumber_textview.setText(phonenumber);
+		if(!TextUtils.isEmpty(SamService.getInstance().get_current_user().getcountrycode())){
+			countrycode_textview.setVisibility(View.VISIBLE);
+			countrycode_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode());
+		}else{
+			countrycode_textview.setVisibility(View.GONE);
+		}
+		phonenumber_textview.setText(SamService.getInstance().get_current_user().getcellphone());
 		username_textview.setText(SamService.getInstance().get_current_user().getusername());
 		email_textview.setText(SamService.getInstance().get_current_user().getemail());
 		address_textview.setText(SamService.getInstance().get_current_user().getaddress());
@@ -248,6 +281,7 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		username_textview= findView(R.id.username);
 		email_textview= findView(R.id.email);
 		address_textview= findView(R.id.address);
+		wall_iv = findView(R.id.wall);
 
 		setupBackArrowClick();
 		setupAvaterClick();
@@ -292,8 +326,9 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		avatar_headimageview.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				launchAvatarActivity();
-			}
+				//launchAvatarActivity();
+                launchAvatarSelectActivity();
+        }
 		});
 	}
 
@@ -325,6 +360,15 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_MODE, MultiImageSelectorActivity.MODE_MULTI);
 		// default select images (support array list)
 		//intent.putStringArrayListExtra(MultiImageSelectorActivity.EXTRA_DEFAULT_SELECTED_LIST, defaultDataArray);
+		startActivityForResult(intent, CONFIRM_ID_AVATAR_SELECTED);
+	}
+
+	private void launchAvatarSelectActivity(){
+		Intent intent = new Intent();
+		intent.setClass(this, PickerAlbumActivity.class);
+		intent.putExtra(Extras.EXTRA_MUTI_SELECT_MODE,false);
+		intent.putExtra(Extras.EXTRA_MUTI_SELECT_SIZE_LIMIT,1);
+		intent.putExtra(Extras.EXTRA_SUPPORT_ORIGINAL, false);
 		startActivityForResult(intent, CONFIRM_ID_AVATAR_SELECTED);
 	}
 

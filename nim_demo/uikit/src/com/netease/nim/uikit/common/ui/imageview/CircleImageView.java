@@ -343,4 +343,11 @@ public class CircleImageView extends ImageView {
         mBitmapShader.setLocalMatrix(mShaderMatrix);
     }
 
+
+	public void recycle(){
+		if(mBitmap != null && !mBitmap.isRecycled()){
+			mBitmap.recycle();  
+		}
+	}
+
 }

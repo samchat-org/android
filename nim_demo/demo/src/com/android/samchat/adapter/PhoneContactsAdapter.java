@@ -3,6 +3,7 @@ package com.android.samchat.adapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.android.samservice.SamService;
 import com.android.samservice.info.ContactUser;
 import com.android.samservice.info.PhoneContact;
 import com.android.samchat.R;
@@ -69,11 +70,13 @@ public class PhoneContactsAdapter extends BaseAdapter{
 		switch(viewType){
 		case TYPE_PHONECONTACT:
 			holder.name.setText(items.get(position).getname());
-			if(items.get(position).getavatar() == null){
+			/*if(items.get(position).getavatar() == null){
 				holder.avatar.setImageResource(R.drawable.avatar_def);
 			}else{
 				holder.avatar.setImageBitmap(items.get(position).getavatar());
-			}
+			}*/
+			holder.avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
+			//holder.avatar.setVisibility(View.GONE);
 			break;
 		}
 		

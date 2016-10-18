@@ -18,11 +18,15 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.samchat.adapter.ContactUserAdapter;
 import com.android.samchat.adapter.PhoneContactsAdapter;
 import com.android.samchat.cache.ContactDataCache;
 import com.android.samservice.info.PhoneNumber;
@@ -36,6 +40,7 @@ import com.netease.nim.uikit.common.framework.NimSingleThreadExecutor;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nim.uikit.contact.core.query.TextComparator;
 import com.netease.nim.uikit.model.ToolBarOptions;
 import com.android.samservice.SamService;
 import android.widget.FrameLayout;
@@ -65,12 +70,17 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 	private ImageView scan_imageview;
 	private EditText key_edittext;
 	private ListView phone_contacts_listview;
+	private ListView search_result_listview;
 
 	private String key;
 	private List<PhoneContact> contacts;
 	private PhoneContactsAdapter adapter;
 
+	private List<ContactUser> search_result;
+	private ContactUserAdapter contactUserAdapter;
+
 	private boolean isSending = false;
+	private boolean isSearching = false;
 	
 	public static void start(Context context) {
 		Intent intent = new Intent(context, SamchatAddServiceProviderActivity.class);
@@ -140,11 +150,13 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 		scan_imageview = findView(R.id.scan);
 		key_edittext = findView(R.id.key);
 		phone_contacts_listview = findView(R.id.phone_contacts);
+		search_result_listview = findView(R.id.search_result);
 
 		setupBackArrowClick();
 		setupKeyEditClick();
 		setupScanClick();
 		setupPhoneContactsListView();
+		setupSearchResultListView();
 	}
 	
 	private void setupBackArrowClick(){
@@ -170,11 +182,29 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 		@Override
 		public void afterTextChanged(Editable s) {
 			key = key_edittext.getText().toString().trim();
+			if(key.length() == 0){
+				phone_contacts_listview.setVisibility(View.VISIBLE);
+				search_result_listview.setVisibility(View.GONE);
+			}
 		}
 	};
 
 	private void setupKeyEditClick(){
 		key_edittext.addTextChangedListener(key_textWatcher);	
+		key_edittext.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+			@Override  
+			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {  
+				if(actionId == EditorInfo.IME_ACTION_GO || actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_SEARCH){
+					InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+					if (imm.isActive()) {  
+						imm.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);  
+					}
+					query_user_by_key();
+					return true;  
+				}  
+				return false;  
+			}  
+		});
 	}
 
 	private void setupScanClick(){
@@ -193,7 +223,7 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
        phone_contacts_listview.setItemsCanFocus(true);
        phone_contacts_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-              if(isSending){
+              if(isSending || isSearching){
 					return;
 				}
 				PhoneContact contact = (PhoneContact) parent.getAdapter().getItem(position);
@@ -222,13 +252,13 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 						Long contactid = phoneCursor.getLong(PHONES_CONTACT_ID_INDEX);  
 						Long photoid = phoneCursor.getLong(PHONES_PHOTO_ID_INDEX);  
 						Bitmap contactPhoto = null;
-						if(photoid > 0 ) {  
+						/*if(photoid > 0 ) {  
 							Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactid);
 							InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(resolver, uri);
 							contactPhoto = BitmapFactory.decodeStream(input);
 						}else {  
 							contactPhoto = null;//BitmapFactory.decodeResource(getResources(), R.drawable.avatar_def);  
-						}  
+						}*/
 						loadedContacts.add(new PhoneContact(contactName, phoneNumber, contactPhoto));
 					}  
 					phoneCursor.close();  
@@ -528,6 +558,113 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 					}, 0);
 				}
 		});
+	}
+
+	private void setupSearchResultListView(){
+		search_result = new ArrayList<>();
+		contactUserAdapter = new ContactUserAdapter(SamchatAddServiceProviderActivity.this, search_result);
+       contactUserAdapter.setFollowVisible(false);
+		search_result_listview.setAdapter(contactUserAdapter);
+       search_result_listview.setItemsCanFocus(true);
+       search_result_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				ContactUser user = (ContactUser) parent.getAdapter().getItem(position);
+				SamchatContactUserSPNameCardActivity.start(SamchatAddServiceProviderActivity.this, user);
+			}
+		});
+	}
+
+	private void notifyDataContactUser() {
+		contactUserAdapter.notifyDataSetChanged();
+	}
+
+	private void refreshContactUserList(){
+		sortContactUser(search_result);
+		notifyDataContactUser();
+	}
+
+	private void sortContactUser(List<ContactUser> list) {
+		if (list.size() == 0) {
+			return;
+		}
+		Collections.sort(list, usercomp);
+	}
+
+	private static Comparator<ContactUser> usercomp = new Comparator<ContactUser>() {
+		@Override
+		public int compare(ContactUser o1, ContactUser o2) {
+			return TextComparator.compare(o1.getusername(),o2.getusername());
+		}
+	};
+
+	private List<ContactUser> loadedContactUser;
+	private void onContactUserSearched() {	
+		search_result.clear();
+		if (loadedContactUser != null) {
+			search_result.addAll(loadedContactUser);
+			loadedContactUser = null;
+		}
+		refreshContactUserList();
+	}
+		
+	private void query_user_by_key(){
+		if(isSending || isSearching || TextUtils.isEmpty(key)){
+			return;
+		}
+		isSearching = true;
+		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_processing), false, new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				
+			}
+		}).setCanceledOnTouchOutside(false);
+		SamService.getInstance().query_public(key,Constants.CONSTANTS_LONGITUDE_LATITUDE_NULL,Constants.CONSTANTS_LONGITUDE_LATITUDE_NULL,
+				null,null,new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+							isSearching = false;
+							phone_contacts_listview.setVisibility(View.GONE);
+							search_result_listview.setVisibility(View.VISIBLE);
+							HttpCommClient hcc = (HttpCommClient)obj;
+							loadedContactUser = hcc.users.getusers();
+							onContactUserSearched();
+						}
+					});
+				}
+
+				@Override
+				public void onFailed(int code) {
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(SamchatAddServiceProviderActivity.this,code);
+
+                    runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							EasyAlertDialogHelper.showOneButtonDiolag(SamchatAddServiceProviderActivity.this, null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							isSearching = false;
+						}
+					});
+				}
+
+				@Override
+				public void onError(int code) {
+					DialogMaker.dismissProgressDialog();
+					final ErrorString error = new ErrorString(SamchatAddServiceProviderActivity.this,code);
+                    runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							EasyAlertDialogHelper.showOneButtonDiolag(SamchatAddServiceProviderActivity.this, null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							isSearching = false;
+						}
+					});
+				}
+		} );
 	}
 }
 
