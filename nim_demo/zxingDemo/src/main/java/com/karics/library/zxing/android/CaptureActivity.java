@@ -80,6 +80,11 @@ public final class CaptureActivity extends Activity implements
         context.startActivity(intent);
     }
 
+    public static void startActivityForResult(Activity activity, int requestCode) {
+		Intent intent = new Intent(activity, CaptureActivity.class);
+		activity.startActivityForResult(intent, requestCode);
+	}
+
 	/**
 	 * OnCreate中初始化一些辅助类，如InactivityTimer（休眠）、Beep（声音）以及AmbientLight（闪光灯）
 	 */
@@ -196,7 +201,7 @@ public final class CaptureActivity extends Activity implements
 		if (fromLiveScan) {
 			beepManager.playBeepSoundAndVibrate();
 
-			Toast.makeText(this, "扫描成功", Toast.LENGTH_SHORT).show();
+			//Toast.makeText(this, "扫描成功", Toast.LENGTH_SHORT).show();
 
 			Intent intent = getIntent();
 			intent.putExtra("codedContent", rawResult.getText());
