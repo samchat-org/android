@@ -15,7 +15,7 @@ android {
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 23
+        targetSdkVersion 22
         buildConfigField "String", "GIT_REVISION", "\"${getGitVersion()}\""
         buildConfigField "String", "BUILD_DATE", "\"${new Date().toLocaleString()}\"";
     }
@@ -55,7 +55,9 @@ android {
             res.srcDirs = ['res', 'res-avchat', 'res-chatroom']
             assets.srcDirs = ['assets']
             jniLibs.srcDirs = ['libs', 'libs-sdk']
-
+        }
+		androidTest{
+            java.srcDirs = ['src/androidTest']
         }
 
     }
@@ -81,4 +83,9 @@ dependencies {
     compile fileTree(include: '*.jar', dir: 'libs')
     compile project(path: ':uikit')
     compile files('libs/pinyin4j-2.5.0.jar')
+    compile files('libs/zbardecoder.jar')
+    compile project(':zxingDemo')
+    compile files('libs/aws-android-sdk-core-2.3.0.jar')
+    compile files('libs/aws-android-sdk-cognito-2.3.0.jar')
+    compile project(':multi-image-selector')
 }

@@ -60,6 +60,18 @@ public class Preferences {
 		editor.remove(KEY_CUSTOMER_LIST_UPDATE);
 		editor.commit();
     }
+
+    public static void clearAllDate(){
+       SharedPreferences.Editor editor = getSharedPreferences().edit();
+		editor.remove(KEY_USER_ACCOUNT);
+		editor.remove(KEY_USER_TOKEN);
+		editor.remove(KEY_USER_ALIAS);
+       editor.remove(KEY_FOLLOW_LIST_UPDATE);
+		editor.remove(KEY_CONTACT_LIST_UPDATE);
+		editor.remove(KEY_CUSTOMER_LIST_UPDATE);
+		editor.remove(KEY_MODE);
+		editor.commit();
+    }
     /*SAMC_END(GETU Alias)*/
 
 	/*SAMC_BEGIN(current mode)*/
