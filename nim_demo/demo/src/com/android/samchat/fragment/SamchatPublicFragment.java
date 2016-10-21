@@ -494,8 +494,8 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 	private void spLayoutInit(){
 		sessionId = NimConstants.SESSION_ACCOUNT_ADVERTISEMENT;
 		sessionType = SessionTypeEnum.P2P;
-		customization = SessionHelper.getAdvCustomization();
-		Container container = new Container(getActivity(), sessionId, ModeEnum.SP_MODE.ordinal(),sessionType, this);
+		customization = SessionHelper.getSendAdvertisementP2PCustomization();
+		Container container = new Container(getActivity(), sessionId, ModeEnum.SP_MODE.getValue(),sessionType, this);
 		messageListPanel = new SamchatAdvertisementMessageListPanel(container, rootView, false, false);
 		messageListPanel.setOnResendAdvertisementListener(new SamchatAdvertisementMessageListPanel.OnResendAdvertisementListener(){
 			@Override

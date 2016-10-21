@@ -18,7 +18,6 @@ import java.util.ArrayList;
  * 3. ActionBar右侧按钮。
  */
 public class SessionCustomization implements Serializable {
-
     /**
      * 聊天背景。优先使用uri，如果没有提供uri，使用color。如果没有color，使用默认。uri暂时支持以下格式：<br>
      *     drawable: android.resource://包名/drawable/资源名

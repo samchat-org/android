@@ -281,4 +281,23 @@
     <string name="samchat_service_work_phone">Service work phone no</string>
     <string name="samchat_service_description_hint">Tell us something about your business or service. i.e. your specialization, years of experience, how do you work with your client, etc.</string>
     <string name="samchat_done2">DONE</string>
+
+    <string name="samchat_chat_options">Chat Options</string>
+    <string name="samchat_mute_chat">Mute Chat</string>
+    <string name="samchat_delete_chat">Delete Chat</string>
+    <string name="samchat_block_chat">Block</string>
+    <string name="samchat_mute_chat_succeed">chat mute succeed</string>
+    <string name="samchat_unmute_chat_succeed">chat un-mute succeed</string>
+    <string name="samchat_mute_chat_failed">chat mute failed</string>
+    <string name="samchat_unmute_chat_failed">chat un-mute failed</string>
+
+
+    <string name="samchat_block_chat_succeed">block succeed</string>
+    <string name="samchat_unblock_chat_succeed">un-block succeed</string>
+    <string name="samchat_block_chat_failed">block failed</string>
+    <string name="samchat_unblock_chat_failed">unblock failed</string>
+
+    <string name="samchat_select_one_member_at_least">select one member at least</string>
+    <string name="samchat_create_group_chat">create group chat</string>
+
 </resources>

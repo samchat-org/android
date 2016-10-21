@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.samchat.activity.SamchatMemberSelectActivity;
+import com.android.samchat.type.ModeEnum;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
 import com.netease.nim.demo.contact.activity.UserProfileActivity;
@@ -33,11 +36,27 @@ import com.netease.nim.uikit.common.util.log.LogUtil;
  */
 public class MessageInfoActivity extends UI {
     private final static String EXTRA_ACCOUNT = "EXTRA_ACCOUNT";
+    private final static String EXTRA_MODE = "EXTRA_MODE";
+		
     private static final int REQUEST_CODE_NORMAL = 1;
     // data
     private String account;
     // view
-    private SwitchButton switchButton;
+    private SwitchButton switchButtonMute;
+    private LinearLayout create_layout;
+    private AppBarLayout app_bar_layout;
+
+    private SwitchButton switchButtonBlock;
+
+    private int mode;
+
+    public static void startActivity(Context context, String account, int mode) {
+        Intent intent = new Intent();
+        intent.setClass(context, MessageInfoActivity.class);
+        intent.putExtra(EXTRA_ACCOUNT, account);
+        intent.putExtra(EXTRA_MODE,mode);
+        context.startActivity(intent);
+    }
 
     public static void startActivity(Context context, String account) {
         Intent intent = new Intent();
@@ -49,24 +68,37 @@ public class MessageInfoActivity extends UI {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.message_info_activity);
-
-        ToolBarOptions options = new ToolBarOptions();
-        options.titleId = R.string.message_info;
-        options.navigateId = R.drawable.actionbar_dark_back_icon;
-        setToolBar(R.id.toolbar, options);
+        setContentView(R.layout.samchat_message_info_activity);
 
         account = getIntent().getStringExtra(EXTRA_ACCOUNT);
+        mode = getIntent().getIntExtra(EXTRA_MODE, ModeEnum.CUSTOMER_MODE.getValue());
+
+        ToolBarOptions options = new ToolBarOptions();
+        options.titleId = R.string.samchat_chat_options;
+        options.navigateId = R.drawable.samchat_arrow_left;
+        setToolBar(R.id.toolbar, options);
+
+        
         findViews();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        updateSwitchBtn();
+        updateMuteSwitchBtn();
     }
 
     private void findViews() {
+        app_bar_layout = (AppBarLayout) findViewById(R.id.app_bar_layout);
+        create_layout = (LinearLayout) findViewById(R.id.create_layout);
+        if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
+            app_bar_layout.setBackgroundColor(getResources().getColor(R.color.color_customer_titlebar_bg));
+            create_layout.setVisibility(View.GONE);
+        }else{
+            app_bar_layout.setBackgroundColor(getResources().getColor(R.color.color_sp_titlebar_bg));
+            create_layout.setVisibility(View.VISIBLE);
+        }
+			
         HeadImageView userHead = (HeadImageView) findViewById(R.id.user_layout).findViewById(R.id.imageViewHeader);
         TextView userName = (TextView) findViewById(R.id.user_layout).findViewById(R.id.textViewName);
         userHead.loadBuddyAvatar(account);
@@ -78,7 +110,7 @@ public class MessageInfoActivity extends UI {
             }
         });
 
-        ((TextView)findViewById(R.id.create_team_layout).findViewById(R.id.textViewName)).setText(R.string.create_normal_team);
+        ((TextView)findViewById(R.id.create_team_layout).findViewById(R.id.textViewName)).setText(R.string.samchat_create_group_chat);
         HeadImageView addImage = (HeadImageView) findViewById(R.id.create_team_layout).findViewById(R.id.imageViewHeader);
         addImage.setBackgroundResource(com.netease.nim.uikit.R.drawable.nim_team_member_add_selector);
         addImage.setOnClickListener(new View.OnClickListener() {
@@ -88,32 +120,36 @@ public class MessageInfoActivity extends UI {
             }
         });
 
-        ((TextView)findViewById(R.id.toggle_layout).findViewById(R.id.user_profile_title)).setText(R.string.msg_notice);
-        switchButton = (SwitchButton) findViewById(R.id.toggle_layout).findViewById(R.id.user_profile_toggle);
-        switchButton.setOnChangedListener(onChangedListener);
+        ((TextView)findViewById(R.id.mute_layout).findViewById(R.id.mute_title)).setText(R.string.samchat_mute_chat);
+        switchButtonMute = (SwitchButton) findViewById(R.id.mute_layout).findViewById(R.id.mute_toggle);
+        switchButtonMute.setOnChangedListener(onMuteChangedListener);
+
+        ((TextView)findViewById(R.id.block_layout).findViewById(R.id.block_title)).setText(R.string.samchat_block_chat);
+        switchButtonBlock = (SwitchButton) findViewById(R.id.block_layout).findViewById(R.id.block_toggle);
+        switchButtonBlock.setOnChangedListener(onBlockChangedListener);
     }
 
-    private void updateSwitchBtn() {
-        boolean notice = NIMClient.getService(FriendService.class).isNeedMessageNotify(account);
-        switchButton.setCheck(notice);
+    private void updateMuteSwitchBtn() {
+        boolean mute = !NIMClient.getService(FriendService.class).isNeedMessageNotify(account);
+        switchButtonMute.setCheck(mute);
     }
 
-    private SwitchButton.OnChangedListener onChangedListener = new SwitchButton.OnChangedListener() {
+    private SwitchButton.OnChangedListener onMuteChangedListener = new SwitchButton.OnChangedListener() {
         @Override
-        public void OnChanged(View v, final boolean checkState) {
+        public void OnChanged(View v, final boolean muteState) {
             if (!NetworkUtil.isNetAvailable(MessageInfoActivity.this)) {
                 Toast.makeText(MessageInfoActivity.this, R.string.network_is_not_available, Toast.LENGTH_SHORT).show();
-                switchButton.setCheck(!checkState);
+                switchButtonMute.setCheck(!muteState);
                 return;
             }
 
-            NIMClient.getService(FriendService.class).setMessageNotify(account, checkState).setCallback(new RequestCallback<Void>() {
+            NIMClient.getService(FriendService.class).setMessageNotify(account, !muteState).setCallback(new RequestCallback<Void>() {
                 @Override
                 public void onSuccess(Void param) {
-                    if (checkState) {
-                        Toast.makeText(MessageInfoActivity.this, "开启消息提醒成功", Toast.LENGTH_SHORT).show();
+                    if (muteState) {
+                        Toast.makeText(MessageInfoActivity.this, R.string.samchat_mute_chat_succeed, Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(MessageInfoActivity.this, "关闭消息提醒成功", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MessageInfoActivity.this, R.string.samchat_unmute_chat_succeed, Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -121,19 +157,92 @@ public class MessageInfoActivity extends UI {
                 public void onFailed(int code) {
                     if (code == 408) {
                         Toast.makeText(MessageInfoActivity.this, R.string.network_is_not_available, Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(MessageInfoActivity.this, "on failed:" + code, Toast.LENGTH_SHORT).show();
+                    } else if(muteState){
+                        Toast.makeText(MessageInfoActivity.this, R.string.samchat_mute_chat_failed, Toast.LENGTH_SHORT).show();
+                    } else{
+                        Toast.makeText(MessageInfoActivity.this, R.string.samchat_unmute_chat_failed, Toast.LENGTH_SHORT).show();
                     }
-                    switchButton.setCheck(!checkState);
+                    switchButtonMute.setCheck(!muteState);
                 }
 
                 @Override
                 public void onException(Throwable exception) {
-
+                    if(muteState){
+                        Toast.makeText(MessageInfoActivity.this, R.string.samchat_mute_chat_failed, Toast.LENGTH_SHORT).show();
+                    } else{
+                        Toast.makeText(MessageInfoActivity.this, R.string.samchat_unmute_chat_failed, Toast.LENGTH_SHORT).show();
+                    }
+                    switchButtonMute.setCheck(!muteState);
                 }
             });
         }
     };
+
+    private void updateBlockSwitchBtn() {
+        boolean block = NIMClient.getService(FriendService.class).isInBlackList(account);
+        switchButtonMute.setCheck(block);
+    }
+
+    private SwitchButton.OnChangedListener onBlockChangedListener = new SwitchButton.OnChangedListener() {
+        @Override
+        public void OnChanged(View v, final boolean blockState) {
+            if (!NetworkUtil.isNetAvailable(MessageInfoActivity.this)) {
+                Toast.makeText(MessageInfoActivity.this, R.string.network_is_not_available, Toast.LENGTH_SHORT).show();
+                switchButtonBlock.setCheck(!blockState);
+                return;
+            }
+
+            if(blockState){
+                NIMClient.getService(FriendService.class).addToBlackList(account).setCallback(new RequestCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void param) {
+                        Toast.makeText(MessageInfoActivity.this, R.string.samchat_block_chat_succeed, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailed(int code) {
+                        if (code == 408) {
+                            Toast.makeText(MessageInfoActivity.this, R.string.network_is_not_available, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(MessageInfoActivity.this, R.string.samchat_block_chat_failed, Toast.LENGTH_SHORT).show();
+                        }
+                        switchButtonMute.setCheck(!blockState);
+                    }
+
+                    @Override
+                    public void onException(Throwable exception) {
+                        Toast.makeText(MessageInfoActivity.this, R.string.samchat_block_chat_failed, Toast.LENGTH_SHORT).show();
+                        switchButtonMute.setCheck(!blockState);
+                    }
+                });
+            }else{
+                NIMClient.getService(FriendService.class).removeFromBlackList(account).setCallback(new RequestCallback<Void>() {
+                    @Override
+                    public void onSuccess(Void param) {
+                        Toast.makeText(MessageInfoActivity.this, R.string.samchat_unblock_chat_succeed, Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailed(int code) {
+                        if (code == 408) {
+                            Toast.makeText(MessageInfoActivity.this, R.string.network_is_not_available, Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(MessageInfoActivity.this, R.string.samchat_unblock_chat_failed, Toast.LENGTH_SHORT).show();
+                        }
+                        switchButtonMute.setCheck(!blockState);
+                    }
+
+                    @Override
+                    public void onException(Throwable exception) {
+                        Toast.makeText(MessageInfoActivity.this, R.string.samchat_unblock_chat_failed, Toast.LENGTH_SHORT).show();
+                        switchButtonMute.setCheck(!blockState);
+                    }
+                });
+            }
+
+        }
+    };
+
 
     private void openUserProfile() {
         UserProfileActivity.start(this, account);
@@ -179,7 +288,7 @@ public class MessageInfoActivity extends UI {
                         }
                     });
                 } else {
-                    Toast.makeText(DemoCache.getContext(), "请选择至少一个联系人！", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DemoCache.getContext(), R.string.samchat_select_one_member_at_least, Toast.LENGTH_SHORT).show();
                 }
             }
         }

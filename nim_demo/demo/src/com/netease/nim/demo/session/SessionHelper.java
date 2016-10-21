@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
+import com.android.samchat.type.ModeEnum;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
 import com.netease.nim.demo.contact.activity.UserProfileActivity;
@@ -70,7 +71,8 @@ public class SessionHelper {
     private static final int ACTION_SEARCH_MESSAGE = 1;
     private static final int ACTION_CLEAR_MESSAGE = 2;
 
-    private static SessionCustomization p2pCustomization;
+    private static SessionCustomization p2pCustomizationCustomer;
+    private static SessionCustomization p2pCustomizationSP;
     private static SessionCustomization teamCustomization;
     private static SessionCustomization myP2pCustomization;
 
@@ -93,7 +95,7 @@ public class SessionHelper {
 
     public static void startP2PSession(Context context, String account) {
         if (!DemoCache.getAccount().equals(account)) {
-            NimUIKit.startChatting(context, account, SessionTypeEnum.P2P, getP2pCustomization());
+            NimUIKit.startChatting(context, account, SessionTypeEnum.P2P, getP2pCustomization(NimUIKit.getCallback().getCurrentMode()));
         } else {
             /*SAMC_BEGIN(not support chat with myself)*/
             return;//NimUIKit.startChatting(context, account, SessionTypeEnum.P2P, getMyP2pCustomization());
@@ -104,7 +106,7 @@ public class SessionHelper {
     /*SAMC_BEGIN(support chat for received question)*/
     public static void startP2PSessionWithReceiveQuestion(Context context, String account, long question_id ) {
         if (!DemoCache.getAccount().equals(account)) {
-            NimUIKit.startChattingWithReceiveQuestion(context, account, question_id,SessionTypeEnum.P2P, getP2pCustomization());
+            NimUIKit.startChattingWithReceiveQuestion(context, account, question_id,SessionTypeEnum.P2P, getP2pCustomization(NimUIKit.getCallback().getCurrentMode()));
         } else {
             /*SAMC_BEGIN(not support chat with myself)*/
             return;//NimUIKit.startChatting(context, account, SessionTypeEnum.P2P, getMyP2pCustomization());
@@ -117,7 +119,7 @@ public class SessionHelper {
 	/*SAMC_BEGIN(support chat for received question)*/
     public static void startP2PSessionWithRcvdAdv(Context context, String account, long adv_id ) {
         if (!DemoCache.getAccount().equals(account)) {
-            NimUIKit.startChattingWithRcvdAdv(context, account, adv_id,SessionTypeEnum.P2P, getP2pCustomization());
+            NimUIKit.startChattingWithRcvdAdv(context, account, adv_id,SessionTypeEnum.P2P, getP2pCustomization(NimUIKit.getCallback().getCurrentMode()));
         } else {
             /*SAMC_BEGIN(not support chat with myself)*/
             return;//NimUIKit.startChatting(context, account, SessionTypeEnum.P2P, getMyP2pCustomization());
@@ -136,17 +138,15 @@ public class SessionHelper {
         NimUIKit.startChatting(context, tid, SessionTypeEnum.Team, getTeamCustomization(), backToClass);
     }
 
-    /*SAMC_BEGIN(adv write msg window)*/
-    public static SessionCustomization getAdvCustomization(){
-        return getP2pCustomization();
-    }
     /*SAMC_END(adv write msg window)*/
+    public static SessionCustomization getSendAdvertisementP2PCustomization(){
+        return getP2pCustomization(ModeEnum.SP_MODE.getValue());
+    }
 
     // 定制化单聊界面。如果使用默认界面，返回null即可
-    private static SessionCustomization getP2pCustomization() {
-        if (p2pCustomization == null) {
-            p2pCustomization = new SessionCustomization() {
-                // 由于需要Activity Result， 所以重载该函数。
+    private static SessionCustomization getP2pCustomization(int mode) {
+        if (mode == ModeEnum.CUSTOMER_MODE.getValue() &&  p2pCustomizationCustomer == null) {
+            p2pCustomizationCustomer = new SessionCustomization() {
                 @Override
                 public void onActivityResult(final Activity activity, int requestCode, int resultCode, Intent data) {
                     super.onActivityResult(activity, requestCode, resultCode, data);
@@ -159,13 +159,6 @@ public class SessionHelper {
                 }
             };
 
-            // 背景
-//            p2pCustomization.backgroundColor = Color.BLUE;
-//            p2pCustomization.backgroundUri = "file:///android_asset/xx/bk.jpg";
-//            p2pCustomization.backgroundUri = "file:///sdcard/Pictures/bk.png";
-//            p2pCustomization.backgroundUri = "android.resource://com.netease.nim.demo/drawable/bk"
-
-            // 定制加号点开后可以包含的操作， 默认已经有图片，视频等消息了
             ArrayList<BaseAction> actions = new ArrayList<>();
             actions.add(new AVChatAction(AVChatType.AUDIO));
             actions.add(new AVChatAction(AVChatType.VIDEO));
@@ -174,10 +167,9 @@ public class SessionHelper {
             //actions.add(new GuessAction());
             actions.add(new FileAction());
             //actions.add(new TipAction());
-            p2pCustomization.actions = actions;
-            p2pCustomization.withSticker = true;
-
-            // 定制ActionBar右边的按钮，可以加多个
+            p2pCustomizationCustomer.actions = actions;
+            p2pCustomizationCustomer.withSticker = true;
+						
             ArrayList<SessionCustomization.OptionsButton> buttons = new ArrayList<>();
             SessionCustomization.OptionsButton cloudMsgButton = new SessionCustomization.OptionsButton() {
                 @Override
@@ -190,7 +182,7 @@ public class SessionHelper {
             SessionCustomization.OptionsButton infoButton = new SessionCustomization.OptionsButton() {
                 @Override
                 public void onClick(Context context, View view, String sessionId) {
-                    MessageInfoActivity.startActivity(context, sessionId); //打开聊天信息
+                    MessageInfoActivity.startActivity(context, sessionId,ModeEnum.CUSTOMER_MODE.getValue()); 
                 }
             };
 
@@ -200,10 +192,60 @@ public class SessionHelper {
             //buttons.add(cloudMsgButton);
             /*SAMC_END(not show close msg button)*/
             buttons.add(infoButton);
-            p2pCustomization.buttons = buttons;
+            p2pCustomizationCustomer.buttons = buttons;
         }
 
-        return p2pCustomization;
+        if (mode == ModeEnum.SP_MODE.getValue() &&  p2pCustomizationSP == null) {
+            p2pCustomizationSP = new SessionCustomization() {
+                @Override
+                public void onActivityResult(final Activity activity, int requestCode, int resultCode, Intent data) {
+                    super.onActivityResult(activity, requestCode, resultCode, data);
+
+                }
+
+                @Override
+                public MsgAttachment createStickerAttachment(String category, String item) {
+                    return new StickerAttachment(category, item);
+                }
+            };
+
+            ArrayList<BaseAction> actions = new ArrayList<>();
+            actions.add(new AVChatAction(AVChatType.AUDIO));
+            actions.add(new AVChatAction(AVChatType.VIDEO));
+            //actions.add(new RTSAction());
+            //actions.add(new SnapChatAction());
+            //actions.add(new GuessAction());
+            actions.add(new FileAction());
+            //actions.add(new TipAction());
+            p2pCustomizationSP.actions = actions;
+            p2pCustomizationSP.withSticker = true;
+						
+            ArrayList<SessionCustomization.OptionsButton> buttons = new ArrayList<>();
+            SessionCustomization.OptionsButton cloudMsgButton = new SessionCustomization.OptionsButton() {
+                @Override
+                public void onClick(Context context, View view, String sessionId) {
+                    initPopuptWindow(context, view, sessionId, SessionTypeEnum.P2P);
+                }
+            };
+            cloudMsgButton.iconId = R.drawable.nim_ic_messge_history;
+
+            SessionCustomization.OptionsButton infoButton = new SessionCustomization.OptionsButton() {
+                @Override
+                public void onClick(Context context, View view, String sessionId) {
+                    MessageInfoActivity.startActivity(context, sessionId,ModeEnum.SP_MODE.getValue()); 
+                }
+            };
+
+            infoButton.iconId = R.drawable.nim_ic_message_actionbar_p2p_add;
+
+            /*SAMC_BEGIN(not show close msg button)*/
+            //buttons.add(cloudMsgButton);
+            /*SAMC_END(not show close msg button)*/
+            buttons.add(infoButton);
+            p2pCustomizationSP.buttons = buttons;
+        }
+
+        return mode == ModeEnum.CUSTOMER_MODE.getValue() ? p2pCustomizationCustomer:p2pCustomizationSP;
     }
 
     private static SessionCustomization getMyP2pCustomization() {

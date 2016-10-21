@@ -14,7 +14,12 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.samchat.R;
+import com.android.samchat.cache.ContactDataCache;
+import com.android.samchat.cache.CustomerDataCache;
+import com.android.samchat.cache.FollowDataCache;
+import com.android.samservice.info.Contact;
 import com.android.samservice.info.ContactUser;
+import com.android.samservice.info.FollowedSamPros;
 import com.igexin.sdk.PushManager;
 import com.netease.nim.demo.avchat.AVChatProfile;
 import com.netease.nim.demo.avchat.activity.AVChatActivity;
@@ -380,13 +385,27 @@ public class NimApplication extends Application {
 
         @Override
         public String getUserDisplayName(String account) {
-            //return NimUserInfoCache.getInstance().getUserDisplayName(account);
             ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
             if(user != null){
                return user.getusername();
-            }else{
-               return account;
             }
+
+            Contact contact = ContactDataCache.getInstance().getContactByUniqueID(stringTolong(account));
+            if(contact != null){
+                return contact.getusername();
+            }
+
+            contact = CustomerDataCache.getInstance().getCustomerByUniqueID(stringTolong(account));
+            if(contact != null){
+                return contact.getusername();
+            }	
+						
+            FollowedSamPros fsp = FollowDataCache.getInstance().getFollowSPByUniqueID(stringTolong(account));
+            if(fsp !=null){
+                return fsp.getusername();
+            }
+
+            return null;
         }
     };
 
