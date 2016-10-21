@@ -56,7 +56,8 @@
 
     <EditText
         android:id="@+id/editTextMessage"
-        style="@style/edit_text_style"
+        android:textCursorDrawable="@null"
+        android:cursorVisible="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginRight="@dimen/bottom_component_margin_horizontal"
@@ -65,7 +66,7 @@
         android:autoLink="all"
         android:background="@drawable/nim_message_input_edittext_box"
         android:maxHeight="72dip"
-        android:maxLines="4"
+        android:maxLines="1"
         android:textSize="16sp" />
 
     <ImageView

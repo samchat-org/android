@@ -1,6 +1,7 @@
 package com.android.samchat.activity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.samchat.type.ModeEnum;
+import com.hp.hpl.sparta.Text;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
 import com.netease.nim.demo.config.preference.Preferences;
@@ -55,7 +57,7 @@ import com.android.samchat.factory.UuidFactory;
 import com.android.samservice.callback.SMCallBack;
 import com.android.samchat.service.ErrorString;
 
-public class SamchatLoginActivity extends UI implements OnKeyListener {
+public class SamchatLoginActivity extends Activity {
 	private static final String TAG = SamchatLoginActivity.class.getSimpleName();
 	private static final String KICK_OUT = "KICK_OUT";
 	private final int BASIC_PERMISSION_REQUEST_CODE = 110;
@@ -119,16 +121,6 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         intent.putExtra(KICK_OUT, kickOut);
         context.startActivity(intent);
-    }
-
-    @Override
-    protected boolean displayHomeAsUpEnabled() {
-        return false;
-    }
-
-    @Override
-    public boolean onKey(View v, int keyCode, KeyEvent event) {
-        return false;
     }
 
 	@Override
@@ -216,13 +208,13 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
     }
 
 	private void setupLoginPanel() {
-		countrycode_textview = findView(R.id.countrycode);
-		logininput_edittext = findView(R.id.logininput);
-		hidden_layout = findView(R.id.hidden_layout);
-		password_edittext = findView(R.id.password);
-		signin_textview = findView(R.id.signin);
-		signup_textview = findView(R.id.signup);
-		forgot_pwd_textview = findView(R.id.forgot_pwd);
+		countrycode_textview = (TextView) findViewById(R.id.countrycode);
+		logininput_edittext = (EditText) findViewById(R.id.logininput);
+		hidden_layout = (RelativeLayout) findViewById(R.id.hidden_layout);
+		password_edittext = (EditText) findViewById(R.id.password);
+		signin_textview = (TextView) findViewById(R.id.signin);
+		signup_textview = (TextView) findViewById(R.id.signup);
+		forgot_pwd_textview = (TextView) findViewById(R.id.forgot_pwd);
 
 		setupCountrycodeClick();
 		setupLoginInputEditClick();
@@ -394,41 +386,41 @@ public class SamchatLoginActivity extends UI implements OnKeyListener {
 			new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
-					getHandler().postDelayed(new Runnable() {
+					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
 							login((HttpCommClient)obj);
 						}
-					}, 0);
+					});
 				}
 
 				@Override
 				public void onFailed(int code) {
 					DialogMaker.dismissProgressDialog();
 					final ErrorString error = new ErrorString(SamchatLoginActivity.this,code);
-					
-					getHandler().postDelayed(new Runnable() {
+
+					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
 							EasyAlertDialogHelper.showOneButtonDiolag(SamchatLoginActivity.this, null,
-                    			error.reminder, getString(R.string.samchat_ok), true, null);
+									error.reminder, getString(R.string.samchat_ok), true, null);
 							isLogining = false;
 						}
-					}, 0);
+					});
 				}
 
 				@Override
 				public void onError(int code) {
 					DialogMaker.dismissProgressDialog();
 					final ErrorString error = new ErrorString(SamchatLoginActivity.this,code);
-					getHandler().postDelayed(new Runnable() {
+					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
 							EasyAlertDialogHelper.showOneButtonDiolag(SamchatLoginActivity.this, null,
-                    			error.reminder, getString(R.string.samchat_ok), true, null);
+									error.reminder, getString(R.string.samchat_ok), true, null);
 							isLogining = false;
 						}
-					}, 0);
+					});
 				}
 
 		});

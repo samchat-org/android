@@ -166,6 +166,7 @@ public enum MainTab {
 				case SAMCHAT_CONTACT:
 				case SAMCHAT_SETTING:
 					icon_id = R.drawable.samchat_titlebar_right_icon_user;
+					break;
 				default:
 					icon_id = R.drawable.samchat_titlebar_right_icon_user;
 					break;
@@ -173,11 +174,16 @@ public enum MainTab {
 		}else{
 			switch (tab){
              case SAMCHAT_REQUEST:
+					icon_id = R.drawable.samchat_titlebar_right_icon_sp;
+					break;
 				case SAMCHAT_PUBLIC:
+					icon_id = R.drawable.samchat_plus;
+					break;
 				case SAMCHAT_CHAT:
 				case SAMCHAT_CONTACT:
 				case SAMCHAT_SETTING:
 					icon_id = R.drawable.samchat_titlebar_right_icon_sp;
+					break;
 				default:
 					icon_id = R.drawable.samchat_titlebar_right_icon_sp;
 					break;
@@ -214,10 +220,14 @@ public enum MainTab {
 		}else{
 			switch (tab){
 				case SAMCHAT_REQUEST:
+					show = false;
+					break;
 				case SAMCHAT_PUBLIC:
+					show = true;
+					break;
 				case SAMCHAT_CHAT:
-                    show = false;
-                    break;
+					show = false;
+					break;
 				case SAMCHAT_CONTACT:
 					show = true;
 					break;
@@ -254,8 +264,8 @@ public enum MainTab {
 					show = false;
 					break;
 				case SAMCHAT_PUBLIC:
-                    show = true;
-                    break;
+					show = false;
+					break;
 				case SAMCHAT_CHAT:
 				case SAMCHAT_CONTACT:
 				case SAMCHAT_SETTING:

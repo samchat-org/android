@@ -695,7 +695,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 					if(current_position == MainTab.SAMCHAT_REQUEST.tabIndex){
 
 					}else if(current_position == MainTab.SAMCHAT_PUBLIC.tabIndex){
-
+						LogUtil.i(TAG,"send BROADCAST_POST_ADV");
+						Intent intent = new Intent();
+						intent.setAction(Constants.BROADCAST_POST_ADV);
+						sendbroadcast(intent);
 					}else if(current_position == MainTab.SAMCHAT_CHAT.tabIndex){
 
 					}else if(current_position == MainTab.SAMCHAT_CONTACT.tabIndex){

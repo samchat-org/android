@@ -117,6 +117,10 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
         deleteListener = delete;
     }
 
+	public void setOnTouchListener (MessageListView.OnTouchListener  cb){
+        messageListView.setOnTouchListener(cb);
+    }
+
 
 
     public SamchatAdvertisementMessageListPanel(Container container, View rootView) {

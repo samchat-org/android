@@ -262,8 +262,10 @@ public class HomeFragment extends TFragment implements OnPageChangeListener, Rem
 
 
 	@Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        //adapter.getItem(MainTab.SAMCHAT_PUBLIC.tabIndex).onActivityResult(requestCode, resultCode, data);
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if(adapter.getItem(MainTab.SAMCHAT_PUBLIC.tabIndex)!=null){
+			adapter.getItem(MainTab.SAMCHAT_PUBLIC.tabIndex).onActivityResult(requestCode, resultCode, data);
+		}
 	}
 }

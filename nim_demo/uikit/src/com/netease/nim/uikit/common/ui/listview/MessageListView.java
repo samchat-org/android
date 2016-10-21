@@ -27,6 +27,16 @@ public class MessageListView extends AutoRefreshListView {
 		}
 	};
 
+	public interface OnTouchListener {
+		public void OnTouch();
+	}
+
+	private OnTouchListener callback;
+
+    public void setOnTouchListener(OnTouchListener cb){
+        callback = cb;
+    }
+
 	public MessageListView(Context context) {
 		super(context);
 		init(context);
@@ -56,6 +66,10 @@ public class MessageListView extends AutoRefreshListView {
 
 		if (event.getAction() == MotionEvent.ACTION_CANCEL || event.getAction() == MotionEvent.ACTION_UP) {
 			isScroll = false;
+		}
+
+		if(callback != null){
+			callback.OnTouch();
 		}
 
 		return super.onTouchEvent(event);

@@ -45,7 +45,8 @@ import com.android.samservice.info.SendQuestion;
 import com.android.samservice.HttpCommClient;
 import com.android.samservice.info.ReceivedQuestion;
 import com.android.samservice.info.ContactUser;
-/*DB Operation class used by UI*/
+
+/*DB time-consumption operation should be handle by this class used by UI*/
 public class SamDBManager{
 	public static final String TAG = "SamchatSamDBManager";
 	//msg session changed observer: used for last msg update, unread count update
@@ -97,7 +98,6 @@ public class SamDBManager{
 		SendAdvertisementObservers = new ArrayList<SamchatObserver<IMMessage>>();
 		SendAdvertisementStatusObservers = new ArrayList<SamchatObserver<IMMessage>>();
 		ReceivedAdvertisementUnreadClearObservers = new ArrayList<SamchatObserver<RcvdAdvSession>>();
-
 		RcvdAdvSessionObservers = new ArrayList<SamchatObserver<RcvdAdvSession>>();
 		RcvdAdvObservers = new ArrayList<SamchatObserver<Advertisement>>();
 	}
@@ -207,44 +207,49 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				boolean userinfo_need_update = false;
-				ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(ui.getunique_id());
-				if(user == null){
-					user = new ContactUser();
-					user.setunique_id(ui.getunique_id());
-					user.setusername(ui.getusername());
-					if(SamService.getInstance().getDao().update_ContactUser_db(user) == -1){
-						LogUtil.e(TAG,"db warning : update user db error, drop this question");
+				try{
+					boolean userinfo_need_update = false;
+					ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(ui.getunique_id());
+					if(user == null){
+						user = new ContactUser();
+						user.setunique_id(ui.getunique_id());
+						user.setusername(ui.getusername());
+						if(SamService.getInstance().getDao().update_ContactUser_db(user) == -1){
+							LogUtil.e(TAG,"db warning : update user db error, drop this question");
+							return;
+						}
+						userinfo_need_update = true;
+						SamchatUserInfoCache.getInstance().addUser(user.getunique_id(),user);
+					}else if(user.getlastupdate() != ui.getlastupdate()){
+						userinfo_need_update = true;
+					}
+
+					if(SamService.getInstance().getDao().update_ReceivedQuestion_db(rq) == -1){
+						LogUtil.e(TAG,"db warning : update received question db error, drop this question");
 						return;
 					}
-					userinfo_need_update = true;
-					SamchatUserInfoCache.getInstance().addUser(user.getunique_id(),user);
-				}else if(user.getlastupdate() != ui.getlastupdate()){
-					userinfo_need_update = true;
-				}
 
-				if(SamService.getInstance().getDao().update_ReceivedQuestion_db(rq) == -1){
-					LogUtil.e(TAG,"db warning : update received question db error, drop this question");
-					return;
-				}
+					callReceivedQuestionObserverCallback(rq);
 
-				callReceivedQuestionObserverCallback(rq);
-
-				if(userinfo_need_update){
-					LogUtil.i(TAG,"user info update:"+ui.getAccount());
-					SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(user.getunique_id());
+					if(userinfo_need_update){
+						LogUtil.i(TAG,"user info update:"+ui.getAccount());
+						SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(user.getunique_id());
+					}
+				}catch(Exception e){
+					e.printStackTrace();
 				}
-				
 			}
 		});
 	}
 
 	private void updateSessionByRcvdAdv(RcvdAdvSession session, Advertisement adv){
-		session.setrecent_adv_id(adv.getadv_id());
-		session.setrecent_adv_type(adv.gettype());
-		session.setrecent_adv_content(adv.getcontent());
-		session.setrecent_adv_publish_timestamp(adv.getpublish_timestamp());
-		session.setrecent_adv_content_thumb(adv.getcontent_thumb());
+		if(adv.getpublish_timestamp() >= session.getrecent_adv_publish_timestamp()){
+			session.setrecent_adv_id(adv.getadv_id());
+			session.setrecent_adv_type(adv.gettype());
+			session.setrecent_adv_content(adv.getcontent());
+			session.setrecent_adv_publish_timestamp(adv.getpublish_timestamp());
+			session.setrecent_adv_content_thumb(adv.getcontent_thumb());
+		}
 		session.setunread(session.getunread()+1);
 	}
 
@@ -307,62 +312,66 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				if(adv.gettype() == Constants.ADV_TYPE_TEXT){
-					RcvdAdvSession changedSession = storeRcvdAdvertisement(adv);
-					if(changedSession != null){
-						//call rcvd adv session changed observer
-						callRcvdAdvSessionObserversObserverCallback(changedSession);
-						//call incoming adv observer
-						callRcvdAdvObserversObserverCallback(adv);
+				try{
+					if(adv.gettype() == Constants.ADV_TYPE_TEXT){
+						RcvdAdvSession changedSession = storeRcvdAdvertisement(adv);
+						if(changedSession != null){
+							//call rcvd adv session changed observer
+							callRcvdAdvSessionObserversObserverCallback(changedSession);
+							//call incoming adv observer
+							callRcvdAdvObserversObserverCallback(adv);
+						}
+					}else if(adv.gettype() == Constants.ADV_TYPE_PIC){
+						LogUtil.i(TAG,"received adv:" + adv.getcontent_thumb());
+						String MD5Path = SamchatFileNameUtils.getMD5Path(StorageType.TYPE_THUMB_IMAGE,adv.getcontent_thumb());
+						SamService.getInstance().download(adv.getcontent_thumb(),  MD5Path, new SMCallBack(){
+							@Override
+							public void onSuccess(final Object obj, final int WarningCode) {
+								LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" successfully");
+								RcvdAdvSession changedSession = storeRcvdAdvertisement(adv);
+								if(changedSession != null){
+									//call rcvd adv session changed observer
+									callRcvdAdvSessionObserversObserverCallback(changedSession);
+									//call incoming adv observer
+									callRcvdAdvObserversObserverCallback(adv);
+								}
+							}
+							@Override
+							public void onFailed(int code) {
+								LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" failed");
+							}
+							@Override
+							public void onError(int code) {
+								LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" error");
+							}
+						});
+					}else{
+						LogUtil.i(TAG,"received adv:" + adv.getcontent_thumb());
+						String MD5Path = SamchatFileNameUtils.getMD5Path(StorageType.TYPE_THUMB_VIDEO,adv.getcontent_thumb());
+						SamService.getInstance().download(adv.getcontent_thumb(), MD5Path, new SMCallBack(){
+							@Override
+							public void onSuccess(final Object obj, final int WarningCode) {
+								LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" successfully");
+								RcvdAdvSession changedSession = storeRcvdAdvertisement(adv);
+								if(changedSession != null){
+									//call rcvd adv session changed observer
+									callRcvdAdvSessionObserversObserverCallback(changedSession);
+									//call incoming adv observer
+									callRcvdAdvObserversObserverCallback(adv);
+								}
+							}
+							@Override
+							public void onFailed(int code) {
+								LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" failed");
+							}
+							@Override
+							public void onError(int code) {
+								LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" error");
+							}
+						});
 					}
-				}else if(adv.gettype() == Constants.ADV_TYPE_PIC){
-					LogUtil.i(TAG,"received adv:" + adv.getcontent_thumb());
-					String MD5Path = SamchatFileNameUtils.getMD5Path(StorageType.TYPE_THUMB_IMAGE,adv.getcontent_thumb());
-					SamService.getInstance().download(adv.getcontent_thumb(),  MD5Path, new SMCallBack(){
-						@Override
-						public void onSuccess(final Object obj, final int WarningCode) {
-							LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" successfully");
-							RcvdAdvSession changedSession = storeRcvdAdvertisement(adv);
-							if(changedSession != null){
-								//call rcvd adv session changed observer
-								callRcvdAdvSessionObserversObserverCallback(changedSession);
-								//call incoming adv observer
-								callRcvdAdvObserversObserverCallback(adv);
-							}
-						}
-						@Override
-						public void onFailed(int code) {
-							LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" failed");
-						}
-						@Override
-						public void onError(int code) {
-							LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" error");
-						}
-					});
-				}else{
-					LogUtil.i(TAG,"received adv:" + adv.getcontent_thumb());
-					String MD5Path = SamchatFileNameUtils.getMD5Path(StorageType.TYPE_THUMB_VIDEO,adv.getcontent_thumb());
-					SamService.getInstance().download(adv.getcontent_thumb(), MD5Path, new SMCallBack(){
-						@Override
-						public void onSuccess(final Object obj, final int WarningCode) {
-							LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" successfully");
-							RcvdAdvSession changedSession = storeRcvdAdvertisement(adv);
-							if(changedSession != null){
-								//call rcvd adv session changed observer
-								callRcvdAdvSessionObserversObserverCallback(changedSession);
-								//call incoming adv observer
-								callRcvdAdvObserversObserverCallback(adv);
-							}
-						}
-						@Override
-						public void onFailed(int code) {
-							LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" failed");
-						}
-						@Override
-						public void onError(int code) {
-							LogUtil.i(TAG,"download:" + adv.getcontent_thumb()+" error");
-						}
-					});
+				}catch(Exception e){
+					e.printStackTrace();
 				}
 			}
 		});
@@ -557,12 +566,16 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				MsgSession changedSession;
-				if((changedSession = storeSendMessage(sessionId,mode,msgs.get(0),im)) != null){
- 					callback.onResult(im,null,0);
-					callMsgServiceObserverCallback(changedSession);
-				}else{
-					callback.onResult(null,null,-1);
+				try{
+					MsgSession changedSession;
+					if((changedSession = storeSendMessage(sessionId,mode,msgs.get(0),im)) != null){
+ 						callback.onResult(im,null,0);
+						callMsgServiceObserverCallback(changedSession);
+					}else{
+						callback.onResult(null,null,-1);
+					}
+				}catch(Exception e){
+					e.printStackTrace();
 				}
 			}
 		});
@@ -590,17 +603,20 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				MsgSession changedSession;
-				if((changedSession = storeSendMessage(sessionId,mode,msgs.get(0),im)) != null){
- 					callback.onResult(im,null,0);
-					callMsgServiceObserverCallback(changedSession);
-					callSendCustomerMsgObserverCallback(im);
-				}else{
-					callback.onResult(null,null,-1);
+			try{
+					MsgSession changedSession;
+					if((changedSession = storeSendMessage(sessionId,mode,msgs.get(0),im)) != null){
+ 						callback.onResult(im,null,0);
+						callMsgServiceObserverCallback(changedSession);
+						callSendCustomerMsgObserverCallback(im);
+					}else{
+						callback.onResult(null,null,-1);
+					}
+				}catch(Exception e){
+					e.printStackTrace();
 				}
 			}
 		});
-		
 	}
 
 
@@ -608,28 +624,32 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(session_id,  mode);
-				if(session == null){
-					return;
-				}
+				try{
+					MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(session_id,  mode);
+					if(session == null){
+						return;
+					}
 
-				String table = session.getmsg_table_name();
-				SamService.getInstance().getDao().delete_Message_db(table, im.getUuid());
-				List<Message> msgs = SamService.getInstance().getDao().query_Messages_db_Newest(table, 1);
-				if(msgs == null || msgs.size() <= 0){
-					updateSessionByDeleteMsg(session,null,NimConstants.MSG_TYPE_IM);
-				}else{
-					List<Message> tmsgs = new ArrayList<Message>(1);
-					tmsgs.add(msgs.get(0));
-					List<IMMessage> fims = createIMMessages(tmsgs);
-					if(fims == null || fims.size() <= 0){
+					String table = session.getmsg_table_name();
+					SamService.getInstance().getDao().delete_Message_db(table, im.getUuid());
+					List<Message> msgs = SamService.getInstance().getDao().query_Messages_db_Newest(table, 1);
+					if(msgs == null || msgs.size() <= 0){
 						updateSessionByDeleteMsg(session,null,NimConstants.MSG_TYPE_IM);
 					}else{
-						updateSessionByDeleteMsg(session, fims.get(0),tmsgs.get(0).gettype());
+						List<Message> tmsgs = new ArrayList<Message>(1);
+						tmsgs.add(msgs.get(0));
+						List<IMMessage> fims = createIMMessages(tmsgs);
+						if(fims == null || fims.size() <= 0){
+							updateSessionByDeleteMsg(session,null,NimConstants.MSG_TYPE_IM);
+						}else{
+							updateSessionByDeleteMsg(session, fims.get(0),tmsgs.get(0).gettype());
+						}
 					}
+					SamService.getInstance().getDao().update_MsgSession_db(session);
+					callMsgServiceObserverCallback(session);
+				}catch(Exception e){
+					e.printStackTrace();
 				}
-				SamService.getInstance().getDao().update_MsgSession_db(session);
-				callMsgServiceObserverCallback(session);
 			}
 		});
 	}
@@ -649,14 +669,18 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(session_id,  mode);
-				if(session == null){
-					return;
+				try{
+					MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(session_id,  mode);
+					if(session == null){
+						return;
+					}
+					String table = session.getmsg_table_name();
+					MsgSessionDataCache.getInstance().removeMsgSession( session_id,  mode);
+					SamService.getInstance().getDao().delete_MsgSession_db(session_id, mode);
+					SamService.getInstance().getDao().delete_Message_db_all(table);
+				}catch(Exception e){
+					e.printStackTrace();
 				}
-				String table = session.getmsg_table_name();
-				MsgSessionDataCache.getInstance().removeMsgSession( session_id,  mode);
-				SamService.getInstance().getDao().delete_MsgSession_db(session_id, mode);
-				SamService.getInstance().getDao().delete_Message_db_all(table);
 			}
 		});
 	}
@@ -665,15 +689,20 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				SamService.getInstance().getDao().update_MsgSession_db_recent_status( session_id,  mode,  status);
+				try{
+					SamService.getInstance().getDao().update_MsgSession_db_recent_status( session_id,  mode,  status);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		});
 	}
 
 	public void asyncStoreRecvCustomerMessages(final List<IMMessage> ims){
 			mFixedHttpThreadPool.execute(new Runnable(){
-					@Override
-					public void run(){
+				@Override
+				public void run(){
+					try{
 						if(ims == null || ims.size() == 0){
 							return;
 						}
@@ -691,32 +720,38 @@ public class SamDBManager{
 						int msg_from = (int)content.get(NimConstants.MSG_FROM);
 						int mode = (msg_from == Constants.FROM_CUSTOMER ? ModeEnum.SP_MODE.ordinal():ModeEnum.CUSTOMER_MODE.ordinal());
 						List<Message> msgs = createMessages(sessionId,NimConstants.MSG_TYPE_IM, ims);
-                   	MsgSession changedSession;
+                 	 	MsgSession changedSession;
 						if((changedSession = storeRcvdMessages(sessionId,mode,msgs,ims,false)) != null){
 							//call session changed observer
 							callMsgServiceObserverCallback(changedSession);
 							//call incoming IMMessage observer
 							callIncomingMsgObserverCallback(ims);
 						}
+					}catch(Exception e){
+						e.printStackTrace();
 					}
-			});
-		}
+				}
+		});
+	}
 
 	public void asyncClearUnreadCount(final String session_id, final int mode){
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				MsgSession session = MsgSessionDataCache.getInstance().getMsgSession( session_id,  mode);
-				if(session != null){
-					session.settotal_unread(0);
-				}
-				if(SamService.getInstance().getDao().update_MsgSession_db_unread_count(session_id, mode, 0)!=-1){
-					MsgSession changedSession = SamService.getInstance().getDao().query_MsgSession_db( session_id,  mode);
-					if(changedSession !=null){
-						callMsgServiceObserverCallback(changedSession);
+				try{
+					MsgSession session = MsgSessionDataCache.getInstance().getMsgSession( session_id,  mode);
+					if(session != null){
+						session.settotal_unread(0);
 					}
+					if(SamService.getInstance().getDao().update_MsgSession_db_unread_count(session_id, mode, 0)!=-1){
+						MsgSession changedSession = SamService.getInstance().getDao().query_MsgSession_db( session_id,  mode);
+						if(changedSession !=null){
+							callMsgServiceObserverCallback(changedSession);
+						}
+					}
+				}catch(Exception e){
+					e.printStackTrace();
 				}
-				
 			}
 		});		
 	}
@@ -725,12 +760,16 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				List<RcvdAdvSession> sessions = SamService.getInstance().getDao().query_RcvdAdvSession_db_All();
-				int total_unread = 0;
-				for(RcvdAdvSession s:sessions){
-					total_unread = total_unread + s.getunread();
+				try{
+					List<RcvdAdvSession> sessions = SamService.getInstance().getDao().query_RcvdAdvSession_db_All();
+					int total_unread = 0;
+					for(RcvdAdvSession s:sessions){
+						total_unread = total_unread + s.getunread();
+					}
+					callback.onResult(new Integer(total_unread),null,0);
+				}catch(Exception e){
+					e.printStackTrace();
 				}
-				callback.onResult(new Integer(total_unread),null,0);
 			}
 		});	
 	}
@@ -739,12 +778,16 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				List<MsgSession> sessions = SamService.getInstance().getDao().query_MsgSession_db(mode);
-				int total_unread = 0;
-				for(MsgSession s:sessions){
-					total_unread = total_unread + s.gettotal_unread();
+				try{
+					List<MsgSession> sessions = SamService.getInstance().getDao().query_MsgSession_db(mode);
+					int total_unread = 0;
+					for(MsgSession s:sessions){
+						total_unread = total_unread + s.gettotal_unread();
+					}
+					callback.onResult(new Integer(total_unread),new Integer(mode),0);
+				}catch(Exception e){
+					e.printStackTrace();
 				}
-				callback.onResult(new Integer(total_unread),new Integer(mode),0);
 			}
 		});	
 	}
@@ -753,8 +796,12 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				List<SendQuestion> sqs = SamService.getInstance().getDao().query_SendQuestion_db_ALL();
-				callback.onResult(sqs, null, 0);
+				try{
+					List<SendQuestion> sqs = SamService.getInstance().getDao().query_SendQuestion_db_ALL();
+					callback.onResult(sqs, null, 0);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		});	
 	}
@@ -763,11 +810,15 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				SendQuestion  sq = SamService.getInstance().getDao().query_SendQuestion_db_by_question_id(question_id);
-				if(sq!=null){
-					sq.setunread(0);
-					SamService.getInstance().getDao().update_SendQuestion_db(sq);
-					callSendQuestionUnreadClearObserverCallback(sq);
+				try{
+					SendQuestion  sq = SamService.getInstance().getDao().query_SendQuestion_db_by_question_id(question_id);
+					if(sq!=null){
+						sq.setunread(0);
+						SamService.getInstance().getDao().update_SendQuestion_db(sq);
+						callSendQuestionUnreadClearObserverCallback(sq);
+					}
+				}catch(Exception e){
+					e.printStackTrace();
 				}
 			}
 		});	
@@ -777,11 +828,15 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				ReceivedQuestion rq = SamService.getInstance().getDao().query_ReceivedQuestion_db_by_question_id(question_id);
-				if(rq!=null){
-					rq.setunread(Constants.QUESTION_READ);
-					SamService.getInstance().getDao().update_ReceivedQuestion_db(rq);
-					callReceivedQuestionUnreadClearObserverCallback(rq);
+				try{
+					ReceivedQuestion rq = SamService.getInstance().getDao().query_ReceivedQuestion_db_by_question_id(question_id);
+					if(rq!=null){
+						rq.setunread(Constants.QUESTION_READ);
+						SamService.getInstance().getDao().update_ReceivedQuestion_db(rq);
+						callReceivedQuestionUnreadClearObserverCallback(rq);
+					}
+				}catch(Exception e){
+					e.printStackTrace();
 				}
 			}
 		});	
@@ -791,11 +846,15 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				RcvdAdvSession session = SamService.getInstance().getDao().query_RcvdAdvSession_db(unique_id);
-				if(session!=null){
-					session.setunread(0);
-					SamService.getInstance().getDao().update_RcvdAdvSession_db(session);
-					callRcvdAdvSessionObserversObserverCallback(session);
+				try{
+					RcvdAdvSession session = SamService.getInstance().getDao().query_RcvdAdvSession_db(unique_id);
+					if(session!=null){
+						session.setunread(0);
+						SamService.getInstance().getDao().update_RcvdAdvSession_db(session);
+						callRcvdAdvSessionObserversObserverCallback(session);
+					}
+				}catch(Exception e){
+					e.printStackTrace();
 				}
 			}
 		});	
@@ -817,16 +876,20 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				Map<String, Object> content = im.getRemoteExtension();
-				int msg_from = (int)content.get(NimConstants.MSG_FROM);
-				int mode = (msg_from == Constants.FROM_CUSTOMER ? ModeEnum.SP_MODE.ordinal():ModeEnum.CUSTOMER_MODE.ordinal());
-				Message msg = createMessage(im.getSessionId(),NimConstants.MSG_TYPE_RQ, im,rq.getquestion_id());
-				List<IMMessage> ims = new ArrayList<IMMessage>();
-				ims.add(im);
-				List<Message> msgs = new ArrayList<Message>();
-				msgs.add(msg);
-				storeRcvdMessages(im.getSessionId(),mode,msgs,ims,false);
-				syncNoticeReceivedQuestionMessage(rq, im);
+				try{
+					Map<String, Object> content = im.getRemoteExtension();
+					int msg_from = (int)content.get(NimConstants.MSG_FROM);
+					int mode = (msg_from == Constants.FROM_CUSTOMER ? ModeEnum.SP_MODE.ordinal():ModeEnum.CUSTOMER_MODE.ordinal());
+					Message msg = createMessage(im.getSessionId(),NimConstants.MSG_TYPE_RQ, im,rq.getquestion_id());
+					List<IMMessage> ims = new ArrayList<IMMessage>();
+					ims.add(im);
+					List<Message> msgs = new ArrayList<Message>();
+					msgs.add(msg);
+					storeRcvdMessages(im.getSessionId(),mode,msgs,ims,false);
+					syncNoticeReceivedQuestionMessage(rq, im);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		});
 	}
@@ -835,29 +898,33 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(""+rq.getsender_unique_id(),ModeEnum.SP_MODE.ordinal());
-				if(session!=null && SamService.getInstance().getDao().query_Message_db_by_type_data_id(session.getmsg_table_name(), NimConstants.MSG_TYPE_RQ, rq.getquestion_id())!=null){
-					return;
-				}
+				try{
+					MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(""+rq.getsender_unique_id(),ModeEnum.SP_MODE.ordinal());
+					if(session!=null && SamService.getInstance().getDao().query_Message_db_by_type_data_id(session.getmsg_table_name(), NimConstants.MSG_TYPE_RQ, rq.getquestion_id())!=null){
+						return;
+					}
 			
-				final IMMessage im = SAMMessageBuilder.createReceivedQuestionMessage(rq);
-				NIMClient.getService(MsgService.class).saveMessageToLocal(im, false).setCallback(new RequestCallback<Void>() {
-           		@Override
-           		public void onSuccess(Void a) {
-           			LogUtil.e(TAG,"saveMessageToLocal successful");
-						asyncStoreReceivedQuestionMessage(rq, im);
-            		}
+					final IMMessage im = SAMMessageBuilder.createReceivedQuestionMessage(rq);
+					NIMClient.getService(MsgService.class).saveMessageToLocal(im, false).setCallback(new RequestCallback<Void>() {
+           			@Override
+           			public void onSuccess(Void a) {
+           				LogUtil.e(TAG,"saveMessageToLocal successful");
+							asyncStoreReceivedQuestionMessage(rq, im);
+           	 		}
 
-            		@Override
-            		public void onFailed(int code) {
-						LogUtil.e(TAG,"saveMessageToLocal failed:"+code);
-					}
+            			@Override
+            			public void onFailed(int code) {
+							LogUtil.e(TAG,"saveMessageToLocal failed:"+code);
+						}
 
-            		@Override
-            		public void onException(Throwable exception) {
-						LogUtil.e(TAG,"saveMessageToLocal exception:"+exception);
-					}
-        		});
+            			@Override
+            			public void onException(Throwable exception) {
+							LogUtil.e(TAG,"saveMessageToLocal exception:"+exception);
+						}
+        			});
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		});	
 	}
@@ -866,13 +933,17 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				Message msg = createMessage(im.getSessionId(), NimConstants.MSG_TYPE_SEND_ADV,  im, 0L);
-				MsgSession changedSession;
-				if((changedSession = storeSendMessage(im.getSessionId(),ModeEnum.SP_MODE.ordinal(),msg,im)) != null){
-					callSendAdvertisementObserverCallback(im);
-					callback.onResult(im,null, 0);
-				}else{
-					callback.onResult(im,null, -1);
+				try{
+					Message msg = createMessage(im.getSessionId(), NimConstants.MSG_TYPE_SEND_ADV,  im, 0L);
+					MsgSession changedSession;
+					if((changedSession = storeSendMessage(im.getSessionId(),ModeEnum.SP_MODE.ordinal(),msg,im)) != null){
+						callSendAdvertisementObserverCallback(im);
+						callback.onResult(im,null, 0);
+					}else{
+						callback.onResult(im,null, -1);
+					}
+				}catch(Exception e){
+					e.printStackTrace();
 				}
 			}
 		});
@@ -882,19 +953,23 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				if(im.getStatus() == MsgStatusEnum.success){
-					MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(im.getSessionId(), ModeEnum.SP_MODE.ordinal());
-					if(SamService.getInstance().getDao().updateMessageDataID(session.getmsg_table_name(), im.getUuid(), adv.getadv_id())!=-1){
-						NIMClient.getService(MsgService.class).updateIMMessageStatus(im);
-						callSendAdvertisementStatusObserverCallback(im);
-						session.setrecent_msg_status(im.getStatus().getValue());
-						SamDBManager.getInstance().asyncUpdateMessageSessionDBRecentMessageStatus(im.getSessionId(), ModeEnum.SP_MODE.ordinal(),im.getStatus().getValue());
+				try{
+					if(im.getStatus() == MsgStatusEnum.success){
+						MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(im.getSessionId(), ModeEnum.SP_MODE.ordinal());
+						if(SamService.getInstance().getDao().updateMessageDataID(session.getmsg_table_name(), im.getUuid(), adv.getadv_id())!=-1){
+							NIMClient.getService(MsgService.class).updateIMMessageStatus(im);
+							callSendAdvertisementStatusObserverCallback(im);
+							session.setrecent_msg_status(im.getStatus().getValue());
+							SamDBManager.getInstance().asyncUpdateMessageSessionDBRecentMessageStatus(im.getSessionId(), ModeEnum.SP_MODE.ordinal(),im.getStatus().getValue());
+						}else{
+							im.setStatus(MsgStatusEnum.fail);
+							callSendAdvertisementStatusObserverCallback(im);
+						}
 					}else{
-						im.setStatus(MsgStatusEnum.fail);
 						callSendAdvertisementStatusObserverCallback(im);
 					}
-				}else{
-					callSendAdvertisementStatusObserverCallback(im);
+				}catch(Exception e){
+					e.printStackTrace();
 				}
 			}
 		});
@@ -907,17 +982,22 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				Map<String, Object> content = im.getRemoteExtension();
-				int msg_from = (int)content.get(NimConstants.MSG_FROM);
-				int mode = (msg_from == Constants.FROM_CUSTOMER ? ModeEnum.SP_MODE.ordinal():ModeEnum.CUSTOMER_MODE.ordinal());
-				Message msg = createMessage(im.getSessionId(),NimConstants.MSG_TYPE_RCVD_ADV, im,adv.getadv_id());
+				try{
+					Map<String, Object> content = im.getRemoteExtension();
+					int msg_from = (int)content.get(NimConstants.MSG_FROM);
+					int mode = (msg_from == Constants.FROM_CUSTOMER ? ModeEnum.SP_MODE.ordinal():ModeEnum.CUSTOMER_MODE.ordinal());
+					Message msg = createMessage(im.getSessionId(),NimConstants.MSG_TYPE_RCVD_ADV, im,adv.getadv_id());
 
-				List<IMMessage> ims = new ArrayList<IMMessage>();
-				ims.add(im);
-				List<Message> msgs = new ArrayList<Message>();
-				msgs.add(msg);
-				storeRcvdMessages(im.getSessionId(),mode,msgs,ims,false);
-				syncNoticeRcvdAdvMessage(adv,im);
+					List<IMMessage> ims = new ArrayList<IMMessage>();
+					ims.add(im);
+					List<Message> msgs = new ArrayList<Message>();
+					msgs.add(msg);
+					List<Advertisement> advs = new ArrayList<Advertisement>();
+					storeRcvdMessages(im.getSessionId(),mode,msgs,ims,false);
+					syncNoticeRcvdAdvMessage(adv,im);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		});
 	}
@@ -938,30 +1018,34 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(""+adv.getsender_unique_id(),ModeEnum.CUSTOMER_MODE.ordinal());
-				if(session!=null && SamService.getInstance().getDao().query_Message_db_by_type_data_id(session.getmsg_table_name(), NimConstants.MSG_TYPE_RCVD_ADV, adv.getadv_id())!=null){
-					return;
-				}
+				try{
+					MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(""+adv.getsender_unique_id(),ModeEnum.CUSTOMER_MODE.ordinal());
+					if(session!=null && SamService.getInstance().getDao().query_Message_db_by_type_data_id(session.getmsg_table_name(), NimConstants.MSG_TYPE_RCVD_ADV, adv.getadv_id())!=null){
+						return;
+					}
 
-				final IMMessage im = SAMMessageBuilder.createReceivedAdvertisementMessage(adv);
+					final IMMessage im = SAMMessageBuilder.createReceivedAdvertisementMessage(adv);
 				
-				NIMClient.getService(MsgService.class).saveMessageToLocal(im, false).setCallback(new RequestCallback<Void>() {
-           		@Override
-           		public void onSuccess(Void a) {
-           			LogUtil.e(TAG,"saveMessageToLocal successful");
-						asyncStoreReceivedAdvertisementMessage(adv,im);
-            		}
+					NIMClient.getService(MsgService.class).saveMessageToLocal(im, false).setCallback(new RequestCallback<Void>() {
+           			@Override
+           			public void onSuccess(Void a) {
+           				LogUtil.e(TAG,"saveMessageToLocal successful");
+							asyncStoreReceivedAdvertisementMessage(adv,im);
+           	 		}
 
-            		@Override
-            		public void onFailed(int code) {
-						LogUtil.e(TAG,"saveMessageToLocal failed:"+code);
-					}
+           	 		@Override
+            			public void onFailed(int code) {
+							LogUtil.e(TAG,"saveMessageToLocal failed:"+code);
+						}
 
-            		@Override
-            		public void onException(Throwable exception) {
-						LogUtil.e(TAG,"saveMessageToLocal exception:"+exception);
-					}
-        		});
+            			@Override
+            			public void onException(Throwable exception) {
+							LogUtil.e(TAG,"saveMessageToLocal exception:"+exception);
+						}
+        			});
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		});	
 	}
@@ -970,17 +1054,21 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(session_id,  mode);
-				if(session == null){
-					return;
-				}
+				try{
+					MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(session_id,  mode);
+					if(session == null){
+						return;
+					}
 
-				String table = session.getmsg_table_name();
-				Message dbMsg = SamService.getInstance().getDao().query_Message_db_by_uuid( table, msg.getUuid());
-				if(dbMsg != null && dbMsg.getdata_id() != 0){
-					SamService.getInstance().getDao().delete_SamProsAdv_db_by_adv_id(dbMsg.getdata_id());
+					String table = session.getmsg_table_name();
+					Message dbMsg = SamService.getInstance().getDao().query_Message_db_by_uuid( table, msg.getUuid());
+					if(dbMsg != null && dbMsg.getdata_id() != 0){
+						SamService.getInstance().getDao().delete_SamProsAdv_db_by_adv_id(dbMsg.getdata_id());
+					}
+					SamService.getInstance().getDao().delete_Message_db(table, msg.getUuid());
+				}catch(Exception e){
+					e.printStackTrace();
 				}
-				SamService.getInstance().getDao().delete_Message_db(table, msg.getUuid());
 			}
 		});	
 	}
@@ -989,10 +1077,14 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(account,  mode);
-				if(session != null){
-					session.setrecent_msg_status(MsgStatusEnum.sending.getValue());
-					callMsgServiceObserverCallback(session);
+				try{
+					MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(account,  mode);
+					if(session != null){
+						session.setrecent_msg_status(MsgStatusEnum.sending.getValue());
+						callMsgServiceObserverCallback(session);
+					}
+				}catch(Exception e){
+					e.printStackTrace();
 				}
 			}
 		});	
@@ -1002,8 +1094,12 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				List<RcvdAdvSession> sessions = SamService.getInstance().getDao().query_RcvdAdvSession_db_All();
-				callback.onResult(sessions, null, 0);
+				try{
+					List<RcvdAdvSession> sessions = SamService.getInstance().getDao().query_RcvdAdvSession_db_All();
+					callback.onResult(sessions, null, 0);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		});
 	}
@@ -1012,8 +1108,12 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				SendQuestion sq = SamService.getInstance().getDao().query_SendQuestion_db_by_question_id(question_id);
-				callback.onResult(sq, null, 0);
+				try{
+					SendQuestion sq = SamService.getInstance().getDao().query_SendQuestion_db_by_question_id(question_id);
+					callback.onResult(sq, null, 0);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		});
 	}
@@ -1022,8 +1122,12 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				SamService.getInstance().getDao().delete_SendQuestion_db_by_question_id(question_id);
-				callback.onResult(null, null, 0);
+				try{
+					SamService.getInstance().getDao().delete_SendQuestion_db_by_question_id(question_id);
+					callback.onResult(null, null, 0);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		});
 	}
@@ -1032,8 +1136,12 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				SamService.getInstance().getDao().delete_ReceivedQuestion_db_by_question_id(question_id);
-				callback.onResult(null, null, 0);
+				try{
+					SamService.getInstance().getDao().delete_ReceivedQuestion_db_by_question_id(question_id);
+					callback.onResult(null, null, 0);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		});
 	}
@@ -1042,8 +1150,12 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				List<ReceivedQuestion> rqs = SamService.getInstance().getDao().query_ReceivedQuestion_db_by_timestamp(timestamp,after);
-				callback.onResult(rqs, null, 0);
+				try{
+					List<ReceivedQuestion> rqs = SamService.getInstance().getDao().query_ReceivedQuestion_db_by_timestamp(timestamp,after);
+					callback.onResult(rqs, null, 0);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		});
 	}
@@ -1109,31 +1221,35 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				List<IMMessage> ims = new ArrayList<IMMessage>();
-				MsgSession session = SamService.getInstance().getDao().query_MsgSession_db( session_id,  mode);
-				if(session == null){
-					callback.onResult(ims,null,-1);
-					return;
-				}
-
-				String table = session.getmsg_table_name();
-				List<Message> messages=null;
-				if(im == null){
-					messages = SamService.getInstance().getDao().query_Messages_db_Newest(table,  count);
-				}else{
-					Message tmsg = SamService.getInstance().getDao().query_Message_db_by_uuid(session.getmsg_table_name(),im.getUuid());
-					if(tmsg == null){
+				try{
+					List<IMMessage> ims = new ArrayList<IMMessage>();
+					MsgSession session = SamService.getInstance().getDao().query_MsgSession_db( session_id,  mode);
+					if(session == null){
 						callback.onResult(ims,null,-1);
 						return;
 					}
-					messages = SamService.getInstance().getDao().query_Messages_db_by_anchor( table, tmsg.getid(), count);
-				}
 
-				if(messages == null || messages.size() <=0){
-					callback.onResult(ims,null,0);
-				}else{
-					ims = createIMMessages(messages);
-					callback.onResult(ims, null ,0);
+					String table = session.getmsg_table_name();
+					List<Message> messages=null;
+					if(im == null){
+						messages = SamService.getInstance().getDao().query_Messages_db_Newest(table,  count);
+					}else{
+						Message tmsg = SamService.getInstance().getDao().query_Message_db_by_uuid(session.getmsg_table_name(),im.getUuid());
+						if(tmsg == null){
+							callback.onResult(ims,null,-1);
+							return;
+						}
+						messages = SamService.getInstance().getDao().query_Messages_db_by_anchor( table, tmsg.getid(), count);
+					}
+
+					if(messages == null || messages.size() <=0){
+						callback.onResult(ims,null,0);
+					}else{
+						ims = createIMMessages(messages);
+						callback.onResult(ims, null ,0);
+					}
+				}catch(Exception e){
+					e.printStackTrace();
 				}
 			}
 		});
@@ -1144,8 +1260,12 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				MsgSession session = SamService.getInstance().getDao().query_MsgSession_db( session_id,  mode);
-				callback.onResult(session, null, 0);
+				try{
+					MsgSession session = SamService.getInstance().getDao().query_MsgSession_db( session_id,  mode);
+					callback.onResult(session, null, 0);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		});	
 	}
@@ -1154,11 +1274,15 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				ReceivedQuestion rq = SamService.getInstance().getDao().query_ReceivedQuestion_db_by_question_id(question_id);
-				if(rq != null){
-					rq.setstatus(Constants.QUESTION_RESPONSED);
-					SamService.getInstance().getDao().update_ReceivedQuestion_db(rq);
-					callReceivedQuestionObserverCallback(rq);
+				try{
+					ReceivedQuestion rq = SamService.getInstance().getDao().query_ReceivedQuestion_db_by_question_id(question_id);
+					if(rq != null){
+						rq.setstatus(Constants.QUESTION_RESPONSED);
+						SamService.getInstance().getDao().update_ReceivedQuestion_db(rq);
+						callReceivedQuestionObserverCallback(rq);
+					}
+				}catch(Exception e){
+					e.printStackTrace();
 				}
 			}
 		});
@@ -1168,14 +1292,18 @@ public class SamDBManager{
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
-				RcvdAdvSession session = SamService.getInstance().getDao().query_RcvdAdvSession_db(unique_id);
-				if(session!=null){
-					Advertisement adv =SamService.getInstance().getDao().query_RcvdAdv_db_by_advid(session.getname(), adv_id);
-					if(adv != null){
-						adv.setresponse(Constants.ADV_RESPONSED);
-						SamService.getInstance().getDao().update_RcvdAdv_db_response(session.getname(),  adv_id, Constants.ADV_RESPONSED);
-						callRcvdAdvObserversObserverCallback(adv);
+				try{
+					RcvdAdvSession session = SamService.getInstance().getDao().query_RcvdAdvSession_db(unique_id);
+					if(session!=null){
+						Advertisement adv =SamService.getInstance().getDao().query_RcvdAdv_db_by_advid(session.getname(), adv_id);
+						if(adv != null){
+							adv.setresponse(Constants.ADV_RESPONSED);
+							SamService.getInstance().getDao().update_RcvdAdv_db_response(session.getname(),  adv_id, Constants.ADV_RESPONSED);
+							callRcvdAdvObserversObserverCallback(adv);
+						}
 					}
+				}catch(Exception e){
+					e.printStackTrace();
 				}
 			}
 		});
@@ -1334,115 +1462,117 @@ public class SamDBManager{
 			mFixedHttpThreadPool.execute(new Runnable(){
 					@Override
 					public void run(){
-						if(ims == null || ims.size() == 0){
-							return;
-						}
-						SessionTypeEnum sessionType = ims.get(0).getSessionType();
-						String sessionId = ims.get(0).getSessionId();
-						if(sessionType !=  SessionTypeEnum.P2P){
-							return;
-						}
-
-						List<IMMessage> valid_ims = new ArrayList<IMMessage>();
-						for(IMMessage m:ims){
-							Map<String, Object> content = m.getRemoteExtension();
-							if(content != null && content.containsKey(Constants.MSG_FROM)){
-								valid_ims.add(m);
+						try{
+							if(ims == null || ims.size() == 0){
+								return;
 							}
-						}
-						if(valid_ims.size() == 0){
-							return;
-						}
+							SessionTypeEnum sessionType = ims.get(0).getSessionType();
+							String sessionId = ims.get(0).getSessionId();
+							if(sessionType !=  SessionTypeEnum.P2P){
+								return;
+							}
 
-						
-						/*parse advertisement if existed*/
-						List<AdvancedMessage> ammsgs = handleAdvId(valid_ims);
-						boolean adv_im_existed = false;
-						int index = -1;
-						for(AdvancedMessage am: ammsgs){
-							index = -1;
-							for(int i=0; i<valid_ims.size();i++){
-								if(am.getim().getUuid().equals(valid_ims.get(i).getUuid())){
-									index = i;
-									break;
+							List<IMMessage> valid_ims = new ArrayList<IMMessage>();
+							for(IMMessage m:ims){
+								Map<String, Object> content = m.getRemoteExtension();
+								if(content != null && content.containsKey(Constants.MSG_FROM)){
+									valid_ims.add(m);
 								}
 							}
-							if(index > -1){
-								if(am.getadv().gettype() == Constants.ADV_TYPE_TEXT){
-									valid_ims.add(index,SAMMessageBuilder.createSendAdvertisementTextMessage(am.getadv(), am.getim()));
-									adv_im_existed = true;
-								}else{
-									IMMessage sm = findSendAdvertisementIMMessage(am.getadv());
-									if(sm!=null){
-										valid_ims.add(index,SAMMessageBuilder.createSendAdvertisementImageMessage(am.getadv(),sm,am.getim()));
-										adv_im_existed = true;
-									}
-								}
-								LogUtil.i(TAG,"find adv im message");
+							if(valid_ims.size() == 0){
+								return;
 							}
-						}
-			
-						/*parse question id if existed*/
-						ammsgs = handleQuestId(valid_ims);
-						boolean sq_im_existed = false;
-						/*insert send question IMMessage into yunxin msg db*/
-						index = -1;
-						for(AdvancedMessage am : ammsgs){
-							index = -1;
-							for(int i=0; i<valid_ims.size();i++){
-								if(am.getim().getUuid().equals(valid_ims.get(i).getUuid())){
+							/*parse advertisement if existed*/
+							List<AdvancedMessage> ammsgs = handleAdvId(valid_ims);
+							boolean adv_im_existed = false;
+							int index = -1;
+							for(AdvancedMessage am: ammsgs){
+								index = -1;
+								for(int i=0; i<valid_ims.size();i++){
+									if(am.getim().getUuid().equals(valid_ims.get(i).getUuid())){
 										index = i;
 										break;
+									}
+								}
+								if(index > -1){
+									if(am.getadv().gettype() == Constants.ADV_TYPE_TEXT){
+										valid_ims.add(index,SAMMessageBuilder.createSendAdvertisementTextMessage(am.getadv(), am.getim()));
+										adv_im_existed = true;
+									}else{
+										IMMessage sm = findSendAdvertisementIMMessage(am.getadv());
+										if(sm!=null){
+											valid_ims.add(index,SAMMessageBuilder.createSendAdvertisementImageMessage(am.getadv(),sm,am.getim()));
+											adv_im_existed = true;
+										}
+									}
+									LogUtil.i(TAG,"find adv im message");
 								}
 							}
-							if(index > -1){
-								valid_ims.add(index,SAMMessageBuilder.createSendQuestionMessage(am.getsq(), am.getim()));
-								sq_im_existed = true;
+			
+							/*parse question id if existed*/
+							ammsgs = handleQuestId(valid_ims);
+							boolean sq_im_existed = false;
+							/*insert send question IMMessage into yunxin msg db*/
+							index = -1;
+							for(AdvancedMessage am : ammsgs){
+								index = -1;
+								for(int i=0; i<valid_ims.size();i++){
+									if(am.getim().getUuid().equals(valid_ims.get(i).getUuid())){
+										index = i;
+										break;
+									}
+								}
+								if(index > -1){
+									valid_ims.add(index,SAMMessageBuilder.createSendQuestionMessage(am.getsq(), am.getim()));
+									sq_im_existed = true;
+								}
 							}
-						}
 						
-						List<Message> msgs_customer_mode = new ArrayList<Message>();
-						List<IMMessage> ims_customer_mode = new ArrayList<IMMessage>();
-						List<Message> msgs_sp_mode = new ArrayList<Message>();
-						List<IMMessage> ims_sp_mode = new ArrayList<IMMessage>();
+							List<Message> msgs_customer_mode = new ArrayList<Message>();
+							List<IMMessage> ims_customer_mode = new ArrayList<IMMessage>();
+							List<Message> msgs_sp_mode = new ArrayList<Message>();
+							List<IMMessage> ims_sp_mode = new ArrayList<IMMessage>();
 
-						List<Message> dbmsgs = createMessages(valid_ims);
+							List<Message> dbmsgs = createMessages(valid_ims);
 
-						for(int i=0;i<valid_ims.size();i++){
-							Map<String, Object> content = valid_ims.get(i).getRemoteExtension();
-							int msg_from = (int)content.get(Constants.MSG_FROM);
-							int mode = (msg_from == Constants.FROM_CUSTOMER ? ModeEnum.SP_MODE.ordinal():ModeEnum.CUSTOMER_MODE.ordinal());
-							if(mode == ModeEnum.CUSTOMER_MODE.ordinal()){
-								ims_customer_mode.add(valid_ims.get(i));
-								msgs_customer_mode.add(dbmsgs.get(i));
-							}else{
-								ims_sp_mode.add(valid_ims.get(i));
-								msgs_sp_mode.add(dbmsgs.get(i));
+							for(int i=0;i<valid_ims.size();i++){
+								Map<String, Object> content = valid_ims.get(i).getRemoteExtension();
+								int msg_from = (int)content.get(Constants.MSG_FROM);
+								int mode = (msg_from == Constants.FROM_CUSTOMER ? ModeEnum.SP_MODE.ordinal():ModeEnum.CUSTOMER_MODE.ordinal());
+								if(mode == ModeEnum.CUSTOMER_MODE.ordinal()){
+									ims_customer_mode.add(valid_ims.get(i));
+									msgs_customer_mode.add(dbmsgs.get(i));
+								}else{
+									ims_sp_mode.add(valid_ims.get(i));
+									msgs_sp_mode.add(dbmsgs.get(i));
+								}
 							}
-						}
 
-						LogUtil.i(TAG,"ims_sp_mode ims size:"+ims_sp_mode.size());
+							LogUtil.i(TAG,"ims_sp_mode ims size:"+ims_sp_mode.size());
 
-						MsgSession changedSession;
-						if(ims_customer_mode.size()>0 && (changedSession = storeRcvdMessages(sessionId,ModeEnum.CUSTOMER_MODE.ordinal(),msgs_customer_mode,ims_customer_mode,true)) != null){
-							if(!sq_im_existed){
-								//call session changed observer
-								callMsgServiceObserverCallback(changedSession);
-								//call incoming IMMessage observer
-								callIncomingMsgObserverCallback(ims_customer_mode);
-							}else{
-								saveSQimsToMsgDB(changedSession, ims_customer_mode);
+							MsgSession changedSession;
+							if(ims_customer_mode.size()>0 && (changedSession = storeRcvdMessages(sessionId,ModeEnum.CUSTOMER_MODE.ordinal(),msgs_customer_mode,ims_customer_mode,true)) != null){
+								if(!sq_im_existed){
+									//call session changed observer
+									callMsgServiceObserverCallback(changedSession);
+									//call incoming IMMessage observer
+									callIncomingMsgObserverCallback(ims_customer_mode);
+								}else{
+									saveSQimsToMsgDB(changedSession, ims_customer_mode);
+								}
 							}
-						}
-						if(ims_sp_mode.size()>0 && (changedSession = storeRcvdMessages(sessionId,ModeEnum.SP_MODE.ordinal(),msgs_sp_mode,ims_sp_mode,true)) != null){
-							if(!adv_im_existed){
-								//call session changed observer
-								callMsgServiceObserverCallback(changedSession);
-								//call incoming IMMessage observer
-								callIncomingMsgObserverCallback(ims_sp_mode);
-							}else{
-								saveSAimsToMsgDB(changedSession, ims_sp_mode);
+							if(ims_sp_mode.size()>0 && (changedSession = storeRcvdMessages(sessionId,ModeEnum.SP_MODE.ordinal(),msgs_sp_mode,ims_sp_mode,true)) != null){
+								if(!adv_im_existed){
+									//call session changed observer
+									callMsgServiceObserverCallback(changedSession);
+									//call incoming IMMessage observer
+									callIncomingMsgObserverCallback(ims_sp_mode);
+								}else{
+									saveSAimsToMsgDB(changedSession, ims_sp_mode);
+								}
 							}
+						}catch(Exception e){
+							e.printStackTrace();
 						}
 					}
 			});

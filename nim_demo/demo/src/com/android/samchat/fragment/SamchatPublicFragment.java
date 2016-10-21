@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 
 import android.widget.ImageView;
@@ -66,6 +67,7 @@ import com.android.samservice.info.FollowedSamPros;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
+import com.netease.nim.uikit.common.ui.listview.MessageListView;
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
@@ -97,9 +99,11 @@ import android.widget.Toast;
 /**
  * Main Fragment in SamchatPublicListFragment
  */
-public class SamchatPublicFragment extends TFragment implements ModuleProxy {
+public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 	public static String TAG="SamchatPublicFragment";
 	public static final int CONFIRM_ID_GET_POST_CONENT=2000;
+
+	private LinearLayout fragment_root_layout;
 	/*customer mode*/
 	//view
 	private LinearLayout customer_public_layout;
@@ -121,7 +125,6 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 	protected SessionTypeEnum sessionType;
 	protected SamchatAdvertisementInputPanel inputPanel;
 	protected SamchatAdvertisementMessageListPanel messageListPanel;
-	protected ImageView post_iv;
 	protected List<BaseAction> actions;
 	
 	//observer and broadcast
@@ -167,7 +170,9 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 					loadedFollowSPs= FollowDataCache.getInstance().getMyFollowSPsList();
 					onFollowedSPsLoaded();
 				}else if(intent.getAction().equals(Constants.BROADCAST_POST_ADV)){
-					launchAdvertisementPostActivity();
+					//launchAdvertisementPostActivity();
+					LogUtil.i(TAG,"receive BROADCAST_POST_ADV");
+					showAdvertisementPostBar(true);
 				}
 			}
 		};
@@ -233,6 +238,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 	}
 	
 	private void findViews() {
+		fragment_root_layout = (LinearLayout) findView(R.id.fragment_root);
 		//customer mode views
 		customer_public_layout = (LinearLayout) findView(R.id.customer_public_layout);
 		customer_public_list = (ListView) findView(R.id.customer_public_list);
@@ -247,6 +253,8 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 			sp_public_layout.setVisibility(View.VISIBLE);
 		}
     }
+
+	
 
 	private void initFollowedSPList(){
 		rcvdSessions = new ArrayList<RcvdAdvSession>();
@@ -467,14 +475,16 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
     }
 
 	public boolean onBackPressed() {
-        if (inputPanel.collapse(true)) {
-            return true;
-        }
+		showAdvertisementPostBar(false);
+		if (inputPanel.collapse(true)) {
+			return true;
+		}
 
-        if (messageListPanel.onBackPressed()) {
-            return true;
-        }
-        return false;
+		if (messageListPanel.onBackPressed()) {
+			return true;
+		}
+
+		return false;
     }
 
 	public void refreshMessageList() {
@@ -501,24 +511,34 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 			}
 		});
 
+		messageListPanel.setOnTouchListener(new MessageListView.OnTouchListener(){
+			@Override
+			public void OnTouch(){
+				
+				LogUtil.i(TAG,"dismiss post bar due to message list touch");
+				showAdvertisementPostBar(false);
+			}
+		});
+
 		
 		inputPanel = new SamchatAdvertisementInputPanel(container, rootView, getActionList());
 		if(customization!=null){
 			messageListPanel.setChattingBackground(customization.backgroundUri, customization.backgroundColor);
 		}
 
-		post_iv = (ImageView) findView(R.id.post);
-		post_iv.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				
-			}
-		});
-		post_iv.setVisibility(View.GONE);
+		showAdvertisementPostBar(false);
 	}
 
 	private void launchAdvertisementPostActivity(){
 		SamchatAdvertisementPostActivity.startActivityForResult(getActivity(), SamchatPublicFragment.this, CONFIRM_ID_GET_POST_CONENT);
+	}
+
+	private void showAdvertisementPostBar(boolean show){
+		if(show){
+			inputPanel.showBottomLayout(true);
+		}else{
+			inputPanel.showBottomLayout(false);
+		}
 	}
 
 	protected boolean isAllowSendMessage(final IMMessage message) {
@@ -727,16 +747,17 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		//inputPanel.onActivityResult(requestCode, resultCode, data);
+		inputPanel.onActivityResult(requestCode, resultCode, data);
+		LogUtil.d(TAG, "onActivityResult called");
 		//messageListPanel.onActivityResult(requestCode, resultCode, data);
-		if(requestCode == CONFIRM_ID_GET_POST_CONENT && resultCode == Activity.RESULT_OK){
+		/*if(requestCode == CONFIRM_ID_GET_POST_CONENT && resultCode == Activity.RESULT_OK){
 			if(data.getBooleanExtra(SamchatAdvertisementPostActivity.EXTRA_IS_TEXT,false)){
 				String adv_text = data.getStringExtra(SamchatAdvertisementPostActivity.EXTRA_TEXT);
 				inputPanel.onTextMessageSendButtonPressed(adv_text);
 			}else{
 				inputPanel.onActivityResult(((ImageAction)actions.get(0)).makeRequestCode(RequestCode.PICK_IMAGE), Activity.RESULT_OK,data);
 			}
-		}
+		}*/
 	}
 
 

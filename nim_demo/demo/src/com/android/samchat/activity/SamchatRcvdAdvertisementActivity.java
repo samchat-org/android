@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -35,7 +36,7 @@ import java.util.List;
 public class SamchatRcvdAdvertisementActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatRcvdAdvertisementActivity.class.getSimpleName();
 
-	private static final int LOAD_ADV_COUNT = 3;
+	private static final int LOAD_ADV_COUNT = 20;
 
 	private FrameLayout back_arrow_layout;
 	private TextView titlebar_name_textview;
@@ -89,6 +90,7 @@ public class SamchatRcvdAdvertisementActivity extends UI implements OnKeyListene
 	protected void onDestroy() {
 		super.onDestroy();
 		registerObservers(false);
+		SamDBManager.getInstance().asyncClearReceivedAdvertisementUnreadCount(user.getunique_id());
 	}
 
 	private void setupPanel() {
@@ -136,6 +138,7 @@ public class SamchatRcvdAdvertisementActivity extends UI implements OnKeyListene
 			@Override
 			public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView){
 				LogUtil.i(TAG,"loading more advertisement by pull down");
+				
 				if(items == null || items.size() == 0){
 					new GetDataTask().execute(0L);
 				}else{
@@ -229,7 +232,6 @@ public class SamchatRcvdAdvertisementActivity extends UI implements OnKeyListene
 		}
 	}
 
-
 	private class GetDataTask extends AsyncTask<Long, Integer, List<Advertisement>>
 	{
 
@@ -242,6 +244,8 @@ public class SamchatRcvdAdvertisementActivity extends UI implements OnKeyListene
 			if(session != null){
 				load =  SamService.getInstance().getDao().query_RcvdAdv_db_by_timestamp(session.getname(), time, LOAD_ADV_COUNT);
 			}
+
+			SystemClock.sleep(500);
 
 			return load;
 		}

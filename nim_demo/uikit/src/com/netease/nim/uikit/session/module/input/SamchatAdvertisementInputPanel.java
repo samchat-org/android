@@ -28,6 +28,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
+import com.netease.nim.uikit.common.ui.widget.EditTextPreIme;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.netease.nim.uikit.session.SessionCustomization;
@@ -63,7 +64,7 @@ public class SamchatAdvertisementInputPanel implements IEmoticonSelectedListener
 
     protected View actionPanelBottomLayout; // 更多布局
     protected LinearLayout messageActivityBottomLayout;
-    protected EditText messageEditText;// 文本消息编辑框
+    protected EditTextPreIme messageEditText;// 文本消息编辑框
     protected Button audioRecordBtn; // 录音按钮
     protected View audioAnimLayout; // 录音动画布局
     protected FrameLayout textAudioSwitchLayout; // 切换文本，语音按钮布局
@@ -159,14 +160,13 @@ public class SamchatAdvertisementInputPanel implements IEmoticonSelectedListener
     private void initViews() {
         // input bar
         messageActivityBottomLayout = (LinearLayout) view.findViewById(R.id.messageActivityBottomLayout);
-        messageActivityBottomLayout.setVisibility(View.GONE);
         messageInputBar = view.findViewById(R.id.textMessageLayout);
         switchToTextButtonInInputBar = view.findViewById(R.id.buttonTextMessage);
         switchToAudioButtonInInputBar = view.findViewById(R.id.buttonAudioMessage);
         moreFuntionButtonInInputBar = view.findViewById(R.id.buttonMoreFuntionInText);
         emojiButtonInInputBar = view.findViewById(R.id.emoji_button);
         sendMessageButtonInInputBar = view.findViewById(R.id.buttonSendMessage);
-        messageEditText = (EditText) view.findViewById(R.id.editTextMessage);
+        messageEditText = (EditTextPreIme) view.findViewById(R.id.editTextMessage);
 
         // 语音
         audioRecordBtn = (Button) view.findViewById(R.id.audioRecord);
@@ -198,8 +198,16 @@ public class SamchatAdvertisementInputPanel implements IEmoticonSelectedListener
         moreFuntionButtonInInputBar.setOnClickListener(clickListener);
     }
 
-    private void initTextEdit() {
-        messageEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+	private void initTextEdit() {
+		messageEditText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE);
+
+		messageEditText.setOnBackKeyListener(new EditTextPreIme.OnBackKeyListener(){
+			@Override
+			public void OnBackKeyPress(){
+				showBottomLayout(false);
+			}
+		});
+
         messageEditText.setOnTouchListener(new View.OnTouchListener() {
 
             public boolean onTouch(View v, MotionEvent event) {
@@ -431,6 +439,8 @@ public class SamchatAdvertisementInputPanel implements IEmoticonSelectedListener
         initActionPanelLayout();
     }
 
+	
+
     // 显示键盘布局
     private void showInputMethod(EditText editTextMessage) {
         editTextMessage.requestFocus();
@@ -445,6 +455,36 @@ public class SamchatAdvertisementInputPanel implements IEmoticonSelectedListener
 
         container.proxy.onInputPanelExpand();
     }
+
+	public void showInputMethod() {
+        messageEditText.requestFocus();
+        //如果已经显示,则继续操作时不需要把光标定位到最后
+        if (!isKeyboardShowed) {
+            messageEditText.setSelection(messageEditText.getText().length());
+            isKeyboardShowed = true;
+        }
+
+        InputMethodManager imm = (InputMethodManager) container.activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(messageEditText, 0);
+
+        container.proxy.onInputPanelExpand();
+    }
+
+	public void showBottomLayout(boolean show){
+		if(show){
+			messageActivityBottomLayout.setVisibility(View.VISIBLE);
+			showInputMethod();
+		}else{
+			messageActivityBottomLayout.setVisibility(View.GONE);
+			collapse(true);
+		}
+	}
+
+	public boolean isKeyBoardShow(){
+		return isKeyboardShowed;
+	}
+
+	
 
     // 显示更多布局
     private void showActionPanelLayout() {
