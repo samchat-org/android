@@ -49,6 +49,9 @@
     <color name="color_green_b8e986">#b8e986</color>
     <color name="color_blue_2676b6">#2676b6</color>
     <color name="color_blue_192e51">#192e51</color>
+
+    <color name="color_customer_titlebar_bg">#f8f9f9</color>
+    <color name="color_sp_titlebar_bg">#13243F</color>
     <!-- main bg color -->
     <color name="main_bg_color">#FFFFFF</color>
 

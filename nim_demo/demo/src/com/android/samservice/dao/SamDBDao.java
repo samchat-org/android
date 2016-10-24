@@ -816,4 +816,11 @@ public class SamDBDao{
 		}
 	}
 
+	public void clear_Message_db_all(String table){
+		long ret;
+		synchronized(dbLock_msg){
+			dbHandle.clearMessageAll(table);
+		}
+	}
+
 }

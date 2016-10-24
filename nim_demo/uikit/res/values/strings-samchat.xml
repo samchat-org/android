@@ -371,7 +371,7 @@
 
     <string name="samchat_chat_options">Chat Options</string>
     <string name="samchat_mute_chat">Mute Chat</string>
-    <string name="samchat_delete_chat">Delete Chat</string>
+    <string name="samchat_delete_chat">Clear chat history</string>
     <string name="samchat_block_chat">Block</string>
     <string name="samchat_mute_chat_succeed">chat mute succeed</string>
     <string name="samchat_unmute_chat_succeed">chat un-mute succeed</string>

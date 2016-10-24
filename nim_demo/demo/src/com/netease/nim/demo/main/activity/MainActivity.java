@@ -48,11 +48,13 @@ import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
 import com.netease.nim.uikit.permission.MPermission;
 import com.netease.nim.uikit.permission.annotation.OnMPermissionDenied;
 import com.netease.nim.uikit.permission.annotation.OnMPermissionGranted;
+import com.netease.nim.uikit.session.sam_message.SessionBasicInfo;
 import com.netease.nim.uikit.team.helper.TeamHelper;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.NimIntent;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.auth.AuthService;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 
 import java.util.ArrayList;
@@ -833,7 +835,13 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
         SamDBManager.getInstance().registerSendAdvertisementStatusObserver(observer, register);
     }
 
-	
+	public void registerClearHistoryObserver(SamchatObserver<SessionBasicInfo> observer, boolean register){
+		SamDBManager.getInstance().registerClearHistoryObserver(observer, register);
+	}
+
+	public void asyncClearChatHisotry(final SessionTypeEnum type, final String account, final int mode, final NIMCallback callback){
+		SamDBManager.getInstance().asyncClearChatHisotry(type, account, mode, callback);
+	}
 	
 /*SAMC_END(...)*/
 }

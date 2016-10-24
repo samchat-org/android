@@ -2,6 +2,7 @@ package com.netease.nim.uikit.team.activity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,9 +13,11 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.netease.nim.uikit.NIMCallback;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.SimpleCallback;
@@ -94,6 +97,8 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
 
     private SwitchButton noticeBtn;
 
+	private RelativeLayout delete_layout;
+
     // state
     private boolean isSelfAdmin = false;
 
@@ -138,7 +143,7 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.nim_team_info_activity);
+        setContentView(R.layout.samchat_team_info_activity);
 
         ToolBarOptions options = new ToolBarOptions();
         setToolBar(R.id.toolbar, options);
@@ -244,12 +249,12 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
 
     private void initToggleBtn() {
         toggleLayout = findView(R.id.toggle_layout);
-        noticeBtn = addToggleItemView(KEY_MSG_NOTICE, R.string.team_notification_config, true);
+        noticeBtn = addToggleItemView(KEY_MSG_NOTICE, R.string.samchat_mute_chat, false);
     }
 
     private void setToggleBtn(Team team) {
         if (noticeBtn != null) {
-            noticeBtn.setCheck(!team.mute());
+            noticeBtn.setCheck(team.mute());
         }
     }
 
@@ -280,13 +285,15 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
                 noticeBtn.setCheck(!checkState);
                 return;
             }
-            NIMClient.getService(TeamService.class).muteTeam(team.getId(), !checkState).setCallback(new RequestCallback<Void>() {
+            NIMClient.getService(TeamService.class).muteTeam(team.getId(), checkState).setCallback(new RequestCallback<Void>() {
                 @Override
                 public void onSuccess(Void param) {
                     if (checkState) {
-                        Toast.makeText(NormalTeamInfoActivity.this, "开启消息提醒", Toast.LENGTH_SHORT).show();
+							//mute succeed
+                        Toast.makeText(NormalTeamInfoActivity.this, R.string.samchat_mute_chat_succeed, Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(NormalTeamInfoActivity.this, "关闭消息提醒", Toast.LENGTH_SHORT).show();
+                        //unmute succeed
+                        Toast.makeText(NormalTeamInfoActivity.this, R.string.samchat_unmute_chat_succeed, Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -295,14 +302,27 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
                     if (code == 408) {
                         Toast.makeText(NormalTeamInfoActivity.this, R.string.network_is_not_available, Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(NormalTeamInfoActivity.this, "on failed:" + code, Toast.LENGTH_SHORT).show();
+                        if (checkState) {
+							    //mute failed
+                            Toast.makeText(NormalTeamInfoActivity.this, R.string.samchat_mute_chat_failed, Toast.LENGTH_SHORT).show();
+                        } else {
+                            //unmute succeed
+                            Toast.makeText(NormalTeamInfoActivity.this, R.string.samchat_unmute_chat_failed, Toast.LENGTH_SHORT).show();
+                        }
                     }
                     noticeBtn.setCheck(!checkState);
                 }
 
                 @Override
                 public void onException(Throwable exception) {
-
+                    if (checkState) {
+							//mute failed
+                        Toast.makeText(NormalTeamInfoActivity.this, R.string.samchat_mute_chat_failed, Toast.LENGTH_SHORT).show();
+                    } else {
+                        //unmute succeed
+                        Toast.makeText(NormalTeamInfoActivity.this, R.string.samchat_unmute_chat_failed, Toast.LENGTH_SHORT).show();
+                    }
+                    noticeBtn.setCheck(!checkState);
                 }
             });
         }
@@ -401,7 +421,47 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
         // talk button
         Button quitBtn = (Button) findViewById(R.id.quit_team);
         quitBtn.setOnClickListener(this);
+
+
+		((TextView)findViewById(R.id.delete_layout).findViewById(R.id.delete_title)).setText(R.string.samchat_delete_chat);
+		delete_layout = (RelativeLayout)findViewById(R.id.delete_layout);
+		delete_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearChatHistory();
+            }
+        });
     }
+
+	private boolean isClearing=false;
+	private void clearChatHistory(){
+		if(isClearing){
+			return;
+		}
+		isClearing = true;
+		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_processing), false, new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+
+			}
+		}).setCanceledOnTouchOutside(false);
+		NimUIKit.getCallback().asyncClearChatHisotry(SessionTypeEnum.Team, teamId, 0, new NIMCallback(){
+			@Override
+			public void onResult(Object obj1, Object obj2, int code) {
+				getHandler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						DialogMaker.dismissProgressDialog();
+						if(!isDestroyedCompatible()){
+							isClearing=false;
+						}
+					}
+				},0);
+			}
+		});
+	}
+
+	
 
     /**
      * *************************** 加载&变更数据源 ********************************
@@ -478,6 +538,12 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
     }
 
     private void updateDataSource() {
+		if(isSelfAdmin){
+			getToolBar().setBackgroundColor(getResources().getColor(R.color.color_sp_titlebar_bg));
+		}else{
+			getToolBar().setBackgroundColor(getResources().getColor(R.color.color_customer_titlebar_bg));
+		}
+			
         dataSource.clear();
 
         // member item

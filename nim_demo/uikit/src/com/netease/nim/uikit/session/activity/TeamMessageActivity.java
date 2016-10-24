@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.FriendDataCache;
 import com.netease.nim.uikit.cache.SimpleCallback;
@@ -17,6 +18,8 @@ import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.fragment.MessageFragment;
 import com.netease.nim.uikit.session.fragment.TeamMessageFragment;
+import com.netease.nim.uikit.session.sam_message.SamchatObserver;
+import com.netease.nim.uikit.session.sam_message.SessionBasicInfo;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
@@ -133,15 +136,25 @@ public class TeamMessageActivity extends BaseMessageActivity {
      * @param register
      */
     private void registerTeamUpdateObserver(boolean register) {
-        if (register) {
-            TeamDataCache.getInstance().registerTeamDataChangedObserver(teamDataChangedObserver);
-            TeamDataCache.getInstance().registerTeamMemberDataChangedObserver(teamMemberDataChangedObserver);
-        } else {
-            TeamDataCache.getInstance().unregisterTeamDataChangedObserver(teamDataChangedObserver);
-            TeamDataCache.getInstance().unregisterTeamMemberDataChangedObserver(teamMemberDataChangedObserver);
-        }
-        FriendDataCache.getInstance().registerFriendDataChangedObserver(friendDataChangedObserver, register);
+		if (register) {
+			TeamDataCache.getInstance().registerTeamDataChangedObserver(teamDataChangedObserver);
+			TeamDataCache.getInstance().registerTeamMemberDataChangedObserver(teamMemberDataChangedObserver);
+		} else {
+			TeamDataCache.getInstance().unregisterTeamDataChangedObserver(teamDataChangedObserver);
+			TeamDataCache.getInstance().unregisterTeamMemberDataChangedObserver(teamMemberDataChangedObserver);
+		}
+		FriendDataCache.getInstance().registerFriendDataChangedObserver(friendDataChangedObserver, register);
+        NimUIKit.getCallback().registerClearHistoryObserver(ClearHistoryObserver, register);
     }
+
+	SamchatObserver<SessionBasicInfo> ClearHistoryObserver = new SamchatObserver < SessionBasicInfo >(){
+		@Override
+		public void onEvent(SessionBasicInfo sinfo){
+			if(sinfo.gettype() == SessionTypeEnum.Team && sinfo.getsession_id().equals(sessionId)){
+				clearMessageList();
+			}
+		}
+	};
 
     /**
      * 群资料变动通知和移除群的通知（包括自己退群和群被解散）

@@ -135,6 +135,12 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         messageListPanel.refreshMessageList();
     }
 
+	public void clearMessageList(){
+		messageListPanel.clearMessageList();
+	}
+
+	
+
     private void parseIntent() {
 		  /*SAMC_BEGIN(support mode setting for p2p activity)*/
         mode = getArguments().getInt(Extras.EXTRA_MODE,0);

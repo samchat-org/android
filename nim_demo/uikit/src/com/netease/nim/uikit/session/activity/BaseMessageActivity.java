@@ -26,9 +26,9 @@ import java.util.List;
 public abstract class BaseMessageActivity extends UI {
 
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
-    private int mode;
-    private long question_id;
-    private long adv_id;
+    protected int mode;
+    protected long question_id;
+    protected long adv_id;
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
     protected String sessionId;
 
@@ -115,5 +115,9 @@ public abstract class BaseMessageActivity extends UI {
 
         toolbar.addView(view, new Toolbar.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT, Gravity.RIGHT | Gravity.CENTER));
     }
+
+	public void clearMessageList(){
+		messageFragment.clearMessageList();
+	}
 
 }

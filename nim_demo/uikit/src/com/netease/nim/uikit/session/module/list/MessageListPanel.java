@@ -210,6 +210,16 @@ public class MessageListPanel implements TAdapterDelegate {
         });
     }
 
+	public void clearMessageList() {
+		container.activity.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				items.clear();
+				adapter.notifyDataSetChanged();
+			}
+		});
+	}
+
     public void scrollToBottom() {
         uiHandler.postDelayed(new Runnable() {
             @Override

@@ -20,6 +20,7 @@ import com.netease.nim.uikit.session.activity.P2PMessageActivity;
 import com.netease.nim.uikit.session.activity.TeamMessageActivity;
 import com.netease.nim.uikit.session.emoji.StickerManager;
 import com.netease.nim.uikit.session.module.MsgForwardFilter;
+import com.netease.nim.uikit.session.sam_message.SessionBasicInfo;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderBase;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderFactory;
 import com.netease.nim.uikit.team.activity.AdvancedTeamInfoActivity;
@@ -316,6 +317,8 @@ public final class NimUIKit {
         void registerSendAdvertisementStatusObserver(SamchatObserver<IMMessage> observer,boolean register);
         void startMemberSelectActivity(Context context,List<String> selected,int requestCode);
         void lastMsgResending(String account, int mode, IMMessage im);
+        void registerClearHistoryObserver(SamchatObserver<SessionBasicInfo> observer, boolean register);
+        void asyncClearChatHisotry(final SessionTypeEnum type, final String account, final int mode, final NIMCallback callback);
     }
 
     static private NimUIKitInterface callback;

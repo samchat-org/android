@@ -2,23 +2,28 @@ package com.netease.nim.demo.session.activity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.samchat.activity.SamchatMemberSelectActivity;
+import com.android.samchat.service.SamDBManager;
 import com.android.samchat.type.ModeEnum;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
 import com.netease.nim.demo.contact.activity.UserProfileActivity;
 import com.netease.nim.demo.team.TeamCreateHelper;
+import com.netease.nim.uikit.NIMCallback;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.cache.NimUserInfoCache;
 import com.netease.nim.uikit.common.activity.UI;
+import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.ui.widget.SwitchButton;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;
@@ -31,22 +36,24 @@ import com.netease.nimlib.sdk.friend.FriendService;
 
 import java.util.ArrayList;
 import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+
 /**
  * Created by hzxuwen on 2015/10/13.
  */
 public class MessageInfoActivity extends UI {
-    private final static String EXTRA_ACCOUNT = "EXTRA_ACCOUNT";
-    private final static String EXTRA_MODE = "EXTRA_MODE";
+	private final static String EXTRA_ACCOUNT = "EXTRA_ACCOUNT";
+	private final static String EXTRA_MODE = "EXTRA_MODE";
 		
-    private static final int REQUEST_CODE_NORMAL = 1;
-    // data
-    private String account;
+	private static final int REQUEST_CODE_NORMAL = 1;
+	// data
+	private String account;
     // view
-    private SwitchButton switchButtonMute;
-    private LinearLayout create_layout;
-    private AppBarLayout app_bar_layout;
+	private SwitchButton switchButtonMute;
+	private LinearLayout create_layout;
 
-    private SwitchButton switchButtonBlock;
+	private SwitchButton switchButtonBlock;
+	private RelativeLayout delete_layout;
 
     private int mode;
 
@@ -90,13 +97,12 @@ public class MessageInfoActivity extends UI {
 	}
 
     private void findViews() {
-        app_bar_layout = (AppBarLayout) findViewById(R.id.app_bar_layout);
         create_layout = (LinearLayout) findViewById(R.id.create_layout);
         if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
-            app_bar_layout.setBackgroundColor(getResources().getColor(R.color.color_customer_titlebar_bg));
+            getToolBar().setBackgroundColor(getResources().getColor(R.color.color_customer_titlebar_bg));
             create_layout.setVisibility(View.GONE);
         }else{
-            app_bar_layout.setBackgroundColor(getResources().getColor(R.color.color_sp_titlebar_bg));
+            getToolBar().setBackgroundColor(getResources().getColor(R.color.color_sp_titlebar_bg));
             create_layout.setVisibility(View.VISIBLE);
         }
 			
@@ -128,6 +134,15 @@ public class MessageInfoActivity extends UI {
         ((TextView)findViewById(R.id.block_layout).findViewById(R.id.block_title)).setText(R.string.samchat_block_chat);
         switchButtonBlock = (SwitchButton) findViewById(R.id.block_layout).findViewById(R.id.block_toggle);
         switchButtonBlock.setOnChangedListener(onBlockChangedListener);
+
+		 ((TextView)findViewById(R.id.delete_layout).findViewById(R.id.delete_title)).setText(R.string.samchat_delete_chat);
+		 delete_layout = (RelativeLayout)findViewById(R.id.delete_layout);
+		 delete_layout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearChatHistory();
+            }
+        });
     }
 
     private void updateMuteSwitchBtn() {
@@ -243,6 +258,34 @@ public class MessageInfoActivity extends UI {
 
         }
     };
+
+	private boolean isClearing=false;
+	private void clearChatHistory(){
+		if(isClearing){
+			return;
+		}
+		isClearing = true;
+		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_processing), false, new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+
+			}
+		}).setCanceledOnTouchOutside(false);
+		SamDBManager.getInstance().asyncClearChatHisotry(SessionTypeEnum.P2P, account, mode, new NIMCallback(){
+			@Override
+			public void onResult(Object obj1, Object obj2, int code) {
+				getHandler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						DialogMaker.dismissProgressDialog();
+						if(!isDestroyedCompatible()){
+							isClearing=false;
+						}
+					}
+				},0);
+			}
+		});
+	}
 
 
     private void openUserProfile() {

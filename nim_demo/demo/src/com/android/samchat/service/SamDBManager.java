@@ -17,6 +17,7 @@ import com.android.samservice.info.RcvdAdvSession;
 import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.cache.SendIMMessageCache;
 import com.netease.nim.uikit.common.util.storage.StorageType;
+import com.netease.nim.uikit.session.sam_message.SessionBasicInfo;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
@@ -73,6 +74,8 @@ public class SamDBManager{
 	private List<SamchatObserver<RcvdAdvSession>> ReceivedAdvertisementUnreadClearObservers;
 	//received adv observer: Advertisement fragment mode will register
 	private List<SamchatObserver<Advertisement>> RcvdAdvObservers;
+	//chat history clear observer: message fragment will register
+	private List<SamchatObserver<SessionBasicInfo>> ClearHistoryObservers;
 	
 	//thread pool for db operation
 	private ExecutorService mFixedHttpThreadPool;
@@ -100,6 +103,7 @@ public class SamDBManager{
 		ReceivedAdvertisementUnreadClearObservers = new ArrayList<SamchatObserver<RcvdAdvSession>>();
 		RcvdAdvSessionObservers = new ArrayList<SamchatObserver<RcvdAdvSession>>();
 		RcvdAdvObservers = new ArrayList<SamchatObserver<Advertisement>>();
+		ClearHistoryObservers = new ArrayList<SamchatObserver<SessionBasicInfo>>();
 	}
 
 	private void close(){
@@ -188,12 +192,23 @@ public class SamDBManager{
 			observer.onEvent(adv);
 		}
 	}
+	
 	//call received advertisement unread clear observer one by one
 	public void callReceivedAdvertisementUnreadClearObserverCallback(RcvdAdvSession session){
 		for(SamchatObserver<RcvdAdvSession> observer : ReceivedAdvertisementUnreadClearObservers){
 			observer.onEvent(session);
 		}
 	}
+
+	//call chat history clear observer one by one
+	public void callClearHistoryObserverCallback(SessionBasicInfo sinfo){
+		for(SamchatObserver<SessionBasicInfo> observer : ClearHistoryObservers){
+			observer.onEvent(sinfo);
+		}
+	}
+
+
+	
 	
 /*********************************************************************************************/
 	public void clearUserTable(long unique_id){
@@ -520,6 +535,17 @@ public class SamDBManager{
 			session.setrecent_msg_time(im.getTime());
 			session.setrecent_msg_status(im.getStatus().getValue());
 		}
+		MsgSessionDataCache.getInstance().addMsgSession( session.getsession_id(),  session.getmode(), session);
+	}
+
+	private void updateSessionByClearHisotry(MsgSession session){
+		session.settotal_unread(0);
+		session.setrecent_msg_type(NimConstants.MSG_TYPE_IM);
+		session.setrecent_msg_uuid(null);
+		session.setrecent_msg_subtype(MsgTypeEnum.undef.getValue());
+		session.setrecent_msg_content(null);
+		session.setrecent_msg_time(0);
+		session.setrecent_msg_status(MsgStatusEnum.success.getValue());
 		MsgSessionDataCache.getInstance().addMsgSession( session.getsession_id(),  session.getmode(), session);
 	}
 	
@@ -1160,6 +1186,39 @@ public class SamDBManager{
 		});
 	}
 
+	public void asyncClearChatHisotry(final SessionTypeEnum type, final String account, final int mode, final NIMCallback callback){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				try{
+					if(type == SessionTypeEnum.P2P){
+						int opposite_mode = (mode==ModeEnum.CUSTOMER_MODE.getValue())?ModeEnum.SP_MODE.getValue():ModeEnum.CUSTOMER_MODE.getValue();
+						MsgSession session = SamService.getInstance().getDao().query_MsgSession_db(account,mode);
+						if(session == null){
+							callback.onResult(null, null, NIMCallback.SUCCEED);
+							return;
+						}
+						updateSessionByClearHisotry(session);
+						String table = session.getmsg_table_name();
+						SamService.getInstance().getDao().clear_Message_db_all(table);
+						if(SamService.getInstance().getDao().query_MsgSession_db(account, opposite_mode)==null){
+							NIMClient.getService(MsgService.class).clearChattingHistory(account, type);
+						}
+						callClearHistoryObserverCallback(new SessionBasicInfo(type,account,mode));
+					}else{
+						NIMClient.getService(MsgService.class).clearChattingHistory(account, type);
+						callClearHistoryObserverCallback(new SessionBasicInfo(type,account,mode));
+					}
+
+					callback.onResult(null, null, NIMCallback.SUCCEED);
+				}catch(Exception e){
+					e.printStackTrace();
+					callback.onResult(null, null, NIMCallback.EXCEPTION);
+				}
+			}
+		});
+	}
+
 
 
 	private IMMessage findMsg(List<IMMessage> messages,String uuid){
@@ -1672,6 +1731,14 @@ public class SamDBManager{
 			ReceivedAdvertisementUnreadClearObservers.add(observer);
 		}else{
 			ReceivedAdvertisementUnreadClearObservers.remove(observer);
+		}
+	}
+
+	synchronized public void registerClearHistoryObserver(SamchatObserver<SessionBasicInfo> observer, boolean register){
+		if(register){
+			ClearHistoryObservers.add(observer);
+		}else{
+			ClearHistoryObservers.remove(observer);
 		}
 	}
 

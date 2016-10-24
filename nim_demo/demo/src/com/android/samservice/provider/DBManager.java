@@ -382,6 +382,10 @@ public class DBManager
 		message_db.execSQL("DROP TABLE IF EXISTS " + table);
 	}
 
+	public void clearMessageAll(String table){
+		message_db.delete(table, null, null);
+	}
+
 
 /******************************ContactUser DB**********************************************/
 	public long addContactUser(ContactUser user)

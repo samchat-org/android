@@ -27,6 +27,7 @@ import com.netease.nim.uikit.recent.viewholder.RecentContactAdapter;
 import com.netease.nim.uikit.recent.viewholder.RecentViewHolder;
 import com.netease.nim.uikit.recent.viewholder.SamchatRecentContactAdapter;
 import com.netease.nim.uikit.recent.viewholder.TeamRecentViewHolder;
+import com.netease.nim.uikit.session.sam_message.SessionBasicInfo;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nim.uikit.uinfo.UserInfoObservable;
 import com.netease.nimlib.sdk.NIMClient;
@@ -696,7 +697,7 @@ public class SamchatChatFragment extends TFragment{
                     }
                 }else{
                     NIMClient.getService(MsgService.class).clearChattingHistory(recent.getContactId(), recent.getSessionType());
-                    NIMClient.getService(MsgService.class).deleteRecentContact2(recent.	getContactId(),recent.getSessionType());;
+                    NIMClient.getService(MsgService.class).deleteRecentContact2(recent.getContactId(),recent.getSessionType());;
                 }
             }
         });
@@ -866,8 +867,8 @@ public class SamchatChatFragment extends TFragment{
 		service.observeRecentContactDeleted(deleteObserver, register);
 		registerTeamUpdateObserver(register);
 
-		SamDBManager.getInstance().registerMsgSessionObserver(msgSessionChangedObserver,  register);
-
+		SamDBManager.getInstance().registerMsgSessionObserver(msgSessionChangedObserver,register);
+		SamDBManager.getInstance().registerClearHistoryObserver(ClearHistoryObserver,register);
 		//registerTeamMemberUpdateObserver(register);
 	}
 
@@ -946,6 +947,57 @@ public class SamchatChatFragment extends TFragment{
 						refreshSPMessages(true);
             		}
         		});
+			}
+		}
+	};
+
+	SamchatObserver <SessionBasicInfo> ClearHistoryObserver = new SamchatObserver < SessionBasicInfo >(){
+		@Override
+		public void onEvent(SessionBasicInfo sinfo){
+			LogUtil.i(TAG,"ClearHistoryObserver:"+sinfo.getsession_id());
+			List<RecentContact> recents = NIMClient.getService(MsgService.class).queryRecentContactsBlock();	
+			final RecentContact rc = findRecentContact(recents,sinfo.getsession_id());
+			if(rc == null){
+				LogUtil.e(TAG,"find recent contact:" +sinfo.getsession_id()+" not found");
+				return;
+			}
+
+			if(sinfo.gettype() == SessionTypeEnum.P2P){
+				if(sinfo.getmode() == ModeEnum.CUSTOMER_MODE.getValue()){
+					getActivity().runOnUiThread(new Runnable() {
+            			@Override
+            			public void run() {
+                			updateCustomerItems(rc);
+							refreshCustomerMessages(true);
+            			}
+        			});
+				}else{
+					getActivity().runOnUiThread(new Runnable() {
+            			@Override
+            			public void run() {
+                			updateSPItems(rc);
+							refreshSPMessages(true);
+            			}
+        			});
+				}
+			}else{
+				if(isTagSet(rc, RECENT_TAG_CUSTOMER_ROLE)){
+					getActivity().runOnUiThread(new Runnable() {
+            			@Override
+            			public void run() {
+                			updateCustomerItems(rc);
+							refreshCustomerMessages(true);
+            			}
+        			});
+				}else{
+					getActivity().runOnUiThread(new Runnable() {
+            			@Override
+            			public void run() {
+                			updateSPItems(rc);
+							refreshSPMessages(true);
+            			}
+        			});
+				}
 			}
 		}
 	};
