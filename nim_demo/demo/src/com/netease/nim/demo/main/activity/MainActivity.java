@@ -549,6 +549,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	private void initSamAutoLogin(){
 		String account = Preferences.getUserAccount();
 		String token = Preferences.getUserToken()+UuidFactory.getInstance().getDeviceId();
+		LogUtil.i(TAG,"auto login account:"+account+" token:"+token);
 		if(SamService.getInstance().get_current_user() == null || SamService.getInstance().get_current_token() == null){
 			ContactUser cuser = SamchatUserInfoCache.getInstance().getUserByUniqueID(Long.valueOf(account));
 			SamService.getInstance().set_current_user(cuser);

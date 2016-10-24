@@ -350,7 +350,7 @@
                 android:layout_gravity="center_vertical"
                 android:textColor="@color/color_grey_76767b"
                 android:textSize="14sp"
-                android:text="@string/samchat_location"/>
+                android:text="@string/samchat_address"/>
             <TextView
                 android:id="@+id/location"
                 android:layout_below="@id/label_location"

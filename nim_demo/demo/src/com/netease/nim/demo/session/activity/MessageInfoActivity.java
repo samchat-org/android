@@ -82,11 +82,12 @@ public class MessageInfoActivity extends UI {
         findViews();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        updateMuteSwitchBtn();
-    }
+	@Override
+	protected void onResume() {
+		super.onResume();
+		updateMuteSwitchBtn();
+		updateBlockSwitchBtn();
+	}
 
     private void findViews() {
         app_bar_layout = (AppBarLayout) findViewById(R.id.app_bar_layout);
@@ -180,7 +181,7 @@ public class MessageInfoActivity extends UI {
 
     private void updateBlockSwitchBtn() {
         boolean block = NIMClient.getService(FriendService.class).isInBlackList(account);
-        switchButtonMute.setCheck(block);
+        switchButtonBlock.setCheck(block);
     }
 
     private SwitchButton.OnChangedListener onBlockChangedListener = new SwitchButton.OnChangedListener() {
@@ -206,13 +207,13 @@ public class MessageInfoActivity extends UI {
                         } else {
                             Toast.makeText(MessageInfoActivity.this, R.string.samchat_block_chat_failed, Toast.LENGTH_SHORT).show();
                         }
-                        switchButtonMute.setCheck(!blockState);
+                        switchButtonBlock.setCheck(!blockState);
                     }
 
                     @Override
                     public void onException(Throwable exception) {
                         Toast.makeText(MessageInfoActivity.this, R.string.samchat_block_chat_failed, Toast.LENGTH_SHORT).show();
-                        switchButtonMute.setCheck(!blockState);
+                        switchButtonBlock.setCheck(!blockState);
                     }
                 });
             }else{
@@ -229,13 +230,13 @@ public class MessageInfoActivity extends UI {
                         } else {
                             Toast.makeText(MessageInfoActivity.this, R.string.samchat_unblock_chat_failed, Toast.LENGTH_SHORT).show();
                         }
-                        switchButtonMute.setCheck(!blockState);
+                        switchButtonBlock.setCheck(!blockState);
                     }
 
                     @Override
                     public void onException(Throwable exception) {
                         Toast.makeText(MessageInfoActivity.this, R.string.samchat_unblock_chat_failed, Toast.LENGTH_SHORT).show();
-                        switchButtonMute.setCheck(!blockState);
+                        switchButtonBlock.setCheck(!blockState);
                     }
                 });
             }

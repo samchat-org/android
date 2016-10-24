@@ -317,11 +317,28 @@ public class NimApplication extends Application {
     private UserInfoProvider infoProvider = new UserInfoProvider() {
         @Override
         public UserInfo getUserInfo(String account) {
-           UserInfo user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
-           if(user == null){
-               SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(stringTolong(account));
-           }
-           return user;
+			ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
+			if(user != null){
+				return user;
+			}
+
+			Contact contact = ContactDataCache.getInstance().getContactByUniqueID(stringTolong(account));
+			if(contact != null){
+				return contact;
+			}
+
+			contact = CustomerDataCache.getInstance().getCustomerByUniqueID(stringTolong(account));
+			if(contact != null){
+				return contact;
+			}	
+						
+			FollowedSamPros fsp = FollowDataCache.getInstance().getFollowSPByUniqueID(stringTolong(account));
+			if(fsp !=null){
+				return fsp;
+			}
+			
+			SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(stringTolong(account));
+			return null;
         }
 
         @Override

@@ -3,11 +3,12 @@ package com.android.samservice.info;
 import java.io.Serializable;
 
 import com.android.samservice.Constants;
+import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 
-	/*
-	id(primary) | unique_id | username | favourite_tag | block_tag | avatar | service_category 
-	*/
-public class FollowedSamPros implements Serializable
+/*
+id(primary) | unique_id | username | favourite_tag | block_tag | avatar | service_category
+*/
+public class FollowedSamPros implements UserInfoProvider.UserInfo
 {
 	private long id;
 	private long unique_id;
@@ -116,6 +117,21 @@ public class FollowedSamPros implements Serializable
 	}
 	public void setlastupdate(long lastupdate){
 		this.lastupdate = lastupdate;
+	}
+
+	@Override
+	public String getAccount(){
+		return (""+unique_id);
+	}
+
+	@Override
+	public String getName(){
+		return username;
+	}
+
+	@Override
+	public String getAvatar(){
+		return avatar;
 	}
 	
 }

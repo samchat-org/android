@@ -135,12 +135,22 @@ public class WelcomeActivity extends UI {
     /**
      * 已经登陆过，自动登陆
      */
+
+	private boolean isAccountValid(String account){
+		try{
+			long valid = Long.valueOf(account);
+			return true;
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}
+	}
     private boolean canAutoLogin() {
         String account = Preferences.getUserAccount();
         String token = Preferences.getUserToken();
 
         Log.i(TAG, "get local sdk token =" + token);
-        return !TextUtils.isEmpty(account) && !TextUtils.isEmpty(token);
+        return !TextUtils.isEmpty(account) && !TextUtils.isEmpty(token) && isAccountValid(account);
     }
 
     private void parseNotifyIntent(Intent intent) {
