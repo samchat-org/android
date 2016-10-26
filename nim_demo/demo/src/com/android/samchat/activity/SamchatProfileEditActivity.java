@@ -205,7 +205,7 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 				save_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
 			}else{
 				save_textview.setEnabled(false);
-				save_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_disable);
+				save_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_inactive);
 			}
 		}else{
 			if(s.length()>0){
@@ -213,7 +213,7 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 				save_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
 			}else{
 				save_textview.setEnabled(false);
-				save_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_disable);
+				save_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_inactive);
 			}
 		}
 	}

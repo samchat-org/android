@@ -67,6 +67,7 @@ public class SamchatLoginActivity extends Activity {
 	private TextView countrycode_textview;
 	private EditText logininput_edittext;
 	private RelativeLayout hidden_layout;
+	private ImageView hidden_iv;
 	private EditText password_edittext;
 	private TextView signin_textview;
 	private TextView signup_textview;
@@ -211,6 +212,7 @@ public class SamchatLoginActivity extends Activity {
 		countrycode_textview = (TextView) findViewById(R.id.countrycode);
 		logininput_edittext = (EditText) findViewById(R.id.logininput);
 		hidden_layout = (RelativeLayout) findViewById(R.id.hidden_layout);
+		hidden_iv = (ImageView) findViewById(R.id.hidden);
 		password_edittext = (EditText) findViewById(R.id.password);
 		signin_textview = (TextView) findViewById(R.id.signin);
 		signup_textview = (TextView) findViewById(R.id.signup);
@@ -290,6 +292,15 @@ public class SamchatLoginActivity extends Activity {
 			password_ready = password.length()>=Constants.MIN_PASSWORD_LENGTH;
 			updateSigninButton();
 			password_edittext.setTypeface(Typeface.SANS_SERIF);
+			if(password_ready){
+				if(isPwdShown){
+					hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_shown);
+				}else{
+					hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_filled);
+				}
+			}else{
+				hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_hint);
+			}
 		}
 	};
 
@@ -299,11 +310,22 @@ public class SamchatLoginActivity extends Activity {
 			Editable etable = password_edittext.getText();  
 			Selection.setSelection(etable, etable.length());
 			isPwdShown = true;
+			if(password_ready){
+				hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_shown);
+			}else{
+				hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_hint);
+			}
 		}else{
 			password_edittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);  
 			Editable etable = password_edittext.getText();  
 			Selection.setSelection(etable, etable.length());
+			hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_hint);
 			isPwdShown = false;
+			if(password_ready){
+				hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_filled);
+			}else{
+				hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_hint);
+			}
 		}
 		password_edittext.setTypeface(Typeface.SANS_SERIF);
 	}
@@ -328,6 +350,11 @@ public class SamchatLoginActivity extends Activity {
 	private void updateSigninButton(){
 		boolean enable = input_ready & password_ready;
 		signin_textview.setEnabled(enable);
+		if(enable){
+			signin_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_gradient);
+		}else{
+			signin_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_grey);
+		}
 	}
 
 	private void setupSignInClick(){

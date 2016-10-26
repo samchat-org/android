@@ -1,40 +1,27 @@
 package com.android.samchat.activity;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.Editable;
-import android.text.InputFilter;
 import android.text.TextWatcher;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnKeyListener;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.samchat.adapter.ContactAdapter;
 import com.android.samchat.adapter.ContactUserAdapter;
 import com.android.samchat.cache.FollowDataCache;
 import com.android.samservice.type.TypeEnum;
 import com.android.samservice.info.ContactUser;
-import com.karics.library.zxing.android.CaptureActivity;
 import com.android.samchat.R;
-import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
-import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.contact.core.query.TextComparator;
-import com.netease.nim.uikit.model.ToolBarOptions;
 import com.android.samservice.SamService;
 import android.widget.FrameLayout;
 import android.widget.EditText;
@@ -115,7 +102,7 @@ public class SamchatSearchPublicActivity extends Activity {
 			search_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
 		}else{
 			search_textview.setEnabled(false);
-			search_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_disable);
+			search_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_inactive);
 		}
 	}
 

@@ -204,15 +204,15 @@ public class SamchatRegisterCodeRequestActivity extends UI implements OnKeyListe
 	private void updateSendButton(){
 		if(!ready_send && countdown == 0){
 			send_textview.setEnabled(false);
-			send_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_disable);
+			send_textview.setBackgroundResource(R.drawable.samchat_button_green_inactive);
 			indication_layout.setVisibility(View.GONE);
 		}else if(countdown > 0){
 			send_textview.setEnabled(true);
-			send_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
+			send_textview.setBackgroundResource(R.drawable.samchat_button_green_active);
 			setCountDown();
 		}else{
 			send_textview.setEnabled(true);
-			send_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
+			send_textview.setBackgroundResource(R.drawable.samchat_button_green_active);
 			indication_layout.setVisibility(View.GONE);
 		}
 	}
@@ -230,7 +230,7 @@ public class SamchatRegisterCodeRequestActivity extends UI implements OnKeyListe
 
 		@Override
 		public void afterTextChanged(Editable s) {
-			ready_send = cellphone_edittext.getText().toString().trim().length()>=5;
+			ready_send = cellphone_edittext.getText().toString().trim().length()>=Constants.MIN_MPHONE_NUMBER_LENGTH;
 			updateSendButton();
 			if(ready_send){
 				cellphone = cellphone_edittext.getText().toString().trim();

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="color_grey_efeff4">#efeff4</color>
+    <color name="color_grey_d8d2e2">#d8d2e2</color>
+    <color name="color_grey_76767b">#76767B</color>
+    <color name="color_grey_e0e0e0">#e0e0e0</color>
+    <color name="color_green_67d45f">#67d45f</color>
+    <color name="color_green_a9e0a7">#a9e0a7</color>
+    <color name="color_yellow_e5efbc">#e5efbc</color>
+    <color name="color_black_1d4d73">#1d4d73</color>
+    <color name="color_orange_f69b5a">#f69b5a</color>
+    <color name="color_black_819cb1">#819cb1</color>
+    <color name="color_white_f8f9f9">#f8f9f9</color>
+    <color name="color_grey_d8dce2">#d8dce2</color>
+    <color name="color_green_b8e986">#b8e986</color>
+    <color name="color_blue_2676b6">#2676b6</color>
+    <color name="color_blue_192e51">#192e51</color>
+    <color name="color_black_13243F">#13243F</color>
+
+
+    <color name="color_customer_titlebar_bg">#f8f9f9</color>
+    <color name="color_sp_titlebar_bg">#13243F</color>
+
+    <!-- samchat final color-->
+    <color name="samchat_color_main_bg">#efeff4</color>
+    <color name="samchat_color_white">#FFFFFF</color>
+    <color name="samchat_color_hint_white">#7FFFFFFF</color>
+    <color name="samchat_color_filled_white">#CCFFFFFF</color>
+    <color name="samchat_color_titlebar_bg_customer">#F8F9F9</color>
+
+    <color name="samchat_color_light_grey">#3FA2AEBC</color>
+    <color name="samchat_color_mid_grey">#7FA2AEBC</color>
+    <color name="samchat_color_grey">#FFA2AEBC</color>
+    <color name="samchat_color_dark_grey">#77838F</color>
+
+    <color name="samchat_color_green">#67D45F</color>
+    <color name="samchat_color_green_inactive">#7F67D45F</color>
+    <color name="samchat_color_green_pressed">#5CC055</color>
+    <color name="samchat_color_lime">#80E22F</color>
+    <color name="samchat_color_lemmon">#D1F43B</color>
+    <color name="samchat_color_red">#DC374B</color>
+
+    <color name="samchat_color_sky">#2EBDEF</color>
+    <color name="samchat_color_lake">#2676B6</color>
+    <color name="samchat_color_ingra">#1D4D73</color>
+    <color name="samchat_color_dark_blue">#1B3257</color>
+    <color name="samchat_color_ink">#13243F</color>
+</resources>

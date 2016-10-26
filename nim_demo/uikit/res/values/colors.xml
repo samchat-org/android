@@ -34,24 +34,7 @@
     <color name="color_black_333333_90_transparent">#e5333333</color>
     <color name="color_black_000000_88_transparent">#e0000000</color>
 
-    <color name="color_grey_efeff4">#efeff4</color>
-    <color name="color_grey_d8d2e2">#d8d2e2</color>
-    <color name="color_grey_76767b">#76767B</color>
-    <color name="color_grey_e0e0e0">#e0e0e0</color>
-    <color name="color_green_67d45f">#67d45f</color>
-    <color name="color_green_a9e0a7">#a9e0a7</color>
-    <color name="color_yellow_e5efbc">#e5efbc</color>
-    <color name="color_black_1d4d73">#1d4d73</color>
-    <color name="color_orange_f69b5a">#f69b5a</color>
-    <color name="color_black_819cb1">#819cb1</color>
-    <color name="color_white_f8f9f9">#f8f9f9</color>
-    <color name="color_grey_d8dce2">#d8dce2</color>
-    <color name="color_green_b8e986">#b8e986</color>
-    <color name="color_blue_2676b6">#2676b6</color>
-    <color name="color_blue_192e51">#192e51</color>
 
-    <color name="color_customer_titlebar_bg">#f8f9f9</color>
-    <color name="color_sp_titlebar_bg">#13243F</color>
     <!-- main bg color -->
     <color name="main_bg_color">#FFFFFF</color>
 

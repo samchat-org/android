@@ -72,6 +72,7 @@ public class CountryCodeAdapter extends BaseAdapter{
 			holder.content_layout = (LinearLayout) convertView.findViewById(R.id.content);
 			holder.countryname_textview = (TextView) convertView.findViewById(R.id.countryname);
 			holder.countrycode_textview = (TextView) convertView.findViewById(R.id.countrycode); 
+			holder.split = convertView.findViewById(R.id.split);
 			convertView.setTag(holder);
 		}else{
 			holder = (ViewHolder)convertView.getTag();
@@ -83,12 +84,14 @@ public class CountryCodeAdapter extends BaseAdapter{
 			holder.countryname_textview.setVisibility(View.GONE);
 			holder.countrycode_textview.setVisibility(View.GONE);
 			holder.content_layout.setVisibility(View.GONE);
+			holder.split.setVisibility(View.GONE);
 			break;
 		case TYPE_TOP_CHINA:
 			holder.tv_tag.setVisibility(View.GONE);
 			holder.countryname_textview.setText(mContext.getString(R.string.China));
 			holder.countrycode_textview.setVisibility(View.VISIBLE);
 			holder.countrycode_textview.setText("+86");
+			holder.split.setVisibility(View.VISIBLE);
 			break;
 			
 		case TYPE_TOP_USA:
@@ -96,6 +99,7 @@ public class CountryCodeAdapter extends BaseAdapter{
 			holder.countryname_textview.setText(mContext.getString(R.string.USA));
 			holder.countrycode_textview.setVisibility(View.VISIBLE);
 			holder.countrycode_textview.setText("+1");
+			holder.split.setVisibility(View.VISIBLE);
 			break;
 			
 		case TYPE_COUNTRY_CODE:
@@ -103,6 +107,7 @@ public class CountryCodeAdapter extends BaseAdapter{
 			holder.countryname_textview.setText(info.name);
 			holder.countrycode_textview.setVisibility(View.VISIBLE);
 			holder.countrycode_textview.setText("+"+info.code);
+			holder.split.setVisibility(View.VISIBLE);
 
 			int selection = info.getFPinYin().charAt(0);
 			int positionForSelection = getPositionForSelection(selection);
@@ -150,6 +155,7 @@ public class CountryCodeAdapter extends BaseAdapter{
 		public LinearLayout content_layout;
 		public TextView countryname_textview;
 		public TextView countrycode_textview;
+		public View split;
 	}
 	
 	

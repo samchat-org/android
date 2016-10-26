@@ -136,10 +136,10 @@ public class SamchatResetPasswordActivity extends UI implements OnKeyListener {
 	private void updateDoneButton(){
 		if(ready_password){
 			done_textview.setEnabled( true );
-			done_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
+			done_textview.setBackgroundResource(R.drawable.samchat_button_green_active);
 		}else{
 			done_textview.setEnabled( false );
-			done_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_disable);
+			done_textview.setBackgroundResource(R.drawable.samchat_button_green_inactive);
 		}
 	}
 
@@ -161,10 +161,14 @@ public class SamchatResetPasswordActivity extends UI implements OnKeyListener {
 			updateDoneButton();
 			if(ready_password){
 				password = password_edittext.getText().toString();
-				hidden_icon_imageview.setImageResource(R.drawable.samchat_hidden_ok);
+				if(isPwdShown){
+					hidden_icon_imageview.setImageResource(R.drawable.samchat_ic_showpw_shown);
+				}else{
+					hidden_icon_imageview.setImageResource(R.drawable.samchat_ic_showpw_filled);
+				}
 				password_ok_imageview.setVisibility(View.VISIBLE);
 			}else{
-				hidden_icon_imageview.setImageResource(R.drawable.samchat_hidden);
+				hidden_icon_imageview.setImageResource(R.drawable.samchat_ic_showpw_hint);
 				password_ok_imageview.setVisibility(View.GONE);
 			}
 		}
@@ -182,11 +186,21 @@ public class SamchatResetPasswordActivity extends UI implements OnKeyListener {
 			Editable etable = password_edittext.getText();  
 			Selection.setSelection(etable, etable.length());
 			isPwdShown = true;
+			if(ready_password){
+				hidden_icon_imageview.setImageResource(R.drawable.samchat_ic_showpw_shown);
+			}else{
+				hidden_icon_imageview.setImageResource(R.drawable.samchat_ic_showpw_hint);
+			}
 		}else{
 			password_edittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);  
 			Editable etable = password_edittext.getText();  
 			Selection.setSelection(etable, etable.length());
 			isPwdShown = false;
+			if(ready_password){
+				hidden_icon_imageview.setImageResource(R.drawable.samchat_ic_showpw_filled);
+			}else{
+				hidden_icon_imageview.setImageResource(R.drawable.samchat_ic_showpw_hint);
+			}
 		}
 		password_edittext.setTypeface(Typeface.SANS_SERIF);
 	}

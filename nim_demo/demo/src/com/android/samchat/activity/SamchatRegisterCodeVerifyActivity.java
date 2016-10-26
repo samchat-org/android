@@ -13,6 +13,7 @@ import android.view.View.OnKeyListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.samchat.ui.CircleEditText;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
 import com.netease.nim.uikit.common.activity.UI;
@@ -34,14 +35,14 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 
 	private FrameLayout back_arrow_layout;
 	private TextView titlebar_name_textview;
-	private TextView phone_textview;
 	private TextView countdown_textview;
 	private LinearLayout indication_layout;
+	private TextView phoneWithCC_tv;
 
-	private EditText code_1_edittext;
-	private EditText code_2_edittext;
-	private EditText code_3_edittext;
-	private EditText code_4_edittext;
+	private CircleEditText code_1_edittext;
+	private CircleEditText code_2_edittext;
+	private CircleEditText code_3_edittext;
+	private CircleEditText code_4_edittext;
 
 	private boolean code_1_ready=false;
 	private boolean code_2_ready=false;
@@ -178,13 +179,13 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 	private void setupConfirmationCodePanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
 		titlebar_name_textview = findView(R.id.titlebar_name);
-		phone_textview = findView(R.id.phone);
 		code_1_edittext = findView(R.id.code_1);
 		code_2_edittext = findView(R.id.code_2);
 		code_3_edittext = findView(R.id.code_3);
 		code_4_edittext = findView(R.id.code_4);
 		countdown_textview = findView(R.id.countdown);
 		indication_layout = findView(R.id.indication);
+		phoneWithCC_tv = findView(R.id.phoneWithCC);
 
 		if(from == Constants.FROM_SIGNUP){
 			titlebar_name_textview.setText(getString(R.string.samchat_signup));
@@ -222,11 +223,9 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 			code_1_ready = code_1_edittext.getText().length() == 1;
 			verify();
 			if(code_1_ready){
-				code_1_edittext.setBackgroundResource(R.drawable.samchat_oval_background_green);
+				code_1_edittext.setFilled();
 				code_1_edittext.clearFocus();
 				code_2_edittext.requestFocus();
-			}else{
-				code_1_edittext.setBackgroundResource(R.drawable.samchat_oval_background_gray);
 			}
 		}
     };
@@ -247,12 +246,10 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 			code_2_ready = code_2_edittext.getText().length() == 1;
 			verify();
 			if(code_2_ready){
-                code_2_edittext.setBackgroundResource(R.drawable.samchat_oval_background_green);
+              code_2_edittext.setFilled();
 				code_2_edittext.clearFocus();
 				code_3_edittext.requestFocus();
-			}else{
-                code_2_edittext.setBackgroundResource(R.drawable.samchat_oval_background_gray);
-            }
+			}
 		}
     };
 
@@ -272,12 +269,10 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 			code_3_ready = code_3_edittext.getText().length() == 1;
 			verify();
 			if(code_3_ready){
-                code_3_edittext.setBackgroundResource(R.drawable.samchat_oval_background_green);
+             	code_3_edittext.setFilled();
 				code_3_edittext.clearFocus();
 				code_4_edittext.requestFocus();
-			}else{
-                code_3_edittext.setBackgroundResource(R.drawable.samchat_oval_background_gray);
-            }
+			}
 		}
     };
 
@@ -297,12 +292,10 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 			code_4_ready = code_4_edittext.getText().length() == 1;
 			verify();
 			if(code_4_ready){
-                code_4_edittext.setBackgroundResource(R.drawable.samchat_oval_background_green);
+              code_4_edittext.setFilled();
 				code_4_edittext.clearFocus();
 				code_1_edittext.requestFocus();
-			}else{
-                code_4_edittext.setBackgroundResource(R.drawable.samchat_oval_background_gray);
-            }
+			}
 		}
     };
 	
@@ -314,11 +307,9 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 	}
 
 	private void updateCellphone(){
-		phone_textview.setText("+" + countrycode+" "+cellphone);
+		phoneWithCC_tv.setText("+" + countrycode+" "+cellphone);
 	}
 	
-	
-
 	private void verify(){
 		if(isVerifying){
 			return;
@@ -344,6 +335,10 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 		code_2_edittext.setText("");
 		code_3_edittext.setText("");
 		code_4_edittext.setText("");
+		code_1_edittext.clearFilled();
+		code_2_edittext.clearFilled();
+		code_3_edittext.clearFilled();
+		code_4_edittext.clearFilled();
 	}
 	
 /*************************************data flow control*********************************************************/

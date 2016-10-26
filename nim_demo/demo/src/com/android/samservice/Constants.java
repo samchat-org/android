@@ -61,7 +61,7 @@ public class Constants{
 
 	/****************************Login Final Config***********************************************/
 	public static final int MIN_MPHONE_NUMBER_LENGTH = 6;
-	public static final int MAX_MPHONE_NUMBER_LENGTH = 15;	
+	public static final int MAX_MPHONE_NUMBER_LENGTH = 11;	
 	public static final int MIN_USERNAME_LENGTH = 3;
 	public static final int MAX_USERNAME_LENGTH = 15;
 	public static final int MIN_PASSWORD_LENGTH = 6;

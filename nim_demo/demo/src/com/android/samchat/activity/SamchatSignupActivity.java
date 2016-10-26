@@ -3,9 +3,7 @@ package com.android.samchat.activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Environment;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -25,19 +23,15 @@ import com.android.samchat.R;
 import com.netease.nim.demo.config.preference.Preferences;
 import com.netease.nim.demo.config.preference.UserPreferences;
 import com.netease.nim.demo.main.activity.MainActivity;
-import com.netease.nim.demo.main.activity.WelcomeActivity;
 import com.netease.nim.uikit.cache.DataCacheManager;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.model.ToolBarOptions;
-import com.netease.nim.uikit.session.viewholder.MsgViewHolderThumbBase;
 import com.netease.nimlib.sdk.AbortableFuture;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
-import com.netease.nimlib.sdk.SDKOptions;
-import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.android.samchat.cache.SamchatDataCacheManager;
@@ -166,7 +160,7 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 		public void afterTextChanged(Editable s) {
 			if((username_edittext.getText().toString().trim().length()>=Constants.MIN_USERNAME_LENGTH)){
 				username = username_edittext.getText().toString().trim();
-				username_icon_imageview.setImageResource(R.drawable.samchat_user_icon_ok);
+				username_icon_imageview.setImageResource(R.drawable.samchat_ic_input_user_filled);
 				showOops(false);
 				updateUsernameOKShow(false);
 				ready_username = false;
@@ -175,7 +169,7 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 				postCountdownCheckUsername();
 			}else{
 				username = username_edittext.getText().toString().trim();
-				username_icon_imageview.setImageResource(R.drawable.samchat_user_icon);
+				username_icon_imageview.setImageResource(R.drawable.samchat_ic_input_user_hint);
 				showOops(false);
 				updateUsernameOKShow(false);
 				ready_username = false;
@@ -221,10 +215,10 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 	private void updateDoneButton(){
 		if(ready_username & ready_password & ready_selected){
 			done_textview.setEnabled(true);
-			done_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
+			done_textview.setBackgroundResource(R.drawable.samchat_button_green_active);
 		}else{
 			done_textview.setEnabled(false);
-			done_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_disable);
+			done_textview.setBackgroundResource(R.drawable.samchat_button_green_inactive);
 		}
 	}
 
@@ -245,10 +239,14 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 			updateDoneButton();
 			if(ready_password){
 				password = password_edittext.getText().toString();
-				hidden_icon_imageview.setImageResource(R.drawable.samchat_hidden_ok);
+				if(isPwdShown){
+					hidden_icon_imageview.setImageResource(R.drawable.samchat_ic_showpw_shown);
+				}else{
+					hidden_icon_imageview.setImageResource(R.drawable.samchat_ic_showpw_filled);
+				}
 				password_ok_imageview.setVisibility(View.VISIBLE);
 			}else{
-				hidden_icon_imageview.setImageResource(R.drawable.samchat_hidden);
+				hidden_icon_imageview.setImageResource(R.drawable.samchat_ic_showpw_hint);
 				password_ok_imageview.setVisibility(View.GONE);
 			}
 		}
@@ -266,13 +264,24 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 			Editable etable = password_edittext.getText();  
 			Selection.setSelection(etable, etable.length());
 			isPwdShown = true;
+			if(ready_password){
+				hidden_icon_imageview.setImageResource(R.drawable.samchat_ic_showpw_shown);
+			}else{
+				hidden_icon_imageview.setImageResource(R.drawable.samchat_ic_showpw_hint);
+			}
 		}else{
 			password_edittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);  
 			Editable etable = password_edittext.getText();  
 			Selection.setSelection(etable, etable.length());
 			isPwdShown = false;
+			if(ready_password){
+				hidden_icon_imageview.setImageResource(R.drawable.samchat_ic_showpw_filled);
+			}else{
+				hidden_icon_imageview.setImageResource(R.drawable.samchat_ic_showpw_hint);
+			}
 		}
 		password_edittext.setTypeface(Typeface.SANS_SERIF);
+		
 	}
 
 	private void setupHiddenClick(){
@@ -317,14 +326,14 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 	private void showOops(boolean show){
 		if(show){
 			Oops_textview.setVisibility(View.VISIBLE);
-			username_ok_imageview.setImageResource(R.drawable.samchat_warning);
+			username_ok_imageview.setImageResource(R.drawable.samchat_ic_error);
 			username_ok_imageview.setVisibility(View.VISIBLE);
-			username_icon_imageview.setImageResource(R.drawable.samchat_user_icon_warning);
-			username_edittext.setTextColor(getResources().getColor(R.color.color_orange_f69b5a));
+			username_icon_imageview.setImageResource(R.drawable.samchat_ic_input_user_error);
+			username_edittext.setTextColor(getResources().getColor(R.color.samchat_color_red));
 		}else{
 			Oops_textview.setVisibility(View.GONE);
-			username_ok_imageview.setImageResource(R.drawable.samchat_ok);
-			username_edittext.setTextColor(getResources().getColor(R.color.black));
+			username_ok_imageview.setImageResource(R.drawable.samchat_ic_check);
+			username_edittext.setTextColor(getResources().getColor(R.color.samchat_color_dark_grey));
 		}
 	}
 

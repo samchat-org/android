@@ -136,12 +136,12 @@
 
 
 
-    <string name="samchat_username_or_phone">Username or phone no</string>
-    <string name="samchat_enter_password">Enter your password</string>
+    <string name="samchat_username_or_phone">Username or mobile no.</string>
+    <string name="samchat_enter_password">Password</string>
     <string name="samchat_signin">SIGN IN</string>
-    <string name="samchat_signup">Sign Up</string>
+    <string name="samchat_signup">SIGN UP</string>
     <string name="samchat_signout">Sign Out</string>
-    <string name="samchat_forgot_pwd">Forgot Password?</string>
+    <string name="samchat_forgot_pwd">FORGOT PASSWORD?</string>
     <string name="samchat_reset_password">Reset Password</string>
     <string name="samchat_reseting">Resetting</string>
     <string name="samchat_reset_succeed">Reset password succeed</string>
@@ -194,7 +194,7 @@
 
     <string name="samchat_verifying">Verifying</string>
 
-    <string name="samchat_enter_username">Enter a username</string>
+    <string name="samchat_enter_username">Username</string>
     <string name="samchat_license">By signing up, i accept to the Samchat</string>
     <string name="samchat_terms">Terms of Use and User Agreement</string>
     <string name="samchat_user_agreement">Samchat User Agreement</string>

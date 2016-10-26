@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextUtils;
@@ -19,7 +17,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.android.samchat.adapter.PlaceInfoAdapter;
 import com.android.samchat.adapter.SimpleListAdapter;
 import com.android.samchat.common.SCell;
 import com.android.samchat.factory.LocationFactory;
@@ -172,7 +169,7 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 			send_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
 		}else{
 			send_textview.setEnabled(false);
-			send_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_disable);
+			send_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_inactive);
 		}
 	}
 
