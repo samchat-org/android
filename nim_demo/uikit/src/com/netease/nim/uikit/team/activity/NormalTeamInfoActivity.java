@@ -539,9 +539,9 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
 
     private void updateDataSource() {
 		if(isSelfAdmin){
-			getToolBar().setBackgroundColor(getResources().getColor(R.color.color_sp_titlebar_bg));
+			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
 		}else{
-			getToolBar().setBackgroundColor(getResources().getColor(R.color.color_customer_titlebar_bg));
+			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
 		}
 			
         dataSource.clear();

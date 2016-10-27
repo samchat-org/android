@@ -6,8 +6,11 @@
               android:gravity="center_horizontal"
               android:orientation="vertical">
     <FrameLayout
+        android:id="@+id/frame"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="4dp"
         android:layout_gravity="center">
 
     <ImageView
@@ -15,12 +18,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginLeft="5dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginTop="5dp"
-        android:contentDescription="@string/empty"/>
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="4dp"
+        android:contentDescription="@string/empty"
+        android:src="@drawable/samchat_request_icon"/>
 
     <ImageView
         android:id="@+id/tab_new_indicator"
@@ -35,11 +40,13 @@
         android:id="@+id/tab_new_msg_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginRight="5dp"
+        android:layout_marginEnd="5dp"
         android:background="@drawable/nim_g_unread_badge"
-        android:layout_gravity="end"
+        android:layout_gravity="end|top"
         android:gravity="center"
-        android:singleLine="true"
-        android:textColor="@android:color/white"
+        android:maxLines="1"
+        android:textColor="@color/samchat_color_white"
         android:textSize="12sp"
         android:visibility="gone"/>
     </FrameLayout>

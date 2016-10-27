@@ -1,68 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="@color/color_white_ffffffff">
+              android:background="@color/samchat_color_white">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="12dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp">
         <com.netease.nim.uikit.common.ui.imageview.HeadImageView
             android:id="@+id/avatar"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginStart="10dp"/>
-        <LinearLayout
-            android:layout_width="match_parent"
+            app:civ_border_color="@color/samchat_color_grey"
+            app:civ_border_width="3dp"/>
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginLeft="10dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginEnd="10dp">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <TextView
-                    android:id="@+id/username"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textSize="14sp"
-                    android:textColor="@color/black"
-                    android:maxLines="1"/>
-                <TextView
-                    android:id="@+id/date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:textSize="12sp"
-                    android:textColor="@color/color_grey_999999"
-                    android:maxLines="1"/>
-            </LinearLayout>
-            <TextView
-                android:id="@+id/location"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="12sp"
-                android:textColor="@color/color_grey_999999"
-                android:maxLines="1"/>
-        </LinearLayout>
+            android:layout_weight="1"
+            android:layout_marginLeft="12dp"
+            android:layout_marginStart="12dp"
+            android:textSize="@dimen/text_size_16"
+            android:textColor="@color/samchat_color_ink"
+            android:maxLines="1"/>
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/text_size_12"
+            android:textColor="@color/samchat_color_grey"
+            android:maxLines="1"/>
     </LinearLayout>
     <TextView
         android:id="@+id/request"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="4dp"
         android:textSize="16sp"
-        android:textColor="@color/black"
+        android:textColor="@color/samchat_color_ink"
         android:maxLines="2"/>
+    <TextView
+        android:id="@+id/location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="4dp"
+        android:textSize="14sp"
+        android:textColor="@color/samchat_color_dark_grey"
+        android:maxLines="1"/>
 </LinearLayout>

@@ -99,10 +99,10 @@ public class MessageInfoActivity extends UI {
     private void findViews() {
         create_layout = (LinearLayout) findViewById(R.id.create_layout);
         if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
-            getToolBar().setBackgroundColor(getResources().getColor(R.color.color_customer_titlebar_bg));
+            getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
             create_layout.setVisibility(View.GONE);
         }else{
-            getToolBar().setBackgroundColor(getResources().getColor(R.color.color_sp_titlebar_bg));
+            getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
             create_layout.setVisibility(View.VISIBLE);
         }
 			

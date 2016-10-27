@@ -28,6 +28,7 @@ import com.android.samchat.fragment.SamchatPublicFragment;
 import com.android.samchat.receiver.NetworkStateBroadcastReceiver;
 import com.android.samchat.receiver.PushReceiver;
 import com.android.samchat.R;
+import com.android.samchat.ui.ReminderRedPointView;
 import com.netease.nim.demo.avchat.AVChatProfile;
 import com.netease.nim.demo.avchat.activity.AVChatActivity;
 import com.netease.nim.demo.chatroom.helper.ChatRoomHelper;
@@ -112,11 +113,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
     /*SAMC_END(Getu SDK initilized tag)*/
 
     /*SAMC_BEGIN(Customized title bar)*/
-    private LinearLayout app_bar_layout;
     private ImageView switch_icon;
     private FrameLayout switch_layout;
-    private TextView switch_reminder;
-    private ImageView switch_reminder_icon;
+    //private TextView switch_reminder;
+    private ReminderRedPointView switch_reminder_icon;
     private TextView titlebar_name;
     private ImageView titlebar_right_icon;
     private TextView titlebar_right_text;
@@ -565,10 +565,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 		titlebar_right_icon.setImageResource(MainTab.getTabRightIcon(position));
 
 		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
-			app_bar_layout.setBackgroundColor(getResources().getColor(R.color.color_white_f8f9f9));
+			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
 			titlebar_name.setTextColor(getResources().getColor(R.color.black));
 		}else{
-			app_bar_layout.setBackgroundColor(getResources().getColor(R.color.color_black_13243F));
+			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
 			titlebar_name.setTextColor(getResources().getColor(R.color.color_white_ffffffff));
 		}
 
@@ -660,11 +660,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	}
 
 	private void titlebarInit(){
-		app_bar_layout = (LinearLayout) findViewById(R.id.app_bar_layout);
 		switch_icon = (ImageView) findViewById(R.id.switch_icon);
 		switch_layout = (FrameLayout) findViewById(R.id.switch_layout);
-		switch_reminder = (TextView) findViewById(R.id.switch_reminder);
-		switch_reminder_icon = (ImageView) findViewById(R.id.switch_reminder_icon);
+		//switch_reminder = (TextView) findViewById(R.id.switch_reminder);
+		switch_reminder_icon = (ReminderRedPointView) findViewById(R.id.switch_reminder_icon);
 		titlebar_name = (TextView) findViewById(R.id.titlebar_name);
 		titlebar_right_icon = (ImageView) findViewById(R.id.titlebar_right_icon);
 		titlebar_right_text = (TextView) findViewById(R.id.titlebar_right_text);

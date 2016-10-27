@@ -3,13 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_grey_efeff4">
+    android:background="@color/samchat_color_main_bg">
 
     <com.netease.nim.demo.common.ui.viewpager.PagerSlidingTabStrip
         android:id="@+id/tabs"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/color_white_f8f9f9"
+        android:background="@color/samchat_color_customer_titlebar_bg"
         android:layout_alignParentBottom="true"/>
 
     <android.support.v4.view.ViewPager

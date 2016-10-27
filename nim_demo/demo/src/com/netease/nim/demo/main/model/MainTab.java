@@ -132,9 +132,9 @@ public enum MainTab {
 				case SAMCHAT_CHAT:
 				case SAMCHAT_CONTACT:
 				case SAMCHAT_SETTING:
-					icon_id = R.drawable.samchat_switch_to_sp_icon;
+					icon_id = R.drawable.samchat_ic_nav_light_switch;
 				default:
-					icon_id = R.drawable.samchat_switch_to_sp_icon;
+					icon_id = R.drawable.samchat_ic_nav_light_switch;
 					break;
 			}
 		}else{
@@ -144,9 +144,9 @@ public enum MainTab {
 				case SAMCHAT_CHAT:
 				case SAMCHAT_CONTACT:
 				case SAMCHAT_SETTING:
-					icon_id = R.drawable.samchat_switch_to_customer_icon;
+					icon_id = R.drawable.samchat_ic_nav_dark_switch;
 				default:
-					icon_id = R.drawable.samchat_switch_to_customer_icon;
+					icon_id = R.drawable.samchat_ic_nav_dark_switch;
 					break;
 			}
 		}

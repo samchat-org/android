@@ -12,5 +12,5 @@
         android:layout_marginRight="@dimen/body_right_margin"
         android:layout_marginEnd="@dimen/body_right_margin"
         android:textSize="16sp"
-        android:textColor="@color/color_grey_999999"/>
+        android:textColor="@color/samchat_color_grey"/>
 </LinearLayout>

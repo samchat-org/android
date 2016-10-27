@@ -172,8 +172,10 @@ public class ReceivedQuestionAdapter extends BaseAdapter{
 			holder.date.setText(TimeUtil.getTimeShowString(showtime,false));
 			if(!TextUtils.isEmpty(items.get(index).getaddress())){
 				holder.location.setText(items.get(index).getaddress());
+				holder.location.setVisibility(View.VISIBLE);
 			}else{
 				holder.location.setText("");
+				holder.location.setVisibility(View.GONE);
 			}
 			holder.avatar.loadBuddyAvatar(""+items.get(index).getsender_unique_id(),30);
 			holder.username.setText(items.get(index).getsender_username());

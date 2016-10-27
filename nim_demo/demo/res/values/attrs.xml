@@ -51,5 +51,9 @@
         <attr name="ringWidth" format="dimension"/>
     </declare-styleable>
 
+    <declare-styleable name="ReminderRedPointView">
+        <attr name="rrpv_fillColor" format="color"/>
+        <attr name="rrpv_circleRadius" format="dimension"/>
+    </declare-styleable>
 
 </resources>

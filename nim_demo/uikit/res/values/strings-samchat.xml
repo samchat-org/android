@@ -255,8 +255,7 @@
     <string name="samchat_processing">Processing</string>
 
     <string name="samchat_make_your_first_request">Make your first request</string>
-    <string name="samchat_customer_welcome_board">Tell us what professional services do you need or what job do you need done.</string>
-    <string name="samchat_customer_welcome_get_start">Get started now</string>
+    <string name="samchat_customer_welcome_board">Tell us what professional services do you need or what job do you need done.Get started now!</string>
 
     <string name="samchat_add_service_provider">Add Service Provider</string>
     <string name="samchat_invite_contacts">Invite Contacts</string>
