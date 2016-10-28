@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.FriendDataCache;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.constant.Extras;
@@ -204,6 +205,18 @@ public class P2PMessageActivity extends BaseMessageActivity {
     protected void initToolBar() {
         ToolBarOptions options = new ToolBarOptions();
         options.titleString = UserInfoHelper.getUserTitleName(sessionId, SessionTypeEnum.P2P);
+        if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
+            options.navigateId = R.drawable.samchat_arrow_left;
+        }else{
+             options.navigateId = R.drawable.samchat_arrow_left_sp;
+        }
         setToolBar(R.id.toolbar, options);
+        if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
+			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
+			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_dark_blue));
+		}else{
+			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
+			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_white));
+		}
     }
 }

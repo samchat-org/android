@@ -6,7 +6,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.samchat.SamchatGlobal;
-import com.android.samchat.type.ModeEnum;
 import com.android.samchat.R;
 import com.netease.nim.demo.main.model.MainTab;
 import com.netease.nim.demo.main.reminder.ReminderManager;
@@ -16,6 +15,7 @@ import com.netease.nim.demo.session.extension.RTSAttachment;
 import com.netease.nim.demo.session.extension.SnapChatAttachment;
 import com.netease.nim.demo.session.extension.StickerAttachment;
 import com.netease.nim.uikit.common.activity.UI;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.recent.RecentContactsCallback;
 import com.netease.nimlib.sdk.NIMClient;

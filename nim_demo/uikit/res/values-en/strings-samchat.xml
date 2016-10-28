@@ -35,7 +35,7 @@
 
     <string name="samchat_today">today</string>
     <string name="samchat_yesterday">yesterday</string>
-    <string name="samchat_day_before_yesterday">day before yesterday</string>
+    <string name="samchat_day_before_yesterday">pre-yesterday</string>
 
     <string name="samchat_monday">Monday</string>
     <string name="samchat_tuesday">Tuesday</string>
@@ -377,7 +377,6 @@
     <string name="samchat_mute_chat_failed">chat mute failed</string>
     <string name="samchat_unmute_chat_failed">chat un-mute failed</string>
 
-
     <string name="samchat_block_chat_succeed">block succeed</string>
     <string name="samchat_unblock_chat_succeed">un-block succeed</string>
     <string name="samchat_block_chat_failed">block failed</string>
@@ -386,5 +385,5 @@
     <string name="samchat_select_one_member_at_least">select one member at least</string>
     <string name="samchat_create_group_chat">create group chat</string>
 
-
+    <string name="samchat_with">With</string>
 </resources>

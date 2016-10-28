@@ -9,11 +9,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.samchat.cache.MsgSessionDataCache;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.recent.viewholder.SamchatRecentContactAdapter;
 import com.netease.nim.uikit.NIMCallback;
 import com.netease.nim.uikit.NimUIKit;
-import com.netease.nim.uikit.R;
+import com.android.samchat.R;
 import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
@@ -32,7 +33,6 @@ import com.netease.nimlib.sdk.msg.model.RecentContact;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nim.uikit.recent.viewholder.RecentContactAdapter;
 import com.android.samservice.info.MsgSession;
-import com.android.samchat.type.ModeEnum;
 import com.android.samservice.SamService;
 import com.netease.nim.uikit.NimConstants;
 
@@ -55,6 +55,8 @@ public abstract class SamchatRecentViewHolder extends TViewHolder implements OnC
 
     protected TextView tvDatetime;
 
+     protected TextView tvCategory;
+
     // 消息发送错误状态标记，目前没有逻辑处理
     protected ImageView imgMsgStatus;
 
@@ -75,6 +77,13 @@ public abstract class SamchatRecentViewHolder extends TViewHolder implements OnC
         updateNewIndicator();
 
         updateNickLabel(UserInfoHelper.getUserTitleName(recent.getContactId(), recent.getSessionType()));
+
+        if(getAdapter() instanceof SamchatRecentContactAdapter){
+           if(((SamchatRecentContactAdapter)getAdapter()).getmode() == 0){
+               //customer mode
+               updateCategory(UserInfoHelper.getServiceCategory(recent.getContactId()));
+           }
+        }
 
         updateMsgLabel();
     }
@@ -133,19 +142,19 @@ public abstract class SamchatRecentViewHolder extends TViewHolder implements OnC
         int unreadNum = 0;
         if(getAdapter() instanceof SamchatRecentContactAdapter){
 			  MsgSession session = null;
-            if(((SamchatRecentContactAdapter)getAdapter()).getmode() == ModeEnum.CUSTOMER_MODE.ordinal()){
-                 session = MsgSessionDataCache.getInstance().getMsgSession(recent.getContactId(), ModeEnum.CUSTOMER_MODE.ordinal());
+            if(((SamchatRecentContactAdapter)getAdapter()).getmode() == ModeEnum.CUSTOMER_MODE.getValue()){
+                 session = MsgSessionDataCache.getInstance().getMsgSession(recent.getContactId(), ModeEnum.CUSTOMER_MODE.getValue());
 			   }else{
-                 session = MsgSessionDataCache.getInstance().getMsgSession(recent.getContactId(), ModeEnum.SP_MODE.ordinal());
+                 session = MsgSessionDataCache.getInstance().getMsgSession(recent.getContactId(), ModeEnum.SP_MODE.getValue());
 			  }
             unreadNum = session.gettotal_unread();
 		  }
         tvUnread.setVisibility(unreadNum > 0 ? View.VISIBLE : View.GONE);
         tvUnread.setText(unreadCountShowRule(unreadNum));
         if(unreadNum > 0){
-            imgHead.setBorderColorResource(R.color.color_green_b8e986);
+            imgHead.setBorderColorResource(R.color.samchat_color_green);
         }else{
-            imgHead.setBorderColorResource(R.color.color_grey_d8dce2);
+            imgHead.setBorderColorResource(R.color.samchat_color_grey);
         }
     }
 
@@ -180,13 +189,24 @@ public abstract class SamchatRecentViewHolder extends TViewHolder implements OnC
 
     protected void updateNickLabel(String nick) {
         int labelWidth = ScreenUtil.screenWidth;
-        labelWidth -= ScreenUtil.dip2px(50 + 70); // 减去固定的头像和时间宽度
+        labelWidth -= ScreenUtil.dip2px(50 + 64 + 12 + 12 + 12); // 减去固定的头像和时间宽度
 
         if (labelWidth > 0) {
-            tvNickname.setMaxWidth(labelWidth);
+            tvNickname.setMaxWidth(labelWidth/2);
         }
 
         tvNickname.setText(nick);
+    }
+
+    protected void updateCategory(String category) {
+        int labelWidth = ScreenUtil.screenWidth;
+        labelWidth -= ScreenUtil.dip2px(50 + 64 + 12 + 12 + 12); // 减去固定的头像和时间宽度
+
+        if (labelWidth > 0) {
+            tvCategory.setMaxWidth(labelWidth/2);
+        }
+
+        tvCategory.setText(category);
     }
 
 	protected abstract int getResId();
@@ -202,6 +222,7 @@ public abstract class SamchatRecentViewHolder extends TViewHolder implements OnC
         this.imgMsgStatus = (ImageView) view.findViewById(R.id.img_msg_status);
         this.bottomLine = view.findViewById(R.id.bottom_line);
         this.topLine = view.findViewById(R.id.top_line);
+        this.tvCategory = (TextView)view.findViewById(R.id.tv_category);
     }
 
     protected String unreadCountShowRule(int unread) {

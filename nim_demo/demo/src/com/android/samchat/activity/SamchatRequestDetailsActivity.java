@@ -17,6 +17,7 @@ import com.android.samchat.R;
 import com.netease.nim.uikit.NIMCallback;
 import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.common.activity.UI;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.model.ToolBarOptions;
@@ -52,7 +53,6 @@ import com.netease.nim.demo.session.extension.SnapChatAttachment;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.msg.MsgService;
 import java.util.Map;
-import com.android.samchat.type.ModeEnum;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView;
 import android.widget.AbsListView.OnScrollListener;
@@ -336,7 +336,7 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 		//init customer list view
 		items_customer = new ArrayList<>();
 		adapter_customer = new SamchatRecentContactAdapter(this, items_customer , new SamchatCustomerAdapterDelegate());
-		adapter_customer.setmode(ModeEnum.CUSTOMER_MODE.ordinal());
+		adapter_customer.setmode(ModeEnum.CUSTOMER_MODE.getValue());
 		listView_customer.setAdapter(adapter_customer);
 		listView_customer.setItemsCanFocus(true);
 		listView_customer.setOnItemClickListener(new OnItemClickListener() {
@@ -465,7 +465,7 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 			long time1 = 0;
 			long time2 = 0;
 			if(o1.getSessionType() == SessionTypeEnum.P2P){
-				MsgSession s1 = MsgSessionDataCache.getInstance().getMsgSession(o1.getContactId(),ModeEnum.CUSTOMER_MODE.ordinal());
+				MsgSession s1 = MsgSessionDataCache.getInstance().getMsgSession(o1.getContactId(),ModeEnum.CUSTOMER_MODE.getValue());
 				if(s1!=null){
 					time1 = s1.getrecent_msg_time();
 				}
@@ -474,7 +474,7 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 			}
 
 			if(o2.getSessionType() == SessionTypeEnum.P2P){
-				MsgSession s2 = MsgSessionDataCache.getInstance().getMsgSession(o2.getContactId(),ModeEnum.CUSTOMER_MODE.ordinal());
+				MsgSession s2 = MsgSessionDataCache.getInstance().getMsgSession(o2.getContactId(),ModeEnum.CUSTOMER_MODE.getValue());
 				if(s2!=null){
 					time2 = s2.getrecent_msg_time();
 				}

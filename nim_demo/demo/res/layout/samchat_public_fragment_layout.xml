@@ -4,12 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_grey_efeff4">
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/color_grey_d8d2e2"/>
-
+    android:background="@color/samchat_color_main_bg">
     <LinearLayout
         android:id="@+id/customer_public_layout"
         android:layout_width="match_parent"
@@ -19,8 +14,9 @@
             android:id="@+id/customer_public_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:divider="@null"
+            android:cacheColorHint="@android:color/transparent"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="0dip"
             android:scrollbars="none">
         </ListView>
     </LinearLayout>

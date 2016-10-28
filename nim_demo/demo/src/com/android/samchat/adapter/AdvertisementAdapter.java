@@ -79,6 +79,7 @@ public class AdvertisementAdapter extends BaseAdapter{
 			convertView = mInflater.inflate(R.layout.samchat_advertisement_list_item,parent,false);
 			holder.date = (TextView) convertView.findViewById(R.id.date);
 			holder.content_text = (TextView) convertView.findViewById(R.id.content_text);
+			holder.img_head = (HeadImageView) convertView.findViewById(R.id.img_head);
 			holder.content_image = (MsgThumbImageView) convertView.findViewById(R.id.content_image);
 			holder.content_image_layout = (FrameLayout) convertView.findViewById(R.id.content_image_layout);
 			convertView.setTag(holder);
@@ -90,6 +91,7 @@ public class AdvertisementAdapter extends BaseAdapter{
 		case TYPE_ADV:
 			Advertisement adv = items.get(position);
 			holder.date.setText(TimeUtil.getTimeShowString(adv.getpublish_timestamp(),false));
+			holder.img_head.loadBuddyAvatar(""+adv.getsender_unique_id(),(int) mContext.getResources().getDimension(R.dimen.avatar_size_default));
 			if(adv.gettype() == Constants.ADV_TYPE_TEXT){
 				holder.content_text.setVisibility(View.VISIBLE);
 				holder.content_image_layout.setVisibility(View.GONE);
@@ -157,6 +159,7 @@ public class AdvertisementAdapter extends BaseAdapter{
 
 	public static class ViewHolder{
 		public TextView date;
+		public HeadImageView img_head;
 		public TextView content_text;
 		public MsgThumbImageView content_image;
 		public FrameLayout content_image_layout;

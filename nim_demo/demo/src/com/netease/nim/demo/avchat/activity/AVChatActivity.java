@@ -17,6 +17,7 @@ import com.netease.nim.demo.avchat.AVChatUI;
 import com.netease.nim.demo.avchat.SoundPlayer;
 import com.netease.nim.demo.avchat.constant.CallStateEnum;
 import com.netease.nim.uikit.common.activity.UI;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nimlib.sdk.Observer;
@@ -46,7 +47,6 @@ import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.NIMCallback;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
-import com.android.samchat.type.ModeEnum;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 /**

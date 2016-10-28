@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
+import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import android.widget.ImageView;
@@ -67,7 +68,7 @@ public class FollowedSPAdapter extends BaseAdapter{
 			holder.service_category= (TextView) convertView.findViewById(R.id.service_category);
 			holder.adv_content= (TextView) convertView.findViewById(R.id.adv_content);
 			holder.unread_reminder = (TextView) convertView.findViewById(R.id.unread_reminder);
-
+			holder.adv_time = (TextView) convertView.findViewById(R.id.adv_time);
 			convertView.setTag(holder);
 		}else{
 			holder = (ViewHolder)convertView.getTag();
@@ -76,8 +77,16 @@ public class FollowedSPAdapter extends BaseAdapter{
 		switch(viewType){
 		case TYPE_FOLLOWEDSP:
 			FollowedSamPros user = items.get(position);
-			holder.avatar.loadBuddyAvatar(""+user.getunique_id(), 50);
+			holder.avatar.loadBuddyAvatar(""+user.getunique_id(), (int) mContext.getResources().getDimension(R.dimen.avatar_size_default));
+			int labelWidth = ScreenUtil.screenWidth;
+			labelWidth -= ScreenUtil.dip2px(50 + 64 + 12 + 12 + 12); 
+			if (labelWidth > 0) {
+				holder.username.setMaxWidth(labelWidth/2);
+			}
 			holder.username.setText(user.getusername());
+			if (labelWidth > 0) {
+				holder.service_category.setMaxWidth(labelWidth/2);
+			}
 			holder.service_category.setText(user.getservice_category());
 			RcvdAdvSession session = findSession(user.getunique_id());
 			if(session != null && session.getrecent_adv_id()!=0){
@@ -95,9 +104,23 @@ public class FollowedSPAdapter extends BaseAdapter{
 				}else{
 					holder.unread_reminder.setVisibility(View.GONE);
 				}
+
+				if(session.getrecent_adv_publish_timestamp()>0){
+					holder.adv_time.setVisibility(View.VISIBLE);
+					holder.adv_time.setText(TimeUtil.getTimeShowString(session.getrecent_adv_publish_timestamp(), false));
+				}else{
+					holder.adv_time.setVisibility(View.GONE);
+				}
+
+				if(session.getunread()>0){
+					holder.avatar.setBorderColorResource(R.color.samchat_color_green);
+				}else{
+					holder.avatar.setBorderColorResource(R.color.samchat_color_grey);
+				}
 			}else{
 				holder.unread_reminder.setVisibility(View.GONE);
 				holder.adv_content.setText("");
+				holder.adv_time.setVisibility(View.GONE);
 			}
 			break;
 		}
@@ -135,6 +158,7 @@ public class FollowedSPAdapter extends BaseAdapter{
 		public TextView service_category;
 		public TextView adv_content;
 		public TextView unread_reminder;
+		public TextView adv_time;
 	}
 	
 	

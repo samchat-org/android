@@ -29,6 +29,10 @@ public class UserInfoHelper {
         return id;
     }
 
+    public static String getServiceCategory(String id) {
+        return NimUIKit.getCallback().getServiceCategory(id);
+    }
+
     /**
      * 注册用户资料变化观察者。<br>
      *     注意：不再观察时(如Activity destroy后)，要unregister，否则会造成资源泄露

@@ -23,12 +23,17 @@ import com.android.samchat.activity.SamchatAddCustomerActivity;
 import com.android.samchat.activity.SamchatAddServiceProviderActivity;
 import com.android.samchat.activity.SamchatMemberSelectActivity;
 import com.android.samchat.activity.SamchatSearchPublicActivity;
+import com.android.samchat.cache.ContactDataCache;
+import com.android.samchat.cache.CustomerDataCache;
+import com.android.samchat.cache.FollowDataCache;
 import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samchat.fragment.SamchatPublicFragment;
 import com.android.samchat.receiver.NetworkStateBroadcastReceiver;
 import com.android.samchat.receiver.PushReceiver;
 import com.android.samchat.R;
 import com.android.samchat.ui.ReminderRedPointView;
+import com.android.samservice.info.Contact;
+import com.android.samservice.info.FollowedSamPros;
 import com.netease.nim.demo.avchat.AVChatProfile;
 import com.netease.nim.demo.avchat.activity.AVChatActivity;
 import com.netease.nim.demo.chatroom.helper.ChatRoomHelper;
@@ -43,6 +48,7 @@ import com.netease.nim.demo.team.activity.AdvancedTeamSearchActivity;
 import com.netease.nim.uikit.LoginSyncDataStatusObserver;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.common.activity.UI;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
@@ -76,7 +82,6 @@ import com.netease.nim.demo.main.model.MainTab;
 import android.support.v4.content.LocalBroadcastManager;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.SamchatGlobal;
-import com.android.samchat.type.ModeEnum;
 import com.android.samservice.Constants;
 import com.android.samchat.service.SamDBManager;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
@@ -443,15 +448,15 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_CODE_NORMAL) {
-                final ArrayList<String> selected = data.getStringArrayListExtra(ContactSelectActivity.RESULT_DATA);
+                /*final ArrayList<String> selected = data.getStringArrayListExtra(ContactSelectActivity.RESULT_DATA);
                 if (selected != null && !selected.isEmpty()) {
                     TeamCreateHelper.createNormalTeam(MainActivity.this, selected, false, null);
                 } else {
                     Toast.makeText(MainActivity.this, "请选择至少一个联系人！", Toast.LENGTH_SHORT).show();
-                }
+                }*/
             } else if (requestCode == REQUEST_CODE_ADVANCED) {
-                final ArrayList<String> selected = data.getStringArrayListExtra(ContactSelectActivity.RESULT_DATA);
-                TeamCreateHelper.createAdvancedTeam(MainActivity.this, selected);
+                /*final ArrayList<String> selected = data.getStringArrayListExtra(ContactSelectActivity.RESULT_DATA);
+                TeamCreateHelper.createAdvancedTeam(MainActivity.this, selected);*/
             } else{
                 mainFragment.onActivityResult( requestCode,  resultCode,  data);
 			 }
@@ -841,6 +846,40 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	public void asyncClearChatHisotry(final SessionTypeEnum type, final String account, final int mode, final NIMCallback callback){
 		SamDBManager.getInstance().asyncClearChatHisotry(type, account, mode, callback);
 	}
+
+	private long stringTolong(String s){
+	 	long ret = -1;
+		try{
+			ret = Long.valueOf(s);
+		}catch(Exception e){
+			e.printStackTrace();
+			return ret;
+		}
+		return ret;
+	}
+	
+	public String getServiceCategory(String account){
+       ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
+		if(user != null){
+			return user.getservice_category();
+		}
+
+		Contact contact = ContactDataCache.getInstance().getContactByUniqueID(stringTolong(account));
+		if(contact != null){
+			return contact.getservice_category();
+		}
+
+		contact = CustomerDataCache.getInstance().getCustomerByUniqueID(stringTolong(account));
+		if(contact != null){
+			return contact.getservice_category();
+		}	
+						
+		FollowedSamPros fsp = FollowDataCache.getInstance().getFollowSPByUniqueID(stringTolong(account));
+		if(fsp !=null){
+			return fsp.getservice_category();
+		}
+		return null;
+    }
 	
 /*SAMC_END(...)*/
 }

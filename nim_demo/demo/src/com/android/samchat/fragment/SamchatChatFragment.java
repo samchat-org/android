@@ -20,6 +20,7 @@ import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
 import com.netease.nim.uikit.common.fragment.TFragment;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.ui.listview.ListViewUtil;
 import com.netease.nim.uikit.recent.viewholder.CommonRecentViewHolder;
@@ -59,7 +60,6 @@ import com.android.samservice.Constants;
 import com.netease.nimlib.sdk.msg.MessageBuilder;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.android.samchat.SamchatGlobal;
-import com.android.samchat.type.ModeEnum;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import java.util.Map;
 import java.util.Iterator;
@@ -274,7 +274,7 @@ public class SamchatChatFragment extends TFragment{
 				long time1 = 0;
 				long time2 = 0;
 				if(o1.getSessionType() == SessionTypeEnum.P2P){
-					MsgSession s1 = MsgSessionDataCache.getInstance().getMsgSession(o1.getContactId(), ModeEnum.CUSTOMER_MODE.ordinal());
+					MsgSession s1 = MsgSessionDataCache.getInstance().getMsgSession(o1.getContactId(), ModeEnum.CUSTOMER_MODE.getValue());
 					if(s1!=null){
 						time1 = s1.getrecent_msg_time();
 					}
@@ -283,7 +283,7 @@ public class SamchatChatFragment extends TFragment{
 				}
 
 				if(o2.getSessionType() == SessionTypeEnum.P2P){
-					MsgSession s2 = MsgSessionDataCache.getInstance().getMsgSession(o2.getContactId(), ModeEnum.CUSTOMER_MODE.ordinal());
+					MsgSession s2 = MsgSessionDataCache.getInstance().getMsgSession(o2.getContactId(), ModeEnum.CUSTOMER_MODE.getValue());
 					if(s2!=null){
 						time2 = s2.getrecent_msg_time();
 					}
@@ -348,7 +348,7 @@ public class SamchatChatFragment extends TFragment{
 		//init customer list view
 		items_customer = new ArrayList<>();
 		adapter_customer = new SamchatRecentContactAdapter(getActivity(), items_customer , new SamchatCustomerAdapterDelegate());
-		adapter_customer.setmode(ModeEnum.CUSTOMER_MODE.ordinal());
+		adapter_customer.setmode(ModeEnum.CUSTOMER_MODE.getValue());
 		adapter_customer.setCallback(callback_customer);
 		listView_customer.setAdapter(adapter_customer);
 		listView_customer.setItemsCanFocus(true);
@@ -394,11 +394,11 @@ public class SamchatChatFragment extends TFragment{
                     if(isTagSet( recent, RECENT_TAG_SP_ROLE)){
                         removeTag(recent,RECENT_TAG_CUSTOMER_ROLE);
                         NIMClient.getService(MsgService.class).updateRecent(recent);
-                        SamDBManager.getInstance().syncDeleteMessageSession(recent.getContactId(), ModeEnum.CUSTOMER_MODE.ordinal());
+                        SamDBManager.getInstance().syncDeleteMessageSession(recent.getContactId(), ModeEnum.CUSTOMER_MODE.getValue());
 							removeCustomerItem(recent);
 							refreshCustomerMessages(true);
                     }else{
-                        SamDBManager.getInstance().syncDeleteMessageSession(recent.getContactId(), ModeEnum.CUSTOMER_MODE.ordinal());
+                        SamDBManager.getInstance().syncDeleteMessageSession(recent.getContactId(), ModeEnum.CUSTOMER_MODE.getValue());
                         NIMClient.getService(MsgService.class).clearChattingHistory(recent.getContactId(), recent.getSessionType());
                         NIMClient.getService(MsgService.class).deleteRecentContact2(recent.	getContactId(),recent.getSessionType());
                     }
@@ -437,7 +437,7 @@ public class SamchatChatFragment extends TFragment{
 			if(isTagSet(rc, RECENT_TAG_CUSTOMER_ROLE) ){
 				list.add(rc);
 			}else{
-				MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(rc.getContactId(),ModeEnum.CUSTOMER_MODE.ordinal());
+				MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(rc.getContactId(),ModeEnum.CUSTOMER_MODE.getValue());
 				if(session != null){
 					addTag(rc,RECENT_TAG_CUSTOMER_ROLE);
 					update = true;
@@ -466,7 +466,7 @@ public class SamchatChatFragment extends TFragment{
 			if(isTagSet(rc, RECENT_TAG_SP_ROLE)){
 				list.add(rc);
 			}else{
-				MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(rc.getContactId(), ModeEnum.SP_MODE.ordinal());
+				MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(rc.getContactId(), ModeEnum.SP_MODE.getValue());
 				if(session != null){
 					addTag(rc,RECENT_TAG_SP_ROLE);
 					update = true;
@@ -550,7 +550,7 @@ public class SamchatChatFragment extends TFragment{
         notifyDataSetChangedCustomer();
 
         if (unreadChanged) {
-            SamDBManager.getInstance().asyncReadTotalUnreadCount(ModeEnum.CUSTOMER_MODE.ordinal(), new NIMCallback() {
+            SamDBManager.getInstance().asyncReadTotalUnreadCount(ModeEnum.CUSTOMER_MODE.getValue(), new NIMCallback() {
                 @Override
                 public void onResult(Object obj1, Object obj2, int code) {
                     final int p2p_unread = (Integer) obj1;
@@ -642,7 +642,7 @@ public class SamchatChatFragment extends TFragment{
 		//init sp list view
 		items_sp = new ArrayList<>();
 		adapter_sp = new SamchatRecentContactAdapter(getActivity(), items_sp , new SamchatSPAdapterDelegate());
-		adapter_sp.setmode(ModeEnum.SP_MODE.ordinal());
+		adapter_sp.setmode(ModeEnum.SP_MODE.getValue());
 		adapter_sp.setCallback(callback_sp);
 		listView_sp.setAdapter(adapter_sp);
 		listView_sp.setItemsCanFocus(true);
@@ -688,7 +688,7 @@ public class SamchatChatFragment extends TFragment{
                     if(isTagSet( recent, RECENT_TAG_CUSTOMER_ROLE)){
                         removeTag(recent,RECENT_TAG_SP_ROLE);
                         NIMClient.getService(MsgService.class).updateRecent(recent);
-                        SamDBManager.getInstance().asyncDeleteMessageSession(recent.getContactId(), ModeEnum.SP_MODE.ordinal());
+                        SamDBManager.getInstance().asyncDeleteMessageSession(recent.getContactId(), ModeEnum.SP_MODE.getValue());
                         removeSPItem(recent);
                         refreshSPMessages(true);
                     }else{
@@ -742,7 +742,7 @@ public class SamchatChatFragment extends TFragment{
         notifyDataSetChangedSP();
 
 		 if (unreadChanged) {
-             SamDBManager.getInstance().asyncReadTotalUnreadCount(ModeEnum.SP_MODE.ordinal(),new NIMCallback(){
+             SamDBManager.getInstance().asyncReadTotalUnreadCount(ModeEnum.SP_MODE.getValue(),new NIMCallback(){
                  @Override
                  public void onResult(Object obj1, Object obj2, int code) {
                      final int p2p_unread = (Integer)obj1;
@@ -836,7 +836,7 @@ public class SamchatChatFragment extends TFragment{
 				long time1 = 0;
 				long time2 = 0;
 				if(o1.getSessionType() == SessionTypeEnum.P2P){
-					MsgSession s1 = MsgSessionDataCache.getInstance().getMsgSession(o1.getContactId(), ModeEnum.SP_MODE.ordinal());
+					MsgSession s1 = MsgSessionDataCache.getInstance().getMsgSession(o1.getContactId(), ModeEnum.SP_MODE.getValue());
 					if(s1!=null){
 						time1 = s1.getrecent_msg_time();
 					}
@@ -845,7 +845,7 @@ public class SamchatChatFragment extends TFragment{
 				}
 
 				if(o2.getSessionType() == SessionTypeEnum.P2P){
-					MsgSession s2 = MsgSessionDataCache.getInstance().getMsgSession(o2.getContactId(), ModeEnum.SP_MODE.ordinal());
+					MsgSession s2 = MsgSessionDataCache.getInstance().getMsgSession(o2.getContactId(), ModeEnum.SP_MODE.getValue());
 					if(s2!=null){
 						time2 = s2.getrecent_msg_time();
 					}
@@ -1027,11 +1027,11 @@ public class SamchatChatFragment extends TFragment{
 					int index = findRecentContactIndex(items_customer,message);
 					if(index != -1){
 						if(message.getSessionType() == SessionTypeEnum.P2P){
-							MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(message.getSessionId(), ModeEnum.CUSTOMER_MODE.ordinal());
+							MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(message.getSessionId(), ModeEnum.CUSTOMER_MODE.getValue());
 							if(session != null){
 								session.setrecent_msg_status(message.getStatus().getValue());
 								if(message.getStatus() == MsgStatusEnum.success){
-									SamDBManager.getInstance().asyncUpdateMessageSessionDBRecentMessageStatus(message.getSessionId(), ModeEnum.CUSTOMER_MODE.ordinal(),message.getStatus().getValue());
+									SamDBManager.getInstance().asyncUpdateMessageSessionDBRecentMessageStatus(message.getSessionId(), ModeEnum.CUSTOMER_MODE.getValue(),message.getStatus().getValue());
 								}
 							}
 							SendIMMessageCache.getInstance().remove(message.getUuid());
@@ -1045,11 +1045,11 @@ public class SamchatChatFragment extends TFragment{
 					int index = findRecentContactIndex(items_sp,message);
 					if(index != -1){
 						if(message.getSessionType() == SessionTypeEnum.P2P){
-							MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(message.getSessionId(), ModeEnum.SP_MODE.ordinal());
+							MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(message.getSessionId(), ModeEnum.SP_MODE.getValue());
 							if(session != null){
 								session.setrecent_msg_status(message.getStatus().getValue());
 								if(message.getStatus() == MsgStatusEnum.success){
-									SamDBManager.getInstance().asyncUpdateMessageSessionDBRecentMessageStatus(message.getSessionId(), ModeEnum.SP_MODE.ordinal(),message.getStatus().getValue());
+									SamDBManager.getInstance().asyncUpdateMessageSessionDBRecentMessageStatus(message.getSessionId(), ModeEnum.SP_MODE.getValue(),message.getStatus().getValue());
 								}
 							}
 							SendIMMessageCache.getInstance().remove(message.getUuid());
@@ -1076,7 +1076,7 @@ public class SamchatChatFragment extends TFragment{
 						updateCustomerItems(msg);
 						refreshCustomer = true;
 					}else{
-						MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(msg.getContactId(), ModeEnum.CUSTOMER_MODE.ordinal());
+						MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(msg.getContactId(), ModeEnum.CUSTOMER_MODE.getValue());
 						if(session != null){
 							addTag(msg,RECENT_TAG_CUSTOMER_ROLE);
 							NIMClient.getService(MsgService.class).updateRecent(msg);
@@ -1089,7 +1089,7 @@ public class SamchatChatFragment extends TFragment{
 						updateSPItems(msg);
 						refreshSP = true;
 					}else{
-						MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(msg.getContactId(), ModeEnum.SP_MODE.ordinal());
+						MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(msg.getContactId(), ModeEnum.SP_MODE.getValue());
 						if(session != null){
 							addTag(msg,RECENT_TAG_SP_ROLE);
 							NIMClient.getService(MsgService.class).updateRecent(msg);

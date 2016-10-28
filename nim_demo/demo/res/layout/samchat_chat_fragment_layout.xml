@@ -5,12 +5,7 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent"
              android:orientation="vertical"
-              android:background="@color/color_grey_efeff4">
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/color_grey_d8d2e2"/>
-
+              android:background="@color/samchat_color_main_bg">
     <ListView
         android:id="@+id/listView_customer"
         android:layout_width="match_parent"

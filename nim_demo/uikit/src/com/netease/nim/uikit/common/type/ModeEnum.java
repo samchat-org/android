@@ -1,4 +1,4 @@
-package com.android.samchat.type;
+package com.netease.nim.uikit.common.type;
 
 public enum ModeEnum {
 		CUSTOMER_MODE(0),

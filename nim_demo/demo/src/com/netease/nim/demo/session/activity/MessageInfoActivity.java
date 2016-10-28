@@ -14,7 +14,6 @@ import android.widget.Toast;
 
 import com.android.samchat.activity.SamchatMemberSelectActivity;
 import com.android.samchat.service.SamDBManager;
-import com.android.samchat.type.ModeEnum;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
 import com.netease.nim.demo.contact.activity.UserProfileActivity;
@@ -23,6 +22,7 @@ import com.netease.nim.uikit.NIMCallback;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.cache.NimUserInfoCache;
 import com.netease.nim.uikit.common.activity.UI;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.ui.widget.SwitchButton;
@@ -82,11 +82,20 @@ public class MessageInfoActivity extends UI {
 
         ToolBarOptions options = new ToolBarOptions();
         options.titleId = R.string.samchat_chat_options;
-        options.navigateId = R.drawable.samchat_arrow_left;
+        if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
+            options.navigateId = R.drawable.samchat_arrow_left;
+        }else{
+             options.navigateId = R.drawable.samchat_arrow_left_sp;
+        }
         setToolBar(R.id.toolbar, options);
-
-        
-        findViews();
+        if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
+			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
+			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_dark_blue));
+		}else{
+			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
+			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_white));
+		}
+       findViews();
     }
 
 	@Override

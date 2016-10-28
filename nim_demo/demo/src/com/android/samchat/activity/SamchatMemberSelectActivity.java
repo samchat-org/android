@@ -15,10 +15,10 @@ import com.android.samchat.SamchatGlobal;
 import com.android.samchat.adapter.SelectMemberAdapter;
 import com.android.samchat.cache.ContactDataCache;
 import com.android.samchat.cache.CustomerDataCache;
-import com.android.samchat.type.ModeEnum;
 import com.android.samservice.info.Contact;
 import com.android.samchat.R;
 import com.netease.nim.uikit.common.activity.UI;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.model.ToolBarOptions;
 import android.widget.FrameLayout;
 

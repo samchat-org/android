@@ -7,7 +7,6 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
-import com.android.samchat.type.ModeEnum;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
 import com.netease.nim.demo.contact.activity.UserProfileActivity;
@@ -36,6 +35,7 @@ import com.netease.nim.demo.session.viewholder.MsgViewHolderSticker;
 import com.netease.nim.demo.session.viewholder.MsgViewHolderTip;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.cache.TeamDataCache;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.ui.popupmenu.NIMPopupMenu;
 import com.netease.nim.uikit.common.ui.popupmenu.PopupMenuItem;

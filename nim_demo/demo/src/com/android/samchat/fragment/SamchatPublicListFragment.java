@@ -6,7 +6,6 @@ import android.os.Bundle;
 import com.android.samchat.SamchatGlobal;
 import com.android.samchat.activity.SamchatRcvdAdvertisementActivity;
 import com.android.samchat.service.SamDBManager;
-import com.android.samchat.type.ModeEnum;
 import com.android.samservice.info.FollowedSamPros;
 import com.android.samchat.R;
 import com.netease.nim.demo.main.activity.MainActivity;
@@ -19,6 +18,7 @@ import com.android.samservice.info.SendQuestion;
 import com.android.samchat.callback.ReceivedQuestionCallback;
 import com.android.samservice.info.ReceivedQuestion;
 import com.android.samchat.callback.CustomerPublicCallback;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 
 public class SamchatPublicListFragment extends MainTabFragment {

@@ -21,6 +21,9 @@
     <color name="samchat_color_customer_titlebar_bg">#f8f9f9</color>
     <color name="samchat_color_sp_titlebar_bg">#13243F</color>
 
+    <color name="samchat_color_customer_titlbar_title">#1B3257</color>
+    <color name="samchat_color_sp_titlbar_title">#FFFFFF</color>
+
     <color name="samchat_color_main_bg">#efeff4</color>
     <color name="samchat_color_white">#FFFFFF</color>
     <color name="samchat_color_hint_white">#7FFFFFFF</color>

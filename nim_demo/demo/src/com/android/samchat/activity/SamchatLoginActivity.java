@@ -17,7 +17,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.samchat.type.ModeEnum;
 import com.hp.hpl.sparta.Text;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
@@ -26,6 +25,7 @@ import com.netease.nim.demo.config.preference.UserPreferences;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.uikit.cache.DataCacheManager;
 import com.netease.nim.uikit.common.activity.UI;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
@@ -132,7 +132,7 @@ public class SamchatLoginActivity extends Activity {
 		
 		/*clear all persist storage info*/
 		Preferences.saveUserAlias("");
-		Preferences.saveMode(ModeEnum.CUSTOMER_MODE.ordinal());
+		Preferences.saveMode(ModeEnum.CUSTOMER_MODE.getValue());
 		Preferences.clearSyncDate();
 
 		requestBasicPermission();

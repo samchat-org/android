@@ -46,8 +46,11 @@ public abstract class BaseMessageActivity extends UI {
 				
         sessionId = getIntent().getStringExtra(Extras.EXTRA_ACCOUNT);
         setContentView(getContentViewId());
-        initToolBar();
         parseIntent();
+        initToolBar();
+        if (customization != null) {
+            addRightCustomViewOnActionBar(this, customization.buttons);
+        }
 
         messageFragment = (MessageFragment) switchContent(fragment());
     }
@@ -80,10 +83,6 @@ public abstract class BaseMessageActivity extends UI {
         question_id = getIntent().getLongExtra(Extras.EXTRA_QUESTIONID,0L);
         adv_id = getIntent().getLongExtra(Extras.EXTRA_ADVID,0L);
         /*SAMC_BEGIN(support mode setting for p2p activity)*/
-
-        if (customization != null) {
-            addRightCustomViewOnActionBar(this, customization.buttons);
-        }
     }
 
     // 添加action bar的右侧按钮及响应事件
@@ -102,7 +101,7 @@ public abstract class BaseMessageActivity extends UI {
         for (final SessionCustomization.OptionsButton button : buttons) {
             ImageView imageView = new ImageView(activity);
             imageView.setImageResource(button.iconId);
-            imageView.setBackgroundResource(R.drawable.nim_nim_action_bar_button_selector);
+            imageView.setBackgroundResource(R.drawable.samchat_action_bar_button_selector);
             imageView.setPadding(ScreenUtil.dip2px(10), 0, ScreenUtil.dip2px(10), 0);
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override

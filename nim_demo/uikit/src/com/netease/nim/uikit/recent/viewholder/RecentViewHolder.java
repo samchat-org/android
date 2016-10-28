@@ -116,6 +116,11 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
         int unreadNum = recent.getUnreadCount();
         tvUnread.setVisibility(unreadNum > 0 ? View.VISIBLE : View.GONE);
         tvUnread.setText(unreadCountShowRule(unreadNum));
+        if(unreadNum > 0){
+            imgHead.setBorderColorResource(R.color.samchat_color_green);
+        }else{
+            imgHead.setBorderColorResource(R.color.samchat_color_grey);
+        }
     }
 
     private void updateMsgLabel() {
@@ -149,7 +154,7 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
 
     protected void updateNickLabel(String nick) {
         int labelWidth = ScreenUtil.screenWidth;
-        labelWidth -= ScreenUtil.dip2px(50 + 70); // 减去固定的头像和时间宽度
+        labelWidth -= ScreenUtil.dip2px(50 + 64 + 12 + 12); // 减去固定的头像和时间宽度
 
         if (labelWidth > 0) {
             tvNickname.setMaxWidth(labelWidth);

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import com.android.samchat.SamchatGlobal;
 import com.android.samchat.activity.SamchatRequestDetailsActivity;
 import com.android.samchat.service.SamDBManager;
-import com.android.samchat.type.ModeEnum;
 import com.android.samservice.Constants;
 import com.android.samservice.info.QuestionInfo;
 import com.android.samchat.R;
@@ -19,6 +18,7 @@ import com.android.samchat.callback.SendQuestionCallback;
 import com.android.samservice.info.SendQuestion;
 import com.android.samchat.callback.ReceivedQuestionCallback;
 import com.android.samservice.info.ReceivedQuestion;
+import com.netease.nim.uikit.common.type.ModeEnum;
 
 public class SamchatRequestListFragment extends MainTabFragment {
 	private SamchatRequestFragment fragment;

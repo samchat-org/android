@@ -15,6 +15,7 @@ import com.android.samchat.R;
 import com.netease.nim.demo.avchat.activity.AVChatExitCode;
 import com.netease.nim.demo.avchat.constant.CallStateEnum;
 import com.netease.nim.demo.config.preference.UserPreferences;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.ResponseCode;
@@ -27,7 +28,6 @@ import com.netease.nimlib.sdk.avchat.model.AVChatOptionalParam;
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
 import com.android.samchat.SamchatGlobal;
-import com.android.samchat.type.ModeEnum;
 /**
  * 音视频管理器, 音视频相关功能管理
  * Created by hzxuwen on 2015/4/23.

@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 
 import com.android.samchat.SamchatGlobal;
 import com.android.samchat.fragment.SamchatPublicListFragment;
-import com.android.samchat.type.ModeEnum;
 import com.android.samchat.R;
 import com.netease.nim.demo.common.ui.viewpager.FadeInOutPageTransformer;
 import com.netease.nim.demo.common.ui.viewpager.PagerSlidingTabStrip;
@@ -20,6 +19,7 @@ import com.netease.nim.demo.main.model.MainTab;
 import com.netease.nim.demo.main.reminder.ReminderItem;
 import com.netease.nim.demo.main.reminder.ReminderManager;
 import com.netease.nim.uikit.common.fragment.TFragment;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;

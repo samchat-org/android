@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.netease.nim.demo.DemoCache;
-import com.android.samchat.type.ModeEnum;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.util.string.StringUtil;
 
 /**

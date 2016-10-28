@@ -25,13 +25,13 @@ import com.android.samchat.SamchatGlobal;
 import java.util.Collections;
 import java.util.Comparator;
 
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.android.samservice.Constants;
 import android.content.BroadcastReceiver;
 import android.support.v4.content.LocalBroadcastManager;
-import com.android.samchat.type.ModeEnum;
 import android.content.IntentFilter;
 import android.content.Context;
 import android.content.Intent;

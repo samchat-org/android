@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.android.samchat.R;
+import com.android.samservice.Constants;
 import com.android.samservice.info.SendQuestion;
 
 import android.text.TextUtils;
@@ -178,6 +179,11 @@ public class ReceivedQuestionAdapter extends BaseAdapter{
 				holder.location.setVisibility(View.GONE);
 			}
 			holder.avatar.loadBuddyAvatar(""+items.get(index).getsender_unique_id(),30);
+			if(items.get(index).getunread() == Constants.QUESTION_UNREAD){
+				holder.avatar.setBorderColorResource(R.color.samchat_color_green);
+			}else{
+				holder.avatar.setBorderColorResource(R.color.samchat_color_grey);
+			}
 			holder.username.setText(items.get(index).getsender_username());
 			break;
 		case TYPE_LABEL_NEW:

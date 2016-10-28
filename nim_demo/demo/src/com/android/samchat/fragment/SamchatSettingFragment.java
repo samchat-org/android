@@ -19,11 +19,11 @@ import android.widget.LinearLayout;
 import com.android.samservice.SamService;
 import com.android.samchat.SamchatGlobal;
 
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.android.samservice.Constants;
 import android.content.BroadcastReceiver;
 import android.support.v4.content.LocalBroadcastManager;
-import com.android.samchat.type.ModeEnum;
 import android.content.IntentFilter;
 import android.content.Context;
 import android.content.Intent;
@@ -249,7 +249,7 @@ public class SamchatSettingFragment extends TFragment {
 			public void onClick(View arg0) {
 				//ScanCaptureAct.start(getActivity());
 				//CaptureActivity.start(getActivity());
-				SamchatQRCodeActivity.start(getActivity(),SamchatGlobal.getmode().ordinal());
+				SamchatQRCodeActivity.start(getActivity(),SamchatGlobal.getmode().getValue());
 			}
 		});
 	}
@@ -346,7 +346,7 @@ public class SamchatSettingFragment extends TFragment {
 			public void onClick(View arg0) {
 				//ScanCaptureAct.start(getActivity());
 				//CaptureActivity.start(getActivity());
-				SamchatQRCodeActivity.start(getActivity(),SamchatGlobal.getmode().ordinal());
+				SamchatQRCodeActivity.start(getActivity(),SamchatGlobal.getmode().getValue());
 			}
 		});
 	}

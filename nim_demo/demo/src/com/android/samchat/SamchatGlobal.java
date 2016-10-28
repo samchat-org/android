@@ -1,5 +1,6 @@
 package com.android.samchat;
-import com.android.samchat.type.ModeEnum;
+
+import com.netease.nim.uikit.common.type.ModeEnum;
 
 public class SamchatGlobal {
 	public static ModeEnum mode = ModeEnum.CUSTOMER_MODE;

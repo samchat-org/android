@@ -319,6 +319,7 @@ public final class NimUIKit {
         void lastMsgResending(String account, int mode, IMMessage im);
         void registerClearHistoryObserver(SamchatObserver<SessionBasicInfo> observer, boolean register);
         void asyncClearChatHisotry(final SessionTypeEnum type, final String account, final int mode, final NIMCallback callback);
+        String getServiceCategory(String id);
     }
 
     static private NimUIKitInterface callback;

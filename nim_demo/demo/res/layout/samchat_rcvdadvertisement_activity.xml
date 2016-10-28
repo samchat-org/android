@@ -6,11 +6,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/color_grey_efeff4">
+    android:background="@color/samchat_color_main_bg">
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/color_white_f8f9f9">
+            android:background="@color/samchat_color_customer_titlebar_bg">
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
@@ -27,10 +27,8 @@
                     android:id="@+id/back_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="@dimen/body_left_margin"
+                    android:layout_marginStart="@dimen/body_left_margin"
                     android:src="@drawable/samchat_arrow_left"
                     android:contentDescription="@null"
                     android:layout_gravity="center"/>
@@ -40,12 +38,14 @@
                 android:id="@+id/titlebar_name"
                 android:layout_width="wrap_content"
                 android:layout_height="?attr/actionBarSize"
+                android:layout_marginLeft="20dp"
+                android:layout_marginStart="20dp"
                 android:layout_centerVertical="true"
                 android:gravity="center"
                 android:layout_toRightOf="@id/back_arrow_layout"
                 android:layout_toEndOf="@id/back_arrow_layout"
-                android:textSize="20sp"
-                android:textColor="@color/black"/>
+                android:textSize="@dimen/samchat_titlebar_title_size"
+                android:textColor="@color/samchat_color_customer_titlbar_title"/>
         </RelativeLayout>
         <com.netease.nim.uikit.common.ui.ptr.PullToRefreshListView
             android:id="@+id/pull_refresh_list"

@@ -36,8 +36,8 @@ public class HttpCommClient {
 	public static final String TAG="HttpCommClient";
 	
 	//public static final String ROOT_URL = "http://ec2-52-40-15-21.us-west-2.compute.amazonaws.com:8081/sam_svr/";
-	//public static final String ROOT_URL = "http://service-test.samchat.com:8081/sam_svr/";
-	public static final String ROOT_URL = "http://52.40.15.21:8081/sam_svr/";
+	public static final String ROOT_URL = "http://service-test.samchat.com/";
+	//public static final String ROOT_URL = "http://52.40.15.21:8081/sam_svr/";
 
 	public static final String URL_registerCodeRequest = ROOT_URL+"api_1.0_user_registerCodeRequest.do";
 	public static final String URL_registerCodeVerify =ROOT_URL+"api_1.0_user_signupCodeVerify.do";

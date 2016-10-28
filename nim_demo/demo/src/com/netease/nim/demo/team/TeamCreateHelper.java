@@ -5,10 +5,13 @@ import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.samchat.R;
+import com.android.samservice.SamService;
 import com.netease.nim.demo.DemoCache;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
+import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.msg.MessageBuilder;
@@ -34,12 +37,21 @@ public class TeamCreateHelper {
     private static final String TAG = TeamCreateHelper.class.getSimpleName();
     private static final int DEFAULT_TEAM_CAPACITY = 200;
 
+    private static String createTeamName(List<String> memberAccounts){
+        String myname = SamService.getInstance().get_current_user().getusername();
+        String teamName = myname + " " + DemoCache.getContext().getString(R.string.samchat_with);
+        for(String account : memberAccounts){
+            teamName += " " + UserInfoHelper.getUserTitleName(account, SessionTypeEnum.P2P);
+        }
+        return teamName;
+    }
+
     /**
      * 创建讨论组
      */
     public static void createNormalTeam(final Context context, List<String> memberAccounts, final boolean isNeedBack, final RequestCallback<Void> callback) {
 
-        String teamName = "讨论组";
+        String teamName = createTeamName(memberAccounts);
 
         DialogMaker.showProgressDialog(context, context.getString(com.netease.nim.uikit.R.string.empty), true);
         // 创建群

@@ -12,8 +12,9 @@ import com.android.samchat.fragment.SamchatPublicListFragment;
 import com.android.samchat.fragment.SamchatChatListFragment;
 import com.android.samchat.fragment.SamchatSettingListFragment;
 import com.android.samchat.SamchatGlobal;
+import com.netease.nim.uikit.common.type.ModeEnum;
+
 import android.content.Context;
-import com.android.samchat.type.ModeEnum;
 /*SAMC_END(Change the main tab from 3 to 5)*/
 
 public enum MainTab {

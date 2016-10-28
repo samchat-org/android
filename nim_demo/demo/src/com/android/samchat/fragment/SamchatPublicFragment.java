@@ -57,13 +57,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.android.samservice.Constants;
 import android.content.BroadcastReceiver;
 import android.support.v4.content.LocalBroadcastManager;
-import com.android.samchat.type.ModeEnum;
 import android.content.IntentFilter;
 import android.content.Context;
 import android.content.Intent;
 import com.android.samchat.adapter.FollowedSPAdapter;
 import com.android.samchat.callback.CustomerPublicCallback;
 import com.android.samservice.info.FollowedSamPros;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
@@ -651,7 +651,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 		}
 
 		Map<String, Object> msg_from = new HashMap<>();
-		msg_from.put(NimConstants.MSG_FROM,ModeEnum.CUSTOMER_MODE.ordinal());
+		msg_from.put(NimConstants.MSG_FROM,ModeEnum.CUSTOMER_MODE.getValue());
 		message.setRemoteExtension(msg_from);
 		message.setDirect(MsgDirectionEnum.Out);
 		message.setStatus(MsgStatusEnum.fail);
@@ -712,7 +712,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 		message.setStatus(MsgStatusEnum.sending);
 		SendIMMessageCache.getInstance().add(message.getUuid());
 		if(messageListPanel.isLastMessage(message)){
-			MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(message.getSessionId(), ModeEnum.SP_MODE.ordinal());
+			MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(message.getSessionId(), ModeEnum.SP_MODE.getValue());
 			session.setrecent_msg_status(message.getStatus().getValue());
 		}
 		

@@ -2,9 +2,8 @@ package com.android.samservice.info;
 
 import java.io.Serializable;
 
-import com.android.samservice.Constants;
-import com.android.samchat.type.ModeEnum;
 import com.netease.nim.uikit.NimConstants;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 
