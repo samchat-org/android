@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -70,6 +71,10 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 	private TextView username_textview;
 	private TextView email_textview;
 	private TextView address_textview;
+
+	private RelativeLayout phone_layout;
+	private RelativeLayout email_layout;
+	private RelativeLayout address_layout;
 
 	private Uri cropImageUri;
 	
@@ -283,12 +288,15 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		address_textview= findView(R.id.address);
 		wall_iv = findView(R.id.wall);
 
+		phone_layout = findView(R.id.phone_layout);
+		email_layout = findView(R.id.email_layout);
+		address_layout = findView(R.id.address_layout);
+
 		setupBackArrowClick();
 		setupAvaterClick();
 		setupEmailClick();
 		setupAddressClick();
-		setupCountryCodeClick();
-		setupPhoneNumberClick();
+		setupPhoneClick();
 	}
 	
 	private void setupBackArrowClick(){
@@ -300,19 +308,8 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		});
 	}
 
-	private void setupCountryCodeClick(){
-		countrycode_textview.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				SamchatProfileEditActivity.start(SamchatProfileCustomerActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_CUSTOMER_PHONE, 
-					SamService.getInstance().get_current_user().getcountrycode(),
-					SamService.getInstance().get_current_user().getcellphone());
-			}
-		});
-	}
-
-	private void setupPhoneNumberClick(){
-		phonenumber_textview.setOnClickListener(new OnClickListener() {
+	private void setupPhoneClick(){
+		phone_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				SamchatProfileEditActivity.start(SamchatProfileCustomerActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_CUSTOMER_PHONE, 
@@ -333,7 +330,7 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 	}
 
 	private void setupEmailClick(){
-		email_textview.setOnClickListener(new OnClickListener() {
+		email_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				SamchatProfileEditActivity.start(SamchatProfileCustomerActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_CUSTOMER_EMAIL, email_textview.getText().toString().trim());
@@ -342,7 +339,7 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 	}
 
 	private void setupAddressClick(){
-		address_textview.setOnClickListener(new OnClickListener() {
+		address_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				SamchatProfileEditActivity.start(SamchatProfileCustomerActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_CUSTOMER_ADDRESS, address_textview.getText().toString().trim());
@@ -486,6 +483,3 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		});
 	}
 }
-
-
-

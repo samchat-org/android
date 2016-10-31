@@ -4,12 +4,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.Selection;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -99,6 +101,7 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 		parseIntent();
 		setupPanel();
 		updateTitleName();
+		setInputType();
 	}
 
 	@Override
@@ -160,6 +163,38 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 		}
 	}
 
+	private void setInputType(){
+		switch(type){
+			case EDIT_PROFILE_TYPE_CUSTOMER_EMAIL:
+				edit_edittext.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+				break;
+			case EDIT_PROFILE_TYPE_CUSTOMER_ADDRESS:
+				//titlebar_name_tv.setText(R.string.samchat_edit_address);
+				break;
+			case EDIT_PROFILE_TYPE_SP_EMAIL:
+				edit_edittext.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+				break;
+			case EDIT_PROFILE_TYPE_SP_ADDRESS:
+				//titlebar_name_tv.setText(R.string.samchat_edit_address);
+				break;
+			case EDIT_PROFILE_TYPE_SP_COMPANY_NAME:
+				//titlebar_name_tv.setText(R.string.samchat_edit_company);
+				break;
+			case EDIT_PROFILE_TYPE_SP_SERVICE_CATEGORY:
+				//titlebar_name_tv.setText(R.string.samchat_edit_category);
+				break;
+			case EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION:
+				//titlebar_name_tv.setText(R.string.samchat_edit_description);
+				break;
+			case EDIT_PROFILE_TYPE_CUSTOMER_PHONE:
+				edit_edittext.setInputType(InputType.TYPE_CLASS_PHONE);
+				break;
+			case EDIT_PROFILE_TYPE_SP_PHONE:
+				edit_edittext.setInputType(InputType.TYPE_CLASS_PHONE);
+				break;
+		}
+	}
+
 	private void updateCountryCode(String c){
 		if(TextUtils.isEmpty(c)){
 			countrycode_textview.setText("+");
@@ -202,18 +237,18 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 			if( s.length()>=Constants.MIN_MPHONE_NUMBER_LENGTH
 				&& countrycode_textview.getText().toString().trim().length()>=2){
 				save_textview.setEnabled(true);
-				save_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
+				save_textview.setBackgroundResource(R.drawable.samchat_button_green_active);
 			}else{
 				save_textview.setEnabled(false);
-				save_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_inactive);
+				save_textview.setBackgroundResource(R.drawable.samchat_button_green_inactive);
 			}
 		}else{
 			if(s.length()>0){
 				save_textview.setEnabled(true);
-				save_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
+				save_textview.setBackgroundResource(R.drawable.samchat_button_green_active);
 			}else{
 				save_textview.setEnabled(false);
-				save_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_inactive);
+				save_textview.setBackgroundResource(R.drawable.samchat_button_green_inactive);
 			}
 		}
 	}
@@ -222,6 +257,8 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 		back_arrow_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
+				InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(back_arrow_layout.getWindowToken(), 0);
 				finish();
 			}
 		});

@@ -399,4 +399,5 @@
     <string name="samchat_delete_service_provider">Delete Service Provider</string>
     <string name="samchat_add_to_customer">Add to Customer</string>
     <string name="samchat_delete_customer">Delete Customer</string>
+    <string name="samchat_edit">Edit</string>
 </resources>
