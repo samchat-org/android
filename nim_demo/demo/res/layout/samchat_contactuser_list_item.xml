@@ -2,46 +2,45 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              android:background="@drawable/samchat_list_item_selector">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp">
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="@dimen/body_left_margin"
+        android:layout_marginRight="@dimen/body_left_margin">
         <com.netease.nim.uikit.common.ui.imageview.HeadImageView
             android:id="@+id/avatar"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="@dimen/avatar_size_default"
+            android:layout_height="@dimen/avatar_size_default"
             android:layout_gravity="center_vertical"
             android:src="@drawable/avatar_def"/>
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_marginLeft="10dp"
-            android:layout_marginStart="10dp">
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:orientation="vertical">
             <TextView
                 android:id="@+id/username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:textSize="16sp"
-                android:textColor="@color/black"
+                android:textColor="@color/samchat_color_ink"
+                android:textSize="@dimen/text_size_16"
                 android:maxLines="1"/>
             <TextView
                 android:id="@+id/service_category"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignLeft="@id/username"
-                android:layout_alignStart="@id/username"
-                android:layout_below="@id/username"
-                android:textSize="14sp"
-                android:textColor="@color/black"
-                android:maxLines="1"/>
-        </RelativeLayout>
+                android:layout_marginTop="4dp"
+                android:maxLines="1"
+                android:textColor="@color/samchat_color_dark_grey"
+                android:textSize="@dimen/text_size_16"/>
+        </LinearLayout>
         <TextView
             android:id="@+id/follow_tag"
             android:layout_width="wrap_content"
@@ -50,4 +49,10 @@
             android:maxLines="1"
             android:textSize="16sp"/>
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="@dimen/body_left_margin"
+        android:layout_marginRight="@dimen/body_right_margin"
+        android:background="@color/samchat_color_grey"/>
 </LinearLayout>

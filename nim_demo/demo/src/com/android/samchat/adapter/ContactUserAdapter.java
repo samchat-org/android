@@ -78,7 +78,7 @@ public class ContactUserAdapter extends BaseAdapter{
 			ContactUser user = items.get(position);
 			holder.username.setText(user.getusername());
 			holder.service_category.setText(user.getservice_category());
-			holder.avatar.loadBuddyAvatar(Long.toString(user.getunique_id()),40);
+			holder.avatar.loadBuddyAvatar(Long.toString(user.getunique_id()),(int)mContext.getResources().getDimension(R.dimen.avatar_size_default));
 			if(isFollowVisible){
 				if(FollowDataCache.getInstance().getFollowSPByUniqueID(user.getunique_id())!=null){
 					holder.follow_tag.setText(mContext.getString(R.string.samchat_follow));

@@ -308,6 +308,8 @@ public enum MainTab {
 		return icon_id;
 	}
 
+
+
 	public static final int getMainIconSelected(int index){
 		int icon_id;
 		MainTab tab = fromTabIndex(index);

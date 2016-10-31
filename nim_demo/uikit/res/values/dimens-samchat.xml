@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="samchat_titlebar_title_size">20sp</dimen>
-
+    <dimen name="samchat_avatar_size_in_namecard">112dp</dimen>
 </resources>

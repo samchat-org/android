@@ -80,7 +80,7 @@
                 android:contentDescription="@null"
                 android:layout_gravity="center_vertical"
                 android:gravity="center"
-                android:src="@drawable/samchat_setting_profile_icon"/>
+                android:src="@drawable/samchat_ic_tab_account_sp_hint"/>
             <TextView
                 android:id="@+id/company_name"
                 android:layout_width="0dp"
@@ -92,7 +92,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
                 android:background="@null"
-                android:singleLine="true"
+                android:maxLines="1"
                 android:textSize="18sp"
                 android:textColor="@color/black"/>
 
@@ -202,7 +202,7 @@
                 android:layout_gravity="center_vertical"
                 android:contentDescription="@null"
                 android:gravity="center"
-                android:src="@drawable/samchat_profile_phone_icon"/>
+                android:src="@drawable/samchat_ic_input_phone_hint"/>
             <TextView
                 android:id="@+id/countrycode"
                 android:layout_width="wrap_content"
@@ -253,7 +253,7 @@
                 android:layout_gravity="center_vertical"
                 android:contentDescription="@null"
                 android:gravity="center"
-                android:src="@drawable/samchat_profile_email_icon"/>
+                android:src="@drawable/samchat_ic_input_email_hint"/>
             <TextView
                 android:id="@+id/email"
                 android:layout_width="0dp"
@@ -290,7 +290,7 @@
                 android:layout_gravity="center_vertical"
                 android:contentDescription="@null"
                 android:gravity="center"
-                android:src="@drawable/samchat_profile_location_icon"/>
+                android:src="@drawable/samchat_ic_input_location_hint"/>
             <TextView
                 android:id="@+id/address"
                 android:layout_width="0dp"

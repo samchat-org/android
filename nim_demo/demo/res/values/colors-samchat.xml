@@ -18,8 +18,12 @@
     <color name="color_black_13243F">#13243F</color>
 
     <!-- samchat final color-->
+    <color name="samchat_color_tab_selected">#1D4D73</color>
+    <color name="samchat_color_tab_unselected">#8A1D4D73</color>
+
     <color name="samchat_color_customer_titlebar_bg">#f8f9f9</color>
     <color name="samchat_color_sp_titlebar_bg">#13243F</color>
+    <color name="samchat_color_sp_titlebar_bg_transparent">#1FFFFFFF</color>
 
     <color name="samchat_color_customer_titlbar_title">#1B3257</color>
     <color name="samchat_color_sp_titlbar_title">#FFFFFF</color>

@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.hp.hpl.sparta.Text;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
@@ -59,7 +60,7 @@ public class PhoneContactsAdapter extends BaseAdapter{
 		if(convertView == null){
 			holder = new ViewHolder();
 			convertView = mInflater.inflate(R.layout.samchat_phonecontact_list_item,parent,false);
-			holder.avatar= (HeadImageView) convertView.findViewById(R.id.avatar);
+			holder.tv_tag= (TextView) convertView.findViewById(R.id.tv_lv_item_tag);
 			holder.name = (TextView) convertView.findViewById(R.id.name);
 
 			convertView.setTag(holder);
@@ -69,18 +70,32 @@ public class PhoneContactsAdapter extends BaseAdapter{
 		
 		switch(viewType){
 		case TYPE_PHONECONTACT:
-			holder.name.setText(items.get(position).getname());
-			/*if(items.get(position).getavatar() == null){
-				holder.avatar.setImageResource(R.drawable.avatar_def);
-			}else{
-				holder.avatar.setImageBitmap(items.get(position).getavatar());
-			}*/
-			holder.avatar.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount());
-			//holder.avatar.setVisibility(View.GONE);
+			PhoneContact user = items.get(position);
+			holder.name.setText(user.getname());
+			int selection = user.getFPinYin().charAt(0);
+			int positionForSelection = getPositionForSelection(selection);
+			if (position == positionForSelection) {
+				holder.tv_tag.setVisibility(View.VISIBLE);
+				holder.tv_tag.setText(user.getFPinYin());
+			} else {
+				holder.tv_tag.setVisibility(View.GONE);
+			}
 			break;
 		}
 		
 		return convertView;
+	}
+
+	private int getPositionForSelection(int selection) {
+		for (int i = 0; i < items.size(); i++) {
+			String Fpinyin = items.get(i).getFPinYin();
+			char first = Fpinyin.toUpperCase().charAt(0);
+			if (first == selection) {
+				return i;
+			}
+		}
+		return -1;
+
 	}
 	
 	@Override
@@ -94,8 +109,8 @@ public class PhoneContactsAdapter extends BaseAdapter{
 	}
 
 	public static class ViewHolder{
-		public HeadImageView avatar;
 		public TextView name;
+		public TextView tv_tag;
 	}
 	
 }

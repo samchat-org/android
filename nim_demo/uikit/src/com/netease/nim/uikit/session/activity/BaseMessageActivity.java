@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.activity.UI;
-import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.constant.Extras;
@@ -101,7 +101,11 @@ public abstract class BaseMessageActivity extends UI {
         for (final SessionCustomization.OptionsButton button : buttons) {
             ImageView imageView = new ImageView(activity);
             imageView.setImageResource(button.iconId);
-            imageView.setBackgroundResource(R.drawable.samchat_action_bar_button_selector);
+            if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
+                imageView.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_customer);
+            }else{
+                imageView.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_sp);
+            }
             imageView.setPadding(ScreenUtil.dip2px(10), 0, ScreenUtil.dip2px(10), 0);
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override

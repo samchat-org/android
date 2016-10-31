@@ -20,14 +20,17 @@ import java.util.Locale;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.AttributeSet;
@@ -300,6 +303,12 @@ public class PagerSlidingTabStrip extends HorizontalScrollView implements OnPage
             frame.setLayoutParams(lp);
 		}
 	}
+
+    private Drawable tintDrawable(Drawable drawable, ColorStateList colors) {
+        final Drawable wrappedDrawable = DrawableCompat.wrap(drawable);
+        DrawableCompat.setTintList(wrappedDrawable, colors);
+        return wrappedDrawable;
+    }
 
     private void setChooseTabViewIcon(int position) {
         int childCount = tabsContainer.getChildCount();

@@ -12,8 +12,10 @@ import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.android.samchat.cache.ContactDataCache;
 import com.android.samchat.cache.FollowDataCache;
 import com.android.samchat.R;
 import com.android.samchat.common.FastBlurUtils;
@@ -22,6 +24,8 @@ import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
+import com.netease.nim.uikit.common.ui.widget.SwitchButton;
+import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nim.uikit.model.ToolBarOptions;
 import com.android.samservice.SamService;
 import android.widget.FrameLayout;
@@ -31,6 +35,8 @@ import com.android.samchat.service.ErrorString;
 import android.content.BroadcastReceiver;
 import android.support.v4.content.LocalBroadcastManager;
 import android.content.IntentFilter;
+import android.widget.Toast;
+
 import com.android.samservice.info.ContactUser;
 public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatContactUserSPNameCardActivity.class.getSimpleName();
@@ -41,10 +47,11 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 	private TextView company_name_tv;
 	private TextView service_category_tv;
 	private TextView service_description_tv;
-	private LinearLayout chat_layout;
-	private LinearLayout qr_layout;
-	private LinearLayout follow_layout;
-	private ImageView follow_button_iv;
+	private RelativeLayout chat_layout;
+	private RelativeLayout qr_layout;
+	private SwitchButton switchButtonFollow;
+	private RelativeLayout op_layout;
+	private TextView op_text_tv;
 	private TextView work_phone_tv;
 	private TextView email_tv;
 	private TextView location_tv;
@@ -53,6 +60,7 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 	private ContactUser sp;
 
 	private boolean isFollowing = false;
+	private boolean isOpting=false;
 
 	//observer and broadcast
 	private boolean isBroadcastRegistered = false;
@@ -133,19 +141,21 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		service_description_tv = findView(R.id.service_description);
 		chat_layout = findView(R.id.chat_layout);
 		qr_layout = findView(R.id.qr_layout);
-		follow_layout = findView(R.id.follow_layout);
-		follow_button_iv = findView(R.id.follow_button);
+		op_layout = findView(R.id.op_layout);
+		switchButtonFollow = findView(R.id.follow_toggle);
 		work_phone_tv = findView(R.id.work_phone);
 		email_tv = findView(R.id.email);
 		location_tv = findView(R.id.location);
 		wall_iv = findView(R.id.wall);
+		op_text_tv = findView(R.id.op_text);
 
 		setupBackArrowClick();
 		setupChatClick();
 		setupFollowClick();
-		updateFollow();
+		setupOpServiceProviderClick();
+		setupQrcodeClick();
 		
-		avatar_headimageview.loadBuddyAvatar(sp.getAccount(), 90, new HeadImageView.OnImageLoadedListener(){
+		avatar_headimageview.loadBuddyAvatar(sp.getAccount(), (int) getResources().getDimension(R.dimen.samchat_avatar_size_in_namecard), new HeadImageView.OnImageLoadedListener(){
 			@Override
 			public void OnImageLoadedListener(Bitmap bitmap){
 				FastBlurUtils.blur(bitmap, wall_iv);
@@ -156,7 +166,7 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		service_category_tv.setText(sp.getservice_category());
 		service_description_tv.setText(sp.getservice_description());
 		if(!TextUtils.isEmpty(sp.getphone_sp())){
-			if(TextUtils.isEmpty(sp.getcountrycode_sp())){
+			if(!TextUtils.isEmpty(sp.getcountrycode_sp())){
 				work_phone_tv.setText("+"+sp.getcountrycode_sp()+sp.getphone_sp());
 			}else{
 				work_phone_tv.setText(sp.getphone_sp());
@@ -168,10 +178,6 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		if(!TextUtils.isEmpty(sp.getaddress_sp())){
 			location_tv.setText(sp.getaddress_sp());
 		}
-
-		
-		
-
 	}
 
 	private void onParseIntent() {
@@ -187,30 +193,62 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		});
 	}
 
+	private SwitchButton.OnChangedListener onFollowChangedListener = new SwitchButton.OnChangedListener() {
+		@Override
+		public void OnChanged(View v, final boolean followState) {
+			if (!NetworkUtil.isNetAvailable(SamchatContactUserSPNameCardActivity.this)) {
+				Toast.makeText(SamchatContactUserSPNameCardActivity.this, R.string.network_is_not_available, Toast.LENGTH_SHORT).show();
+				switchButtonFollow.setCheck(!followState);
+				return;
+			}
+
+			if(isFollowing){
+				switchButtonFollow.setCheck(!followState);
+				return;
+			}
+			
+			follow(followState);
+        }
+    };
+
 	private void updateFollow(){
 		if(FollowDataCache.getInstance().getFollowSPByUniqueID(sp.getunique_id()) != null){
-			follow_button_iv.setImageResource(R.drawable.samchat_follow_toggle_on);
+			switchButtonFollow.setCheck(true);
 		}else{
-			follow_button_iv.setImageResource(R.drawable.samchat_follow_toggle_off);
+			switchButtonFollow.setCheck(false);
 		}
 	}
 
 	private void setupFollowClick(){
-		follow_button_iv.setOnClickListener(new OnClickListener() {
+		switchButtonFollow.setOnChangedListener(onFollowChangedListener);
+		updateFollow();
+	}
+
+	private void setupOpServiceProviderClick(){
+		op_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				if(isFollowing){
+				if(isOpting){
 					return;
 				}
 
-				isFollowing = true;
-				if(FollowDataCache.getInstance().getFollowSPByUniqueID(sp.getunique_id()) != null){
-					follow(false);
+				if(ContactDataCache.getInstance().getContactByUniqueID(sp.getunique_id()) != null){
+					removeServiceProvider();
 				}else{
-					follow(true);
+					addServiceProvider();
 				}
+				
 			}
 		});
+		updateOpServiceProvider();
+	}
+
+	private void updateOpServiceProvider(){
+		if(ContactDataCache.getInstance().getContactByUniqueID(sp.getunique_id()) != null){
+			op_text_tv.setText(getString(R.string.samchat_delete_service_provider));
+		}else{
+			op_text_tv.setText(getString(R.string.samchat_add_to_service_provider));
+		}
 	}
 
 	private void setupChatClick(){
@@ -226,61 +264,169 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		qr_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				SamchatQRCodeActivity.start(SamchatContactUserSPNameCardActivity.this, Constants.FROM_SP_ACTIVITY_LAUNCH);
+				SamchatQRCodeActivity.start(SamchatContactUserSPNameCardActivity.this, Constants.SHOW_SP_INFO,sp.getunique_id());
 			}
 		});
 	}
 
 /**************************Data Flow Control***************************************************/
-	private void follow(boolean isFollow){
-		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_processing), false, new DialogInterface.OnCancelListener() {
-			@Override
-			public void onCancel(DialogInterface dialog) {
-				
-			}
-		}).setCanceledOnTouchOutside(false);
-		
+	private void follow(final boolean isFollow){
+		isFollowing = true;
 		SamService.getInstance().follow(isFollow,  sp, new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
-					DialogMaker.dismissProgressDialog();
 					getHandler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
-							updateFollow();
 							isFollowing = false;
+							if(isFollow){
+								Toast.makeText(SamchatContactUserSPNameCardActivity.this, R.string.samchat_follow_sp_succeed, Toast.LENGTH_SHORT).show();
+							}else{
+								Toast.makeText(SamchatContactUserSPNameCardActivity.this, R.string.samchat_unfollow_sp_succeed, Toast.LENGTH_SHORT).show();
+							}
 						}
 					}, 0);
-					
-					
 				}
 
 				@Override
 				public void onFailed(final int code) {
-					DialogMaker.dismissProgressDialog();
 					final ErrorString error = new ErrorString(SamchatContactUserSPNameCardActivity.this,code);
-					
 					getHandler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
-							EasyAlertDialogHelper.showOneButtonDiolag(SamchatContactUserSPNameCardActivity.this, null,
-                    			error.reminder, getString(R.string.samchat_ok), true, null);
 							isFollowing = false;
+							if(isFollow){
+								Toast.makeText(SamchatContactUserSPNameCardActivity.this, R.string.samchat_follow_sp_failed, Toast.LENGTH_SHORT).show();
+							} else{
+								Toast.makeText(SamchatContactUserSPNameCardActivity.this, R.string.samchat_unfollow_sp_failed, Toast.LENGTH_SHORT).show();
+							}
+							switchButtonFollow.setCheck(!isFollow);
 						}
 					}, 0);
 				}
 
 				@Override
 				public void onError(int code) {
-					DialogMaker.dismissProgressDialog();
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							isFollowing = false;
+							if(isFollow){
+								Toast.makeText(SamchatContactUserSPNameCardActivity.this, R.string.samchat_follow_sp_failed, Toast.LENGTH_SHORT).show();
+							} else{
+								Toast.makeText(SamchatContactUserSPNameCardActivity.this, R.string.samchat_unfollow_sp_failed, Toast.LENGTH_SHORT).show();
+							}
+							switchButtonFollow.setCheck(!isFollow);
+						}
+					}, 0);
+				}
+		});
+
+	}
+
+	private void addServiceProvider(){
+		isOpting = true;
+		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_processing), false, new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				
+			}
+		}).setCanceledOnTouchOutside(false);
+		SamService.getInstance().add_contact(Constants.ADD_INTO_CONTACT,  sp, new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+							isOpting = false;
+							updateOpServiceProvider();
+							Toast.makeText(SamchatContactUserSPNameCardActivity.this, R.string.samchat_add_sp_succeed, Toast.LENGTH_LONG).show();
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onFailed(final int code) {
 					final ErrorString error = new ErrorString(SamchatContactUserSPNameCardActivity.this,code);
 					
 					getHandler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
+							DialogMaker.dismissProgressDialog();
 							EasyAlertDialogHelper.showOneButtonDiolag(SamchatContactUserSPNameCardActivity.this, null,
                     			error.reminder, getString(R.string.samchat_ok), true, null);
-							isFollowing = false;
+							isOpting = false;
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onError(int code) {
+					final ErrorString error = new ErrorString(SamchatContactUserSPNameCardActivity.this,code);
+					
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+							EasyAlertDialogHelper.showOneButtonDiolag(SamchatContactUserSPNameCardActivity.this, null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							isOpting = false;
+						}
+					}, 0);
+				}
+		});
+
+	}
+
+	private void removeServiceProvider(){
+		isOpting = true;
+		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_processing), false, new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				
+			}
+		}).setCanceledOnTouchOutside(false);
+		SamService.getInstance().remove_contact(Constants.REMOVE_OUT_CONTACT,  sp, new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+							isOpting = false;
+							updateOpServiceProvider();
+							Toast.makeText(SamchatContactUserSPNameCardActivity.this, R.string.samchat_remove_sp_succeed, Toast.LENGTH_LONG).show();
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onFailed(final int code) {
+					final ErrorString error = new ErrorString(SamchatContactUserSPNameCardActivity.this,code);
+					
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+							EasyAlertDialogHelper.showOneButtonDiolag(SamchatContactUserSPNameCardActivity.this, null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							isOpting = false;
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onError(int code) {
+					final ErrorString error = new ErrorString(SamchatContactUserSPNameCardActivity.this,code);
+					
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+							EasyAlertDialogHelper.showOneButtonDiolag(SamchatContactUserSPNameCardActivity.this, null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							isOpting = false;
 						}
 					}, 0);
 				}

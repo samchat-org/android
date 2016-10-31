@@ -78,7 +78,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:contentDescription="@null"
-                    android:src="@drawable/samchat_profile_phone_icon"/>
+                    android:src="@drawable/samchat_ic_input_phone_hint"/>
             </RelativeLayout>
             <EditText
                 android:id="@+id/cellphone"
@@ -121,7 +121,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:contentDescription="@null"
-                    android:src="@drawable/samchat_profile_email_icon"/>
+                    android:src="@drawable/samchat_ic_input_email_hint"/>
             </RelativeLayout>
             <EditText
                 android:id="@+id/email"
@@ -163,7 +163,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:contentDescription="@null"
-                    android:src="@drawable/samchat_profile_location_icon"/>
+                    android:src="@drawable/samchat_ic_input_location_hint"/>
             </RelativeLayout>
             <EditText
                 android:id="@+id/address"

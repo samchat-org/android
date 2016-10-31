@@ -77,8 +77,8 @@ public class Constants{
 	public static final int FROM_SIGNUP = 0;
 	public static final int FROM_FORGETPWD = 1;
 
-	public static final int FROM_CUSTOMER_ACTIVITY_LAUNCH = 0;
-	public static final int FROM_SP_ACTIVITY_LAUNCH = 1;
+	public static final int SHOW_CUSTOMER_INFO = 0;
+	public static final int SHOW_SP_INFO = 1;
 
 	/****************************Broadcast***********************************************/
 	public static final String BROADCAST_SWITCH_MODE = "com.android.samchat.switchmode";

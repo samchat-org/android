@@ -104,7 +104,7 @@ public class SamchatSettingFragment extends TFragment {
 					}
 					((MainActivity)getActivity()).dimissSwitchProgress();
 				}else if(intent.getAction().equals(Constants.BROADCAST_MYSELF_AVATAR_UPDATE)){
-					avatar_hiv.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90, new HeadImageView.OnImageLoadedListener(){
+					avatar_hiv.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), (int) getResources().getDimension(R.dimen.samchat_avatar_size_in_namecard), new HeadImageView.OnImageLoadedListener(){
 						@Override
 						public void OnImageLoadedListener(Bitmap bitmap){
 							FastBlurUtils.blur(bitmap, wall_iv);
@@ -170,11 +170,11 @@ public class SamchatSettingFragment extends TFragment {
 		}
 		
 		if(SamService.getInstance().get_current_user().getusertype() == Constants.USER){
-			create_sp_img_iv.setImageResource(R.drawable.samchat_setting_list_my_service);
+			create_sp_img_iv.setImageResource(R.drawable.samchat_ic_tab_account_sp_hint);
 			create_sp_text_tv.setText(R.string.samchat_create_sp);
 			learn_more_tv.setVisibility(View.VISIBLE);
 		}else if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
-			create_sp_img_iv.setImageResource(R.drawable.samchat_setting_switch_icon);
+			create_sp_img_iv.setImageResource(R.drawable.samchat_ic_list_switch_hint);
 			create_sp_text_tv.setText(R.string.samchat_switch_to_service_account);
 			learn_more_tv.setVisibility(View.GONE);
 		}
@@ -249,7 +249,7 @@ public class SamchatSettingFragment extends TFragment {
 			public void onClick(View arg0) {
 				//ScanCaptureAct.start(getActivity());
 				//CaptureActivity.start(getActivity());
-				SamchatQRCodeActivity.start(getActivity(),SamchatGlobal.getmode().getValue());
+				SamchatQRCodeActivity.start(getActivity(),Constants.SHOW_CUSTOMER_INFO,SamService.getInstance().get_current_user().getunique_id());
 			}
 		});
 	}
@@ -346,7 +346,7 @@ public class SamchatSettingFragment extends TFragment {
 			public void onClick(View arg0) {
 				//ScanCaptureAct.start(getActivity());
 				//CaptureActivity.start(getActivity());
-				SamchatQRCodeActivity.start(getActivity(),SamchatGlobal.getmode().getValue());
+				SamchatQRCodeActivity.start(getActivity(),Constants.SHOW_SP_INFO,SamService.getInstance().get_current_user().getunique_id());
 			}
 		});
 	}

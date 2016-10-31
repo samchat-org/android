@@ -32,9 +32,11 @@ import com.android.samservice.info.ContactUser;
 import com.android.samservice.info.PhoneContact;
 import com.karics.library.zxing.android.CaptureActivity;
 import com.android.samchat.R;
+import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.framework.NimSingleThreadExecutor;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
+import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.model.ToolBarOptions;
@@ -62,8 +64,7 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
     private static final int PHONES_CONTACT_ID_INDEX = 3;
 
 	private FrameLayout back_arrow_layout;
-	private ImageView scan_imageview;
-	private EditText key_edittext;
+	private FrameLayout scan_layout;
 	private ListView phone_contacts_listview;
 
 	private String key;
@@ -96,6 +97,9 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 				String content = data.getStringExtra("codedContent");
 				long unique_id = transferToUniqueID(content);
 				if(unique_id >0){
+					if(isSending){
+						return;
+					}
 					query_user_precise(unique_id);
 				}else{
 					Toast.makeText(SamchatAddCustomerActivity.this, R.string.samchat_qr_code_invalid, Toast.LENGTH_LONG).show();
@@ -124,8 +128,13 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 
 	private long transferToUniqueID(String content){
 		long unique_id = -1;
+		if(content.indexOf(NimConstants.QRCODE_PREFIX)!=0){
+			return 0;
+		}
+
+		String content2 = content.substring(NimConstants.QRCODE_PREFIX.length());
 		try{
-			unique_id = Long.valueOf(content);
+			unique_id = Long.valueOf(content2);
 		}catch(Exception e){
 			e.printStackTrace();
 			LogUtil.i(TAG,"warning: invalid qr code");
@@ -136,12 +145,10 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 
 	private void setupPanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
-		scan_imageview = findView(R.id.scan);
-		key_edittext = findView(R.id.key);
+		scan_layout = findView(R.id.scan_layout);
 		phone_contacts_listview = findView(R.id.phone_contacts);
 
 		setupBackArrowClick();
-		setupKeyEditClick();
 		setupScanClick();
 		setupPhoneContactsListView();
 	}
@@ -155,29 +162,8 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 		});
 	}
 
-	private TextWatcher key_textWatcher = new TextWatcher() {
-		@Override
- 		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-		}
-
-		@Override
-		public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-		}
-
-		@Override
-		public void afterTextChanged(Editable s) {
-			key = key_edittext.getText().toString().trim();
-		}
-	};
-
-	private void setupKeyEditClick(){
-		key_edittext.addTextChangedListener(key_textWatcher);	
-	}
-
 	private void setupScanClick(){
-		scan_imageview.setOnClickListener(new OnClickListener() {
+		scan_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				CaptureActivity.startActivityForResult(SamchatAddCustomerActivity.this,REQUEST_CODE_SCAN);
@@ -285,6 +271,7 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 
 /******************************************Data Flow Control***********************************************************/
 	private void query_user_precise(long unique_id){
+		isSending = true;
 		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_processing), false, new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {
@@ -295,25 +282,21 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 		SamService.getInstance().query_user_precise(TypeEnum.UNIQUE_ID, null, unique_id, null, false, new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
-					HttpCommClient hcc = (HttpCommClient)obj;
+					final HttpCommClient hcc = (HttpCommClient)obj;
 					if(hcc.users.getcount() > 0){
-						if(CustomerDataCache.getInstance().getCustomerByUniqueID(hcc.users.getusers().get(0).getunique_id()) != null){
-							DialogMaker.dismissProgressDialog();
-							getHandler().postDelayed(new Runnable() {
-								@Override
-								public void run() {
-									Toast.makeText(SamchatAddCustomerActivity.this, R.string.samchat_customer_already_add, Toast.LENGTH_LONG).show();
-									isSending = false;
-								}
-							}, 0);
-						}else{
-							addCustomer(hcc.users.getusers().get(0));
-						}
-					}else{
-						DialogMaker.dismissProgressDialog();
 						getHandler().postDelayed(new Runnable() {
 							@Override
 							public void run() {
+								DialogMaker.dismissProgressDialog();
+								isSending = false;
+								SamchatContactUserNameCardActivity.start(SamchatAddCustomerActivity.this, hcc.users.getusers().get(0));
+							}
+						}, 0);
+					}else{
+						getHandler().postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								DialogMaker.dismissProgressDialog();
 								Toast.makeText(SamchatAddCustomerActivity.this, R.string.samchat_qr_code_invalid, Toast.LENGTH_LONG).show();
 								isSending = false;
 							}
@@ -353,8 +336,27 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 		});
 	}
 
+	private void showInviteDialog(final PhoneContact contact){
+		EasyAlertDialogHelper.OnDialogActionListener listener = new EasyAlertDialogHelper.OnDialogActionListener() {
+			@Override
+			public void doCancelAction() {
+
+			}
+
+			@Override
+			public void doOkAction() {
+				LogUtil.i(TAG,"send invitation sms");
+				sendInviteMsg(contact);
+			}
+		};
+
+		final EasyAlertDialog dialog = EasyAlertDialogHelper.createOkCancelDiolag(SamchatAddCustomerActivity.this, getString(R.string.samchat_invite_title),
+			getString(R.string.samchat_invite_desc), true, listener);
+		dialog.show();
+	}
 
 	private void query_user_precise(final PhoneContact contact){
+		isSending = true;
 		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_processing), false, new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {
@@ -367,33 +369,41 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 				public void onSuccess(final Object obj, final int WarningCode) {
 					HttpCommClient hcc = (HttpCommClient)obj;
 					if(hcc.users.getcount() > 0){
-						if(CustomerDataCache.getInstance().getCustomerByUniqueID(hcc.users.getusers().get(0).getunique_id()) != null){
-							DialogMaker.dismissProgressDialog();
-							getHandler().postDelayed(new Runnable() {
-								@Override
-								public void run() {
-									Toast.makeText(SamchatAddCustomerActivity.this, R.string.samchat_customer_already_add, Toast.LENGTH_LONG).show();
-									isSending = false;
-								}
-							}, 0);
-						}else{
-							addCustomer(hcc.users.getusers().get(0));
-						}
+						final ContactUser user = hcc.users.getusers().get(0);
+						getHandler().postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								DialogMaker.dismissProgressDialog();
+								SamchatContactUserNameCardActivity.start(SamchatAddCustomerActivity.this, user);
+								isSending = false;
+							}
+						}, 0);
 					}else{
-						sendInviteMsg(contact);
+						getHandler().postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								DialogMaker.dismissProgressDialog();
+								isSending = false;
+								showInviteDialog(contact);
+							}
+						}, 0);
 					}
 				}
 
 				@Override
 				public void onFailed(final int code) {
-					DialogMaker.dismissProgressDialog();
 					final ErrorString error = new ErrorString(SamchatAddCustomerActivity.this,code);
 					
 					getHandler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
-							EasyAlertDialogHelper.showOneButtonDiolag(SamchatAddCustomerActivity.this, null,
-                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							DialogMaker.dismissProgressDialog();
+							if(code == Constants.RET_USER_NOT_EXISTED){
+								showInviteDialog(contact);
+							}else{
+								EasyAlertDialogHelper.showOneButtonDiolag(SamchatAddCustomerActivity.this, null,
+                    				error.reminder, getString(R.string.samchat_ok), true, null);
+							}
 							isSending = false;
 						}
 					}, 0);
@@ -401,12 +411,12 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 
 				@Override
 				public void onError(int code) {
-					DialogMaker.dismissProgressDialog();
 					final ErrorString error = new ErrorString(SamchatAddCustomerActivity.this,code);
 					
 					getHandler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
+							DialogMaker.dismissProgressDialog();
 							EasyAlertDialogHelper.showOneButtonDiolag(SamchatAddCustomerActivity.this, null,
                     			error.reminder, getString(R.string.samchat_ok), true, null);
 							isSending = false;
@@ -428,7 +438,6 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 					getHandler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
-							isSending = false;
 							Toast.makeText(SamchatAddCustomerActivity.this, R.string.samchat_invite_send, Toast.LENGTH_LONG).show();
 						}
 					}, 0);
@@ -444,7 +453,6 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 						public void run() {
 							EasyAlertDialogHelper.showOneButtonDiolag(SamchatAddCustomerActivity.this, null,
                     			error.reminder, getString(R.string.samchat_ok), true, null);
-							isSending = false;
 						}
 					}, 0);
 				}
@@ -459,7 +467,6 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 						public void run() {
 							EasyAlertDialogHelper.showOneButtonDiolag(SamchatAddCustomerActivity.this, null,
                     			error.reminder, getString(R.string.samchat_ok), true, null);
-							isSending = false;
 						}
 					}, 0);
 				}

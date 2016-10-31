@@ -124,12 +124,14 @@
     <string name="samchat_aboutSamchat">About Samchat</string>
     <string name="samchat_faq">F.A.Q.</string>
 
+    <string name="samchat_customer_profile">Customer Profile</string>
+
     <string name="samchat_service_account">Service Account</string>
-    <string name="samchat_service_profile">Service profile</string>
+    <string name="samchat_service_profile">Service Profile</string>
     <string name="samchat_service_qr">Service QR code</string>
     <string name="samchat_service_preference">Service Preferences</string>
     <string name="samchat_service_notification">Notifications</string>
-    <string name="samchat_service_subscription">Subscription and plans</string>
+    <string name="samchat_service_subscription">Subscriptions</string>
 
     <string name="samchat_missing_call">Missing call</string>
     <string name="samchat_call_duration">Call duration:</string>
@@ -263,6 +265,7 @@
     <string name="samchat_add_sp_succeed">Add this service provider successfully</string>
     <string name="samchat_sp_already_add">This service provider has been in your contact list</string>
     <string name="samchat_no_sp">This user is not service provider</string>
+    <string name="samchat_remove_sp_succeed">Remove this service provider successfully</string>
 
     <string name="samchat_qr_code_invalid">Invalid QR Code</string>
 
@@ -294,6 +297,9 @@
 
     <string name="samchat_follow_sp_succeed">Follow this service provider successfully</string>
     <string name="samchat_sp_already_followed">This service provider has been in your follow list</string>
+    <string name="samchat_unfollow_sp_succeed">UnFollow this service provider successfully</string>
+    <string name="samchat_follow_sp_failed">Follow this service provider failed</string>
+    <string name="samchat_unfollow_sp_failed">UnFollow this service provider failed</string>
 
     <string name="samchat_add_customer">Add Client</string>
 
@@ -377,6 +383,7 @@
     <string name="samchat_mute_chat_failed">chat mute failed</string>
     <string name="samchat_unmute_chat_failed">chat un-mute failed</string>
 
+
     <string name="samchat_block_chat_succeed">block succeed</string>
     <string name="samchat_unblock_chat_succeed">un-block succeed</string>
     <string name="samchat_block_chat_failed">block failed</string>
@@ -386,4 +393,10 @@
     <string name="samchat_create_group_chat">create group chat</string>
 
     <string name="samchat_with">With</string>
+    <string name="samchat_invite_title">Invite Contact</string>
+    <string name="samchat_invite_desc">This contact is not on Samchat yet.Would you like to invite them to Samchat?</string>
+    <string name="samchat_add_to_service_provider">Add to Service Provider</string>
+    <string name="samchat_delete_service_provider">Delete Service Provider</string>
+    <string name="samchat_add_to_customer">Add to Customer</string>
+    <string name="samchat_delete_customer">Delete Customer</string>
 </resources>

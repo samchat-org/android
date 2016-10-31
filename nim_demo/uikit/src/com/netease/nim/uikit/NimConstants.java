@@ -51,5 +51,7 @@ public class NimConstants{
 
 	public static final String S3_ORIG="s3_orig";
 
+	public static final String QRCODE_PREFIX="Samchat:";
+
 }
 

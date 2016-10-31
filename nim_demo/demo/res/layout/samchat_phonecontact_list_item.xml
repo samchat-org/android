@@ -1,31 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
-    <LinearLayout
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/samchat_list_item_selector">
+    <TextView
+        android:id="@+id/tv_lv_item_tag"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="20dp"
+        android:background="@color/samchat_color_light_grey"
+        android:gravity="center_vertical"
+        android:paddingLeft="16dp"
+        android:text="Z"
+        android:visibility="visible" />
+    <LinearLayout
         android:orientation="horizontal"
-        android:layout_margin="10dp">
-        <com.netease.nim.uikit.common.ui.imageview.HeadImageView
-            android:id="@+id/avatar"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/avatar_def"/>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="@dimen/body_left_margin"
+        android:layout_marginStart="@dimen/body_left_margin"
+        android:layout_marginRight="@dimen/body_right_margin"
+        android:layout_marginEnd="@dimen/body_right_margin">
         <TextView
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="10dp"
-            android:layout_marginLeft="10dp"
-            android:textSize="16sp"
-            android:textColor="@color/black"
-            android:maxLines="1"
-            android:singleLine="true"/>
+            android:textColor="@color/samchat_color_ink"
+            android:textSize="@dimen/text_size_16"
+            android:maxLines="1"/>
     </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="@dimen/body_left_margin"
+        android:layout_marginStart="@dimen/body_left_margin"
+        android:layout_marginRight="@dimen/body_right_margin"
+        android:layout_marginEnd="@dimen/body_right_margin"
+        android:background="@color/samchat_color_grey"/>
 </LinearLayout>
