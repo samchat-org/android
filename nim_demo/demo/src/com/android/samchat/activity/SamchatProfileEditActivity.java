@@ -7,11 +7,16 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.Selection;
 import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,11 +51,18 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 
 	private static final int CONFIRM_ID_SELECT_COUNTRY_CODE=202;
 
+	private RelativeLayout titlebar_layout;
 	private FrameLayout back_arrow_layout;
+	private ImageView back_icon;
+	private TextView titlebar_name_tv;
 	private TextView save_textview;
+	
 	private ClearableEditTextWithIcon edit_edittext;
 	private TextView countrycode_textview;
-	private TextView titlebar_name_tv;
+	private EditText multi_edit_ev;
+	private RelativeLayout edit_layout_single;
+	private RelativeLayout edit_layout_multiple;
+	private ImageView multi_delete_img;
 
 	private String data;
 	private String new_data;
@@ -100,8 +112,8 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 
 		parseIntent();
 		setupPanel();
-		updateTitleName();
-		setInputType();
+		updateTitle();
+		//setInputType();
 	}
 
 	@Override
@@ -130,8 +142,38 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 			data = getIntent().getStringExtra("data");
 		}
     }
+
+	private boolean isCustomerMode(){
+		if(type == EDIT_PROFILE_TYPE_CUSTOMER_EMAIL
+			|| type == EDIT_PROFILE_TYPE_CUSTOMER_ADDRESS
+			|| type == EDIT_PROFILE_TYPE_CUSTOMER_PHONE){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	private void setTitleCustomerMode(){
+		titlebar_layout.setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
+		back_arrow_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_customer);
+		back_icon.setImageResource(R.drawable.samchat_arrow_left);
+		titlebar_name_tv.setTextColor(getResources().getColor(R.color.samchat_color_dark_blue));
+	}
+
+	private void setTitleSPMode(){
+		titlebar_layout.setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
+		back_arrow_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_sp);
+		back_icon.setImageResource(R.drawable.samchat_arrow_left_sp);
+		titlebar_name_tv.setTextColor(getResources().getColor(R.color.samchat_color_white));
+	}
 	
-	private void updateTitleName(){
+	private void updateTitle(){
+		if(isCustomerMode()){
+			setTitleCustomerMode();
+		}else{
+			setTitleSPMode();
+		}
+		
 		switch(type){
 			case EDIT_PROFILE_TYPE_CUSTOMER_EMAIL:
 				titlebar_name_tv.setText(R.string.samchat_edit_email);
@@ -204,17 +246,31 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 	}
 
 	private void setupPanel() {
+		titlebar_layout = findView(R.id.titlebar_layout);
+		back_icon = findView(R.id.back_icon);
 		back_arrow_layout = findView(R.id.back_arrow_layout);
 		save_textview= findView(R.id.save);
 		edit_edittext= findView(R.id.edit);
 		countrycode_textview = findView(R.id.countrycode);
 		titlebar_name_tv = findView(R.id.titlebar_name);
+		edit_layout_single = findView(R.id.edit_layout_single);
+		edit_layout_multiple = findView(R.id.edit_layout_multiple);
+		multi_edit_ev = findView(R.id.multi_edit);
+		multi_delete_img = findView(R.id.multi_delete_img);
 
 		if(type == EDIT_PROFILE_TYPE_CUSTOMER_PHONE || type == EDIT_PROFILE_TYPE_SP_PHONE){
 			countrycode_textview.setVisibility(View.VISIBLE);
 			updateCountryCode(countrycode);
+			edit_layout_single.setVisibility(View.VISIBLE);
+			edit_layout_multiple.setVisibility(View.GONE);
+		}else if(type == EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION){
+			countrycode_textview.setVisibility(View.GONE);
+			edit_layout_single.setVisibility(View.GONE);
+			edit_layout_multiple.setVisibility(View.VISIBLE);
 		}else{
 			countrycode_textview.setVisibility(View.GONE);
+			edit_layout_single.setVisibility(View.VISIBLE);
+			edit_layout_multiple.setVisibility(View.GONE);
 		}
 
 		setupBackArrowClick();
@@ -222,7 +278,7 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 		setupCountryCodeClick();
 		edit_edittext.setDeleteImage(R.drawable.nim_grey_delete_icon);
 		edit_edittext.setText(data);
-        Editable etext = edit_edittext.getText();
+       Editable etext = edit_edittext.getText();
 		Selection.setSelection(etext, etext.length());
 		edit_edittext.setAfterTextChangedListener(new ClearableEditTextWithIcon.afterTextChangedListener(){
 			@Override
@@ -230,7 +286,36 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 				updateSaveButton(s);
 			}
 		});
+
+		multi_edit_ev.setText(data);
+       Editable etext2 = multi_edit_ev.getText();
+		Selection.setSelection(etext2, etext2.length());
+		multi_edit_ev.addTextChangedListener(service_description_textWatcher);
+
+		multi_delete_img.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				multi_edit_ev.setText("");
+			}
+		});
 	}
+
+	private TextWatcher service_description_textWatcher = new TextWatcher() {
+		@Override
+		public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+		}
+
+		@Override
+		public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+		}
+
+		@Override
+		public void afterTextChanged(Editable s) {
+			updateSaveButton(s);
+		}
+	};
 
 	private void updateSaveButton(Editable s){
 		if(type == EDIT_PROFILE_TYPE_CUSTOMER_PHONE || type == EDIT_PROFILE_TYPE_SP_PHONE){
@@ -294,6 +379,10 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 						Toast.makeText(SamchatProfileEditActivity.this, getString(R.string.samchat_phone_illeage), Toast.LENGTH_SHORT).show();
 						return;
 					}
+				}else if(type == EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION){
+					if(multi_edit_ev.getText().toString().trim().equals(data)){
+						return;
+					}
 				}else{
 					if(edit_edittext.getText().toString().trim().equals(data)){
 						return;
@@ -317,7 +406,12 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 
 /*************************Data Flow Control***************************************************************/
 	private void save(){
-		new_data = edit_edittext.getText().toString().trim();
+		if(type == EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION){
+			new_data = multi_edit_ev.getText().toString().trim();
+		}else{
+			new_data = edit_edittext.getText().toString().trim();
+		}
+		
 		ContactUser user = new ContactUser(SamService.getInstance().get_current_user());
 		user.setcountrycode(null);
 		user.setcellphone(null);

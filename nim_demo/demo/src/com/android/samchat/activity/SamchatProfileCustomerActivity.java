@@ -75,7 +75,9 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 	private RelativeLayout phone_layout;
 	private RelativeLayout email_layout;
 	private RelativeLayout address_layout;
-
+	private View countrycode_line;
+	private View phonenumber_line;
+	
 	private Uri cropImageUri;
 	
 	private TransferUtility transferUtility;
@@ -237,6 +239,15 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
         startActivityForResult(intent, CONFIRM_ID_CROP_FINISHED);
     }
 
+	private void updatePhoneLine(boolean ccExist){
+		if(ccExist){
+			countrycode_line.setVisibility(View.VISIBLE);
+			phonenumber_line.setVisibility(View.GONE);
+		}else{
+			countrycode_line.setVisibility(View.GONE);
+			phonenumber_line.setVisibility(View.VISIBLE);
+		}
+	}
 
     private void update(boolean afterCrop){
 		/*if(afterCrop){
@@ -246,7 +257,8 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 			avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90);
 		}*/
 
-		avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90, new HeadImageView.OnImageLoadedListener(){
+		avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 
+			(int) getResources().getDimension(R.dimen.samchat_avatar_size_in_namecard), new HeadImageView.OnImageLoadedListener(){
 			@Override
 			public void OnImageLoadedListener(Bitmap bitmap){
 				FastBlurUtils.blur(bitmap, wall_iv);
@@ -256,8 +268,10 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		if(!TextUtils.isEmpty(SamService.getInstance().get_current_user().getcountrycode())){
 			countrycode_textview.setVisibility(View.VISIBLE);
 			countrycode_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode());
+			updatePhoneLine(true);
 		}else{
 			countrycode_textview.setVisibility(View.GONE);
+			updatePhoneLine(false);
 		}
 		phonenumber_textview.setText(SamService.getInstance().get_current_user().getcellphone());
 		username_textview.setText(SamService.getInstance().get_current_user().getusername());
@@ -269,8 +283,10 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		if(!TextUtils.isEmpty(SamService.getInstance().get_current_user().getcountrycode())){
 			countrycode_textview.setVisibility(View.VISIBLE);
 			countrycode_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode());
+			updatePhoneLine(true);
 		}else{
 			countrycode_textview.setVisibility(View.GONE);
+			updatePhoneLine(false);
 		}
 		phonenumber_textview.setText(SamService.getInstance().get_current_user().getcellphone());
 		username_textview.setText(SamService.getInstance().get_current_user().getusername());
@@ -291,6 +307,9 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		phone_layout = findView(R.id.phone_layout);
 		email_layout = findView(R.id.email_layout);
 		address_layout = findView(R.id.address_layout);
+
+		countrycode_line = findView(R.id.countrycode_line);
+		phonenumber_line = findView(R.id.phonenumber_line);
 
 		setupBackArrowClick();
 		setupAvaterClick();

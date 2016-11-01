@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,6 +69,16 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 	private TextView phonenumber_textview;
 	private TextView email_textview;
 	private TextView address_textview;
+
+	private RelativeLayout company_layout;
+	private RelativeLayout service_category_layout;
+	private RelativeLayout service_description_layout;
+	private RelativeLayout phone_layout;
+	private RelativeLayout email_layout;
+	private RelativeLayout address_layout;
+
+	private View countrycode_line;
+	private View phonenumber_line;
 
 	private Uri cropImageUri;
 	private TransferUtility transferUtility;
@@ -219,7 +230,8 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		}else{
 			avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90);
 		}*/
-		avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 90, new HeadImageView.OnImageLoadedListener(){
+		avatar_headimageview.loadBuddyAvatar(SamService.getInstance().get_current_user().getAccount(), 
+			(int) getResources().getDimension(R.dimen.samchat_avatar_size_in_namecard), new HeadImageView.OnImageLoadedListener(){
 			@Override
 			public void OnImageLoadedListener(Bitmap bitmap){
 				FastBlurUtils.blur(bitmap, wall_iv);
@@ -229,8 +241,10 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		if(!TextUtils.isEmpty(SamService.getInstance().get_current_user().getcountrycode_sp())){
 			countrycode_textview.setVisibility(View.VISIBLE);
 			countrycode_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode_sp());
+			updatePhoneLine(true);
 		}else{
 			countrycode_textview.setVisibility(View.GONE);
+			updatePhoneLine(false);
 		}
 		phonenumber_textview.setText(SamService.getInstance().get_current_user().getphone_sp());
 		company_name_textview.setText(SamService.getInstance().get_current_user().getcompany_name());
@@ -244,8 +258,10 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		if(!TextUtils.isEmpty(SamService.getInstance().get_current_user().getcountrycode_sp())){
 			countrycode_textview.setVisibility(View.VISIBLE);
 			countrycode_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode_sp());
+			updatePhoneLine(true);
 		}else{
 			countrycode_textview.setVisibility(View.GONE);
+			updatePhoneLine(false);
 		}
 		
 		phonenumber_textview.setText(SamService.getInstance().get_current_user().getphone_sp());
@@ -268,14 +284,23 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		email_textview= findView(R.id.email);
 		address_textview= findView(R.id.address);
 
+		company_layout = findView(R.id.company_layout);
+		service_category_layout = findView(R.id.service_category_layout);
+		service_description_layout = findView(R.id.service_description_layout);
+		phone_layout = findView(R.id.phone_layout);
+		email_layout = findView(R.id.email_layout);
+		address_layout = findView(R.id.address_layout);
+
+		countrycode_line = findView(R.id.countrycode_line);
+		phonenumber_line = findView(R.id.phonenumber_line);
+
 		setupBackArrowClick();
 		setupCompanyNameClick();
 		setupServiceCategoryClick();
 		setupServiceDescriptionClick();
 		setupEmailClick();
 		setupAddressClick();
-		setupCountryCodeClick();
-		setupPhoneNumberClick();
+		setupPhoneClick();
 		setupAvaterClick();
 
 	}
@@ -289,19 +314,8 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		});
 	}
 
-	private void setupCountryCodeClick(){
-		countrycode_textview.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View arg0) {
-				SamchatProfileEditActivity.start(SamchatProfileServiceProviderActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_SP_PHONE, 
-					SamService.getInstance().get_current_user().getcountrycode_sp(),
-					SamService.getInstance().get_current_user().getphone_sp());
-			}
-		});
-	}
-
-	private void setupPhoneNumberClick(){
-		phonenumber_textview.setOnClickListener(new OnClickListener() {
+	private void setupPhoneClick(){
+		phone_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				SamchatProfileEditActivity.start(SamchatProfileServiceProviderActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_SP_PHONE, 
@@ -312,7 +326,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 	}
 
 	private void setupCompanyNameClick(){
-		company_name_textview.setOnClickListener(new OnClickListener() {
+		company_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				SamchatProfileEditActivity.start(SamchatProfileServiceProviderActivity.this, 
@@ -322,7 +336,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 	}
 
 	private void setupServiceCategoryClick(){
-		service_category_textview.setOnClickListener(new OnClickListener() {
+		service_category_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				SamchatProfileEditActivity.start(SamchatProfileServiceProviderActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_SP_SERVICE_CATEGORY, service_category_textview.getText().toString().trim());
@@ -331,7 +345,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 	}
 
 	private void setupServiceDescriptionClick(){
-		service_description_textview.setOnClickListener(new OnClickListener() {
+		service_description_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				SamchatProfileEditActivity.start(SamchatProfileServiceProviderActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION, service_description_textview.getText().toString().trim());
@@ -340,7 +354,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 	}
 
 	private void setupEmailClick(){
-		email_textview.setOnClickListener(new OnClickListener() {
+		email_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				SamchatProfileEditActivity.start(SamchatProfileServiceProviderActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_SP_EMAIL, email_textview.getText().toString().trim());
@@ -349,7 +363,7 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 	}
 
 	private void setupAddressClick(){
-		address_textview.setOnClickListener(new OnClickListener() {
+		address_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				SamchatProfileEditActivity.start(SamchatProfileServiceProviderActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_SP_ADDRESS, address_textview.getText().toString().trim());
@@ -364,6 +378,16 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 				//launchAvatarActivity();
 			}
 		});
+	}
+
+	private void updatePhoneLine(boolean ccExist){
+		if(ccExist){
+			countrycode_line.setVisibility(View.VISIBLE);
+			phonenumber_line.setVisibility(View.GONE);
+		}else{
+			countrycode_line.setVisibility(View.GONE);
+			phonenumber_line.setVisibility(View.VISIBLE);
+		}
 	}
 
 	private void launchAvatarActivity(){

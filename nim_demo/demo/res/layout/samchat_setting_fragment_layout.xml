@@ -127,7 +127,7 @@
                         android:layout_marginStart="@dimen/body_left_margin"
                         android:layout_gravity="center_vertical"
                         android:contentDescription="@null"
-                        android:src="@drawable/samchat_setting_change_passwrod_icon"/>
+                        android:src="@drawable/samchat_ic_input_user_hint"/>
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
@@ -201,7 +201,7 @@
                         android:layout_marginStart="@dimen/body_left_margin"
                         android:layout_gravity="center_vertical"
                         android:contentDescription="@null"
-                        android:src="@drawable/samchat_setting_logout_icon"/>
+                        android:src="@drawable/samchat_ic_input_user_hint"/>
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
@@ -238,7 +238,7 @@
                         android:layout_marginStart="@dimen/body_left_margin"
                         android:layout_gravity="center_vertical"
                         android:contentDescription="@null"
-                        android:src="@drawable/samchat_setting_notification_icon"/>
+                        android:src="@drawable/samchat_ic_input_user_hint"/>
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
@@ -269,7 +269,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:orientation="horizontal"
-                    android:background="@color/samchat_color_white">
+                    android:background="@drawable/samchat_list_item_selector">
                     <ImageView
                         android:id="@+id/create_sp_img"
                         android:layout_width="wrap_content"
@@ -325,7 +325,7 @@
                         android:layout_marginStart="@dimen/body_left_margin"
                         android:layout_gravity="center_vertical"
                         android:contentDescription="@null"
-                        android:src="@drawable/samchat_setting_about_icon"/>
+                        android:src="@drawable/samchat_ic_input_user_hint"/>
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
@@ -362,7 +362,7 @@
                         android:layout_marginStart="@dimen/body_left_margin"
                         android:layout_gravity="center_vertical"
                         android:contentDescription="@null"
-                        android:src="@drawable/samchat_setting_faq_icon"/>
+                        android:src="@drawable/samchat_ic_input_user_hint"/>
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
@@ -468,7 +468,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:orientation="horizontal"
-                    android:background="@color/samchat_color_white">
+                    android:background="@drawable/samchat_list_item_selector">
                     <ImageView
                         android:id="@+id/sp_subscription_img"
                         android:layout_width="wrap_content"
@@ -481,8 +481,8 @@
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginLeft="16dp"
-                        android:layout_marginStart="16dp">
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginStart="20dp">
                         <TextView
                             android:id="@+id/sp_subscription_text"
                             android:layout_width="wrap_content"

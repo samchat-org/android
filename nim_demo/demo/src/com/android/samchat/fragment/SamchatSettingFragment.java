@@ -65,6 +65,8 @@ public class SamchatSettingFragment extends TFragment {
 	private LinearLayout sp_my_profile_layout;
 	private LinearLayout sp_my_qrcode_layout;
 	private LinearLayout sp_switch_layout;
+	private LinearLayout sp_subscription_layout;
+	private TextView sp_learn_more;
 	
 	private boolean isSignout = false;
 	private boolean signouting = false;
@@ -199,7 +201,9 @@ public class SamchatSettingFragment extends TFragment {
 		sp_setting_layout = findView(R.id.sp_setting_layout);
 		sp_my_profile_layout= findView(R.id.sp_my_profile_layout);
 		sp_my_qrcode_layout= findView(R.id.sp_my_qrcode_layout);
-		sp_switch_layout= findView(R.id.sp_switch_layout);
+		sp_switch_layout = findView(R.id.sp_switch_layout);
+		sp_subscription_layout = findView(R.id.sp_subscription_layout);
+		sp_learn_more  = findView(R.id.sp_learn_more);
 
 		learn_more_tv = findView(R.id.learn_more);
 		create_sp_img_iv = findView(R.id.create_sp_img);
@@ -229,7 +233,27 @@ public class SamchatSettingFragment extends TFragment {
 		//sp view
        setupSPProfileClick();
 		setupSPQRCodeClick();
+		setupSubsciptionClick();
+		setupLearnMoreClick();
 		setupSPSwitchClick();
+	}
+
+	private void setupSubsciptionClick(){
+		sp_subscription_layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				//SamchatProfileCustomerActivity.start(getActivity());
+			}
+		});
+	}
+
+	private void setupLearnMoreClick(){
+		sp_learn_more.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				//SamchatProfileCustomerActivity.start(getActivity());
+			}
+		});
 	}
 
 /**********************************Profile View*******************************/

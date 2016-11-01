@@ -6,6 +6,7 @@
               android:orientation="vertical"
               android:background="@color/samchat_color_main_bg">
     <RelativeLayout
+        android:id="@+id/titlebar_layout"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/samchat_color_customer_titlebar_bg">
@@ -50,7 +51,7 @@
                 android:layout_marginRight="16dp"
                 android:layout_marginEnd="16dp"
                 android:maxLines="1"
-                android:gravity="center"
+                android:gravity="start|center_vertical"
                 android:text="@string/samchat_edit_profile"
                 android:textSize="20sp"
                 android:textColor="@color/samchat_color_customer_titlbar_title"/>
@@ -69,43 +70,99 @@
                 android:background="@drawable/samchat_button_green_inactive"
                 android:textSize="16sp"/>
         </LinearLayout>
-
-
     </RelativeLayout>
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/edit_layout_single"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="@dimen/body_left_margin"
-        android:layout_marginStart="@dimen/body_left_margin"
-        android:layout_marginRight="@dimen/body_right_margin"
-        android:layout_marginEnd="@dimen/body_right_margin">
-        <TextView
-            android:id="@+id/countrycode"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:textColor="@color/samchat_color_ink"
-            android:textSize="16sp"
-            android:gravity="start|center_vertical"/>
-        <com.netease.nim.uikit.common.ui.widget.ClearableEditTextWithIcon
-            android:id="@+id/edit"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:id="@+id/edit_layout"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:background="@null"
-            android:layout_gravity="center_vertical"
-            android:inputType="text"
-            android:textSize="16sp"
-            android:padding="5dp"
-            android:paddingLeft="15dp"
-            android:paddingRight="15dp"
-            android:textColor="@color/samchat_color_ink"/>
-    </LinearLayout>
-    <View
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="@dimen/body_left_margin"
+            android:layout_marginStart="@dimen/body_left_margin"
+            android:layout_marginRight="@dimen/body_right_margin"
+            android:layout_marginEnd="@dimen/body_right_margin">
+            <TextView
+                android:id="@+id/countrycode"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:textColor="@color/samchat_color_ink"
+                android:textSize="16sp"
+                android:gravity="start|center_vertical"/>
+            <com.netease.nim.uikit.common.ui.widget.ClearableEditTextWithIcon
+                android:id="@+id/edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                android:layout_gravity="center_vertical"
+                android:inputType="text"
+                android:textSize="16sp"
+                android:padding="5dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:textColor="@color/samchat_color_ink"/>
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="@dimen/body_left_margin"
+            android:layout_marginStart="@dimen/body_left_margin"
+            android:layout_marginRight="@dimen/body_right_margin"
+            android:layout_marginEnd="@dimen/body_right_margin"
+            android:layout_below="@+id/edit_layout"
+            android:background="@color/color_black_1d4d73"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/edit_layout_multiple"
         android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@color/color_black_1d4d73"/>
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:id="@+id/multi_edit_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="@dimen/body_left_margin"
+            android:layout_marginStart="@dimen/body_left_margin"
+            android:layout_marginRight="@dimen/body_right_margin"
+            android:layout_marginEnd="@dimen/body_right_margin">
+            <EditText
+                android:id="@+id/multi_edit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:layout_gravity="center_vertical"
+                android:gravity="top|start"
+                android:inputType="textMultiLine"
+                android:maxLines="8"
+                android:textSize="16sp"
+                android:padding="5dp"
+                android:paddingLeft="15dp"
+                android:paddingRight="15dp"
+                android:textColor="@color/samchat_color_ink"/>
+            <ImageView
+                android:id="@+id/multi_delete_img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/nim_grey_delete_icon"
+                android:contentDescription="@null"
+                android:layout_gravity="bottom"
+                android:layout_marginBottom="4dp"/>
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="@dimen/body_left_margin"
+            android:layout_marginStart="@dimen/body_left_margin"
+            android:layout_marginRight="@dimen/body_right_margin"
+            android:layout_marginEnd="@dimen/body_right_margin"
+            android:layout_below="@+id/multi_edit_layout"
+            android:background="@color/color_black_1d4d73"/>
+    </RelativeLayout>
+
 
 </LinearLayout>
