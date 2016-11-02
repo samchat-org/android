@@ -7,12 +7,16 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.android.samservice.info.ContactUser;
 import com.google.zxing.WriterException;
 import com.android.samchat.R;
 import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.common.activity.UI;
+import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
+import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.model.ToolBarOptions;
 import com.android.samservice.SamService;
 import android.widget.FrameLayout;
@@ -24,31 +28,35 @@ public class SamchatQRCodeActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatQRCodeActivity.class.getSimpleName();
 
 	private FrameLayout back_arrow_layout;
-	private TextView titlebar_name_textview;
-	private TextView name_textview;
-	private TextView category_textview;
-	private ImageView qrcode_imageview;
-	private TextView samchat_id_textview;
-	private TextView phone_textview;
+	private RelativeLayout titlebar_layout;
+	private ImageView back_icon_iv;
+	private TextView titlebar_name_tv;
+	private HeadImageView avatar_hv;
+	private TextView name_tv;
+	private TextView company_tv;
+	private TextView category_tv;
+	private ImageView qrcode_iv;
 
 	private Bitmap qrcode=null;
 
 	private static final String SHOW_WHICH_INFO = "show_which_info";
 	private int show_which_info;
-	private static final String UNIQUE_ID = "unique_id";
-	private long unique_id;
+	private static final String CONTACTUSER = "conatct_user";
+	private ContactUser user;
 
-	public static void start(Context context, int f, long id) {
+	public static void start(Context context, int f, ContactUser u) {
 		Intent intent = new Intent(context, SamchatQRCodeActivity.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		intent.putExtra(SHOW_WHICH_INFO,f);
-		intent.putExtra(UNIQUE_ID,id);
+		Bundle bundle = new Bundle();
+		bundle.putSerializable(CONTACTUSER, u);
+		intent.putExtras(bundle);
 		context.startActivity(intent);
 	}
 
 	private void onParseIntent() {
 		show_which_info = getIntent().getIntExtra(SHOW_WHICH_INFO,Constants.SHOW_CUSTOMER_INFO);
-		unique_id = getIntent().getLongExtra(UNIQUE_ID,0L);
+		user = (ContactUser)getIntent().getSerializableExtra(CONTACTUSER);
 	}
 
 	@Override
@@ -86,37 +94,34 @@ public class SamchatQRCodeActivity extends UI implements OnKeyListener {
 
 	private void setupPanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
-		titlebar_name_textview = findView(R.id.titlebar_name);
-		name_textview = findView(R.id.name);
-		category_textview =  findView(R.id.category);
-		qrcode_imageview = findView(R.id.qrcode);
-		samchat_id_textview = findView(R.id.samchat_id);
-		phone_textview = findView(R.id.phone);
+		titlebar_layout = findView(R.id.titlebar_layout);
+		back_icon_iv = findView(R.id.back_icon);
+		titlebar_name_tv = findView(R.id.titlebar_name);
+		avatar_hv = findView(R.id.avatar);
+		name_tv = findView(R.id.name);
+		company_tv = findView(R.id.company);
+		category_tv = findView(R.id.category);
+		qrcode_iv = findView(R.id.qrcode);
 
 		setupBackArrowClick();
+		setupTitleBar();
 
 		if(show_which_info == Constants.SHOW_CUSTOMER_INFO){
-			titlebar_name_textview.setText(getString(R.string.samchat_my_qrcode));
-			name_textview.setText(SamService.getInstance().get_current_user().getusername());
-			category_textview.setVisibility(View.GONE);
-			samchat_id_textview.setText(""+unique_id);
-			phone_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode()+SamService.getInstance().get_current_user().getcellphone());
+			name_tv.setText(user.getusername());
+			company_tv.setVisibility(View.GONE);
+			category_tv.setVisibility(View.GONE);
 		}else{
-			titlebar_name_textview.setText(getString(R.string.samchat_qr_bussiness_card));
-			name_textview.setText(SamService.getInstance().get_current_user().getcompany_name());
-			category_textview.setVisibility(View.VISIBLE);
-			category_textview.setText(SamService.getInstance().get_current_user().getservice_category());
-			samchat_id_textview.setText(""+unique_id);
-			phone_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode()+SamService.getInstance().get_current_user().getcellphone());
+			name_tv.setText(user.getusername());
+			company_tv.setVisibility(View.VISIBLE);
+			company_tv.setText(user.getcompany_name());
+			category_tv.setVisibility(View.VISIBLE);
+			category_tv.setText(user.getservice_category());
 		}
+		avatar_hv.loadBuddyAvatarByUrl(user.getAccount(), user.getAvatar(),80);
 		
-		try{
-			qrcode = CodeCreator.createQRCode(NimConstants.QRCODE_PREFIX+unique_id);
-			qrcode_imageview.setImageBitmap(qrcode);
-		}catch (WriterException e){
-			e.printStackTrace();
-		}
-
+		int labelWidth = ScreenUtil.screenWidth;
+		labelWidth -= ScreenUtil.dip2px(96);
+		setupQrCode(user.getunique_id(),labelWidth,labelWidth);
 	}
 	
 	private void setupBackArrowClick(){
@@ -127,6 +132,41 @@ public class SamchatQRCodeActivity extends UI implements OnKeyListener {
 			}
 		});
 	}
+
+	private void setTitlebarCustomerMode(){
+        titlebar_layout.setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
+        back_arrow_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_customer);
+        back_icon_iv.setImageResource(R.drawable.samchat_arrow_left);
+        titlebar_name_tv.setTextColor(getResources().getColor(R.color.samchat_color_customer_titlbar_title));
+    }
+
+    private void setTitlebarSPMode(){
+        titlebar_layout.setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
+        back_arrow_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_sp);
+        back_icon_iv.setImageResource(R.drawable.samchat_arrow_left_sp);
+        titlebar_name_tv.setTextColor(getResources().getColor(R.color.samchat_color_sp_titlbar_title));
+    }
+
+    private boolean isCustomerMode(){
+        return (show_which_info == Constants.SHOW_SP_INFO);
+    }
+
+    private void setupTitleBar(){
+        if(isCustomerMode()){
+            setTitlebarCustomerMode();
+        }else{
+            setTitlebarSPMode();
+        }
+    }
+
+	private void setupQrCode(long unique_id,int width, int height){
+        try{
+			qrcode = CodeCreator.createQRCode(NimConstants.QRCODE_PREFIX+unique_id,width,height);
+			qrcode_iv.setImageBitmap(qrcode);
+		}catch (WriterException e){
+			e.printStackTrace();
+		}
+    }
 
 
 }

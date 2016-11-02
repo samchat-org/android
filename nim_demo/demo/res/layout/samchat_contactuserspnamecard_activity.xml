@@ -156,7 +156,8 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginLeft="@dimen/body_left_margin"
-            android:layout_marginStart="@dimen/body_left_margin">
+            android:layout_marginStart="@dimen/body_left_margin"
+            android:background="@drawable/samchat_list_item_selector">
             <ImageView
                 android:id="@+id/chat_img"
                 android:layout_width="wrap_content"
@@ -189,7 +190,8 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginLeft="@dimen/body_left_margin"
-            android:layout_marginStart="@dimen/body_left_margin">
+            android:layout_marginStart="@dimen/body_left_margin"
+            android:background="@drawable/samchat_list_item_selector">
             <ImageView
                 android:id="@+id/op_img"
                 android:layout_width="wrap_content"
@@ -222,7 +224,8 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginLeft="@dimen/body_left_margin"
-            android:layout_marginStart="@dimen/body_left_margin">
+            android:layout_marginStart="@dimen/body_left_margin"
+            android:background="@drawable/samchat_list_item_selector">
             <ImageView
                 android:id="@+id/qr_img"
                 android:layout_width="wrap_content"

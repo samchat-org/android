@@ -26,13 +26,16 @@
                 android:id="@+id/switch_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:background="@drawable/samchat_action_bar_button_selector_customer">
                 <ImageView
                     android:id="@+id/switch_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginLeft="@dimen/title_left_margin"
+                    android:layout_marginStart="@dimen/title_left_margin"
+                    android:layout_marginRight="@dimen/title_right_margin"
+                    android:layout_marginEnd="@dimen/title_right_margin"
                     android:src="@drawable/samchat_ic_nav_light_switch"
                     android:layout_gravity="center_vertical"
                     android:contentDescription="@null"/>
@@ -62,10 +65,8 @@
                 android:orientation="horizontal"
                 android:layout_toRightOf="@id/switch_layout"
                 android:layout_toEndOf="@id/switch_layout"
-                android:layout_marginLeft="20dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginRight="16dp"
-                android:layout_marginEnd="16dp">
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp">
                 <TextView
                     android:id="@+id/titlebar_name"
                     android:layout_width="0dp"
@@ -75,20 +76,29 @@
                     android:gravity="start|center_vertical"
                     android:text="@string/customer_request_service"
                     android:textSize="@dimen/text_size_20"
-                    android:textColor="@color/samchat_color_dark_blue"/>
+                    android:textColor="@color/samchat_color_customer_titlbar_title"/>
                 <RelativeLayout
+                    android:id="@+id/titlebar_right_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent">
                     <ImageView
                         android:id="@+id/titlebar_right_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/title_left_margin"
+                        android:layout_marginStart="@dimen/title_left_margin"
+                        android:layout_marginRight="@dimen/title_right_margin"
+                        android:layout_marginEnd="@dimen/title_right_margin"
                         android:layout_centerVertical="true"
                         android:contentDescription="@null"/>
                     <TextView
                         android:id="@+id/titlebar_right_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/title_left_margin"
+                        android:layout_marginStart="@dimen/title_left_margin"
+                        android:layout_marginRight="@dimen/title_right_margin"
+                        android:layout_marginEnd="@dimen/title_right_margin"
                         android:layout_centerVertical="true"
                         android:textColor="@color/samchat_color_ingra"
                         android:textSize="@dimen/text_size_16"
@@ -99,5 +109,9 @@
         </RelativeLayout>
 
     </android.support.design.widget.AppBarLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/samchat_color_split_line"/>
 
 </LinearLayout>

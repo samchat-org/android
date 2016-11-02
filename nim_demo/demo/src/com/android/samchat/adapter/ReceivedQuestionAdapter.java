@@ -180,9 +180,9 @@ public class ReceivedQuestionAdapter extends BaseAdapter{
 			}
 			holder.avatar.loadBuddyAvatar(""+items.get(index).getsender_unique_id(),30);
 			if(items.get(index).getunread() == Constants.QUESTION_UNREAD){
-				holder.avatar.setBorderColorResource(R.color.samchat_color_green);
+				holder.avatar.setBorderColorResource(R.color.samchat_color_avatar_border_reminder);
 			}else{
-				holder.avatar.setBorderColorResource(R.color.samchat_color_grey);
+				holder.avatar.setBorderColorResource(R.color.samchat_color_avatar_border_default);
 			}
 			holder.username.setText(items.get(index).getsender_username());
 			break;

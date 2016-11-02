@@ -2,4 +2,6 @@
 <resources>
     <dimen name="samchat_titlebar_title_size">20sp</dimen>
     <dimen name="samchat_avatar_size_in_namecard">112dp</dimen>
+	<dimen name="standard_padding">8dip</dimen>
+	<dimen name="half_padding">4dip</dimen>
 </resources>

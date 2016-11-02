@@ -71,10 +71,10 @@ public class S3Util {
     public static AmazonS3Client getS3Client(Context context) {
         if (sS3Client == null) {
             ClientConfiguration config = new ClientConfiguration();
-            config.setConnectionTimeout(50000);
-            config.setMaxConnections(500);
-            config.setSocketTimeout(50000);
-            config.setMaxErrorRetry(100);
+            config.setConnectionTimeout(100000);
+            //config.setMaxConnections(500);
+            config.setSocketTimeout(100000);
+            config.setMaxErrorRetry(500);
             sS3Client = new AmazonS3Client(getCredProvider(context.getApplicationContext()),config);
             sS3Client.setEndpoint(NimConstants.S3_ENDPOINT);
         }

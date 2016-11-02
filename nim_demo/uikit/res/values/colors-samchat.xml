@@ -18,17 +18,6 @@
     <color name="color_black_13243F">#13243F</color>
 
     <!-- samchat final color-->
-    <color name="samchat_color_tab_selected">#1D4D73</color>
-    <color name="samchat_color_tab_unselected">#8A1D4D73</color>
-
-    <color name="samchat_color_customer_titlebar_bg">#f8f9f9</color>
-    <color name="samchat_color_sp_titlebar_bg">#13243F</color>
-    <color name="samchat_color_sp_titlebar_bg_transparent">#1FFFFFFF</color>
-
-    <color name="samchat_color_customer_titlbar_title">#1B3257</color>
-    <color name="samchat_color_sp_titlbar_title">#FFFFFF</color>
-
-    <color name="samchat_color_main_bg">#efeff4</color>
     <color name="samchat_color_white">#FFFFFF</color>
     <color name="samchat_color_hint_white">#7FFFFFFF</color>
     <color name="samchat_color_filled_white">#CCFFFFFF</color>
@@ -51,4 +40,27 @@
     <color name="samchat_color_mid_ingra">#8A1D4D73</color>
     <color name="samchat_color_dark_blue">#1B3257</color>
     <color name="samchat_color_ink">#13243F</color>
+
+    <color name="samchat_color_tab_selected">#1D4D73</color>
+    <color name="samchat_color_tab_unselected">#8A1D4D73</color>
+    <color name="samchat_color_customer_titlebar_bg">#f8f9f9</color>
+    <color name="samchat_color_sp_titlebar_bg">#13243F</color>
+    <color name="samchat_color_sp_titlebar_bg_transparent">#1FFFFFFF</color>
+    <color name="samchat_color_customer_titlbar_title">#1B3257</color>
+    <color name="samchat_color_sp_titlbar_title">#FFFFFF</color>
+    <color name="samchat_color_main_bg">#efeff4</color>
+    <color name="samchat_color_avatar_border_default">#7FA2AEBC</color>
+    <color name="samchat_color_avatar_border_reminder">#67D45F</color>
+    <color name="samchat_color_split_line">#D1D1D6</color>
+
+    <color name="contents_text">#ff000000</color>
+    <color name="encode_view">#ffffffff</color>
+    <color name="possible_result_points">#c0ffbd21</color> <!-- Android standard ICS color -->
+    <color name="result_minor_text">#ffc0c0c0</color>
+    <color name="result_points">#c099cc00</color> <!-- Android standard ICS color -->
+    <color name="result_text">#ffffffff</color>
+    <color name="result_view">#b0000000</color>
+    <color name="status_text">#ffffffff</color>
+    <color name="viewfinder_laser">#ffcc0000</color> <!-- Android standard ICS color -->
+    <color name="viewfinder_mask">#60000000</color>
 </resources>

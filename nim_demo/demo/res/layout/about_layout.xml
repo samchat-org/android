@@ -45,7 +45,7 @@
         android:layout_above="@id/version_detail_git"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="20dp"
-        android:background="@drawable/about_logo" />
+        android:background="@drawable/ic_logo" />
 
     <TextView
         android:layout_width="wrap_content"

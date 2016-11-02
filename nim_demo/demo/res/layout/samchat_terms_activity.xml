@@ -3,7 +3,7 @@
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/color_grey_efeff4">
+            android:background="@color/samchat_color_white">
     <LinearLayout
         android:id="@+id/welcome_container"
         android:layout_width="match_parent"
@@ -12,7 +12,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/color_white_ffffffff">
+            android:background="@color/samchat_color_customer_titlebar_bg">
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
@@ -24,15 +24,16 @@
                 android:id="@+id/back_arrow_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="?attr/actionBarSize"
-                android:layout_centerVertical="true">
+                android:layout_centerVertical="true"
+                android:background="@drawable/samchat_action_bar_button_selector_customer">
                 <ImageView
                     android:id="@+id/back_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="@dimen/title_left_margin"
+                    android:layout_marginStart="@dimen/title_left_margin"
+                    android:layout_marginRight="@dimen/title_right_margin"
+                    android:layout_marginEnd="@dimen/title_right_margin"
                     android:src="@drawable/samchat_ic_nav_light_close"
                     android:layout_gravity="center"
                     android:contentDescription="@null"/>
@@ -43,34 +44,43 @@
                 android:layout_width="wrap_content"
                 android:layout_height="?attr/actionBarSize"
                 android:layout_centerVertical="true"
+                android:layout_marginRight="@dimen/title_right_margin"
+                android:layout_marginEnd="@dimen/title_right_margin"
                 android:gravity="center"
                 android:text="@string/samchat_user_agreement"
                 android:layout_toRightOf="@id/back_arrow_layout"
                 android:layout_toEndOf="@id/back_arrow_layout"
-                android:textSize="20sp"
-                android:textColor="@color/black"/>
+                android:maxLines="1"
+                android:textSize="@dimen/text_size_20"
+                android:textColor="@color/samchat_color_customer_titlbar_title"/>
         </RelativeLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/samchat_color_split_line"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginEnd="20dp"
-            android:textColor="@color/black"
+            android:layout_marginLeft="@dimen/title_left_margin"
+            android:layout_marginStart="@dimen/title_left_margin"
+            android:layout_marginRight="@dimen/title_right_margin"
+            android:layout_marginEnd="@dimen/title_right_margin"
+            android:textColor="@color/samchat_color_ink"
             android:textSize="@dimen/text_size_16"
-            android:text="@string/samchat_agreement_1"/>
+            android:text="@string/samchat_agreement_1"
+            android:id="@+id/textView2" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginEnd="20dp"
-            android:textColor="@color/black"
+            android:layout_marginLeft="@dimen/title_left_margin"
+            android:layout_marginStart="@dimen/title_left_margin"
+            android:layout_marginRight="@dimen/title_right_margin"
+            android:layout_marginEnd="@dimen/title_right_margin"
+            android:textColor="@color/samchat_color_ink"
             android:textSize="@dimen/text_size_16"
             android:text="@string/samchat_agreement_2"/>
     </LinearLayout>

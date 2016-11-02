@@ -88,6 +88,18 @@ public class HeadImageView extends CircleImageView {
         doLoadImage(needLoad, account, userInfo != null ? userInfo.getAvatar() : null, thumbSize,NimUIKit.getUserInfoProvider().getDefaultIconResId());
     }
 
+    public void loadBuddyAvatarByUrl(final String account, final String path, final int thumbSize) {
+        boolean needLoad = path != null && ImageLoaderKit.isImageUriValid(path);
+
+        doLoadImage(needLoad, account, path != null ? path : null, thumbSize,NimUIKit.getUserInfoProvider().getDefaultIconResId());
+    }
+
+    public void loadBuddyAvatarByUrl(final String account,final String path, final int thumbSize, final OnImageLoadedListener callback) {
+        boolean needLoad = path != null && ImageLoaderKit.isImageUriValid(path);
+
+        doLoadImage(needLoad, account, path != null ? path : null, thumbSize,NimUIKit.getUserInfoProvider().getDefaultIconResId(),callback);
+    }
+
 	public interface OnImageLoadedListener {
 		public void OnImageLoadedListener(Bitmap bitmap);
 	}

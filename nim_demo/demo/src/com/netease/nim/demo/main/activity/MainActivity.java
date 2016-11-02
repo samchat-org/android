@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
@@ -17,10 +18,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.android.samchat.activity.SamchatAddCustomerActivity;
 import com.android.samchat.activity.SamchatAddServiceProviderActivity;
+import com.android.samchat.activity.SamchatContactUserNameCardActivity;
+import com.android.samchat.activity.SamchatContactUserSPNameCardActivity;
 import com.android.samchat.activity.SamchatMemberSelectActivity;
 import com.android.samchat.activity.SamchatSearchPublicActivity;
 import com.android.samchat.cache.ContactDataCache;
@@ -31,9 +35,13 @@ import com.android.samchat.fragment.SamchatPublicFragment;
 import com.android.samchat.receiver.NetworkStateBroadcastReceiver;
 import com.android.samchat.receiver.PushReceiver;
 import com.android.samchat.R;
+import com.android.samchat.service.ErrorString;
 import com.android.samchat.ui.ReminderRedPointView;
+import com.android.samservice.HttpCommClient;
+import com.android.samservice.callback.SMCallBack;
 import com.android.samservice.info.Contact;
 import com.android.samservice.info.FollowedSamPros;
+import com.android.samservice.type.TypeEnum;
 import com.netease.nim.demo.avchat.AVChatProfile;
 import com.netease.nim.demo.avchat.activity.AVChatActivity;
 import com.netease.nim.demo.chatroom.helper.ChatRoomHelper;
@@ -46,10 +54,12 @@ import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nim.demo.team.TeamCreateHelper;
 import com.netease.nim.demo.team.activity.AdvancedTeamSearchActivity;
 import com.netease.nim.uikit.LoginSyncDataStatusObserver;
+import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
+import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
 import com.netease.nim.uikit.permission.MPermission;
@@ -105,8 +115,9 @@ import com.android.samchat.factory.UuidFactory;
 public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
     private static final String EXTRA_APP_QUIT = "APP_QUIT";
-    private static final int REQUEST_CODE_NORMAL = 1;
-    private static final int REQUEST_CODE_ADVANCED = 2;
+    public static final int REQUEST_CODE_NORMAL = 1;
+    public static final int REQUEST_CODE_ADVANCED = 2;
+    public static final int REQUEST_CODE_SCAN_QRCODE = 3;
     private static final String TAG = "SamchatMainActivity";
     private final int BASIC_PERMISSION_REQUEST_CODE = 100;
 
@@ -123,6 +134,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
     //private TextView switch_reminder;
     private ReminderRedPointView switch_reminder_icon;
     private TextView titlebar_name;
+    private RelativeLayout titlebar_right_layout;
     private ImageView titlebar_right_icon;
     private TextView titlebar_right_text;
     private int current_position = 0;
@@ -443,6 +455,23 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
         }
     }
 
+    private long transferToUniqueID(String content){
+		long unique_id = -1;
+		if(content.indexOf(NimConstants.QRCODE_PREFIX)!=0){
+			return 0;
+		}
+
+		String content2 = content.substring(NimConstants.QRCODE_PREFIX.length());
+		try{
+			unique_id = Long.valueOf(content2);
+		}catch(Exception e){
+			e.printStackTrace();
+			LogUtil.i(TAG,"warning: invalid qr code");
+		}finally{
+			return unique_id;
+		}
+	}
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -457,7 +486,20 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
             } else if (requestCode == REQUEST_CODE_ADVANCED) {
                 /*final ArrayList<String> selected = data.getStringArrayListExtra(ContactSelectActivity.RESULT_DATA);
                 TeamCreateHelper.createAdvancedTeam(MainActivity.this, selected);*/
-            } else{
+            } else if(requestCode == REQUEST_CODE_SCAN_QRCODE){
+                if (resultCode == RESULT_OK && data != null) {
+                    String content = data.getStringExtra("codedContent");
+				      long unique_id = transferToUniqueID(content);
+				      if(unique_id >0){
+					      if(isSending){
+						     return;
+					      }
+					      query_user_precise(unique_id);
+				       }else{
+					      Toast.makeText(MainActivity.this, R.string.samchat_qr_code_invalid, Toast.LENGTH_LONG).show();
+				       }
+                  }
+			  }else{
                 mainFragment.onActivityResult( requestCode,  resultCode,  data);
 			 }
         }
@@ -478,6 +520,83 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
 /*******************************Samchat add******************************************/
 /*SAMC_BEGIN(...)*/
+	private boolean isSending=false;
+	private void query_user_precise(long unique_id){
+		isSending = true;
+		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_processing), false, new DialogInterface.OnCancelListener() {
+			@Override
+			public void onCancel(DialogInterface dialog) {
+				
+			}
+		}).setCanceledOnTouchOutside(false);
+
+		SamService.getInstance().query_user_precise(TypeEnum.UNIQUE_ID, null, unique_id, null, false, new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					final HttpCommClient hcc = (HttpCommClient)obj;
+					if(hcc.users.getcount() > 0){
+						getHandler().postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								DialogMaker.dismissProgressDialog();
+								isSending = false;
+								if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+									if( hcc.users.getusers().get(0).getusertype() != Constants.SAM_PROS){
+										Toast.makeText(MainActivity.this, R.string.samchat_no_sp, Toast.LENGTH_LONG).show();
+									}else{
+										SamchatContactUserSPNameCardActivity.start(MainActivity.this, hcc.users.getusers().get(0));
+									}
+								}else{
+									SamchatContactUserNameCardActivity.start(MainActivity.this, hcc.users.getusers().get(0));
+								}
+							}
+						}, 0);
+					}else{
+						getHandler().postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								DialogMaker.dismissProgressDialog();
+								Toast.makeText(MainActivity.this, R.string.samchat_qr_code_invalid, Toast.LENGTH_LONG).show();
+								isSending = false;
+							}
+						}, 0);
+					}
+				}
+
+				@Override
+				public void onFailed(final int code) {
+					final ErrorString error = new ErrorString(MainActivity.this,code);
+					
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+							EasyAlertDialogHelper.showOneButtonDiolag(MainActivity.this, null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							isSending = false;
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onError(int code) {
+					final ErrorString error = new ErrorString(MainActivity.this,code);
+					
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+							EasyAlertDialogHelper.showOneButtonDiolag(MainActivity.this, null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							isSending = false;
+						}
+					}, 0);
+				}
+		});
+	}
+
+
+
 	private void logout() {
         removeLoginState();
         logout(this, false);
@@ -565,17 +684,22 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	}
 
 	public void refreshToolBar(int position){
+		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
+			titlebar_name.setTextColor(getResources().getColor(R.color.samchat_color_customer_titlbar_title));
+			titlebar_right_text.setTextColor(getResources().getColor(R.color.samchat_color_customer_titlbar_title));
+			switch_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_customer);
+			titlebar_right_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_customer);
+		}else{
+			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
+			titlebar_name.setTextColor(getResources().getColor(R.color.samchat_color_sp_titlbar_title));
+			titlebar_right_text.setTextColor(getResources().getColor(R.color.samchat_color_sp_titlbar_title));
+			switch_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_sp);
+			titlebar_right_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_sp);
+		}
 		switch_icon.setImageResource(MainTab.getTabIcon(position));
 		titlebar_name.setText(MainTab.getTabTitle(position));
 		titlebar_right_icon.setImageResource(MainTab.getTabRightIcon(position));
-
-		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
-			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
-			titlebar_name.setTextColor(getResources().getColor(R.color.black));
-		}else{
-			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
-			titlebar_name.setTextColor(getResources().getColor(R.color.color_white_ffffffff));
-		}
 
 		if(MainTab.isTabRightIconShow(position)){
 			titlebar_right_icon.setVisibility(View.VISIBLE);
@@ -587,6 +711,12 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 			titlebar_right_text.setVisibility(View.VISIBLE);
 		}else{
 			titlebar_right_text.setVisibility(View.GONE);
+		}
+
+		if(!MainTab.isTabRightIconShow(position) && !MainTab.isTabRightTextShow(position)){
+			titlebar_right_layout.setVisibility(View.GONE);
+		}else{
+			titlebar_right_layout.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -670,6 +800,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 		//switch_reminder = (TextView) findViewById(R.id.switch_reminder);
 		switch_reminder_icon = (ReminderRedPointView) findViewById(R.id.switch_reminder_icon);
 		titlebar_name = (TextView) findViewById(R.id.titlebar_name);
+		titlebar_right_layout = (RelativeLayout) findViewById(R.id.titlebar_right_layout);
 		titlebar_right_icon = (ImageView) findViewById(R.id.titlebar_right_icon);
 		titlebar_right_text = (TextView) findViewById(R.id.titlebar_right_text);
 
@@ -683,7 +814,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 			}
 		});
 
-		titlebar_right_icon.setOnClickListener(new View.OnClickListener() {
+		titlebar_right_layout.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
@@ -716,15 +847,6 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
 				}
 				
-			}
-		});
-
-		titlebar_right_text.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {			
-				Intent intent = new Intent();
-				intent.setAction(Constants.BROADCAST_POST_ADV);
-				sendbroadcast(intent);
 			}
 		});
 	}

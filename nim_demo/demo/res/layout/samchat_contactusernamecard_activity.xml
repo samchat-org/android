@@ -91,7 +91,8 @@
                     android:layout_centerVertical="true"
                     android:layout_toRightOf="@+id/username_img"
                     android:layout_toEndOf="@+id/username_img"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:background="@drawable/samchat_list_item_selector">
                     <TextView
                         android:id="@+id/username_text"
                         android:layout_width="0dp"
@@ -121,7 +122,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginLeft="@dimen/body_left_margin"
-                android:layout_marginStart="@dimen/body_left_margin">
+                android:layout_marginStart="@dimen/body_left_margin"
+                android:background="@drawable/samchat_list_item_selector">
                 <ImageView
                     android:id="@+id/chat_img"
                     android:layout_width="wrap_content"
@@ -154,7 +156,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:layout_marginLeft="@dimen/body_left_margin"
-                android:layout_marginStart="@dimen/body_left_margin">
+                android:layout_marginStart="@dimen/body_left_margin"
+                android:background="@drawable/samchat_list_item_selector">
                 <ImageView
                     android:id="@+id/op_img"
                     android:layout_width="wrap_content"

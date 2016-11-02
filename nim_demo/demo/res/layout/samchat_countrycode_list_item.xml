@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              android:background="@drawable/samchat_list_item_selector">
 
     <TextView
         android:id="@+id/tv_lv_item_tag"
@@ -14,7 +15,7 @@
         android:gravity="center_vertical"
         android:text="Z"
         android:textSize="@dimen/text_size_18"
-        android:textColor="@color/samchat_color_ink"
+        android:textColor="@color/samchat_color_dark_grey"
         android:visibility="visible"/>
 
     <LinearLayout
@@ -42,7 +43,7 @@
             android:layout_marginEnd="16dp"
             android:layout_gravity="center_vertical"
             android:textSize="@dimen/text_size_16"
-            android:textColor="@color/samchat_color_dark_grey"/>
+            android:textColor="@color/samchat_color_grey"/>
     </LinearLayout>
     <View
         android:id="@+id/split"

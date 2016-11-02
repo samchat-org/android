@@ -10,6 +10,7 @@ import com.android.samchat.activity.SamchatProfileCustomerActivity;
 import com.android.samchat.activity.SamchatProfileServiceProviderActivity;
 import com.android.samchat.common.FastBlurUtils;
 import com.android.samservice.callback.SMCallBack;
+import com.karics.library.zxing.android.CaptureActivity;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import com.android.samchat.R;
@@ -38,7 +39,6 @@ import com.android.samchat.activity.SamchatCreateSPStepOneActivity;
 import com.android.samchat.activity.SamchatUpdatePasswordActivity;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.auth.AuthService;
-import com.android.samchat.activity.SamchatQRCodeActivity;
 /**
  * Main Fragment in SamchatSettingListFragment
  */
@@ -271,7 +271,7 @@ public class SamchatSettingFragment extends TFragment {
 		customer_my_qrcode_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				SamchatQRCodeActivity.start(getActivity(),Constants.SHOW_CUSTOMER_INFO,SamService.getInstance().get_current_user().getunique_id());
+				CaptureActivity.startActivityForResult(getActivity(),MainActivity.REQUEST_CODE_SCAN_QRCODE, ModeEnum.CUSTOMER_MODE.getValue(),false);
 			}
 		});
 	}
@@ -366,7 +366,7 @@ public class SamchatSettingFragment extends TFragment {
 		sp_my_qrcode_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				SamchatQRCodeActivity.start(getActivity(),Constants.SHOW_SP_INFO,SamService.getInstance().get_current_user().getunique_id());
+				CaptureActivity.startActivityForResult(getActivity(),MainActivity.REQUEST_CODE_SCAN_QRCODE, ModeEnum.SP_MODE.getValue(),false);
 			}
 		});
 	}

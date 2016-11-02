@@ -155,7 +155,7 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		setupOpServiceProviderClick();
 		setupQrcodeClick();
 		
-		avatar_headimageview.loadBuddyAvatar(sp.getAccount(), (int) getResources().getDimension(R.dimen.samchat_avatar_size_in_namecard), new HeadImageView.OnImageLoadedListener(){
+		avatar_headimageview.loadBuddyAvatarByUrl(sp.getAccount(), sp.getAvatar(),(int) getResources().getDimension(R.dimen.samchat_avatar_size_in_namecard), new HeadImageView.OnImageLoadedListener(){
 			@Override
 			public void OnImageLoadedListener(Bitmap bitmap){
 				FastBlurUtils.blur(bitmap, wall_iv);
@@ -264,7 +264,7 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		qr_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				SamchatQRCodeActivity.start(SamchatContactUserSPNameCardActivity.this, Constants.SHOW_SP_INFO,sp.getunique_id());
+				SamchatQRCodeActivity.start(SamchatContactUserSPNameCardActivity.this, Constants.SHOW_SP_INFO,sp);
 			}
 		});
 	}

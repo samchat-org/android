@@ -27,7 +27,7 @@
                 android:layout_marginRight="12dp"
                 android:src="@drawable/avatar_def"
                 app:civ_border_width="2dp"
-                app:civ_border_color="@color/samchat_color_grey"/>
+                app:civ_border_color="@color/samchat_color_avatar_border_default"/>
             <TextView
                 android:id="@+id/unread_reminder"
                 android:layout_width="wrap_content"

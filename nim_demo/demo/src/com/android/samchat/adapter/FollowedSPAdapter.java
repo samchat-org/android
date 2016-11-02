@@ -113,9 +113,9 @@ public class FollowedSPAdapter extends BaseAdapter{
 				}
 
 				if(session.getunread()>0){
-					holder.avatar.setBorderColorResource(R.color.samchat_color_green);
+					holder.avatar.setBorderColorResource(R.color.samchat_color_avatar_border_reminder);
 				}else{
-					holder.avatar.setBorderColorResource(R.color.samchat_color_grey);
+					holder.avatar.setBorderColorResource(R.color.samchat_color_avatar_border_default);
 				}
 			}else{
 				holder.unread_reminder.setVisibility(View.GONE);

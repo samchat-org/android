@@ -152,9 +152,9 @@ public abstract class SamchatRecentViewHolder extends TViewHolder implements OnC
         tvUnread.setVisibility(unreadNum > 0 ? View.VISIBLE : View.GONE);
         tvUnread.setText(unreadCountShowRule(unreadNum));
         if(unreadNum > 0){
-            imgHead.setBorderColorResource(R.color.samchat_color_green);
+            imgHead.setBorderColorResource(R.color.samchat_color_avatar_border_reminder);
         }else{
-            imgHead.setBorderColorResource(R.color.samchat_color_grey);
+            imgHead.setBorderColorResource(R.color.samchat_color_avatar_border_default);
         }
     }
 

@@ -55,7 +55,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="5dp"
-                android:background="@color/samchat_color_grey"/>
+                android:background="@color/samchat_color_split_line"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -95,7 +95,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginTop="5dp"
-                android:background="@color/samchat_color_grey"/>
+                android:background="@color/samchat_color_split_line"/>
             <TextView
                 android:id="@+id/signin"
                 android:layout_width="match_parent"

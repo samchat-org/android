@@ -19,13 +19,16 @@
         <FrameLayout
             android:id="@+id/back_arrow_layout"
             android:layout_width="wrap_content"
-            android:layout_height="?attr/actionBarSize">
+            android:layout_height="?attr/actionBarSize"
+            android:background="@drawable/samchat_action_bar_button_selector_customer">
             <ImageView
                 android:id="@+id/back_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp"
+                android:layout_marginLeft="@dimen/title_left_margin"
+                android:layout_marginStart="@dimen/title_left_margin"
+                android:layout_marginRight="@dimen/title_right_margin"
+                android:layout_marginEnd="@dimen/title_right_margin"
                 android:src="@drawable/samchat_ic_nav_light_close"
                 android:layout_gravity="center_vertical"
                 android:contentDescription="@null"/>
@@ -34,10 +37,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginLeft="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginRight="@dimen/title_right_margin"
+            android:layout_marginEnd="@dimen/title_right_margin"
             android:layout_toRightOf="@id/back_arrow_layout"
             android:layout_toEndOf="@id/back_arrow_layout">
             <TextView
@@ -62,6 +65,10 @@
                 app:curSelect="1"/>
         </LinearLayout>
     </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/samchat_color_split_line"/>
     <TextView
         android:id="@+id/phoneWithCC"
         android:layout_width="match_parent"
