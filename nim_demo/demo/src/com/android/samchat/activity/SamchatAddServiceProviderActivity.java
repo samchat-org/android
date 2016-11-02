@@ -38,6 +38,7 @@ import com.android.samchat.R;
 import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.framework.NimSingleThreadExecutor;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
@@ -221,7 +222,7 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 		scan_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				CaptureActivity.startActivityForResult(SamchatAddServiceProviderActivity.this,REQUEST_CODE_SCAN);
+				CaptureActivity.startActivityForResult(SamchatAddServiceProviderActivity.this,REQUEST_CODE_SCAN, ModeEnum.CUSTOMER_MODE.getValue(),true);
 			}
 		});
 	}

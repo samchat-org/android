@@ -35,6 +35,7 @@ import com.android.samchat.R;
 import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.framework.NimSingleThreadExecutor;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
@@ -162,11 +163,20 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 		});
 	}
 
+	/*CaptureActivity.OnMyQRCodeListner callback = new CaptureActivity.OnMyQRCodeListner(){
+			@Override
+			public void OnMyQRCodeClick(){
+				SamchatQRCodeActivity.start(SamchatAddCustomerActivity.this, Constants.SHOW_SP_INFO, 
+					SamService.getInstance().get_current_user().getunique_id());
+			}
+		};*/
+
 	private void setupScanClick(){
 		scan_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				CaptureActivity.startActivityForResult(SamchatAddCustomerActivity.this,REQUEST_CODE_SCAN);
+			    //CaptureActivity.callback = callback;
+				CaptureActivity.startActivityForResult(SamchatAddCustomerActivity.this,REQUEST_CODE_SCAN, ModeEnum.SP_MODE.getValue(),true);
 			}
 		});
 	}

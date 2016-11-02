@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="samchat_my_qr_code">My QR Code</string>
+    <string name="samchat_qr_scanner">QR Scanner</string>
+    <string name="samchat_scan">Scan</string>
+</resources>

@@ -271,8 +271,6 @@ public class SamchatSettingFragment extends TFragment {
 		customer_my_qrcode_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				//ScanCaptureAct.start(getActivity());
-				//CaptureActivity.start(getActivity());
 				SamchatQRCodeActivity.start(getActivity(),Constants.SHOW_CUSTOMER_INFO,SamService.getInstance().get_current_user().getunique_id());
 			}
 		});
@@ -368,8 +366,6 @@ public class SamchatSettingFragment extends TFragment {
 		sp_my_qrcode_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				//ScanCaptureAct.start(getActivity());
-				//CaptureActivity.start(getActivity());
 				SamchatQRCodeActivity.start(getActivity(),Constants.SHOW_SP_INFO,SamService.getInstance().get_current_user().getunique_id());
 			}
 		});

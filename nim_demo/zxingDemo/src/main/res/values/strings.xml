@@ -141,5 +141,9 @@
   
   <string name="viewfinderview_status_text1">将二维码/条码放入取景框内</string>
   <string name="viewfinderview_status_text2">即可自动扫描</string>
-  
+
+
+  <string name="samchat_my_qr_code">My QR Code</string>
+  <string name="samchat_qr_scanner">QR Scanner</string>
+  <string name="samchat_scan">Scan</string>
 </resources>

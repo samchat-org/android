@@ -1,40 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" >
-
-    <!-- 整体透明画布 -->
-    <SurfaceView
-        android:id="@+id/preview_view"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:id="@+id/titlebar_layout"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
-
-    <!-- 扫描取景框 -->
-    <com.karics.library.zxing.view.ViewfinderView
-        android:id="@+id/viewfinder_view"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
-    
-    <RelativeLayout 
-        android:layout_width="fill_parent"
-        android:layout_height="50dp"
+        android:layout_height="48dp"
         android:layout_gravity="top"
-        android:background="#99000000">
-        
-        <ImageButton
-            android:id="@+id/capture_imageview_back"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
-            android:layout_centerVertical="true"
-            android:background="@drawable/selector_capture_back"/>
-        
-        <TextView 
+        android:background="@color/samchat_color_customer_titlebar_bg">
+        <FrameLayout
+            android:id="@+id/back_arrow_layout"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:textColor="#ffffffff"
-            android:textSize="20sp"
-            android:text="扫一扫"/>
-        
+            android:layout_height="48dp"
+            android:layout_centerVertical="true"
+            android:background="@drawable/samchat_action_bar_button_selector_customer">
+            <ImageView
+                android:id="@+id/back_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginEnd="16dp"
+                android:src="@drawable/samchat_ic_nav_light_close"
+                android:layout_gravity="center"/>
+        </FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:layout_toRightOf="@+id/back_arrow_layout"
+            android:layout_toEndOf="@+id/back_arrow_layout">
+            <TextView
+                android:id="@+id/titlebar_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:textColor="@color/samchat_color_customer_titlbar_title"
+                android:textSize="20sp"
+                android:text="@string/samchat_qr_scanner"/>
+            <FrameLayout
+                android:id="@+id/titlebar_right_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:background="@drawable/samchat_action_bar_button_selector_customer">
+                <TextView
+                    android:id="@+id/titlebar_right_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@color/samchat_color_customer_titlbar_title"
+                    android:textSize="16sp"
+                    android:text="@string/samchat_my_qr_code"/>
+            </FrameLayout>
+
+        </LinearLayout>
     </RelativeLayout>
 
-</merge>
+    <RelativeLayout
+        android:id="@+id/scanner_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+        <!-- 整体透明画布 -->
+        <SurfaceView
+            android:id="@+id/preview_view"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"/>
+
+        <!-- 扫描取景框 -->
+        <com.karics.library.zxing.view.ViewfinderView
+            android:id="@+id/viewfinder_view"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/myqrcode_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/samchat_color_main_bg">
+
+    </RelativeLayout>
+
+    
+
+
+</LinearLayout>
