@@ -10,6 +10,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnKeyListener;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.android.samchat.R;
@@ -32,12 +33,18 @@ public class SamchatUpdatePasswordActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatUpdatePasswordActivity.class.getSimpleName();
 
 	private FrameLayout back_arrow_layout;
-	private EditText old_password_edittext;
+	
 	private RelativeLayout old_hidden_layout;
-	private EditText new_password_edittext;
+	private ImageView old_hidden_icon_iv;
+	private EditText old_password_ev;
+	private ImageView old_password_ok_iv;
+	
 	private RelativeLayout new_hidden_layout;
+	private ImageView new_hidden_icon_iv;
+	private EditText new_password_ev;
+	private ImageView new_password_ok_iv;
 
-	private TextView done_textview;
+	private TextView done_tv;
 
 	private boolean ready_old_password=false;
 	private boolean ready_new_password=false;
@@ -81,12 +88,17 @@ public class SamchatUpdatePasswordActivity extends UI implements OnKeyListener {
 
 	private void setupPanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
-		old_password_edittext = findView(R.id.old_password);
-		old_hidden_layout = findView(R.id.new_hidden_layout);
-		new_password_edittext = findView(R.id.new_password);
+		old_hidden_layout = findView(R.id.old_hidden_layout);
+		old_hidden_icon_iv = findView(R.id.old_hidden_icon);
+		old_password_ev = findView(R.id.old_password);
+		old_password_ok_iv = findView(R.id.old_password_ok);
+	
 		new_hidden_layout = findView(R.id.new_hidden_layout);
-		
-		done_textview = findView(R.id.done);
+		new_hidden_icon_iv = findView(R.id.new_hidden_icon);
+		new_password_ev = findView(R.id.new_password);
+		new_password_ok_iv = findView(R.id.new_password_ok);
+
+		done_tv = findView(R.id.done);
 
 		setupBackArrowClick();
 		
@@ -117,7 +129,7 @@ public class SamchatUpdatePasswordActivity extends UI implements OnKeyListener {
 		}
 	}
 	private void setupDoneClick(){
-		done_textview.setOnClickListener(new OnClickListener() {
+		done_tv.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				if(isUpdating){
@@ -137,7 +149,13 @@ public class SamchatUpdatePasswordActivity extends UI implements OnKeyListener {
 	}
 
 	private void updateDoneButton(){
-		done_textview.setEnabled(ready_old_password & ready_new_password);
+		if(ready_old_password & ready_new_password){
+			done_tv.setEnabled(true);
+			done_tv.setBackgroundResource(R.drawable.samchat_button_green_active);
+		}else{
+			done_tv.setEnabled(false);
+			done_tv.setBackgroundResource(R.drawable.samchat_button_green_inactive);
+		}
 	}
 
 
@@ -154,31 +172,53 @@ public class SamchatUpdatePasswordActivity extends UI implements OnKeyListener {
 
 		@Override
 		public void afterTextChanged(Editable s) {
-			ready_old_password = old_password_edittext.getText().length()>=Constants.MIN_PASSWORD_LENGTH;
+			ready_old_password = old_password_ev.getText().length()>=Constants.MIN_PASSWORD_LENGTH;
+			updateOldPasswordOK();
+			updateOldPasswordHiddenIcon();
 			updateDoneButton();
 			if(ready_old_password){
-				old_password = old_password_edittext.getText().toString();
+				old_password = old_password_ev.getText().toString();
 			}
 		}
 	};
 
+	private void updateOldPasswordHiddenIcon(){
+		if(ready_old_password){
+			if(isOldPwdShown){
+				old_hidden_icon_iv.setImageResource(R.drawable.samchat_ic_showpw_shown);
+			}else{
+				old_hidden_icon_iv.setImageResource(R.drawable.samchat_ic_showpw_filled);
+			}
+		}else{
+			old_hidden_icon_iv.setImageResource(R.drawable.samchat_ic_showpw_hint);
+		}
+	}
+
+	private void updateOldPasswordOK(){
+		old_password_ok_iv.setVisibility(ready_old_password ? View.VISIBLE:View.GONE);
+	}
+
 	private void setupOldPasswordEditClick(){
-		old_password_edittext.addTextChangedListener(old_password_textWatcher);
-		old_password_edittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-		old_password_edittext.setTypeface(Typeface.SANS_SERIF);
+		old_password_ev.addTextChangedListener(old_password_textWatcher);
+		old_password_ev.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+		old_password_ev.setTypeface(Typeface.SANS_SERIF);
 	}
 
 	private void updateOldPasswordVisibility(){
 		if(!isOldPwdShown){
-			old_password_edittext.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);  
-			Editable etable = old_password_edittext.getText();  
+			old_password_ev.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);  
+			old_password_ev.setTypeface(Typeface.SANS_SERIF);
+			Editable etable = old_password_ev.getText();  
 			Selection.setSelection(etable, etable.length());
 			isOldPwdShown = true;
+			updateOldPasswordHiddenIcon();
 		}else{
-			old_password_edittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);  
-			Editable etable = old_password_edittext.getText();  
+			old_password_ev.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD); 
+			old_password_ev.setTypeface(Typeface.SANS_SERIF);
+			Editable etable = old_password_ev.getText();  
 			Selection.setSelection(etable, etable.length());
 			isOldPwdShown = false;
+			updateOldPasswordHiddenIcon();
 		}
 	}
 
@@ -204,31 +244,53 @@ public class SamchatUpdatePasswordActivity extends UI implements OnKeyListener {
 
 		@Override
 		public void afterTextChanged(Editable s) {
-			ready_new_password = new_password_edittext.getText().length()>=Constants.MIN_PASSWORD_LENGTH;
+			ready_new_password = new_password_ev.getText().length()>=Constants.MIN_PASSWORD_LENGTH;
+			updateNewPasswordOK();
+			updateNewPasswordHiddenIcon();
 			updateDoneButton();
 			if(ready_new_password){
-				new_password = new_password_edittext.getText().toString();
+				new_password = new_password_ev.getText().toString();
 			}
 		}
 	};
 
 	private void setupNewPasswordEditClick(){
-		new_password_edittext.addTextChangedListener(new_password_textWatcher);
-		new_password_edittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-		new_password_edittext.setTypeface(Typeface.SANS_SERIF);
+		new_password_ev.addTextChangedListener(new_password_textWatcher);
+		new_password_ev.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+		new_password_ev.setTypeface(Typeface.SANS_SERIF);
+	}
+
+	private void updateNewPasswordOK(){
+		new_password_ok_iv.setVisibility(ready_new_password ? View.VISIBLE:View.GONE);
+	}
+
+	private void updateNewPasswordHiddenIcon(){
+		if(ready_new_password){
+			if(isNewPwdShown){
+				new_hidden_icon_iv.setImageResource(R.drawable.samchat_ic_showpw_shown);
+			}else{
+				new_hidden_icon_iv.setImageResource(R.drawable.samchat_ic_showpw_filled);
+			}
+		}else{
+			new_hidden_icon_iv.setImageResource(R.drawable.samchat_ic_showpw_hint);
+		}
 	}
 
 	private void updateNewPasswordVisibility(){
 		if(!isNewPwdShown){
-			new_password_edittext.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);  
-			Editable etable = new_password_edittext.getText();  
+			new_password_ev.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);  
+			new_password_ev.setTypeface(Typeface.SANS_SERIF);
+			Editable etable = new_password_ev.getText();
 			Selection.setSelection(etable, etable.length());
 			isNewPwdShown = true;
+			updateNewPasswordHiddenIcon();
 		}else{
-			new_password_edittext.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);  
-			Editable etable = new_password_edittext.getText();  
+			new_password_ev.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);  
+			new_password_ev.setTypeface(Typeface.SANS_SERIF);
+			Editable etable = new_password_ev.getText();
 			Selection.setSelection(etable, etable.length());
 			isNewPwdShown = false;
+			updateNewPasswordHiddenIcon();
 		}
 	}
 

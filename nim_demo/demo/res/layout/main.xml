@@ -16,6 +16,13 @@
         android:id="@+id/main_tab_pager"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="1dp"
         android:layout_above="@+id/tabs" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@id/tabs"
+        android:background="@color/samchat_color_split_line"/>
 
 </RelativeLayout>

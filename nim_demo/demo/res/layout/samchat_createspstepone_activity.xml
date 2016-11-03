@@ -79,7 +79,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:contentDescription="@null"
-                    android:src="@drawable/samchat_ic_tab_account_sp_hint"/>
+                    android:src="@drawable/samchat_ic_input_sp_hint"/>
             </RelativeLayout>
             <EditText
                 android:id="@+id/company_name"
@@ -120,7 +120,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:contentDescription="@null"
-                    android:src="@drawable/samchat_ic_input_category_hint"/>
+                    android:src="@drawable/samchat_ic_input_service_category_hint"/>
             </RelativeLayout>
             <EditText
                 android:id="@+id/service_category"

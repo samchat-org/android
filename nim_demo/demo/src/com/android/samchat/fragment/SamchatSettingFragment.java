@@ -6,11 +6,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.android.samchat.activity.SamchatAboutActivity;
+import com.android.samchat.activity.SamchatBecomeSPActivity;
+import com.android.samchat.activity.SamchatFaqActivity;
 import com.android.samchat.activity.SamchatProfileCustomerActivity;
 import com.android.samchat.activity.SamchatProfileServiceProviderActivity;
 import com.android.samchat.common.FastBlurUtils;
 import com.android.samservice.callback.SMCallBack;
 import com.karics.library.zxing.android.CaptureActivity;
+import com.netease.nim.demo.DemoCache;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import com.android.samchat.R;
@@ -28,6 +32,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.content.IntentFilter;
 import android.content.Context;
 import android.content.Intent;
+
+import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialog;
+import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import android.widget.RelativeLayout;
 import com.netease.nim.demo.config.preference.Preferences;
@@ -172,7 +179,7 @@ public class SamchatSettingFragment extends TFragment {
 		}
 		
 		if(SamService.getInstance().get_current_user().getusertype() == Constants.USER){
-			create_sp_img_iv.setImageResource(R.drawable.samchat_ic_tab_account_sp_hint);
+			create_sp_img_iv.setImageResource(R.drawable.samchat_ic_input_sp_hint);
 			create_sp_text_tv.setText(R.string.samchat_create_sp);
 			learn_more_tv.setVisibility(View.VISIBLE);
 		}else if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
@@ -295,12 +302,30 @@ public class SamchatSettingFragment extends TFragment {
 	}
 
 /**********************************Signout*******************************/
+	private void showLogOutSelectDialog(){
+		EasyAlertDialogHelper.OnDialogActionListener listener = new EasyAlertDialogHelper.OnDialogActionListener() {
+			@Override
+			public void doCancelAction() {
+
+			}
+
+			@Override
+			public void doOkAction() {
+				isSignout = true;
+				samchatLogout();
+			}
+		};
+
+		final EasyAlertDialog dialog = EasyAlertDialogHelper.createOkCancelDiolag(getActivity(), DemoCache.getContext().getString(R.string.samchat_signout),
+			DemoCache.getContext().getString(R.string.samchat_sign_out_desc), true, listener);
+		dialog.show();
+	}
+
 	private void setupCustomerSignoutClick(){
 		customer_logout_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				isSignout = true;
-				samchatLogout();
+				showLogOutSelectDialog();
 			}
 		});
 	}
@@ -334,7 +359,7 @@ public class SamchatSettingFragment extends TFragment {
 		learn_more_tv.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				
+				SamchatBecomeSPActivity.start(getActivity());
 			}
 		});
 	}
@@ -344,7 +369,7 @@ public class SamchatSettingFragment extends TFragment {
 		customer_about_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				
+				SamchatAboutActivity.start(getActivity());
 			}
 		});
 	}
@@ -354,7 +379,7 @@ public class SamchatSettingFragment extends TFragment {
 		customer_faq_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				
+				SamchatFaqActivity.start(getActivity());
 			}
 		});
 	}

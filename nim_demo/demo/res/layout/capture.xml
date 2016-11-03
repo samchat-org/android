@@ -67,8 +67,7 @@
     <RelativeLayout
         android:id="@+id/scanner_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone">
+        android:layout_height="match_parent">
         <!-- 整体透明画布 -->
         <SurfaceView
             android:id="@+id/preview_view"
@@ -84,7 +83,13 @@
         android:id="@+id/myqrcode_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/samchat_color_main_bg">
+        android:background="@color/samchat_color_main_bg"
+        android:visibility="gone">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentTop="true"
+            android:background="@color/samchat_color_split_line"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -95,7 +100,7 @@
             android:layout_marginRight="@dimen/body_right_margin"
             android:layout_marginEnd="@dimen/body_right_margin"
             android:orientation="vertical"
-            android:background="@color/samchat_color_white">
+            android:background="@drawable/samchat_qr_code_shadow">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

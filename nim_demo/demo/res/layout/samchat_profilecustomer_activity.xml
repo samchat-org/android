@@ -34,7 +34,7 @@
                     android:layout_marginRight="@dimen/title_right_margin"
                     android:layout_marginEnd="@dimen/title_left_margin"
                     android:contentDescription="@null"
-                    android:src="@drawable/samchat_arrow_left"
+                    android:src="@drawable/samchat_ic_nav_light_close"
                     android:layout_gravity="center"/>
             </FrameLayout>
 
@@ -50,6 +50,10 @@
                 android:textSize="@dimen/text_size_20"
                 android:textColor="@color/samchat_color_customer_titlbar_title"/>
         </RelativeLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/samchat_color_split_line"/>
         <RelativeLayout
             android:id="@+id/avatar_layout"
             android:layout_width="match_parent"
@@ -65,23 +69,25 @@
                 android:id="@+id/avatar"
                 android:layout_width="@dimen/samchat_avatar_size_in_namecard"
                 android:layout_height="@dimen/samchat_avatar_size_in_namecard"
-                android:layout_centerInParent="true"/>
+                android:layout_centerInParent="true"
+                app:civ_border_color="@color/samchat_color_avatar_border_default"
+                app:civ_border_width="2dp"/>
         </RelativeLayout>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:layout_marginLeft="@dimen/body_left_margin"
-            android:layout_marginStart="@dimen/body_left_margin"
-            android:layout_marginRight="@dimen/body_right_margin"
-            android:layout_marginEnd="@dimen/body_right_margin"
-            android:textColor="@color/color_grey_999999"
+            android:paddingTop="12dp"
+            android:paddingLeft="@dimen/body_left_margin"
+            android:paddingStart="@dimen/body_left_margin"
+            android:paddingRight="@dimen/body_right_margin"
+            android:paddingEnd="@dimen/body_right_margin"
+            android:background="@color/samchat_color_white"
+            android:textColor="@color/samchat_color_grey"
             android:textSize="@dimen/text_size_16"
             android:text="@string/samchat_contact_details"/>
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginTop="8dp"
             android:background="@color/samchat_color_white"
             android:orientation="horizontal">
             <ImageView
@@ -132,51 +138,43 @@
                 android:contentDescription="@null"
                 android:layout_centerVertical="true"
                 android:src="@drawable/samchat_ic_input_phone_hint"/>
-            <TextView
-                android:id="@+id/countrycode"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/cp_layout"
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_toRightOf="@id/phone_img"
                 android:layout_toEndOf="@id/phone_img"
                 android:layout_marginLeft="20dp"
                 android:layout_marginStart="20dp"
-                android:layout_centerVertical="true"
-                android:background="@null"
-                android:maxLines="1"
-                android:gravity="start|center_vertical"
-                android:textSize="@dimen/text_size_16"
-                android:textColor="@color/samchat_color_ink"/>
-            <TextView
-                android:id="@+id/phonenumber"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="20dp"
-                android:layout_marginStart="20dp"
-                android:layout_toRightOf="@id/countrycode"
-                android:layout_toEndOf="@id/countrycode"
                 android:layout_marginRight="@dimen/body_right_margin"
                 android:layout_marginEnd="@dimen/body_right_margin"
                 android:layout_centerVertical="true"
-                android:gravity="center"
-                android:background="@null"
-                android:maxLines="1"
-                android:textSize="@dimen/text_size_16"
-                android:textColor="@color/samchat_color_ink"/>
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/countrycode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:maxLines="1"
+                    android:gravity="start|center_vertical"
+                    android:textSize="@dimen/text_size_16"
+                    android:textColor="@color/samchat_color_ink"/>
+                <TextView
+                    android:id="@+id/phonenumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:background="@null"
+                    android:maxLines="1"
+                    android:textSize="@dimen/text_size_16"
+                    android:textColor="@color/samchat_color_ink"/>
+            </LinearLayout>
             <View
-                android:id="@+id/countrycode_line"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_alignParentBottom="true"
-                android:layout_alignLeft="@+id/countrycode"
-                android:layout_alignStart="@+id/countrycode"
-                android:background="@color/samchat_color_grey"/>
-            <View
-                android:id="@+id/phonenumber_line"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_alignParentBottom="true"
-                android:layout_alignLeft="@+id/phonenumber"
-                android:layout_alignStart="@+id/phonenumber"
+                android:layout_alignLeft="@+id/cp_layout"
+                android:layout_alignStart="@+id/cp_layout"
                 android:background="@color/samchat_color_grey"/>
         </RelativeLayout>
 
@@ -245,17 +243,10 @@
                 android:layout_marginRight="@dimen/body_right_margin"
                 android:layout_marginEnd="@dimen/body_right_margin"
                 android:background="@null"
-                android:maxLines="1"
+                android:maxLines="2"
                 android:gravity="start|center_vertical"
                 android:textSize="@dimen/text_size_16"
                 android:textColor="@color/samchat_color_ink"/>
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_alignParentBottom="true"
-                android:layout_alignLeft="@+id/address"
-                android:layout_alignStart="@+id/address"
-                android:background="@color/samchat_color_grey"/>
         </RelativeLayout>
     </LinearLayout>
 

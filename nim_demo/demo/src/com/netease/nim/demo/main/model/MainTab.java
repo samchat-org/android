@@ -19,10 +19,10 @@ import android.content.Context;
 
 public enum MainTab {
     /*SAMC_BEGIN(Change the main tab from 3 to 5)*/
-    SAMCHAT_REQUEST(0, ReminderId.SAMCHAT_TAB_REQUEST, SamchatRequestListFragment.class, R.string.samchat_maintab_request, R.layout.samchat_request_list),
-    SAMCHAT_PUBLIC(1, ReminderId.SAMCHAT_TAB_PUBLIC, SamchatPublicListFragment.class, R.string.samchat_maintab_public, R.layout.samchat_public_list),
-    SAMCHAT_CHAT(2, ReminderId.SAMCHAT_TAB_CHAT, SamchatChatListFragment.class, R.string.samchat_maintab_chat, R.layout.samchat_chat_list),
-	 SAMCHAT_CONTACT(3, ReminderId.SAMCHAT_TAB_CONTACT, SamchatContactListFragment.class, R.string.samchat_maintab_contacts, R.layout.samchat_contacts_list),
+    SAMCHAT_REQUEST(3, ReminderId.SAMCHAT_TAB_REQUEST, SamchatRequestListFragment.class, R.string.samchat_maintab_request, R.layout.samchat_request_list),
+    SAMCHAT_PUBLIC(2, ReminderId.SAMCHAT_TAB_PUBLIC, SamchatPublicListFragment.class, R.string.samchat_maintab_public, R.layout.samchat_public_list),
+    SAMCHAT_CHAT(0, ReminderId.SAMCHAT_TAB_CHAT, SamchatChatListFragment.class, R.string.samchat_maintab_chat, R.layout.samchat_chat_list),
+	 SAMCHAT_CONTACT(1, ReminderId.SAMCHAT_TAB_CONTACT, SamchatContactListFragment.class, R.string.samchat_maintab_contacts, R.layout.samchat_contacts_list),
     SAMCHAT_SETTING(4, ReminderId.SAMCHAT_TAB_SETTING, SamchatSettingListFragment.class, R.string.samchat_maintab_me, R.layout.samchat_setting_list);
 
 	 //RECENT_CONTACTS(5, ReminderId.SESSION, SessionListFragment.class, R.string.main_tab_session, R.layout.session_list),

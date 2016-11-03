@@ -223,7 +223,7 @@
 
     <string name="samchat_update_password">Update Password</string>
     <string name="samchat_updating">Updating</string>
-    <string name="samchat_old_password">Old password</string>
+    <string name="samchat_current_password">Current password</string>
     <string name="samchat_new_password">New password</string>
 
     <string name="samchat_send_question_too_offten">Send question too offten</string>
@@ -344,7 +344,7 @@
     <string name="samchat_request_sent_desc_2_day">We have not given up yet.We will leave no rocks unturned.</string>
     <string name="samchat_request_sent_3_day">No service providers responded\u2026</string>
     <string name="samchat_request_sent_desc_3_day">Well that was kinda embarrassing.How about try another search instead?</string>
-    <string name="samchat_contact_details">CONTACT DETAILS</string>
+    <string name="samchat_contact_details">Contact Details</string>
     <string name="samchat_work_phone">Work phone</string>
     <string name="samchat_email">Email</string>
     <string name="samchat_address">Address</string>
@@ -529,4 +529,30 @@
 
     <string name="samchat_my_qr_code">My QR Code</string>
     <string name="samchat_qr_scanner">QR Scanner</string>
+    <string name="samchat_sign_out_desc">Are you sure logout?</string>
+    <string name="samchat_about_head">This is header</string>
+    <string name="samchat_about_sub_head">This is sub-header</string>
+    <string name="samchat_about_content">
+        1. By using our website, you accept these terms and conditions in full; accordingly, if you disagree with these terms and conditions,
+        you must not use our website.
+        2. You must be at least 18 years of age to use our website;by using our website or agreeing to these terms and conditions, you warrant and
+        represent to us that you are at least 18 years of age.
+    </string>
+    <string name="samchat_question_1">question 1</string>
+    <string name="samchat_answer_1">By using our website, you accept these terms and conditions in full</string>
+    <string name="samchat_question_2">question 2</string>
+    <string name="samchat_answer_2">By using our website, you accept these terms and conditions in full</string>
+    <string name="samchat_question_3">question 3</string>
+    <string name="samchat_answer_3">You must be at least 18 years of age to use our website</string>
+    <string name="samchat_question_4">question 4</string>
+    <string name="samchat_answer_4">You must be at least 18 years of age to use our website</string>
+
+    <string name="samchat_become_a_sp">Become a Service Provider</string>
+    <string name="samchat_become_a_sp_header">Running a business?Start chatting with your customers today!</string>
+    <string name="samchat_become_a_sp_content">
+        By using our website, you accept these terms and conditions in full; accordingly, if you disagree with these terms and conditions,
+        you must not use our website.You must be at least 18 years of age to use our website;by using our website or agreeing to these terms and conditions, you warrant and
+        represent to us that you are at least 18 years of age.
+    </string>
+
 </resources>

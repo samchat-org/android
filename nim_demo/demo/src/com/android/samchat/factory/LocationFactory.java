@@ -6,6 +6,7 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.content.Context;
+import android.telephony.cdma.CdmaCellLocation;
 import android.telephony.gsm.GsmCellLocation;
 import android.text.TextUtils;
 
@@ -212,27 +213,70 @@ public class LocationFactory {
 		SCell cell = new SCell();
  
 		TelephonyManager mTelNet = (TelephonyManager) DemoCache.getContext().getSystemService(Context.TELEPHONY_SERVICE);
-        if (mTelNet == null){
-            return null;
-        }
-		GsmCellLocation location = (GsmCellLocation) mTelNet.getCellLocation();
-		if (location == null){
+		if (mTelNet == null){
 			return null;
-        }
-		String operator = mTelNet.getNetworkOperator();
-        if(TextUtils.isEmpty(operator)){
-            return null;
-        }
-		int mcc = Integer.parseInt(operator.substring(0, 3));
-		int mnc = Integer.parseInt(operator.substring(3));
-		int cid = location.getCid();
-		int lac = location.getLac();
+		}
+		
+		if(mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_GPRS
+			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_EDGE){
+			cell.radioType = SCell.RADIO_TYPE_GSM;
+		}else if(mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_UMTS
+			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_HSDPA
+			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_HSUPA
+			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_HSPA){
+			cell.radioType = SCell.RADIO_TYPE_WCDMA;
+		}else if(mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_CDMA
+			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_1xRTT
+			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_EVDO_0
+			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_EVDO_A
+			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_EVDO_B
+			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_EHRPD){
+			cell.radioType = SCell.RADIO_TYPE_CDMA;
+		}else if(mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_LTE){
+			cell.radioType = SCell.RADIO_TYPE_LTE;
+		}
+
+		if(mTelNet.getCellLocation() instanceof GsmCellLocation){
+			GsmCellLocation location = (GsmCellLocation) mTelNet.getCellLocation();
+			if (location == null){
+				return null;
+        	}
+			String operator = mTelNet.getNetworkOperator();
+       	 if(TextUtils.isEmpty(operator)){
+            	return null;
+        	}
+			int mcc = Integer.parseInt(operator.substring(0, 3));
+			int mnc = Integer.parseInt(operator.substring(3));
+			int cid = location.getCid();
+			int lac = location.getLac();
  
-		cell.mcc = mcc;
-		cell.mnc = mnc;
-		cell.lac = lac;
-		cell.cid = cid;
+			cell.mcc = mcc;
+			cell.mnc = mnc;
+			cell.lac = lac;
+			cell.cid = cid;
  
-		return cell;
+			return cell;
+		}else{
+			CdmaCellLocation location = (CdmaCellLocation) mTelNet.getCellLocation();
+			if(location == null){
+				return null;
+			}
+			
+			String operator = mTelNet.getNetworkOperator();
+       	 	if(TextUtils.isEmpty(operator)){
+            	return null;
+        	}
+			int mcc = Integer.parseInt(operator.substring(0, 3));
+			int mnc = location.getSystemId();
+			int cid = location.getBaseStationId();
+			int lac = location.getNetworkId();
+			
+			cell.mcc = mcc;
+			cell.mnc = mnc;
+			cell.lac = lac;
+			cell.cid = cid;
+			return cell;
+			
+		}
 	}
 }

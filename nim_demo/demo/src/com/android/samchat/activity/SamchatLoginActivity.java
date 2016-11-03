@@ -296,7 +296,7 @@ public class SamchatLoginActivity extends Activity {
 				if(isPwdShown){
 					hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_shown);
 				}else{
-					hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_filled);
+					hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_filled2);
 				}
 			}else{
 				hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_hint);
@@ -322,7 +322,7 @@ public class SamchatLoginActivity extends Activity {
 			hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_hint);
 			isPwdShown = false;
 			if(password_ready){
-				hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_filled);
+				hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_filled2);
 			}else{
 				hidden_iv.setImageResource(R.drawable.samchat_ic_showpw_hint);
 			}

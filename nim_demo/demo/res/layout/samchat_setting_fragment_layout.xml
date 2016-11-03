@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fillViewport="true"
-        android:scrollbars="none"
-        android:background="@color/samchat_color_main_bg">
+        android:scrollbars="none">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:background="@color/samchat_color_main_bg">
             <RelativeLayout
                 android:id="@+id/avatar_layout"
                 android:layout_width="match_parent"
@@ -25,7 +26,9 @@
                     android:id="@+id/avatar"
                     android:layout_width="@dimen/samchat_avatar_size_in_namecard"
                     android:layout_height="@dimen/samchat_avatar_size_in_namecard"
-                    android:layout_centerInParent="true"/>
+                    android:layout_centerInParent="true"
+                    app:civ_border_color="@color/samchat_color_avatar_border_default"
+                    app:civ_border_width="2dp"/>
             </RelativeLayout>
             <View
                 android:layout_width="match_parent"
@@ -128,7 +131,7 @@
                         android:layout_marginStart="@dimen/body_left_margin"
                         android:layout_gravity="center_vertical"
                         android:contentDescription="@null"
-                        android:src="@drawable/samchat_ic_input_user_hint"/>
+                        android:src="@drawable/samchat_ic_change_password_hint"/>
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
@@ -202,7 +205,7 @@
                         android:layout_marginStart="@dimen/body_left_margin"
                         android:layout_gravity="center_vertical"
                         android:contentDescription="@null"
-                        android:src="@drawable/samchat_ic_input_user_hint"/>
+                        android:src="@drawable/samchat_ic_logout_hint"/>
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
@@ -239,7 +242,7 @@
                         android:layout_marginStart="@dimen/body_left_margin"
                         android:layout_gravity="center_vertical"
                         android:contentDescription="@null"
-                        android:src="@drawable/samchat_ic_input_user_hint"/>
+                        android:src="@drawable/samchat_ic_list_delete_hint"/>
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
@@ -279,7 +282,7 @@
                         android:layout_marginStart="@dimen/body_left_margin"
                         android:layout_gravity="center_vertical"
                         android:contentDescription="@null"
-                        android:src="@drawable/samchat_ic_tab_account_sp_hint"/>
+                        android:src="@drawable/samchat_ic_input_sp_hint"/>
                     <TextView
                         android:id="@+id/create_sp_text"
                         android:layout_width="0dp"
@@ -318,7 +321,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:orientation="horizontal"
-                    android:background="@color/samchat_color_white">
+                    android:background="@drawable/samchat_list_item_selector">
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -326,7 +329,7 @@
                         android:layout_marginStart="@dimen/body_left_margin"
                         android:layout_gravity="center_vertical"
                         android:contentDescription="@null"
-                        android:src="@drawable/samchat_ic_input_user_hint"/>
+                        android:src="@drawable/samchat_ic_list_about_hint"/>
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
@@ -355,7 +358,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:orientation="horizontal"
-                    android:background="@color/samchat_color_white">
+                    android:background="@drawable/samchat_list_item_selector">
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -363,7 +366,7 @@
                         android:layout_marginStart="@dimen/body_left_margin"
                         android:layout_gravity="center_vertical"
                         android:contentDescription="@null"
-                        android:src="@drawable/samchat_ic_input_user_hint"/>
+                        android:src="@drawable/samchat_ic_faq_hint"/>
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
@@ -403,7 +406,7 @@
                         android:layout_marginStart="@dimen/body_left_margin"
                         android:layout_gravity="center_vertical"
                         android:contentDescription="@null"
-                        android:src="@drawable/samchat_ic_tab_account_sp_hint"/>
+                        android:src="@drawable/samchat_ic_input_sp_hint"/>
                     <RelativeLayout
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
@@ -455,15 +458,17 @@
                             android:textColor="@color/samchat_color_ink"
                             android:textSize="@dimen/text_size_16"
                             android:text="@string/samchat_qr_code"/>
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_alignParentBottom="true"
-                            android:layout_alignLeft="@id/my_sqr_lable"
-                            android:layout_alignStart="@id/my_sqr_lable"
-                            android:background="@color/samchat_color_grey"/>
                     </RelativeLayout>
                 </LinearLayout>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/samchat_color_grey"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@color/samchat_color_grey"/>
                 <LinearLayout
                     android:id="@+id/sp_subscription_layout"
                     android:layout_width="match_parent"

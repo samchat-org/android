@@ -36,6 +36,7 @@
 
     <color name="samchat_color_sky">#2EBDEF</color>
     <color name="samchat_color_lake">#2676B6</color>
+    <color name="samchat_color_lake_pressed">#1D4D73</color>
     <color name="samchat_color_ingra">#1D4D73</color>
     <color name="samchat_color_mid_ingra">#8A1D4D73</color>
     <color name="samchat_color_dark_blue">#1B3257</color>
@@ -51,6 +52,9 @@
     <color name="samchat_color_main_bg">#efeff4</color>
     <color name="samchat_color_avatar_border_default">#7FA2AEBC</color>
     <color name="samchat_color_avatar_border_reminder">#67D45F</color>
+
+    <color name="samchat_color_split_line">#FFA2AEBC</color>
+
 
     <color name="contents_text">#ff000000</color>
     <color name="encode_view">#ffffffff</color>

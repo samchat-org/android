@@ -1152,6 +1152,9 @@ public class HttpCommClient {
 
 			if(sqobj.cell != null){
 				JSONObject scell = new JSONObject();
+				if(sqobj.cell.radioType >0){
+					scell.putOpt("radio_type",sqobj.cell.radioType);
+				}
 				scell.putOpt("mcc",sqobj.cell.mcc);
 				scell.putOpt("mnc",sqobj.cell.mnc);
 				scell.putOpt("lac",sqobj.cell.lac);

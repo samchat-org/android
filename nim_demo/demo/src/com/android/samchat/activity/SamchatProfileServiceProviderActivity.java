@@ -77,9 +77,6 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 	private RelativeLayout email_layout;
 	private RelativeLayout address_layout;
 
-	private View countrycode_line;
-	private View phonenumber_line;
-
 	private Uri cropImageUri;
 	private TransferUtility transferUtility;
 
@@ -241,10 +238,8 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		if(!TextUtils.isEmpty(SamService.getInstance().get_current_user().getcountrycode_sp())){
 			countrycode_textview.setVisibility(View.VISIBLE);
 			countrycode_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode_sp());
-			updatePhoneLine(true);
 		}else{
 			countrycode_textview.setVisibility(View.GONE);
-			updatePhoneLine(false);
 		}
 		phonenumber_textview.setText(SamService.getInstance().get_current_user().getphone_sp());
 		company_name_textview.setText(SamService.getInstance().get_current_user().getcompany_name());
@@ -258,12 +253,9 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		if(!TextUtils.isEmpty(SamService.getInstance().get_current_user().getcountrycode_sp())){
 			countrycode_textview.setVisibility(View.VISIBLE);
 			countrycode_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode_sp());
-			updatePhoneLine(true);
 		}else{
 			countrycode_textview.setVisibility(View.GONE);
-			updatePhoneLine(false);
 		}
-		
 		phonenumber_textview.setText(SamService.getInstance().get_current_user().getphone_sp());
 		company_name_textview.setText(SamService.getInstance().get_current_user().getcompany_name());
 		service_category_textview.setText(SamService.getInstance().get_current_user().getservice_category());
@@ -290,9 +282,6 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 		phone_layout = findView(R.id.phone_layout);
 		email_layout = findView(R.id.email_layout);
 		address_layout = findView(R.id.address_layout);
-
-		countrycode_line = findView(R.id.countrycode_line);
-		phonenumber_line = findView(R.id.phonenumber_line);
 
 		setupBackArrowClick();
 		setupCompanyNameClick();
@@ -378,16 +367,6 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 				//launchAvatarActivity();
 			}
 		});
-	}
-
-	private void updatePhoneLine(boolean ccExist){
-		if(ccExist){
-			countrycode_line.setVisibility(View.VISIBLE);
-			phonenumber_line.setVisibility(View.GONE);
-		}else{
-			countrycode_line.setVisibility(View.GONE);
-			phonenumber_line.setVisibility(View.VISIBLE);
-		}
 	}
 
 	private void launchAvatarActivity(){
