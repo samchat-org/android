@@ -133,6 +133,11 @@ public class SamchatCreateSPStepThreeActivity extends UI implements OnKeyListene
 	private void updateDone(){
 		boolean enable = ready_service_description;
 		done_tv.setEnabled(enable);
+		if(enable){
+			done_tv.setBackgroundResource(R.drawable.samchat_button_lake_active);
+		}else{
+			done_tv.setBackgroundResource(R.drawable.samchat_button_lake_inactive);
+		}
 	}
 
 /************************************date flow control************************************/

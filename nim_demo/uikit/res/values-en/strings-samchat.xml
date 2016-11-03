@@ -368,8 +368,7 @@
     <string name="samchat_edit_description">Edit Description</string>
     <string name="samchat_edit_phone_number">Edit Phone Number</string>
     <string name="samchat_create_service_account">Create Service Account</string>
-    <string name="samchat_skip">SKIP</string>
-    <string name="samchat_next3">NEXT</string>
+    <string name="samchat_skip">Skip</string>
     <string name="samchat_service_work_phone">Service work phone no</string>
     <string name="samchat_service_description_hint">Tell us something about your business or service. i.e. your specialization, years of experience, how do you work with your client, etc.</string>
     <string name="samchat_done2">DONE</string>

@@ -36,6 +36,7 @@
 
     <color name="samchat_color_sky">#2EBDEF</color>
     <color name="samchat_color_lake">#2676B6</color>
+    <color name="samchat_color_lake_inactive">#7F2676B6</color>
     <color name="samchat_color_lake_pressed">#1D4D73</color>
     <color name="samchat_color_ingra">#1D4D73</color>
     <color name="samchat_color_mid_ingra">#8A1D4D73</color>

@@ -7,52 +7,52 @@
         android:id="@+id/welcome_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/color_blue_192e51"
+        android:background="@color/samchat_color_dark_blue"
         android:orientation="vertical">
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="56dp"
             android:layout_gravity="center_horizontal"
             android:contentDescription="@null"
-            android:src="@drawable/samchat_sp_get_stared_icon"/>
+            android:src="@drawable/samchat_bg_logo_mono"/>
         <TextView
             android:id="@+id/title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_marginTop="52dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginRight="32dp"
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
-            android:textSize="30sp"
-            android:textColor="@color/color_white_ffffffff"
+            android:textSize="@dimen/text_size_24"
+            android:textColor="@color/samchat_color_white"
             android:text="@string/samchat_welcome_borad_title"/>
         <TextView
             android:id="@+id/desc"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop ="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_marginTop ="24dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginRight="32dp"
             android:layout_gravity="center_horizontal"
             android:gravity="center_horizontal"
-            android:textSize="20sp"
-            android:textColor="@color/color_white_ffffffff"
+            android:textSize="@dimen/text_size_16"
+            android:textColor="@color/samchat_color_white"
             android:text="@string/samchat_welcome_borad_desc"/>
 
         <TextView
             android:id="@+id/start"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:layout_marginTop ="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_marginTop ="24dp"
+            android:layout_marginLeft="32dp"
+            android:layout_marginRight="32dp"
             android:layout_gravity="center_horizontal"
             android:gravity="center"
-            android:background="@color/color_blue_1081ea"
-            android:textSize="20sp"
-            android:textColor="@color/color_white_ffffffff"
+            android:background="@drawable/samchat_text_radius_border_lake_gradient"
+            android:textSize="@dimen/text_size_16"
+            android:textColor="@color/samchat_color_white"
             android:text="@string/samchat_welcome_get_start"/>
 
 

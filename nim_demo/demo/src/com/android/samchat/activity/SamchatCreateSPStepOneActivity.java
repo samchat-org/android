@@ -165,6 +165,11 @@ public class SamchatCreateSPStepOneActivity extends UI implements OnKeyListener 
 	private void updateNext(){
 		boolean enable = ready_service_category & ready_company_name;
 		next_tv.setEnabled(enable);
+		if(enable){
+			next_tv.setBackgroundResource(R.drawable.samchat_button_lake_active);
+		}else{
+			next_tv.setBackgroundResource(R.drawable.samchat_button_lake_inactive);
+		}
 	}
 
 	private void setupNextClick(){
