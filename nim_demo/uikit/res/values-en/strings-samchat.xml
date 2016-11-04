@@ -251,7 +251,7 @@
     <string name="samchat_public_search_hint">Search by keywords,username,phone no</string>
     <string name="samchat_searching">Searching\u2026</string>
 
-    <string name="samchat_chat">Chat Now</string>
+    <string name="samchat_chat_now">Chat Now</string>
     <string name="samchat_follow">Follow</string>
     <string name="samchat_unfollow">UnFollow</string>
 
@@ -562,5 +562,6 @@
     <string name="samchat_submit">Submit</string>
     <string name="samchat_verify_code_desc">Verification code has been sent to your phone:</string>
 
-
+    <string name="samchat_chat">Chat</string>
+    <string name="samchat_copy">Copy</string>
 </resources>

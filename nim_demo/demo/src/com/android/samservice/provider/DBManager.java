@@ -1428,6 +1428,31 @@ public class DBManager
 		return radvs;
 	}
 
+
+	public List<Advertisement> queryRcvdAdvByNewest(String table,int count){
+		List<Advertisement> radvs = new ArrayList<Advertisement>();
+		Advertisement adv = null;
+
+		Cursor c = rcvd_adv_db.query(table,null,null,null,null,null,"publish_timestamp desc",""+count);
+
+		while(c.moveToNext()){
+			adv = new Advertisement();
+			adv.setid(c.getLong(c.getColumnIndex("id")));
+			adv.setadv_id(c.getLong(c.getColumnIndex("adv_id")));
+			adv.settype(c.getInt(c.getColumnIndex("type")));
+			adv.setcontent(c.getString(c.getColumnIndex("content")));
+			adv.setcontent_thumb(c.getString(c.getColumnIndex("content_thumb")));
+			adv.setpublish_timestamp(c.getLong(c.getColumnIndex("publish_timestamp")));
+			adv.setresponse(c.getInt(c.getColumnIndex("response")));
+			adv.setsender_unique_id(c.getLong(c.getColumnIndex("sender_unique_id")));
+			radvs.add(adv);
+		}
+
+		c.close();
+
+		return radvs;
+	}
+
 	public void deleteRcvdAdv(String table, long adv_id){
 		rcvd_adv_db.delete(table, "adv_id=?", new String[]{""+adv_id});	
 	}

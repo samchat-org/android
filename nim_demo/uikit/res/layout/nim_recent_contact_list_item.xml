@@ -100,9 +100,9 @@
             android:ellipsize="end"
             android:lines="1"
             android:scrollHorizontally="true"
-            android:textColor="@color/samchat_color_ink"
+            android:textColor="@color/samchat_color_dark_grey"
             android:autoLink="none"
-            android:textSize="16sp" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tv_date_time"

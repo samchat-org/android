@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.text.ClipboardManager;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,6 +21,7 @@ import com.android.samservice.info.RcvdAdvSession;
 import com.android.samchat.R;
 import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nim.uikit.common.activity.UI;
+import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.ui.ptr.PullToRefreshBase;
 import com.netease.nim.uikit.common.ui.ptr.PullToRefreshListView;
 import com.netease.nim.uikit.common.util.log.LogUtil;
@@ -122,14 +124,70 @@ public class SamchatRcvdAdvertisementActivity extends UI implements OnKeyListene
 		});
 	}
 
+	private void removeItems(Advertisement adv){
+		int index = -1;
+		for(int i = 0; i<items.size();i++){
+			if(items.get(i).getadv_id() == adv.getadv_id()){
+				index = i;
+				break;
+			}
+		}
+		
+		if(index >= 0){
+			items.remove(index);
+		}
+	}
+
+	private void showLongClickMenu(final Advertisement adv) {
+		CustomAlertDialog alertDialog = new CustomAlertDialog(SamchatRcvdAdvertisementActivity.this);
+		String title = getString(R.string.samchat_chat);
+		alertDialog.addItem(title, new CustomAlertDialog.onSeparateItemClickListener() {
+			@Override
+			public void onClick() {
+				onAdvertisementClick(adv);
+			}
+		});
+
+		title = getString(R.string.samchat_delete);
+		alertDialog.addItem(title, new CustomAlertDialog.onSeparateItemClickListener() {
+			@Override
+			public void onClick() {
+				SamDBManager.getInstance().asyncDeleteRcvdAdvMessage(adv);
+				removeItems(adv);
+				refreshAdvertisementList();
+			}
+		});
+
+       if(adv.gettype() == Constants.ADV_TYPE_TEXT){
+			title = getString(R.string.samchat_copy);
+			alertDialog.addItem(title, new CustomAlertDialog.onSeparateItemClickListener() {
+				@Override
+				public void onClick() {
+					ClipboardManager cmb = (ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
+					cmb.setText(adv.getcontent());  
+				}
+			});
+		}
+
+		alertDialog.show();
+    }
+
 	private void setupAdvertisementListView(){
 		items = new ArrayList<>();
 		adapter = new AdvertisementAdapter(SamchatRcvdAdvertisementActivity.this, items);
 		pull_refresh_list.setAdapter(adapter);
-       pull_refresh_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+       	pull_refresh_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Advertisement adv = (Advertisement) parent.getAdapter().getItem(position);
-				onAdvertisementClick(adv);
+				
+			}
+		});
+
+		pull_refresh_list.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				showLongClickMenu((Advertisement) parent.getAdapter().getItem(position));
+				return true;
 			}
 		});
 

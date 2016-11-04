@@ -173,7 +173,7 @@
                 android:layout_marginStart="20dp"
                 android:textColor="@color/samchat_color_ink"
                 android:textSize="@dimen/text_size_16"
-                android:text="@string/samchat_chat"
+                android:text="@string/samchat_chat_now"
                 android:layout_centerVertical="true"
                 android:layout_toRightOf="@+id/chat_img"
                 android:layout_toEndOf="@+id/chat_img" />

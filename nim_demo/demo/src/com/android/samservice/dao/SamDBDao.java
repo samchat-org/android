@@ -646,6 +646,12 @@ public class SamDBDao{
 		}
 	}
 
+	public  List<Advertisement>  query_RcvdAdv_db_Newest(String table, int count){
+		synchronized(dbLock_rcvdadv){
+			return dbHandle.queryRcvdAdvByNewest(table,count);
+		}
+	}
+
 	public  Advertisement  query_RcvdAdv_db_by_advid(String table,long adv_id){
 		synchronized(dbLock_rcvdadv){
 			return dbHandle.queryRcvdAdv( table,  adv_id);

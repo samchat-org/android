@@ -268,6 +268,22 @@ public class SamDBManager{
 		session.setunread(session.getunread()+1);
 	}
 
+	private void updateSessionByDeleteRcvdAdv(RcvdAdvSession session, Advertisement adv){
+		if(adv == null){ //all received adv delete
+			session.setrecent_adv_id(0);
+			session.setrecent_adv_type(Constants.ADV_TYPE_TEXT);
+			session.setrecent_adv_content(null);
+			session.setrecent_adv_publish_timestamp(0);
+			session.setrecent_adv_content_thumb(null);
+		}else{
+			session.setrecent_adv_id(adv.getadv_id());
+			session.setrecent_adv_type(adv.gettype());
+			session.setrecent_adv_content(adv.getcontent());
+			session.setrecent_adv_publish_timestamp(adv.getpublish_timestamp());
+			session.setrecent_adv_content_thumb(adv.getcontent_thumb());
+		}
+	}
+
 
 	private RcvdAdvSession storeRcvdAdvertisement(Advertisement adv){
 		RcvdAdvSession session = SamService.getInstance().getDao().query_RcvdAdvSession_db(adv.getsender_unique_id());
@@ -1069,6 +1085,33 @@ public class SamDBManager{
 							LogUtil.e(TAG,"saveMessageToLocal exception:"+exception);
 						}
         			});
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+			}
+		});	
+	}
+
+	public void asyncDeleteRcvdAdvMessage(final Advertisement adv){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				try{
+					RcvdAdvSession rvdsession = SamService.getInstance().getDao().query_RcvdAdvSession_db(adv.getsender_unique_id());
+					if(rvdsession == null){
+						return;
+					}
+					SamService.getInstance().getDao().delete_RcvdAdv_db(rvdsession.getname(), adv.getadv_id());
+					List<Advertisement> radvs = SamService.getInstance().getDao().query_RcvdAdv_db_Newest(rvdsession.getname(),1);
+					
+					if(radvs == null || radvs.size() <= 0){
+						updateSessionByDeleteRcvdAdv(rvdsession, null);
+					}else{
+						Advertisement fadv = radvs.get(0);
+						updateSessionByDeleteRcvdAdv(rvdsession,fadv);
+					}
+					SamService.getInstance().getDao().update_RcvdAdvSession_db(rvdsession);
+					callRcvdAdvSessionObserversObserverCallback(rvdsession);
 				}catch(Exception e){
 					e.printStackTrace();
 				}

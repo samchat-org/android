@@ -62,7 +62,6 @@
                     android:includeFontPadding="false"
                     android:textColor="@color/samchat_color_ink"
                     android:textSize="16sp"
-                    android:textStyle="bold"
                     android:maxLines="1" />
                 <TextView
                     android:id="@+id/service_category"
@@ -75,7 +74,7 @@
                     android:includeFontPadding="false"
                     android:maxLines="1"
                     android:textColor="@color/samchat_color_ink"
-                    android:textSize="16sp" />
+                    android:textSize="14sp" />
                 <TextView
                     android:id="@+id/adv_time"
                     android:layout_width="wrap_content"
@@ -89,9 +88,11 @@
                 android:id="@+id/adv_content"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
                 android:scrollHorizontally="true"
-                android:textColor="@color/samchat_color_ink"
+                android:textSize="@dimen/text_size_14"
+                android:textColor="@color/samchat_color_dark_grey"
                 android:maxLines="2"/>
         </LinearLayout>
     </RelativeLayout>
