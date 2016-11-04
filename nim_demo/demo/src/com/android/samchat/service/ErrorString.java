@@ -52,6 +52,9 @@ public class ErrorString{
 			case Constants.RET_VERIFY_CODE_EXPIRATION:
 				reminder = activity.getString(R.string.samchat_verify_code_expiration_error);
 				break;
+			case Constants.RET_SAME_CELLPHONE_ERROR:
+				reminder = activity.getString(R.string.samchat_same_cellphone_error);
+				break;
 			case Constants.RET_TOKEN_ILLEAGE_ERROR:
 				reminder = activity.getString(R.string.samchat_token_error);
 				break;

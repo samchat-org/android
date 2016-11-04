@@ -312,7 +312,7 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		phone_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				SamchatProfileEditActivity.start(SamchatProfileCustomerActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_CUSTOMER_PHONE, 
+				SamchatPhoneEditActivity.start(SamchatProfileCustomerActivity.this, 
 					SamService.getInstance().get_current_user().getcountrycode(),
 					SamService.getInstance().get_current_user().getcellphone());
 			}

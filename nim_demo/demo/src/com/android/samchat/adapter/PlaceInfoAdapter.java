@@ -23,11 +23,13 @@ public class PlaceInfoAdapter extends BaseAdapter{
 	private Context mContext;
 	private LayoutInflater mInflater;
 	private List<PlacesInfo> items;
+	private boolean enableCurrentLocation;
 
-	public PlaceInfoAdapter(Context context,List<PlacesInfo> list){
+	public PlaceInfoAdapter(Context context,List<PlacesInfo> list, boolean enable){
 		mContext = context;
 		mInflater = LayoutInflater.from(mContext);
 		items = list;
+		enableCurrentLocation = enable;
 	}
 	
 	@Override
@@ -62,7 +64,7 @@ public class PlaceInfoAdapter extends BaseAdapter{
 		switch(viewType){
 		case TYPE_PLACE:
 			holder.content.setText(items.get(position).description);
-			if(position == 0 ){
+			if(position == 0 && enableCurrentLocation){
 				holder.content.setTextColor(mContext.getResources().getColor(R.color.color_black_1d4d73));
 				holder.content.setTypeface(null, Typeface.BOLD);
 			}else{

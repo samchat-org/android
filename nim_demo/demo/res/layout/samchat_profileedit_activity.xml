@@ -39,8 +39,6 @@
             android:layout_height="match_parent"
             android:layout_toRightOf="@+id/back_arrow_layout"
             android:layout_toEndOf="@+id/back_arrow_layout"
-            android:layout_marginRight="@dimen/title_right_margin"
-            android:layout_marginEnd="@dimen/title_right_margin"
             android:layout_centerVertical="true"
             android:orientation="horizontal">
             <TextView
@@ -55,10 +53,30 @@
                 android:text="@string/samchat_edit_profile"
                 android:textSize="20sp"
                 android:textColor="@color/samchat_color_customer_titlbar_title"/>
+            <FrameLayout
+                android:id="@+id/sp_save_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/sp_save"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/body_left_margin"
+                    android:layout_marginStart="@dimen/body_left_margin"
+                    android:layout_marginRight="@dimen/body_right_margin"
+                    android:layout_marginEnd="@dimen/body_right_margin"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center"
+                    android:text="@string/samchat_save"
+                    android:textColor="@color/samchat_color_white"
+                    android:textSize="16sp"/>
+            </FrameLayout>
             <TextView
-                android:id="@+id/save"
+                android:id="@+id/customer_save"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/body_right_margin"
+                android:layout_marginEnd="@dimen/body_right_margin"
                 android:layout_gravity="center_vertical"
                 android:gravity="center"
                 android:text="@string/samchat_save"
@@ -69,8 +87,13 @@
                 android:textColor="@color/samchat_color_white"
                 android:background="@drawable/samchat_button_green_inactive"
                 android:textSize="16sp"/>
+
         </LinearLayout>
     </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/samchat_color_split_line"/>
     <RelativeLayout
         android:id="@+id/edit_layout_single"
         android:layout_width="match_parent"
@@ -89,6 +112,8 @@
                 android:id="@+id/countrycode"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:maxLines="1"
+                android:maxLength="4"
                 android:textColor="@color/samchat_color_ink"
                 android:textSize="16sp"
                 android:gravity="start|center_vertical"/>
@@ -134,35 +159,30 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:background="@null"
+                android:background="@drawable/samchat_qr_code_shadow"
                 android:layout_gravity="center_vertical"
                 android:gravity="top|start"
                 android:inputType="textMultiLine"
                 android:maxLines="8"
+                android:minLines="8"
+                android:textCursorDrawable="@null"
                 android:textSize="16sp"
                 android:padding="5dp"
                 android:paddingLeft="15dp"
                 android:paddingRight="15dp"
-                android:textColor="@color/samchat_color_ink"/>
-            <ImageView
-                android:id="@+id/multi_delete_img"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/nim_grey_delete_icon"
-                android:contentDescription="@null"
-                android:layout_gravity="bottom"
-                android:layout_marginBottom="4dp"/>
+                android:textColor="@color/samchat_color_ink" />
         </LinearLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginLeft="@dimen/body_left_margin"
-            android:layout_marginStart="@dimen/body_left_margin"
-            android:layout_marginRight="@dimen/body_right_margin"
-            android:layout_marginEnd="@dimen/body_right_margin"
-            android:layout_below="@+id/multi_edit_layout"
-            android:background="@color/color_black_1d4d73"/>
     </RelativeLayout>
+    <ListView
+        android:id="@+id/address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:scrollbars="none"
+        android:cacheColorHint="#00000000"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dip">
+    </ListView>
 
 
 </LinearLayout>

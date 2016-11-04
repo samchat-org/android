@@ -123,8 +123,10 @@ public class SamService{
 	public static final int MSG_BIND_ALIAS = MSG_DOWNLOAD + 1;
 	public static final int MSG_SEND_CLIENTID = MSG_BIND_ALIAS + 1;
 	public static final int MSG_QUERY_STATE = MSG_SEND_CLIENTID + 1;
+	public static final int MSG_EDITCELLPHONE_CODE_REQUEST = MSG_QUERY_STATE + 1;
+	public static final int MSG_EDITCELLPHONE_UPDATE = MSG_EDITCELLPHONE_CODE_REQUEST + 1;
 	
-	public static final int MSG_SYNC_START = MSG_QUERY_STATE + 1;
+	public static final int MSG_SYNC_START = MSG_EDITCELLPHONE_UPDATE + 1;
 	public static final int MSG_SYNC_CHECK = MSG_SYNC_START + 1;
 	public static final int MSG_NETWORK_AVAILABLE = MSG_SYNC_CHECK + 1;
 	public static final int MSG_CLIENTID_READY = MSG_NETWORK_AVAILABLE + 1;
@@ -1177,10 +1179,6 @@ public class SamService{
 			return;
 		}else if(http_ret){
 			if(hcc.ret == 0){
-				if(hcc.userinfo.getcountrycode() == null && hcc.userinfo.getcellphone() == null){
-					hcc.userinfo.setcountrycode(get_current_user().getcountrycode());
-					hcc.userinfo.setcellphone(get_current_user().getcellphone());
-				}
 				set_current_user(hcc.userinfo);
 				SamchatUserInfoCache.getInstance().addUser(hcc.userinfo.getunique_id(), hcc.userinfo);
 				if(dao.update_ContactUser_db(hcc.userinfo) == -1){
@@ -1778,6 +1776,72 @@ public class SamService{
 		}else if(http_ret){
 			if(hcc.ret == 0){
 				samobj.callback.onSuccess(hcc,0);
+			}else{
+				samobj.callback.onFailed(hcc.ret);
+			}
+		}else if(!hcc.exception){
+				samobj.callback.onError(Constants.CONNECTION_HTTP_ERROR);
+		}else{
+			samobj.callback.onError(Constants.EXCEPTION_ERROR);
+		}
+		
+    }
+
+/********************************************** Edit Cellphone code request  ********************************************************/
+	public void edit_cellphone_code_request(String countrycode,String cellphone,SMCallBack callback){
+		EditCellphoneVerifyCodeCoreObj samobj = new EditCellphoneVerifyCodeCoreObj(callback);
+		samobj.init(get_current_token(),countrycode,cellphone);
+		Message msg = mSamServiceHandler.obtainMessage(MSG_EDITCELLPHONE_CODE_REQUEST, samobj);
+		mSamServiceHandler.sendMessage(msg);
+		startTimeOut(samobj);
+	}
+
+	private void do_edit_cellphone_code_request(SamCoreObj samobj){
+		EditCellphoneVerifyCodeCoreObj vcobj = (EditCellphoneVerifyCodeCoreObj)samobj;
+		HttpCommClient hcc = new HttpCommClient();
+
+		boolean http_ret = hcc.edit_cellphone_code_request(vcobj);
+		if(isTimeOut(samobj)){
+			return;
+		}else if(http_ret){
+			if(hcc.ret == 0){
+				samobj.callback.onSuccess(hcc,0);
+			}else{
+				samobj.callback.onFailed(hcc.ret);
+			}
+		}else if(!hcc.exception){
+				samobj.callback.onError(Constants.CONNECTION_HTTP_ERROR);
+		}else{
+			samobj.callback.onError(Constants.EXCEPTION_ERROR);
+		}
+		
+    }
+
+/********************************************** Edit Cellphone update  ********************************************************/
+	public void edit_cellphone(ContactUser user,String verifycode,SMCallBack callback){
+		EditCellphoneCoreObj samobj = new EditCellphoneCoreObj(callback);
+		samobj.init(get_current_token(),user,verifycode);
+		Message msg = mSamServiceHandler.obtainMessage(MSG_EDITCELLPHONE_UPDATE, samobj);
+		mSamServiceHandler.sendMessage(msg);
+		startTimeOut(samobj);
+	}
+
+	private void do_edit_cellphone(SamCoreObj samobj){
+		EditCellphoneCoreObj ecobj = (EditCellphoneCoreObj)samobj;
+		HttpCommClient hcc = new HttpCommClient();
+
+		boolean http_ret = hcc.edit_cellphone(ecobj);
+		if(isTimeOut(samobj)){
+			return;
+		}else if(http_ret){
+			if(hcc.ret == 0){
+				set_current_user(hcc.userinfo);
+				SamchatUserInfoCache.getInstance().addUser(hcc.userinfo.getunique_id(), hcc.userinfo);
+				if(dao.update_ContactUser_db(hcc.userinfo) == -1){
+					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
+				}else{
+					samobj.callback.onSuccess(hcc,0);
+				}
 			}else{
 				samobj.callback.onFailed(hcc.ret);
 			}
@@ -2799,6 +2863,26 @@ public class SamService{
 						}
 					});
 					break;
+
+				case MSG_EDITCELLPHONE_CODE_REQUEST:
+					mFixedHttpThreadPool.execute(new Runnable(){
+						@Override
+						public void run(){
+							do_edit_cellphone_code_request(msgObj);
+						}
+					});
+					break;
+
+				case MSG_EDITCELLPHONE_UPDATE:
+					mFixedHttpThreadPool.execute(new Runnable(){
+						@Override
+						public void run(){
+							do_edit_cellphone(msgObj);
+						}
+					});
+					break;
+
+					
 					
 					
 			}

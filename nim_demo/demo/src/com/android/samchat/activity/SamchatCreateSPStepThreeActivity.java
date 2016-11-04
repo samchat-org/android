@@ -155,10 +155,11 @@ public class SamchatCreateSPStepThreeActivity extends UI implements OnKeyListene
 						@Override
 						public void run() {
 							DialogMaker.dismissProgressDialog();
-                            SamchatCreateSPStepFourActivity.start(SamchatCreateSPStepThreeActivity.this);
+							SamchatCreateSPStepFourActivity.start(SamchatCreateSPStepThreeActivity.this);
 							Intent intent = new Intent();
                 			intent.setAction(Constants.BROADCAST_CREATE_SP_SUCCESS);
                 			sendbroadcast(intent);
+							finish();
 						}
 					}, 0);
 				}

@@ -74,6 +74,8 @@ public class HttpCommClient {
 	public static final String URL_sendClientId=ROOT_URL+"api_1.0_profile_sendClientId.do";
 	public static final String URL_getPlacesInfoRequest=ROOT_URL+"api_1.0_profile_getPlacesInfoRequest.do";
 	public static final String URL_queryStateDate=ROOT_URL+"api_1.0_profile_queryStateDate.do";
+	public static final String URL_editCellphoneCodeRequest=ROOT_URL+"api_1.0_profile_editCellPhoneCodeRequest.do";
+	public static final String URL_editCellphoneUpdate=ROOT_URL+"api_1.0_profile_editCellPhoneUpdate.do";
 	
 	public static final int CONNECTION_TIMEOUT = 10000;
 	public static final int HTTP_TIMEOUT = 20000;
@@ -1902,12 +1904,13 @@ public class HttpCommClient {
 			header.putOpt("token", epobj.token);
 
 			JSONObject user = new JSONObject();
-			if(epobj.user.getcountrycode()!=null){
+			/*if(epobj.user.getcountrycode()!=null){
 				user.putOpt("countrycode",epobj.user.getcountrycode());
 			}
 			if(epobj.user.getcellphone()!=null){
 				user.putOpt("cellphone",epobj.user.getcellphone());
-			}
+			}*/
+			
 			if(epobj.user.getemail()!=null){
 				user.putOpt("email",epobj.user.getemail());
 			}
@@ -2742,6 +2745,135 @@ public class HttpCommClient {
 		}
 		
 	}
+
+	private JSONObject constructEditCellphoneCodeRequestJson(EditCellphoneVerifyCodeCoreObj  vcobj) throws JSONException{
+			JSONObject header = new JSONObject();
+			header.putOpt("action", "editCellPhone-code-request");
+			header.putOpt("token", vcobj.token);
+			
+			JSONObject body = new JSONObject();
+			body.putOpt("countrycode",vcobj.countrycode);
+			body.putOpt("cellphone",vcobj.cellphone);
+			
+			JSONObject data = new JSONObject();
+			data.put("header", header);
+			data.put("body", body);
+
+			return data;
+	}
+
+	public boolean edit_cellphone_code_request(EditCellphoneVerifyCodeCoreObj vcobj){
+		try{
+			JSONObject  data = constructEditCellphoneCodeRequestJson(vcobj);
+
+			HttpResponse response = httpCmdStart(URL_editCellphoneCodeRequest,data);
+			
+			statusCode = response.getStatusLine().getStatusCode();
+			
+			if(isHttpOK()){
+				String rev = EntityUtils.toString(response.getEntity());
+				SamLog.i(TAG,"rev:" + rev);
+				
+				JSONObject obj = new JSONObject(rev); 
+				ret = obj.getInt("ret");
+				
+				return true;
+			}else{
+				SamLog.i(TAG,"edit cellphone code request http status code:"+statusCode);
+				return false;
+			}
+		
+		}catch (JSONException e) {  
+			exception = true;
+			e.printStackTrace();
+			SamLog.e(TAG,"edit cellphone code request:JSONException");
+			return false;
+		} catch (ClientProtocolException e) {
+			exception = true;
+			SamLog.e(TAG,"edit cellphone code request:ClientProtocolException");
+			e.printStackTrace(); 
+			return false;
+		} catch (IOException e) { 
+			exception = true;
+			SamLog.e(TAG,"edit cellphone code request:IOException");
+			e.printStackTrace(); 
+			return false;
+		} catch (Exception e) { 
+			exception = true;
+			SamLog.e(TAG,"edit cellphone code request:Exception");
+			e.printStackTrace(); 
+			return false;
+		}
+		
+	}
+
+	private JSONObject constructEditCellphoneJson(EditCellphoneCoreObj  ecobj) throws JSONException{
+			JSONObject header = new JSONObject();
+			header.putOpt("action", "editCellPhone-update");
+			header.putOpt("token", ecobj.token);
+			
+			JSONObject body = new JSONObject();
+			body.putOpt("countrycode",ecobj.user.getcountrycode());
+			body.putOpt("cellphone",ecobj.user.getcellphone());
+			body.putOpt("verifycode",ecobj.verifycode);
+			
+			JSONObject data = new JSONObject();
+			data.put("header", header);
+			data.put("body", body);
+
+			return data;
+	}
+
+	public boolean edit_cellphone(EditCellphoneCoreObj ecobj){
+		try{
+			JSONObject  data = constructEditCellphoneJson(ecobj);
+
+			HttpResponse response = httpCmdStart(URL_editCellphoneUpdate,data);
+			
+			statusCode = response.getStatusLine().getStatusCode();
+			
+			if(isHttpOK()){
+				String rev = EntityUtils.toString(response.getEntity());
+				SamLog.i(TAG,"rev:" + rev);
+				
+				JSONObject obj = new JSONObject(rev); 
+				ret = obj.getInt("ret");
+				if(isRetOK()){
+					userinfo = ecobj.user;
+					JSONObject user = obj.getJSONObject("user");
+					userinfo.setlastupdate(user.getLong("lastupdate"));
+				}
+				
+				return true;
+			}else{
+				SamLog.i(TAG,"edit cellphone http status code:"+statusCode);
+				return false;
+			}
+		
+		}catch (JSONException e) {  
+			exception = true;
+			e.printStackTrace();
+			SamLog.e(TAG,"edit cellphone:JSONException");
+			return false;
+		} catch (ClientProtocolException e) {
+			exception = true;
+			SamLog.e(TAG,"edit cellphone:ClientProtocolException");
+			e.printStackTrace(); 
+			return false;
+		} catch (IOException e) { 
+			exception = true;
+			SamLog.e(TAG,"edit cellphone:IOException");
+			e.printStackTrace(); 
+			return false;
+		} catch (Exception e) { 
+			exception = true;
+			SamLog.e(TAG,"edit cellphone:Exception");
+			e.printStackTrace(); 
+			return false;
+		}
+	}
+
+	
 
 	private boolean readStream(InputStream inStream, String path) throws Exception{    	  
 		byte[] buffer = new byte[1024]; 

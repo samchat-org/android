@@ -193,6 +193,7 @@
     <string name="samchat_not_follow_error">You have not followed this Service Provider</string>
     <string name="samchat_not_add_contact_error">You have not add this user into your contact</string>
     <string name="samchat_your_not_sp_error">You are not service provider , do you want to upgrade service provider?</string>
+    <string name="samchat_same_cellphone_error">The cellphone is same to the one you registered</string>
 
     <string name="samchat_verifying">Verifying</string>
 
@@ -553,5 +554,13 @@
         you must not use our website.You must be at least 18 years of age to use our website;by using our website or agreeing to these terms and conditions, you warrant and
         represent to us that you are at least 18 years of age.
     </string>
+
+    <string name="samchat_name">Name</string>
+    <string name="samchat_change_phone">Change Phone</string>
+    <string name="samchat_change_phone_desc">A confirmation code will be sent to the phone number you entered via SMS</string>
+    <string name="samchat_change_phone_succeed">Register cellphone has been update succeed</string>
+    <string name="samchat_submit">Submit</string>
+    <string name="samchat_verify_code_desc">Verification code has been sent to your phone:</string>
+
 
 </resources>

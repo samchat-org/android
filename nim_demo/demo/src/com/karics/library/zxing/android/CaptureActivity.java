@@ -35,6 +35,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -75,7 +76,7 @@ public final class CaptureActivity extends Activity implements
     private TextView titlebar_right_text;
     private FrameLayout titlebar_right_layout;
     private RelativeLayout scanner_layout;
-    private RelativeLayout myqrcode_layout;
+    private ScrollView myqrcode_layout;
     private HeadImageView avatar_hv;
     private TextView username_tv;
     private ImageView qr_code_iv;
@@ -87,10 +88,6 @@ public final class CaptureActivity extends Activity implements
 
     //public static OnMyQRCodeListner callback;
     private Bitmap qrcode;
-
-    public interface OnMyQRCodeListner {
-		public void OnMyQRCodeClick();
-	}
 		
     private void setTitlebarCustomerMode(){
         titlebar_layout.setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
@@ -205,7 +202,7 @@ public final class CaptureActivity extends Activity implements
         titlebar_name = (TextView) findViewById(R.id.titlebar_name);
         titlebar_right_text = (TextView) findViewById(R.id.titlebar_right_text);
         scanner_layout = (RelativeLayout) findViewById(R.id.scanner_layout);
-        myqrcode_layout = (RelativeLayout) findViewById(R.id.myqrcode_layout);
+        myqrcode_layout = (ScrollView) findViewById(R.id.myqrcode_layout);
         titlebar_right_layout = (FrameLayout) findViewById(R.id.titlebar_right_layout);
         avatar_hv = (HeadImageView) findViewById(R.id.avatar);
         username_tv = (TextView) findViewById(R.id.username);

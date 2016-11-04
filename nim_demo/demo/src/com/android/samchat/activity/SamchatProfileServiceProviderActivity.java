@@ -308,7 +308,6 @@ public class SamchatProfileServiceProviderActivity extends UI implements OnKeyLi
 			@Override
 			public void onClick(View arg0) {
 				SamchatProfileEditActivity.start(SamchatProfileServiceProviderActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_SP_PHONE, 
-					SamService.getInstance().get_current_user().getcountrycode_sp(),
 					SamService.getInstance().get_current_user().getphone_sp());
 			}
 		});

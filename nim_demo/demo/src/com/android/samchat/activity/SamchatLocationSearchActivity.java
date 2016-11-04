@@ -1,6 +1,7 @@
 package com.android.samchat.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -49,15 +50,16 @@ public class SamchatLocationSearchActivity extends Activity {
 
 	private boolean ready_send = false;
 	
-	public static void startActivityForResult(Activity activity,int requestCode) {
+	public static void startActivityForResult(Activity activity, int requestCode) {
 		Intent intent = new Intent(activity, SamchatLocationSearchActivity.class);
-        activity.startActivityForResult(intent, requestCode);
+		activity.startActivityForResult(intent, requestCode);
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.samchat_location_search_activity);
+		onParseIntent();
 		setupPanel();
 		initAddressList();
 		handler = new LocationHandler();
@@ -67,6 +69,10 @@ public class SamchatLocationSearchActivity extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 		handler.removeCallbacksAndMessages(null);
+	}
+
+	private void onParseIntent() {
+		
 	}
 
 	private void setupPanel() {
@@ -83,7 +89,7 @@ public class SamchatLocationSearchActivity extends Activity {
 	private void initAddressList(){
 		addresses = new ArrayList<>();
 		addresses.add(new PlacesInfo(getString(R.string.samchat_current_location),null));
-		addressAdapter = new PlaceInfoAdapter(SamchatLocationSearchActivity.this,addresses);
+		addressAdapter = new PlaceInfoAdapter(SamchatLocationSearchActivity.this,addresses,true);
 		address_listview.setAdapter(addressAdapter);
 		address_listview.setItemsCanFocus(true);
 		address_listview.setOnItemClickListener(new AdapterView.OnItemClickListener(){

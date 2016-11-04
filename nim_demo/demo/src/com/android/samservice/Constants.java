@@ -93,6 +93,7 @@ public class Constants{
 	public static final String BROADCAST_CUSTOMERLIST_UPDATE = "com.android.samchat.customerlistupdate";
 	public static final String BROADCAST_MYSELF_AVATAR_UPDATE = "com.android.samchat.myselfavatarupdate";
 	public static final String BROADCAST_POST_ADV = "com.android.samchat.postadv";
+	public static final String BROADCAST_CHANGE_PHONE_ALREADY = "com.android.samchat.changephonealready";
 
 	/****************************Message From***********************************************/
 	public static final String MSG_FROM = "msg_from";
@@ -159,6 +160,7 @@ public class Constants{
 	public static final int RET_HAVE_NOT_ADD_CONTACT_ERROR = -508;
 	public static final int RET_SEND_QUESTION_TOO_OFFTEN = -509;
 	public static final int RET_NOT_SERVICE_PROVIDER_ERROR = -510;
+	public static final int RET_SAME_CELLPHONE_ERROR = -512;
 
 	/****************************Longitude/Latitude null value***********************************************/
 	public static final double CONSTANTS_LONGITUDE_LATITUDE_NULL = -400;
