@@ -564,4 +564,5 @@
 
     <string name="samchat_chat">Chat</string>
     <string name="samchat_copy">Copy</string>
+    <string name="samchat_no_more">no more \u2026</string>
 </resources>

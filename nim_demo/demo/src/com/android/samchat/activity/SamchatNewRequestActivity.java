@@ -193,10 +193,10 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 	private void updateSend(){
 		if(ready_send){
 			send_textview.setEnabled(true);
-			send_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green);
+			send_textview.setBackgroundResource(R.drawable.samchat_button_green_active);
 		}else{
 			send_textview.setEnabled(false);
-			send_textview.setBackgroundResource(R.drawable.samchat_text_radius_border_green_inactive);
+			send_textview.setBackgroundResource(R.drawable.samchat_button_green_inactive);
 		}
 	}
 

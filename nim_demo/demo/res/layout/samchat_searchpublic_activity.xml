@@ -1,44 +1,44 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:id="@+id/welcome_container"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:background="@color/color_white_f8f9f9">
+    xmlns:ptr="http://schemas.android.com/tools"
+    android:id="@+id/welcome_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/samchat_color_main_bg">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/color_white_f8f9f9">
+        android:background="@color/samchat_color_customer_titlebar_bg">
         <FrameLayout
             android:id="@+id/back_arrow_layout"
             android:layout_width="wrap_content"
             android:layout_height="?attr/actionBarSize"
-            android:layout_marginLeft="@dimen/body_left_margin"
-            android:layout_marginStart="@dimen/body_left_margin">
+            android:background="@drawable/samchat_action_bar_button_selector_customer">
             <ImageView
                 android:id="@+id/back_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="@dimen/body_left_margin"
+                android:layout_marginStart="@dimen/body_left_margin"
+                android:layout_marginRight="@dimen/body_right_margin"
+                android:layout_marginEnd="@dimen/body_right_margin"
                 android:src="@drawable/samchat_arrow_left"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:contentDescription="@null"/>
         </FrameLayout>
         <EditText
             android:id="@+id/key"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             android:background="@null"
-            android:singleLine="true"
+            android:maxLines="1"
             android:hint="@string/samchat_search_public"
-            android:textColorHint="@color/color_grey_999999"
+            android:textColorHint="@color/samchat_color_grey"
             android:textSize="16sp"
             android:textColor="@color/black"
             android:textCursorDrawable="@null"/>
@@ -47,6 +47,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/title_left_margin"
+            android:layout_marginStart="@dimen/title_left_margin"
             android:layout_marginRight="@dimen/body_right_margin"
             android:layout_marginEnd="@dimen/body_right_margin"
             android:gravity="center"
@@ -55,28 +57,31 @@
             android:paddingRight="10dp"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
-            android:textColor="@color/white"
-            android:background="@drawable/samchat_text_radius_border_green_inactive"
+            android:textColor="@color/samchat_color_white"
+            android:background="@drawable/samchat_button_green_inactive"
             android:textSize="16sp"/>
     </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_marginLeft="@dimen/body_left_margin"
-        android:layout_marginStart="@dimen/body_left_margin"
-        android:layout_marginRight="@dimen/body_right_margin"
-        android:layout_marginEnd="@dimen/body_right_margin"
-        android:background="@color/color_grey_d8d2e2"/>
-    <ListView
-        android:id="@+id/searchResultList"
-        android:layout_marginLeft="@dimen/body_left_margin"
-        android:layout_marginStart="@dimen/body_left_margin"
-        android:layout_marginRight="@dimen/body_right_margin"
-        android:layout_marginEnd="@dimen/body_right_margin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="none">
-    </ListView>
+        android:background="@color/samchat_color_split_line"/>
 
+    <com.netease.nim.uikit.common.ui.ptr.PullToRefreshListView
+        android:id="@+id/searchResultList"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginBottom="20dp"
+        android:cacheColorHint="#00000000"
+        android:divider="@null"
+        android:fadingEdge="none"
+        android:fastScrollEnabled="false"
+        android:footerDividersEnabled="false"
+        android:headerDividersEnabled="false"
+        android:smoothScrollbar="true"
+        ptr:ptrListViewExtrasEnabled="false"
+        ptr:ptrAnimationStyle="flip"
+        ptr:ptrMode="both"
+        ptr:ptrScrollingWhileRefreshingEnabled="true">
+    </com.netease.nim.uikit.common.ui.ptr.PullToRefreshListView>
 </LinearLayout>

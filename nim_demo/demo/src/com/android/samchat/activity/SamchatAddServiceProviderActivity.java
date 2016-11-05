@@ -42,6 +42,8 @@ import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
+import com.netease.nim.uikit.common.ui.ptr.PullToRefreshBase;
+import com.netease.nim.uikit.common.ui.ptr.PullToRefreshListView;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.contact.core.query.TextComparator;
 import com.netease.nim.uikit.model.ToolBarOptions;
@@ -73,9 +75,10 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 	private FrameLayout scan_layout;
 	private EditText key_edittext;
 	private ListView phone_contacts_listview;
-	private ListView search_result_listview;
+	private PullToRefreshListView search_result_listview;
 
 	private String key;
+	private String searchKey;
 	private List<PhoneContact> contacts;
 	private PhoneContactsAdapter adapter;
 
@@ -168,6 +171,9 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 		setupScanClick();
 		setupPhoneContactsListView();
 		setupSearchResultListView();
+
+		phone_contacts_listview.setVisibility(View.VISIBLE);
+		search_result_listview.setVisibility(View.GONE);
 	}
 	
 	private void setupBackArrowClick(){
@@ -210,7 +216,12 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 					if (imm.isActive()) {  
 						imm.hideSoftInputFromWindow(v.getApplicationWindowToken(), 0);  
 					}
-					query_user_by_key();
+					if(isSending || isSearching || TextUtils.isEmpty(key)){
+						return true;
+					}
+					searchKey = key;
+					isSearching = true;
+					search_public();
 					return true;  
 				}  
 				return false;  
@@ -586,11 +597,29 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 		contactUserAdapter = new ContactUserAdapter(SamchatAddServiceProviderActivity.this, search_result);
        contactUserAdapter.setFollowVisible(false);
 		search_result_listview.setAdapter(contactUserAdapter);
-       search_result_listview.setItemsCanFocus(true);
        search_result_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				ContactUser user = (ContactUser) parent.getAdapter().getItem(position);
 				SamchatContactUserSPNameCardActivity.start(SamchatAddServiceProviderActivity.this, user);
+			}
+		});
+
+		search_result_listview.setMode(PullToRefreshBase.Mode.DISABLED);
+		search_result_listview.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>(){
+			@Override
+			public void onPullDownToRefresh(PullToRefreshBase<ListView> refreshView){
+
+			}
+
+			@Override
+			public void onPullUpToRefresh(PullToRefreshBase<ListView> refreshView){
+				LogUtil.i(TAG,"loading more result by pull up");
+				if(!isSearching && !isSending){
+					isSearching = true;
+					searchPublicByPullUp();
+				}else if(!isSearching){
+					search_result_listview.onRefreshComplete();
+				}
 			}
 		});
 	}
@@ -600,7 +629,7 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 	}
 
 	private void refreshContactUserList(){
-		sortContactUser(search_result);
+		//sortContactUser(search_result);
 		notifyDataContactUser();
 	}
 
@@ -628,18 +657,14 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 		refreshContactUserList();
 	}
 		
-	private void query_user_by_key(){
-		if(isSending || isSearching || TextUtils.isEmpty(key)){
-			return;
-		}
-		isSearching = true;
+	private void search_public(){
 		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_processing), false, new DialogInterface.OnCancelListener() {
 			@Override
 			public void onCancel(DialogInterface dialog) {
 				
 			}
 		}).setCanceledOnTouchOutside(false);
-		SamService.getInstance().query_public(key,Constants.CONSTANTS_LONGITUDE_LATITUDE_NULL,Constants.CONSTANTS_LONGITUDE_LATITUDE_NULL,
+		SamService.getInstance().query_public(0,searchKey,Constants.CONSTANTS_LONGITUDE_LATITUDE_NULL,Constants.CONSTANTS_LONGITUDE_LATITUDE_NULL,
 				null,null,new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
@@ -650,9 +675,16 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 							isSearching = false;
 							phone_contacts_listview.setVisibility(View.GONE);
 							search_result_listview.setVisibility(View.VISIBLE);
+							
 							HttpCommClient hcc = (HttpCommClient)obj;
 							loadedContactUser = hcc.users.getusers();
+							int size = (loadedContactUser == null?0:loadedContactUser.size());
 							onContactUserSearched();
+							if(size < Constants.MAX_SEARCH_PUBLIC_EACH_TIME){
+								search_result_listview.setMode(PullToRefreshBase.Mode.DISABLED);
+							}else{
+								search_result_listview.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
+							}
 						}
 					});
 				}
@@ -685,6 +717,58 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 					});
 				}
 		} );
+	}
+
+	private void searchPublicByPullUp(){
+		SamService.getInstance().query_public(search_result.size(),searchKey,Constants.CONSTANTS_LONGITUDE_LATITUDE_NULL,Constants.CONSTANTS_LONGITUDE_LATITUDE_NULL,
+				null,null,new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							isSearching = false;
+							HttpCommClient hcc = (HttpCommClient)obj;
+							loadedContactUser = hcc.users.getusers();
+							if(loadedContactUser == null || loadedContactUser.size()==0) {
+								search_result_listview.onRefreshComplete();
+								search_result_listview.setMode(PullToRefreshBase.Mode.DISABLED);
+							}else if(loadedContactUser.size() < Constants.MAX_SEARCH_PUBLIC_EACH_TIME){
+								search_result.addAll(loadedContactUser);
+								refreshContactUserList();
+								search_result_listview.onRefreshComplete();
+							}else{
+								search_result.addAll(loadedContactUser);
+								refreshContactUserList();
+								search_result_listview.onRefreshComplete();
+							}
+						}
+					});
+				}
+
+				@Override
+				public void onFailed(int code) {
+			     runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							isSearching = false;
+							search_result_listview.onRefreshComplete();
+						}
+					});
+				}
+
+				@Override
+				public void onError(int code) {
+                    runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							isSearching = false;
+							search_result_listview.onRefreshComplete();
+						}
+					});
+				}
+		} );
+
 	}
 }
 

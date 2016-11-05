@@ -201,5 +201,8 @@ public class Constants{
 	public static final int ADV_PIC_MAX = 1280;
 	/****************************Advertisement Max Picutre pixel***********************************************/
 	public static final int AVATAR_PIC_MAX = 200;
+
+	/****************************Max number return from server during search public***********************************************/
+	public static final int MAX_SEARCH_PUBLIC_EACH_TIME=20;
 }
 

@@ -1264,9 +1264,9 @@ public class SamService{
 	}
 	
 /***************************************query public*******************************************************/
-	public void query_public(String key, double latitude, double longitude, String place_id, String address, SMCallBack callback){
+	public void query_public(int count, String key, double latitude, double longitude, String place_id, String address, SMCallBack callback){
 		QueryPublicCoreObj samobj = new QueryPublicCoreObj(callback);
-		samobj.init(get_current_token(),  key,  latitude,  longitude,  place_id,  address);
+		samobj.init(get_current_token(), count, key,  latitude,  longitude,  place_id,  address);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_QUERY_PUBLIC, samobj);
 		mSamServiceHandler.sendMessage(msg);
 		startTimeOut(samobj);
@@ -1300,7 +1300,7 @@ public class SamService{
 	private void retry_query_public(QueryPublicCoreObj samobj){
 		QueryPublicCoreObj  retryobj = new QueryPublicCoreObj(samobj.callback);
 		
-		retryobj.init(samobj.token, samobj.key, samobj.latitude,samobj.longitude, samobj.place_id, samobj.address);
+		retryobj.init(samobj.token, samobj.count,samobj.key, samobj.latitude,samobj.longitude, samobj.place_id, samobj.address);
 		
 		retryobj.setRetryCount(samobj.retry_count);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_QUERY_PUBLIC,retryobj);

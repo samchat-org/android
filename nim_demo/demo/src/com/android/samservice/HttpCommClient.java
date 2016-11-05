@@ -2088,6 +2088,7 @@ public class HttpCommClient {
 			header.putOpt("token", qpobj.token);
 			
 			JSONObject body = new JSONObject();
+			body.putOpt("count",qpobj.count);
 			if(qpobj.key != null){
 				body.putOpt("key",qpobj.key);
 			}
