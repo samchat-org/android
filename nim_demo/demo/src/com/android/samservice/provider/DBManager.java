@@ -768,6 +768,32 @@ public class DBManager
 		return questions;
 	}
 
+	public List<SendQuestion> querySendQuestionNewest(int count){
+		String table = DatabaseHelper.TABLE_NAME_SEND_QUESTION;
+		List<SendQuestion> questions = new ArrayList<SendQuestion>();
+		SendQuestion question = null;
+		Cursor c = question_db.query(table,null,null,null,null,null,"datetime desc",""+count);
+
+		while(c.moveToNext()){
+			question = new SendQuestion();	
+			question.setid(c.getLong(c.getColumnIndex("id")));
+			question.setquestion_id(c.getLong(c.getColumnIndex("question_id")));
+			question.setquestion(c.getString(c.getColumnIndex("question")));
+			question.setaddress(c.getString(c.getColumnIndex("address")));
+			question.setstatus( c.getInt(c.getColumnIndex("status")));
+			question.setdatetime(c.getLong(c.getColumnIndex("datetime")));
+			question.setlatest_answer_time(c.getLong(c.getColumnIndex("latest_answer_time")));
+			question.setsp_ids(c.getString(c.getColumnIndex("sp_ids")));
+			question.setunread(c.getInt(c.getColumnIndex("unread")));
+
+			questions.add(question);
+		}
+
+		c.close();
+
+		return questions;
+	}
+
 	public void deleteSendQuestionAll(){
 		String table = DatabaseHelper.TABLE_NAME_SEND_QUESTION;
 		question_db.delete(table, null, null);

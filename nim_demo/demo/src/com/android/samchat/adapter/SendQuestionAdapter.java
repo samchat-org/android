@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.android.samchat.R;
 import com.android.samservice.info.SendQuestion;
+
+import android.text.TextUtils;
 import android.widget.BaseAdapter;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -164,7 +166,14 @@ public class SendQuestionAdapter extends BaseAdapter{
 			int index = positionToIndex(position);
 			holder.request.setText(items.get(index).getquestion());
 			long showtime = items.get(index).getlatest_answer_time()==0?items.get(index).getdatetime():items.get(index).getlatest_answer_time();
-			holder.date.setText(TimeUtil.getTimeShowString(showtime,false));
+			String timeString = TimeUtil.getTimeShowString(showtime, true);
+			holder.date.setText(timeString);
+			if (!TextUtils.isEmpty(timeString) && timeString.equals("1970-01-01")) {
+				holder.date.setVisibility(View.GONE);
+			} else {
+				holder.date.setVisibility(View.VISIBLE);
+			}
+			
 			holder.location.setText(items.get(index).getaddress());
 			
 			String ids = items.get(index).getsp_ids();

@@ -229,6 +229,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
         super.onResume();
         messageListPanel.onResume();
         getActivity().setVolumeControlStream(AudioManager.STREAM_VOICE_CALL); //play audio by ringtone
+        notifyDataSetChangedFSP();
     }
 
 	@Override

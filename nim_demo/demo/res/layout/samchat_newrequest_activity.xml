@@ -155,7 +155,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/popular_request"
+        android:id="@+id/history_request"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -167,7 +167,7 @@
             android:layout_marginRight="10dp"
             android:textColor="@color/color_grey_76767b"
             android:textSize="18sp"
-            android:text="@string/samchat_popular_requests"/>
+            android:text="@string/samchat_history_requests"/>
         <ListView
             android:id="@+id/request"
             android:layout_width="match_parent"

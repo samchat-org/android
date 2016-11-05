@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import com.android.samchat.adapter.AdvertisementAdapter;
+import com.android.samchat.service.SAMMessageBuilder;
 import com.android.samservice.info.Advertisement;
 import com.android.samservice.info.FollowedSamPros;
 import com.android.samservice.info.RcvdAdvSession;
@@ -26,11 +27,14 @@ import com.netease.nim.uikit.common.ui.ptr.PullToRefreshBase;
 import com.netease.nim.uikit.common.ui.ptr.PullToRefreshListView;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.model.ToolBarOptions;
+import com.netease.nim.uikit.session.activity.WatchMessagePictureActivity;
 import com.netease.nim.uikit.session.sam_message.SamchatObserver;
 import com.android.samservice.SamService;
 import com.android.samchat.service.SamDBManager;
 import android.widget.FrameLayout;
 import com.android.samservice.Constants;
+import com.netease.nimlib.sdk.msg.model.IMMessage;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -179,7 +183,10 @@ public class SamchatRcvdAdvertisementActivity extends UI implements OnKeyListene
        	pull_refresh_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 				Advertisement adv = (Advertisement) parent.getAdapter().getItem(position);
-				
+				if(adv.gettype() == Constants.ADV_TYPE_PIC){
+					IMMessage im = SAMMessageBuilder.createReceivedAdvertisementImageMessage(adv);
+					WatchMessagePictureActivity.start(SamchatRcvdAdvertisementActivity.this, im,true);
+				}
 			}
 		});
 

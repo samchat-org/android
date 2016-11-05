@@ -216,6 +216,12 @@ public class SamchatChatFragment extends TFragment{
         return inflater.inflate(R.layout.samchat_chat_fragment_layout, container, false);
     }
 
+	@Override
+    public void onResume() {
+		super.onResume();
+		notifyDataSetChangedSP();
+		notifyDataSetChangedCustomer();
+    }
     
 
     @Override

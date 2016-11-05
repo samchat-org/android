@@ -848,6 +848,20 @@ public class SamDBManager{
 		});	
 	}
 
+	public void asyncQuerySendQuestion(final int recentCount, final NIMCallback callback){
+		mFixedHttpThreadPool.execute(new Runnable(){
+			@Override
+			public void run(){
+				try{
+					List<SendQuestion> sqs = SamService.getInstance().getDao().query_SendQuestion_db_Newest(recentCount);
+					callback.onResult(sqs, null, 0);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+			}
+		});	
+	}
+
 	public void asyncClearSendQuestionUnreadCount(final long question_id){
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override

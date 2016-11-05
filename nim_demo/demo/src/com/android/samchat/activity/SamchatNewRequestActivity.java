@@ -20,10 +20,12 @@ import android.widget.TextView;
 import com.android.samchat.adapter.SimpleListAdapter;
 import com.android.samchat.common.SCell;
 import com.android.samchat.factory.LocationFactory;
+import com.android.samchat.service.SamDBManager;
 import com.android.samservice.info.QuestionInfo;
 import com.android.samservice.info.PlacesInfo;
 import com.android.samservice.info.SendQuestion;
 import com.android.samchat.R;
+import com.netease.nim.uikit.NIMCallback;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
@@ -49,24 +51,10 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 	private TextView send_textview;
 	private EditText question_edittext;
 	private EditText location_edittext;
-	private LinearLayout popular_request_layout;
+	private LinearLayout history_request_layout;
 	private ListView request_listview;
 
-	private String[] testRequest={
-		"A host family for 2 teen girls",
-		"Contractor to remodel my bathroom",
-		"Mandarin Chinese School for 2 teens",
-		"A host family for 2 teen girls",
-		"Contractor to remodel my bathroom",
-		"Mandarin Chinese School for 2 teens",
-		"A host family for 2 teen girls",
-		"Contractor to remodel my bathroom",
-		"Mandarin Chinese School for 2 teens",
-		"A host family for 2 teen girls",
-		"Contractor to remodel my bathroom",
-		"Mandarin Chinese School for 2 teens"
-	};
-	private List<String> popular_request;
+	private List<String> history_request;
 	private SimpleListAdapter requestAdapter;
 
 	private String question = null;
@@ -105,7 +93,7 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 		setToolBar(R.id.toolbar, options);
 
 		setupPanel();
-		initPopularRequestList();
+		initHistoryRequestList();
 
 		LocationFactory.getInstance().startLocationMonitor();
 	}
@@ -121,7 +109,7 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 		send_textview = findView(R.id.send);
 		question_edittext = findView(R.id.question);
 		location_edittext = findView(R.id.location);
-		popular_request_layout = findView(R.id.popular_request);
+		history_request_layout = findView(R.id.history_request);
 		request_listview = findView(R.id.request);
 	
 		setupBackArrowClick();
@@ -131,12 +119,10 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 	}
 	
 
-	private void initPopularRequestList(){
-		popular_request = new ArrayList<>();
-		for(String s:testRequest){
-			popular_request.add(s);
-		}
-		requestAdapter = new SimpleListAdapter(SamchatNewRequestActivity.this,popular_request);
+	private void initHistoryRequestList(){
+		history_request= new ArrayList<>();
+
+		requestAdapter = new SimpleListAdapter(SamchatNewRequestActivity.this,history_request);
 		request_listview.setAdapter(requestAdapter);
 		request_listview.setItemsCanFocus(true);
 		request_listview.setOnItemClickListener(new AdapterView.OnItemClickListener(){
@@ -151,7 +137,48 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
                 return true;
 			}
 		});
+
+		loadHistoryRequest(true);
 		
+	}
+
+	private List<String> loadedHistoryRequest;
+	private void loadHistoryRequest(final boolean delay){
+		SamDBManager.getInstance().asyncQuerySendQuestion(20, new NIMCallback(){
+			@Override
+			public void onResult(final Object obj1, Object obj2, int code) {
+				getHandler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						List<SendQuestion> sqs = (List<SendQuestion>)obj1;
+						if(sqs != null && sqs.size()>0){
+							loadedHistoryRequest = new ArrayList<String>();
+							for(SendQuestion sq: sqs){
+								loadedHistoryRequest.add(sq.getquestion());
+							}
+							onHistoryRequestLoaded();
+						}
+					}
+				},delay?250:0);
+			}
+		});
+	}
+	
+	private void onHistoryRequestLoaded() {
+		history_request.clear();
+		if (loadedHistoryRequest != null) {
+			history_request.addAll(loadedHistoryRequest);
+			loadedHistoryRequest = null;
+		}
+		refreshHistoryRequest();
+	}
+	
+    private void refreshHistoryRequest() {
+        notifyDataSetChangedHistoryRequest();
+    }
+
+	private void notifyDataSetChangedHistoryRequest() {
+		requestAdapter.notifyDataSetChanged();
 	}
 	
 	private void setupBackArrowClick(){

@@ -335,7 +335,7 @@
     <string name="samchat_maintab_chat">Chat</string>
     <string name="samchat_maintab_contacts">Contacts</string>
     <string name="samchat_maintab_me">Me</string>
-    <string name="samchat_popular_requests">POPULAR REQUESTS</string>
+    <string name="samchat_history_requests">History requests</string>
 
     <string name="samchat_request_sent_just_now">Request sent!</string>
     <string name="samchat_request_sent_desc_just_now">We are on the hunt for the best service providers.We will let you know soon</string>

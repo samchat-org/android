@@ -192,6 +192,13 @@ public class SamchatRequestFragment extends TFragment {
 	}
 
 	@Override
+	public void onResume() {
+		super.onResume();
+		notifyDataSetChangedRQ();
+		notifyDataSetChangedSQ();
+    }
+
+	@Override
 	public void onDestroy() {
 		super.onDestroy();
 	}

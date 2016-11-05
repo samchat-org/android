@@ -170,7 +170,14 @@ public class ReceivedQuestionAdapter extends BaseAdapter{
 			int index = positionToIndex(position);
 			holder.request.setText(items.get(index).getquestion());
 			long showtime = items.get(index).getdatetime();
-			holder.date.setText(TimeUtil.getTimeShowString(showtime,false));
+			String timeString = TimeUtil.getTimeShowString(showtime, true);
+			holder.date.setText(timeString);
+			if (!TextUtils.isEmpty(timeString) && timeString.equals("1970-01-01")) {
+				holder.date.setVisibility(View.GONE);
+			} else {
+				holder.date.setVisibility(View.VISIBLE);
+			}
+			
 			if(!TextUtils.isEmpty(items.get(index).getaddress())){
 				holder.location.setText(items.get(index).getaddress());
 				holder.location.setVisibility(View.VISIBLE);
@@ -178,6 +185,7 @@ public class ReceivedQuestionAdapter extends BaseAdapter{
 				holder.location.setText("");
 				holder.location.setVisibility(View.GONE);
 			}
+			
 			holder.avatar.loadBuddyAvatar(""+items.get(index).getsender_unique_id(),30);
 			if(items.get(index).getunread() == Constants.QUESTION_UNREAD){
 				holder.avatar.setBorderColorResource(R.color.samchat_color_avatar_border_reminder);

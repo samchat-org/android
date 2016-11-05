@@ -70,9 +70,19 @@ public class WatchMessagePictureActivity extends UI {
     private PagerAdapter adapter;
     private AbortableFuture downloadFuture;
 
+    private boolean fakeMsg=false;
+
     public static void start(Context context, IMMessage message) {
         Intent intent = new Intent();
         intent.putExtra(INTENT_EXTRA_IMAGE, message);
+        intent.setClass(context, WatchMessagePictureActivity.class);
+        context.startActivity(intent);
+    }
+
+    public static void start(Context context, IMMessage message, boolean fake) {
+        Intent intent = new Intent();
+        intent.putExtra(INTENT_EXTRA_IMAGE, message);
+        intent.putExtra("FAKE",fake);
         intent.setClass(context, WatchMessagePictureActivity.class);
         context.startActivity(intent);
     }
@@ -85,8 +95,18 @@ public class WatchMessagePictureActivity extends UI {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         this.message = (IMMessage) getIntent().getSerializableExtra(INTENT_EXTRA_IMAGE);
+        this.fakeMsg = getIntent().getBooleanExtra("FAKE",false);
         findViews();
-        queryImageMessages();
+
+        if(fakeMsg){
+             imageMsgList.add(message);
+             Collections.reverse(imageMsgList);
+             setDisplayIndex();
+             setViewPagerAdapter();
+        }else{
+            queryImageMessages();
+        }
+        
 
         handler = new Handler();
         registerObservers(true);

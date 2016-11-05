@@ -9,6 +9,8 @@ import com.android.samservice.info.FollowedSamPros;
 import com.android.samservice.info.RcvdAdvSession;
 import com.android.samchat.R;
 import com.android.samservice.info.SendQuestion;
+
+import android.text.TextUtils;
 import android.widget.BaseAdapter;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -105,11 +107,12 @@ public class FollowedSPAdapter extends BaseAdapter{
 					holder.unread_reminder.setVisibility(View.GONE);
 				}
 
-				if(session.getrecent_adv_publish_timestamp()>0){
-					holder.adv_time.setVisibility(View.VISIBLE);
-					holder.adv_time.setText(TimeUtil.getTimeShowString(session.getrecent_adv_publish_timestamp(), false));
-				}else{
+				String timeString = TimeUtil.getTimeShowString(session.getrecent_adv_publish_timestamp(), true);
+				holder.adv_time.setText(timeString);
+				if (!TextUtils.isEmpty(timeString) && timeString.equals("1970-01-01")) {
 					holder.adv_time.setVisibility(View.GONE);
+				} else {
+					holder.adv_time.setVisibility(View.VISIBLE);
 				}
 
 				if(session.getunread()>0){

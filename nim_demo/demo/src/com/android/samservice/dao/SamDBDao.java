@@ -226,6 +226,12 @@ public class SamDBDao{
 		}
 	}
 
+	public List<SendQuestion> query_SendQuestion_db_Newest(int count){
+		synchronized(dbLock_question){
+			return dbHandle.querySendQuestionNewest(count);
+		}
+	}
+
 	public List<SendQuestion> query_SendQuestion_db_ALL(){
 		synchronized(dbLock_question){
 			return dbHandle.querySendQuestionAll();
