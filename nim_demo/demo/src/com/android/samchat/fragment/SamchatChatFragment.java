@@ -517,6 +517,9 @@ public class SamchatChatFragment extends TFragment{
 						loadedRecentsSP = new ArrayList<RecentContact>();
 						
 						for(RecentContact rc:recents){
+							if(rc.getSessionType() == SessionTypeEnum.P2P && rc.getContactId().indexOf(NimConstants.PUBLIC_ACCOUNT_PREFIX) != -1){
+								continue;
+							}
 							boolean updateByCustomer = handleRecentContactForCustomer(loadedRecentsCustomer,rc);
 							boolean updateBySP = handleRecentContactForSP(loadedRecentsSP, rc);
 							if(updateByCustomer || updateBySP){
@@ -1077,6 +1080,10 @@ public class SamchatChatFragment extends TFragment{
 
 			for (RecentContact msg : messages){
 				LogUtil.i(TAG,"messageObserver:"+msg.getContactId());
+				if(msg.getSessionType() == SessionTypeEnum.P2P && msg.getContactId().indexOf(NimConstants.PUBLIC_ACCOUNT_PREFIX) != -1){
+					continue;
+				}
+				
 				if(msg.getSessionType() == SessionTypeEnum.P2P && !msg.getContactId().equals(NimConstants.SESSION_ACCOUNT_ADVERTISEMENT)){
 					if(isTagSet(msg, RECENT_TAG_CUSTOMER_ROLE)){
 						updateCustomerItems(msg);

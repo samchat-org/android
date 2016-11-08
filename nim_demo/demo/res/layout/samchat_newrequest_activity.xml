@@ -20,29 +20,21 @@
             android:id="@+id/back_arrow_layout"
             android:layout_width="wrap_content"
             android:layout_height="?attr/actionBarSize"
-            android:layout_centerVertical="true">
+            android:layout_centerVertical="true"
+            android:background="@drawable/samchat_action_bar_button_selector_customer">
             <ImageView
                 android:id="@+id/back_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="@dimen/title_left_margin"
+                android:layout_marginStart="@dimen/title_left_margin"
+                android:layout_marginRight="@dimen/title_right_margin"
+                android:layout_marginEnd="@dimen/title_right_margin"
                 android:src="@drawable/samchat_arrow_left"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:contentDescription="@null"/>
         </FrameLayout>
-        <TextView
-            android:id="@+id/titlebar_name"
-            android:layout_width="wrap_content"
-            android:layout_height="?attr/actionBarSize"
-            android:layout_centerVertical="true"
-            android:gravity="center"
-            android:text="@string/samchat_new_request"
-            android:layout_toRightOf="@id/back_arrow_layout"
-            android:layout_toEndOf="@id/back_arrow_layout"
-            android:textSize="20sp"
-            android:textColor="@color/black"/>
+
         <TextView
             android:id="@+id/send"
             android:layout_width="wrap_content"
@@ -61,6 +53,18 @@
             android:textColor="@color/white"
             android:background="@drawable/samchat_text_radius_border_green_inactive"
             android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/titlebar_name"
+            android:layout_width="wrap_content"
+            android:layout_height="?attr/actionBarSize"
+            android:gravity="center"
+            android:text="@string/samchat_new_request"
+            android:textSize="20sp"
+            android:textColor="@color/black"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/back_arrow_layout"
+            android:layout_toEndOf="@+id/back_arrow_layout" />
     </RelativeLayout>
     <View
         android:layout_width="match_parent"

@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import com.android.samchat.activity.SamchatAboutActivity;
 import com.android.samchat.activity.SamchatBecomeSPActivity;
 import com.android.samchat.activity.SamchatFaqActivity;
+import com.android.samchat.activity.SamchatNotificationToggleActivity;
 import com.android.samchat.activity.SamchatProfileCustomerActivity;
 import com.android.samchat.activity.SamchatProfileServiceProviderActivity;
 import com.android.samchat.common.FastBlurUtils;
@@ -296,7 +297,7 @@ public class SamchatSettingFragment extends TFragment {
 		customer_notificaition_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-			
+				SamchatNotificationToggleActivity.start(getActivity());
 			}
 		});
 	}

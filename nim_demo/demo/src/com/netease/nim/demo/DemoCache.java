@@ -2,6 +2,7 @@ package com.netease.nim.demo;
 
 import android.content.Context;
 
+import com.android.samchat.service.StatusBarQuestionNotificationConfig;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 
@@ -16,7 +17,17 @@ public class DemoCache {
 
     private static StatusBarNotificationConfig notificationConfig;
 
+    private static StatusBarQuestionNotificationConfig questionNotificationConfig;
+
     private static NimApplication app;
+
+    public static void setQuestionNotificationConfig(StatusBarQuestionNotificationConfig questionNotificationConfig) {
+        DemoCache.questionNotificationConfig = questionNotificationConfig;
+    }
+
+    public static StatusBarQuestionNotificationConfig getQuestionNotificationConfig() {
+        return questionNotificationConfig;
+    }
 
     public static void clear() {
         account = null;

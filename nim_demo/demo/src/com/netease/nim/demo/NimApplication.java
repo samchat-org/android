@@ -17,6 +17,9 @@ import com.android.samchat.R;
 import com.android.samchat.cache.ContactDataCache;
 import com.android.samchat.cache.CustomerDataCache;
 import com.android.samchat.cache.FollowDataCache;
+import com.android.samchat.service.StatusBarQuestionNotificationConfig;
+import com.android.samservice.Constants;
+import com.android.samservice.SamLog;
 import com.android.samservice.info.Contact;
 import com.android.samservice.info.ContactUser;
 import com.android.samservice.info.FollowedSamPros;
@@ -34,6 +37,7 @@ import com.netease.nim.demo.rts.activity.RTSActivity;
 import com.netease.nim.demo.session.NimDemoLocationProvider;
 import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nim.uikit.ImageLoaderKit;
+import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.cache.FriendDataCache;
 import com.netease.nim.uikit.cache.NimUserInfoCache;
@@ -71,6 +75,8 @@ import com.android.samchat.cache.SamchatDataCacheManager;
 import com.android.samchat.service.SamDBManager;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.android.samchat.factory.UuidFactory;
+
+import org.json.JSONObject;
 
 public class NimApplication extends Application {
 
@@ -146,13 +152,29 @@ public class NimApplication extends Application {
         config.notificationSound = "android.resource://com.android.samchat/raw/msg";
 
         // 呼吸灯配置
-        config.ledARGB = Color.GREEN;
-        config.ledOnMs = 1000;
-        config.ledOffMs = 1500;
+        //config.ledARGB = Color.GREEN;
+        //config.ledOnMs = 1000;
+        //config.ledOffMs = 1500;
+        config.ledARGB = -1;
+        config.ledOnMs = -1;
+        config.ledOffMs = -1;
 
         options.statusBarNotificationConfig  = config;
         DemoCache.setNotificationConfig(config);
         UserPreferences.setStatusConfig(config);
+
+		StatusBarQuestionNotificationConfig qconfig = UserPreferences.getStatusQuestionConfig();
+		if(qconfig == null){
+			qconfig = new StatusBarQuestionNotificationConfig();
+		}
+		qconfig.notificationEntrance = WelcomeActivity.class;
+		qconfig.notificationSmallIconId = R.drawable.ic_stat_notify_msg;
+		qconfig.notificationSound = "android.resource://com.android.samchat/raw/msg";
+		qconfig.ledARGB = -1;
+		qconfig.ledOnMs = -1;
+		qconfig.ledOffMs = -1;
+		DemoCache.setQuestionNotificationConfig(qconfig);
+		UserPreferences.setStatusQuestionConfig(qconfig);
 
         // 配置保存图片，文件，log等数据的目录
         String sdkPath = Environment.getExternalStorageDirectory() + "/" + getPackageName() + "/nim";
@@ -426,15 +448,54 @@ public class NimApplication extends Application {
         }
     };
 
-    private MessageNotifierCustomization messageNotifierCustomization = new MessageNotifierCustomization() {
-        @Override
-        public String makeNotifyContent(String nick, IMMessage message) {
-            return null; // 采用SDK默认文案
+	 public String getTicker(String data){
+		try{
+			JSONObject obj = new JSONObject(data);
+			JSONObject header = obj.getJSONObject("header");
+			JSONObject body = obj.getJSONObject("body");
+
+			int type = body.getInt("type");
+			String content = body.getString("content");
+			if(type == Constants.ADV_TYPE_TEXT){
+				return content;
+			}else{
+				return "["+DemoCache.getContext().getString(R.string.samchat_picture)+"]";
+			}
+		}catch (Exception e) {  
+			e.printStackTrace();
+			return "";
+		}
+	}
+
+	private MessageNotifierCustomization messageNotifierCustomization = new MessageNotifierCustomization() {
+		@Override
+		public String makeNotifyContent(String nick, IMMessage message) {
+			if(message.getSessionType() == SessionTypeEnum.P2P){
+				String sessionId = message.getSessionId();
+				if(sessionId.contains(NimConstants.PUBLIC_ACCOUNT_PREFIX)){
+					String jsonString = message.getContent();
+					return getTicker(jsonString);
+				}else{
+					return null;
+				}
+			}else{
+				return null;
+			}
         }
 
-        @Override
-        public String makeTicker(String nick, IMMessage message) {
-            return null; // 采用SDK默认文案
-        }
-    };
+		@Override
+		public String makeTicker(String nick, IMMessage message) {
+			if(message.getSessionType() == SessionTypeEnum.P2P){
+                String sessionId = message.getSessionId();
+				if(sessionId.contains(NimConstants.PUBLIC_ACCOUNT_PREFIX)){
+					String jsonString = message.getContent();
+                    return nick + ":" + getTicker(jsonString);
+				}else{
+					return null;
+				}
+			}else{
+				return null;
+			}
+		}
+	};
 }

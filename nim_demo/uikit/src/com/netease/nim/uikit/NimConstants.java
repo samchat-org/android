@@ -52,6 +52,9 @@ public class NimConstants{
 	public static final String S3_ORIG="s3_orig";
 
 	public static final String QRCODE_PREFIX="Samchat:";
+	public static final String PUBLIC_ACCOUNT_PREFIX="public_";
+
+	public final static int QUESTION_NOTIFICATION_ID = "QUESTION_NOTIFICATION_ID".hashCode();
 
 }
 

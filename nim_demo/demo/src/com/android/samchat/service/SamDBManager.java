@@ -1,5 +1,12 @@
 package com.android.samchat.service;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+
+import com.android.samchat.R;
 import com.android.samchat.cache.MsgSessionDataCache;
 import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samchat.common.SamchatFileNameUtils;
@@ -215,10 +222,26 @@ public class SamDBManager{
 
 	}
 
-	public void handleReceivedQuestion(HttpCommClient hcc){
+	private void notifyBar(Context context, ReceivedQuestion rq, ContactUser ui){
+		NotificationManager manager = (NotificationManager) context.getSystemService( Context.NOTIFICATION_SERVICE );
+		StatusBarQuestionNotificationConfig qconfig = DemoCache.getQuestionNotificationConfig();	
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,new Intent(context, qconfig.notificationEntrance), 0);    
+		Notification notify = new Notification.Builder(context)  
+                    .setSmallIcon(qconfig.notificationSmallIconId) 
+                    .setTicker(ui.getusername() +"'s"+ DemoCache.getContext().getString(R.string.samchat_request)+":"+rq.getquestion())
+                    .setContentTitle(DemoCache.getContext().getString(R.string.samchat_new_request))
+                    .setContentText(ui.getusername()+":"+rq.getquestion())
+                    .setContentIntent(pendingIntent)
+                     .getNotification();
+		notify.flags |= Notification.FLAG_AUTO_CANCEL;  
+		manager.notify(NimConstants.QUESTION_NOTIFICATION_ID,notify);
+	}
+
+	public void handleReceivedQuestion(Context context,HttpCommClient hcc){
 		final ReceivedQuestion rq = hcc.rq;
 		//only unique_id/username/lastupdate in userinfo
 		final ContactUser ui = hcc.userinfo;
+		final Context ctx = context;
 		mFixedHttpThreadPool.execute(new Runnable(){
 			@Override
 			public void run(){
@@ -243,6 +266,9 @@ public class SamDBManager{
 						LogUtil.e(TAG,"db warning : update received question db error, drop this question");
 						return;
 					}
+
+					/*ever thing is OK, question notification to bar*/
+					notifyBar(ctx,rq,ui);
 
 					callReceivedQuestionObserverCallback(rq);
 
@@ -1572,7 +1598,19 @@ public class SamDBManager{
 		return null;
 	}
 
-	Observer<List<IMMessage>> incomingP2PMessageObserver = new Observer<List<IMMessage>>() {
+	private boolean isAdvIMMessage(IMMessage im){
+		if(im.getSessionType() == SessionTypeEnum.P2P){
+			String sessionId = im.getSessionId();
+			return sessionId.contains(NimConstants.PUBLIC_ACCOUNT_PREFIX);
+		}
+		return false;
+	}
+
+	private void convertAdvertisement(IMMessage im){
+		SamService.getInstance().handlePushCmd(null,im.getContent());
+	}
+
+	private Observer<List<IMMessage>> incomingP2PMessageObserver = new Observer<List<IMMessage>>() {
 		@Override
 		public void onEvent(final List<IMMessage> ims) {
 			mFixedHttpThreadPool.execute(new Runnable(){
@@ -1582,6 +1620,15 @@ public class SamDBManager{
 							if(ims == null || ims.size() == 0){
 								return;
 							}
+
+							/*handle advertisement immessage*/
+							if(isAdvIMMessage(ims.get(0))){
+								for(IMMessage m:ims){
+									convertAdvertisement(m);
+								}
+								return;
+							}
+							
 							SessionTypeEnum sessionType = ims.get(0).getSessionType();
 							String sessionId = ims.get(0).getSessionId();
 							if(sessionType !=  SessionTypeEnum.P2P){

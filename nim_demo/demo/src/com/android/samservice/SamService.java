@@ -1854,14 +1854,14 @@ public class SamService{
     }
 
 /********************************************** HTTP PUSH  ********************************************************/
-	public void handlePushCmd(String jsonString){
+	public void handlePushCmd(Context context, String jsonString){
 		HttpCommClient hcc = new HttpCommClient();
 		int category = hcc.parsePushJson(jsonString);
 		boolean isDBError = false;
 
 		switch(category){
 			case Constants.PUSH_CATEGORY_QUESTION:
-				SamDBManager.getInstance().handleReceivedQuestion(hcc);
+				SamDBManager.getInstance().handleReceivedQuestion(context,hcc);
 			break;
 
 			case Constants.PUSH_CATEGORY_ADV:

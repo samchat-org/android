@@ -204,5 +204,8 @@ public class Constants{
 
 	/****************************Max number return from server during search public***********************************************/
 	public static final int MAX_SEARCH_PUBLIC_EACH_TIME=20;
+
+	/****************************Samchat Request Push ID***********************************************/
+	public static final int SAMCHAT_REQUEST_PUSH_ID=3;
 }
 

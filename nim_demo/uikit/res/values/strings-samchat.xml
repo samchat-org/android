@@ -565,4 +565,8 @@
     <string name="samchat_chat">Chat</string>
     <string name="samchat_copy">Copy</string>
     <string name="samchat_no_more">no more \u2026</string>
+    <string name="samchat_request">request</string>
+    <string name="samchat_allow_all_notification">Allow all notifications</string>
+    <string name="samchat_sound">Sound</string>
+    <string name="samchat_vibrate">In-app Vibrate</string>
 </resources>

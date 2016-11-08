@@ -7,6 +7,7 @@ import android.os.IBinder;
 import com.igexin.sdk.PushManager;
 import com.android.samservice.SamService;
 import com.android.samchat.receiver.PushReceiver;
+import com.netease.nim.demo.receiver.CustomNotificationReceiver;
 
 public class SamchatAppService extends IntentService {
 	private Context mContext = null;
@@ -49,11 +50,14 @@ public class SamchatAppService extends IntentService {
 			String data = intent.getExtras().getString("data");
 			String taskid = intent.getExtras().getString("taskid");
 			String messageid = intent.getExtras().getString("messageid");
-			SamService.getInstance().handlePushCmd(data);
+			SamService.getInstance().handlePushCmd(mContext,data);
 			PushManager.getInstance().sendFeedbackMessage(mContext, taskid, messageid, 90001);
 		}else if(action.equals(PushReceiver.action_get_client)){
 			String clientid = intent.getExtras().getString("cid");
 			SamService.getInstance().client_id_ready(clientid);
+		}else if(action.equals(CustomNotificationReceiver.action_get_msg_data)){
+			String data = intent.getExtras().getString("data");
+			SamService.getInstance().handlePushCmd(mContext,data);
 		}
    }
 	
