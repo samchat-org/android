@@ -94,6 +94,7 @@ public class Constants{
 	public static final String BROADCAST_MYSELF_AVATAR_UPDATE = "com.android.samchat.myselfavatarupdate";
 	public static final String BROADCAST_POST_ADV = "com.android.samchat.postadv";
 	public static final String BROADCAST_CHANGE_PHONE_ALREADY = "com.android.samchat.changephonealready";
+	public static final String BROADCAST_CHAT_BLOCK_MUTE_UPDATE = "com.android.samchat.chatblockmuteupdate";
 
 	/****************************Message From***********************************************/
 	public static final String MSG_FROM = "msg_from";

@@ -160,6 +160,7 @@ public class SamchatChatFragment extends TFragment{
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Constants.BROADCAST_SWITCH_MODE);
 		filter.addAction(Constants.BROADCAST_USER_INFO_UPDATE);
+		filter.addAction(Constants.BROADCAST_CHAT_BLOCK_MUTE_UPDATE);
 
 		broadcastReceiver = new BroadcastReceiver() {
 			@Override
@@ -175,6 +176,9 @@ public class SamchatChatFragment extends TFragment{
 					}
 					((MainActivity)getActivity()).dimissSwitchProgress();
 				}else if(intent.getAction().equals(Constants.BROADCAST_USER_INFO_UPDATE)){
+					refreshCustomerMessages(false);
+					refreshSPMessages(false);
+				}else if(intent.getAction().equals(Constants.BROADCAST_CHAT_BLOCK_MUTE_UPDATE)){
 					refreshCustomerMessages(false);
 					refreshSPMessages(false);
 				}

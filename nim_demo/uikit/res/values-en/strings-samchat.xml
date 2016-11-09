@@ -383,11 +383,26 @@
     <string name="samchat_mute_chat_failed">chat mute failed</string>
     <string name="samchat_unmute_chat_failed">chat un-mute failed</string>
 
+    <string name="samchat_mute_public_succeed">public mute succeed</string>
+    <string name="samchat_unmute_public_succeed">public un-mute succeed</string>
+    <string name="samchat_mute_public_failed">public mute failed</string>
+    <string name="samchat_unmute_public_failed">public un-mute failed</string>
+
+    <string name="samchat_mute_request_succeed">request reminder mute succeed</string>
+    <string name="samchat_mute_request_failed">request reminder mute failed</string>
+    <string name="samchat_unmute_request_succeed">request reminder un-mute succeed</string>
+    <string name="samchat_unmute_request_failed">request reminder un-mute failed</string>
+
 
     <string name="samchat_block_chat_succeed">block succeed</string>
     <string name="samchat_unblock_chat_succeed">un-block succeed</string>
     <string name="samchat_block_chat_failed">block failed</string>
     <string name="samchat_unblock_chat_failed">unblock failed</string>
+
+    <string name="samchat_block_public_succeed">public block succeed</string>
+    <string name="samchat_unblock_public_succeed">public un-block succeed</string>
+    <string name="samchat_block_public_failed">public block failed</string>
+    <string name="samchat_unblock_public_failed">public unblock failed</string>
 
     <string name="samchat_select_one_member_at_least">select one member at least</string>
     <string name="samchat_create_group_chat">create group chat</string>
@@ -569,4 +584,7 @@
     <string name="samchat_allow_all_notification">Allow all notifications</string>
     <string name="samchat_sound">Sound</string>
     <string name="samchat_vibrate">In-app Vibrate</string>
+    <string name="samchat_request_reminder">Request reminder</string>
+    <string name="samchat_mute">Mute</string>
+    <string name="samchat_unmute">UnMute</string>
 </resources>

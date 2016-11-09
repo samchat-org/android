@@ -18,6 +18,8 @@ import com.netease.nim.uikit.recent.RecentContactsCallback;
 import com.netease.nim.uikit.recent.RecentContactsFragment;
 import com.netease.nim.uikit.session.emoji.MoonUtil;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.friend.FriendService;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.msg.model.RecentContact;
@@ -47,6 +49,8 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
     protected View bottomLine;
     protected View topLine;
 
+    protected ImageView mute_img_iv;
+
     protected abstract String getContent();
 
     public void refresh(Object item) {
@@ -61,6 +65,8 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
         updateNickLabel(UserInfoHelper.getUserTitleName(recent.getContactId(), recent.getSessionType()));
 
         updateMsgLabel();
+
+        updateStatus();
     }
 
     public void refreshCurrentItem() {
@@ -163,6 +169,11 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
         tvNickname.setText(nick);
     }
 
+    protected void updateStatus() {
+        boolean mute = !NIMClient.getService(FriendService.class).isNeedMessageNotify(recent.getContactId());
+        mute_img_iv.setVisibility(mute ? View.VISIBLE:View.GONE);
+    }
+
     protected int getResId() {
         return R.layout.nim_recent_contact_list_item;
     }
@@ -178,6 +189,7 @@ public abstract class RecentViewHolder extends TViewHolder implements OnClickLis
         this.imgMsgStatus = (ImageView) view.findViewById(R.id.img_msg_status);
         this.bottomLine = view.findViewById(R.id.bottom_line);
         this.topLine = view.findViewById(R.id.top_line);
+        this.mute_img_iv = (ImageView)view.findViewById(R.id.mute_img);
     }
 
     protected String unreadCountShowRule(int unread) {

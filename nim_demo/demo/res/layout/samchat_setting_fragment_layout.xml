@@ -555,7 +555,50 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@color/samchat_color_grey"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@color/samchat_color_grey"/>
+                <LinearLayout
+                    android:id="@+id/sp_request_notification_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:orientation="horizontal"
+                    android:background="@color/samchat_color_white">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/body_left_margin"
+                        android:layout_marginStart="@dimen/body_left_margin"
+                        android:layout_gravity="center_vertical"
+                        android:contentDescription="@null"
+                        android:src="@drawable/samchat_ic_list_notification_hint"/>
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginStart="20dp"
+                        android:gravity="start|center_vertical"
+                        android:textColor="@color/samchat_color_ink"
+                        android:textSize="@dimen/text_size_16"
+                        android:text="@string/samchat_request_reminder"/>
+                    <com.netease.nim.uikit.common.ui.widget.SwitchButton
+                        android:id="@+id/sp_request_reminder_toggle"
+                        android:layout_width="58dip"
+                        android:layout_height="36.67dip"
+                        android:layout_marginRight="@dimen/body_right_margin"
+                        android:layout_marginEnd="@dimen/body_right_margin"
+                        android:layout_gravity="center_vertical"/>
+                </LinearLayout>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/samchat_color_grey"/>
             </LinearLayout>
+
+
     </LinearLayout>
 
 

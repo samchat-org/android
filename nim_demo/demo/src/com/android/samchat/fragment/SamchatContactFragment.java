@@ -89,6 +89,7 @@ public class SamchatContactFragment extends TFragment {
 		filter.addAction(Constants.BROADCAST_CONTACTLIST_UPDATE);
 		filter.addAction(Constants.BROADCAST_CUSTOMERLIST_UPDATE);
 		filter.addAction(Constants.BROADCAST_USER_INFO_UPDATE);
+		filter.addAction(Constants.BROADCAST_CHAT_BLOCK_MUTE_UPDATE);
 
 		broadcastReceiver = new BroadcastReceiver() {
 			@Override
@@ -110,6 +111,9 @@ public class SamchatContactFragment extends TFragment {
 					loadedCustomers= new ArrayList<Contact>(CustomerDataCache.getInstance().getMyCustomers());
 					onCustomersLoaded();
 				}else if(intent.getAction().equals(Constants.BROADCAST_USER_INFO_UPDATE)){
+					refreshContactList();
+					refreshCustomerList();
+				}else if(intent.getAction().equals(Constants.BROADCAST_CHAT_BLOCK_MUTE_UPDATE)){
 					refreshContactList();
 					refreshCustomerList();
 				}

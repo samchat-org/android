@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.android.samservice.Constants;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 	/*
-	id(primary) | unique_id | username | usertype | lastupdate | avatar | avatar_original |countrycode | cellphone | email | address 
+	id(primary) | unique_id | username | usertype |question_notify | lastupdate | avatar | avatar_original |countrycode | cellphone | email | address 
 						| company_name | service_category | service_description |countrycode_sp | phone_sp | email_sp | address_sp 
 	*/
 public class ContactUser implements UserInfoProvider.UserInfo
@@ -14,6 +14,7 @@ public class ContactUser implements UserInfoProvider.UserInfo
 	private long unique_id;
 	private String username;
 	private int usertype;
+	private int question_notify;
 	private long lastupdate;
 	private String avatar; 
 	private String avatar_original;
@@ -35,6 +36,7 @@ public class ContactUser implements UserInfoProvider.UserInfo
 		this.unique_id = 0;
 		this.username = null;
 		this.usertype = Constants.USER;
+		this.question_notify = 1;
 		this.lastupdate = 0;
 		this.avatar = null;
 		this.avatar_original = null;
@@ -56,6 +58,7 @@ public class ContactUser implements UserInfoProvider.UserInfo
 		this.unique_id = 0;
 		this.username = null;
 		this.usertype = type;
+		this.question_notify = 1;
 		this.lastupdate = 0;
 		this.avatar = null;
 		this.avatar_original = null;
@@ -77,6 +80,7 @@ public class ContactUser implements UserInfoProvider.UserInfo
 		this.unique_id = user.getunique_id();
 		this.username = user.getusername();
 		this.usertype = user.getusertype();
+		this.question_notify = user.getquestion_notify();
 		this.lastupdate = user.getlastupdate();
 		this.avatar = user.getavatar();
 		this.avatar_original = user.getavatar_original();
@@ -119,6 +123,13 @@ public class ContactUser implements UserInfoProvider.UserInfo
 	}
 	public void setusertype(int usertype){
 		this.usertype = usertype;
+	}
+
+	public int getquestion_notify(){
+		return this.question_notify;
+	}
+	public void setquestion_notify(int question_notify){
+		this.question_notify = question_notify;
 	}
 
 	public long getlastupdate(){

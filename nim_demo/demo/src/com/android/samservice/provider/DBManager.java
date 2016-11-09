@@ -396,6 +396,7 @@ public class DBManager
 		cv.put("unique_id",user.getunique_id());
 		cv.put("username",user.getusername());
 		cv.put("usertype",user.getusertype());
+		cv.put("question_notify",user.getquestion_notify());
 		cv.put("lastupdate",user.getlastupdate());
 		cv.put("avatar",user.getavatar());
 		cv.put("avatar_original",user.getavatar_original());
@@ -423,6 +424,7 @@ public class DBManager
 		cv.put("unique_id",user.getunique_id());
 		cv.put("username",user.getusername());
 		cv.put("usertype",user.getusertype());
+		cv.put("question_notify",user.getquestion_notify());
 		cv.put("lastupdate",user.getlastupdate());
 		cv.put("avatar",user.getavatar());
 		cv.put("avatar_original",user.getavatar_original());
@@ -454,6 +456,7 @@ public class DBManager
 		cv.put("unique_id",user.getunique_id());
 		cv.put("username",user.getusername());
 		cv.put("usertype",user.getusertype());
+		cv.put("question_notify",user.getquestion_notify());
 		cv.put("lastupdate",user.getlastupdate());
 		cv.put("avatar",user.getavatar());
 		cv.put("avatar_original",user.getavatar_original());
@@ -505,6 +508,7 @@ public class DBManager
 			user.setunique_id(c.getLong(c.getColumnIndex("unique_id")));
 			user.setusername(c.getString(c.getColumnIndex("username")));
 			user.setusertype( c.getInt(c.getColumnIndex("usertype")));
+			user.setquestion_notify( c.getInt(c.getColumnIndex("question_notify")));
  			user.setlastupdate(c.getLong(c.getColumnIndex("lastupdate")));
 			user.setavatar(c.getString(c.getColumnIndex("avatar")));
 			user.setavatar_original(c.getString(c.getColumnIndex("avatar_original")));
@@ -541,6 +545,7 @@ public class DBManager
 			user.setunique_id(c.getLong(c.getColumnIndex("unique_id")));
 			user.setusername(c.getString(c.getColumnIndex("username")));
 			user.setusertype( c.getInt(c.getColumnIndex("usertype")));
+			user.setquestion_notify( c.getInt(c.getColumnIndex("question_notify")));
  			user.setlastupdate(c.getLong(c.getColumnIndex("lastupdate")));
 			user.setavatar(c.getString(c.getColumnIndex("avatar")));
 			user.setavatar_original(c.getString(c.getColumnIndex("avatar_original")));
@@ -581,6 +586,7 @@ public class DBManager
 			user.setunique_id(c.getLong(c.getColumnIndex("unique_id")));
 			user.setusername(c.getString(c.getColumnIndex("username")));
 			user.setusertype( c.getInt(c.getColumnIndex("usertype")));
+			user.setquestion_notify( c.getInt(c.getColumnIndex("question_notify")));
  			user.setlastupdate(c.getLong(c.getColumnIndex("lastupdate")));
 			user.setavatar(c.getString(c.getColumnIndex("avatar")));
 			user.setavatar_original(c.getString(c.getColumnIndex("avatar_original")));
@@ -621,6 +627,7 @@ public class DBManager
 			user.setunique_id(c.getLong(c.getColumnIndex("unique_id")));
 			user.setusername(c.getString(c.getColumnIndex("username")));
 			user.setusertype( c.getInt(c.getColumnIndex("usertype")));
+			user.setquestion_notify( c.getInt(c.getColumnIndex("question_notify")));
  			user.setlastupdate(c.getLong(c.getColumnIndex("lastupdate")));
 			user.setavatar(c.getString(c.getColumnIndex("avatar")));
 			user.setavatar_original(c.getString(c.getColumnIndex("avatar_original")));

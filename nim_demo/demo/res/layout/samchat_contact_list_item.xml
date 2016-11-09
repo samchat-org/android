@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
+              android:layout_height="wrap_content"
               android:background="@drawable/samchat_list_item_selector">
     <TextView
         android:id="@+id/tv_lv_item_tag"
@@ -28,7 +28,6 @@
             android:layout_width="@dimen/avatar_size_in_contact"
             android:layout_height="@dimen/avatar_size_in_contact"
             android:layout_gravity="center_vertical"/>
-
         <LinearLayout
             android:id="@+id/info_layout"
             android:orientation="vertical"
@@ -54,6 +53,13 @@
                 android:textColor="@color/samchat_color_dark_grey"
                 android:textSize="@dimen/text_size_14"/>
         </LinearLayout>
+        <ImageView
+            android:id="@+id/block_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:contentDescription="@null"
+            android:src="@drawable/samchat_ic_block"/>
     </LinearLayout>
     <View
         android:layout_width="match_parent"

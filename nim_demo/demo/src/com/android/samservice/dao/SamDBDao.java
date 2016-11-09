@@ -58,6 +58,7 @@ public class SamDBDao{
 		if(old.getunique_id()!=now.getunique_id()
 			||!stringEquals(old.getusername(),now.getusername())
 			||old.getusertype()!=now.getusertype()
+			||old.getquestion_notify()!=now.getquestion_notify()
 			||old.getlastupdate()!=now.getlastupdate()
 			||!stringEquals(old.getavatar(),now.getavatar())
 			||!stringEquals(old.getavatar_original(),now.getavatar_original())

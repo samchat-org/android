@@ -14,8 +14,10 @@ import com.android.samchat.activity.SamchatProfileCustomerActivity;
 import com.android.samchat.activity.SamchatProfileServiceProviderActivity;
 import com.android.samchat.common.FastBlurUtils;
 import com.android.samservice.callback.SMCallBack;
+import com.android.samservice.info.ContactUser;
 import com.karics.library.zxing.android.CaptureActivity;
 import com.netease.nim.demo.DemoCache;
+import com.netease.nim.demo.config.preference.UserPreferences;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.uikit.common.fragment.TFragment;
 import com.android.samchat.R;
@@ -45,6 +47,8 @@ import android.widget.Toast;
 
 import com.android.samchat.activity.SamchatCreateSPStepOneActivity;
 import com.android.samchat.activity.SamchatUpdatePasswordActivity;
+import com.netease.nim.uikit.common.ui.widget.SwitchButton;
+import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.auth.AuthService;
 /**
@@ -75,6 +79,7 @@ public class SamchatSettingFragment extends TFragment {
 	private LinearLayout sp_switch_layout;
 	private LinearLayout sp_subscription_layout;
 	private TextView sp_learn_more;
+	private SwitchButton sp_request_reminder_toggle;
 	
 	private boolean isSignout = false;
 	private boolean signouting = false;
@@ -171,6 +176,7 @@ public class SamchatSettingFragment extends TFragment {
 		super.onResume();
 		if(!isSignout && SamService.getInstance().get_current_user()!=null){
 			updateCustomerCreateSpLayout();
+			updateSPRequestReminderNotificationToggle();
 		}
 	}
 
@@ -216,6 +222,7 @@ public class SamchatSettingFragment extends TFragment {
 		learn_more_tv = findView(R.id.learn_more);
 		create_sp_img_iv = findView(R.id.create_sp_img);
 		create_sp_text_tv = findView(R.id.create_sp_text);
+		sp_request_reminder_toggle = findView(R.id.sp_request_reminder_toggle);
 
 		if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
 			switchMode(ModeEnum.CUSTOMER_MODE);
@@ -244,6 +251,7 @@ public class SamchatSettingFragment extends TFragment {
 		setupSubsciptionClick();
 		setupLearnMoreClick();
 		setupSPSwitchClick();
+		setupSPRequestReminderNotificationToggle();
 	}
 
 	private void setupSubsciptionClick(){
@@ -415,6 +423,83 @@ public class SamchatSettingFragment extends TFragment {
 			}
 		});
 	}
+
+/**********************************SP request reminder notification toggle*******************************/
+	private void setupSPRequestReminderNotificationToggle(){
+		sp_request_reminder_toggle.setOnChangedListener(onReminderToggleListener);
+	}
+
+	private void updateSPRequestReminderNotificationToggle() {
+		if(SamService.getInstance().get_current_user() == null){
+			return;
+		}
+		if(SamService.getInstance().get_current_user().getquestion_notify()==1){
+			sp_request_reminder_toggle.setCheck(true);
+		}else{
+			sp_request_reminder_toggle.setCheck(false);
+		}
+    }
+
+    private SwitchButton.OnChangedListener onReminderToggleListener = new SwitchButton.OnChangedListener() {
+		@Override
+		public void OnChanged(View v, final boolean toggleState) {
+			if (!NetworkUtil.isNetAvailable(getActivity())) {
+				Toast.makeText(getActivity(), R.string.network_is_not_available, Toast.LENGTH_SHORT).show();
+				sp_request_reminder_toggle.setCheck(!toggleState);
+				return;
+			}
+			ContactUser user = new ContactUser(SamService.getInstance().get_current_user());
+			user.setquestion_notify(toggleState ? 1:0);
+			SamService.getInstance().update_question_notify(user, new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							UserPreferences.setRequestToggle(toggleState);
+							if (toggleState) {
+								Toast.makeText(getActivity(), R.string.samchat_unmute_request_succeed, Toast.LENGTH_SHORT).show();
+                    		} else {
+								Toast.makeText(getActivity(), R.string.samchat_mute_request_succeed, Toast.LENGTH_SHORT).show();
+							}
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onFailed(int code) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							sp_request_reminder_toggle.setCheck(!toggleState);
+							if (toggleState) {
+								Toast.makeText(getActivity(), R.string.samchat_unmute_request_failed, Toast.LENGTH_SHORT).show();
+                    		} else {
+								Toast.makeText(getActivity(), R.string.samchat_mute_request_failed, Toast.LENGTH_SHORT).show();
+							}
+						}
+					}, 0);
+					
+				}
+
+				@Override
+				public void onError(int code) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							sp_request_reminder_toggle.setCheck(!toggleState);
+							if (toggleState) {
+								Toast.makeText(getActivity(), R.string.samchat_unmute_request_failed, Toast.LENGTH_SHORT).show();
+                    		} else {
+								Toast.makeText(getActivity(), R.string.samchat_mute_request_failed, Toast.LENGTH_SHORT).show();
+							}
+						}
+					}, 0);
+					
+				}
+			});
+		}
+    };
 
 
 

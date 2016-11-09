@@ -25,6 +25,7 @@ import com.netease.nim.uikit.recent.RecentContactsFragment;
 import com.netease.nim.uikit.session.emoji.MoonUtil;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.friend.FriendService;
 import com.netease.nimlib.sdk.msg.MsgService;
 import com.netease.nimlib.sdk.msg.constant.MsgStatusEnum;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
@@ -65,6 +66,9 @@ public abstract class SamchatRecentViewHolder extends TViewHolder implements OnC
     protected View bottomLine;
     protected View topLine;
 
+    protected ImageView mute_img_iv;
+    protected ImageView block_img_iv;
+
     protected abstract String getContent(MsgSession session);
 
     public void refresh(Object item) {
@@ -86,6 +90,7 @@ public abstract class SamchatRecentViewHolder extends TViewHolder implements OnC
         }
 
         updateMsgLabel();
+        updateStatus();
     }
 
     public void refreshCurrentItem() {
@@ -209,6 +214,13 @@ public abstract class SamchatRecentViewHolder extends TViewHolder implements OnC
         tvCategory.setText(category);
     }
 
+    protected void updateStatus() {
+        boolean block = NIMClient.getService(FriendService.class).isInBlackList(recent.getContactId());
+        boolean mute = !NIMClient.getService(FriendService.class).isNeedMessageNotify(recent.getContactId());
+        mute_img_iv.setVisibility(mute ? View.VISIBLE:View.GONE);
+        block_img_iv.setVisibility(block ? View.VISIBLE:View.GONE);
+    }
+
 	protected abstract int getResId();
 
     public void inflate() {
@@ -223,6 +235,8 @@ public abstract class SamchatRecentViewHolder extends TViewHolder implements OnC
         this.bottomLine = view.findViewById(R.id.bottom_line);
         this.topLine = view.findViewById(R.id.top_line);
         this.tvCategory = (TextView)view.findViewById(R.id.tv_category);
+        this.mute_img_iv = (ImageView)view.findViewById(R.id.mute_img);
+        this.block_img_iv = (ImageView)view.findViewById(R.id.block_img);
     }
 
     protected String unreadCountShowRule(int unread) {

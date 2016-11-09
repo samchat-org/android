@@ -125,8 +125,9 @@ public class SamService{
 	public static final int MSG_QUERY_STATE = MSG_SEND_CLIENTID + 1;
 	public static final int MSG_EDITCELLPHONE_CODE_REQUEST = MSG_QUERY_STATE + 1;
 	public static final int MSG_EDITCELLPHONE_UPDATE = MSG_EDITCELLPHONE_CODE_REQUEST + 1;
+	public static final int MSG_UPDATE_QUESTION_NOTIFY = MSG_EDITCELLPHONE_UPDATE + 1;
 	
-	public static final int MSG_SYNC_START = MSG_EDITCELLPHONE_UPDATE + 1;
+	public static final int MSG_SYNC_START = MSG_UPDATE_QUESTION_NOTIFY + 1;
 	public static final int MSG_SYNC_CHECK = MSG_SYNC_START + 1;
 	public static final int MSG_NETWORK_AVAILABLE = MSG_SYNC_CHECK + 1;
 	public static final int MSG_CLIENTID_READY = MSG_NETWORK_AVAILABLE + 1;
@@ -1853,6 +1854,42 @@ public class SamService{
 		
     }
 
+/********************************************** update question notify only for sp  ********************************************************/
+	public void update_question_notify(ContactUser user,SMCallBack callback){
+		UpdateQuestionNotifyCoreObj samobj = new UpdateQuestionNotifyCoreObj(callback);
+		samobj.init(get_current_token(),user);
+		Message msg = mSamServiceHandler.obtainMessage(MSG_UPDATE_QUESTION_NOTIFY, samobj);
+		mSamServiceHandler.sendMessage(msg);
+		startTimeOut(samobj);
+	}
+
+	private void do_update_question_notify(SamCoreObj samobj){
+		UpdateQuestionNotifyCoreObj ecobj = (UpdateQuestionNotifyCoreObj)samobj;
+		HttpCommClient hcc = new HttpCommClient();
+
+		boolean http_ret = hcc.update_question_notify(ecobj);
+		if(isTimeOut(samobj)){
+			return;
+		}else if(http_ret){
+			if(hcc.ret == 0){
+				set_current_user(hcc.userinfo);
+				SamchatUserInfoCache.getInstance().addUser(hcc.userinfo.getunique_id(), hcc.userinfo);
+				if(dao.update_ContactUser_db(hcc.userinfo) == -1){
+					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
+				}else{
+					samobj.callback.onSuccess(hcc,0);
+				}
+			}else{
+				samobj.callback.onFailed(hcc.ret);
+			}
+		}else if(!hcc.exception){
+				samobj.callback.onError(Constants.CONNECTION_HTTP_ERROR);
+		}else{
+			samobj.callback.onError(Constants.EXCEPTION_ERROR);
+		}
+		
+    }
+
 /********************************************** HTTP PUSH  ********************************************************/
 	public void handlePushCmd(Context context, String jsonString){
 		HttpCommClient hcc = new HttpCommClient();
@@ -2882,8 +2919,14 @@ public class SamService{
 					});
 					break;
 
-					
-					
+				case MSG_UPDATE_QUESTION_NOTIFY:
+					mFixedHttpThreadPool.execute(new Runnable(){
+						@Override
+						public void run(){
+							do_update_question_notify(msgObj);
+						}
+					});
+					break;
 					
 			}
 		}

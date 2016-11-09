@@ -39,7 +39,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	private void createContactUserTable(SQLiteDatabase db){
 	/*
-	id(primary) | unique_id | username | usertype | lastupdate | avatar | avatar_original | countrycode |cellphone | email | address
+	id(primary) | unique_id | username | usertype |question_notify| lastupdate | avatar | avatar_original | countrycode |cellphone | email | address
 						| company_name | service_category | service_description |countrycode_sp | phone_sp | email_sp | address_sp 
 	*/
 		StringBuffer sBuffer = new StringBuffer();
@@ -48,6 +48,7 @@ public class DatabaseHelper extends SQLiteOpenHelper
 		sBuffer.append("[unique_id] INTEGER, ");
 		sBuffer.append("[username] TEXT ,");
 		sBuffer.append("[usertype] INTEGER, ");
+		sBuffer.append("[question_notify] INTEGER, ");
 		sBuffer.append("[lastupdate] INTEGER, ");
 		sBuffer.append("[avatar] TEXT ,");
 		sBuffer.append("[avatar_original] TEXT ,");

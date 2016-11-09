@@ -110,6 +110,7 @@ public class NimApplication extends Application {
 						SamService.getInstance().set_current_user(cuser);
 						SamService.getInstance().store_current_token(token);
 					}
+					UserPreferences.setRequestToggle(SamService.getInstance().get_current_user().getquestion_notify()==1);
                  SamDBManager.getInstance().registerObservers(true);
             }
 
@@ -162,19 +163,6 @@ public class NimApplication extends Application {
         options.statusBarNotificationConfig  = config;
         DemoCache.setNotificationConfig(config);
         UserPreferences.setStatusConfig(config);
-
-		StatusBarQuestionNotificationConfig qconfig = UserPreferences.getStatusQuestionConfig();
-		if(qconfig == null){
-			qconfig = new StatusBarQuestionNotificationConfig();
-		}
-		qconfig.notificationEntrance = WelcomeActivity.class;
-		qconfig.notificationSmallIconId = R.drawable.ic_stat_notify_msg;
-		qconfig.notificationSound = "android.resource://com.android.samchat/raw/msg";
-		qconfig.ledARGB = -1;
-		qconfig.ledOnMs = -1;
-		qconfig.ledOffMs = -1;
-		DemoCache.setQuestionNotificationConfig(qconfig);
-		UserPreferences.setStatusQuestionConfig(qconfig);
 
         // 配置保存图片，文件，log等数据的目录
         String sdkPath = Environment.getExternalStorageDirectory() + "/" + getPackageName() + "/nim";

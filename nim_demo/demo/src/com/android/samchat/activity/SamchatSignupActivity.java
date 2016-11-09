@@ -389,6 +389,7 @@ public class SamchatSignupActivity extends UI implements OnKeyListener {
 
                 DataCacheManager.buildDataCacheAsync();
 					/*SAMC_BEGIN(build samchat cache)*/
+					UserPreferences.setRequestToggle(SamService.getInstance().get_current_user().getquestion_notify()==1);
 					SamService.getInstance().initDao(StringUtil.makeMd5(account));
 					SamchatDataCacheManager.buildDataCache();
 					

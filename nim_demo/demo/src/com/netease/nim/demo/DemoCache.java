@@ -17,17 +17,7 @@ public class DemoCache {
 
     private static StatusBarNotificationConfig notificationConfig;
 
-    private static StatusBarQuestionNotificationConfig questionNotificationConfig;
-
     private static NimApplication app;
-
-    public static void setQuestionNotificationConfig(StatusBarQuestionNotificationConfig questionNotificationConfig) {
-        DemoCache.questionNotificationConfig = questionNotificationConfig;
-    }
-
-    public static StatusBarQuestionNotificationConfig getQuestionNotificationConfig() {
-        return questionNotificationConfig;
-    }
 
     public static void clear() {
         account = null;

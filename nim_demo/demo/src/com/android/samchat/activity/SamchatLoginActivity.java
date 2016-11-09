@@ -474,6 +474,7 @@ public class SamchatLoginActivity extends Activity {
                 }
                 NIMClient.updateStatusBarNotificationConfig(UserPreferences.getStatusConfig());
                 DataCacheManager.buildDataCacheAsync();
+				  UserPreferences.setRequestToggle(SamService.getInstance().get_current_user().getquestion_notify()==1);
 					SamService.getInstance().initDao(StringUtil.makeMd5(account));
 					SamchatDataCacheManager.buildDataCache();
                 MainActivity.start(SamchatLoginActivity.this, null);

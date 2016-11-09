@@ -16,6 +16,9 @@ import com.netease.nim.uikit.common.util.log.LogUtil;
 import android.widget.ImageView;
 import com.android.samservice.info.Contact;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.friend.FriendService;
+
 import android.widget.LinearLayout;
 
 public class ContactAdapter extends BaseAdapter{
@@ -72,6 +75,7 @@ public class ContactAdapter extends BaseAdapter{
 			if(type == 0){
 				holder.service_category= (TextView) convertView.findViewById(R.id.service_category);
 			}
+			holder.block_img = (ImageView) convertView.findViewById(R.id.block_img);
 
 			convertView.setTag(holder);
 		}else{
@@ -95,6 +99,9 @@ public class ContactAdapter extends BaseAdapter{
 			} else {
 				holder.tv_tag.setVisibility(View.GONE);
 			}
+
+			boolean block = NIMClient.getService(FriendService.class).isInBlackList(user.getAccount());
+        	holder.block_img.setVisibility(block ? View.VISIBLE:View.GONE);
 			
 			break;
 		}
@@ -130,6 +137,7 @@ public class ContactAdapter extends BaseAdapter{
 		public LinearLayout info_layout;
 		public TextView username;
 		public TextView service_category;
+		public ImageView block_img;
 	}
 	
 	

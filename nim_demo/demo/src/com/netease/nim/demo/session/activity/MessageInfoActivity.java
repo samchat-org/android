@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -14,6 +15,7 @@ import android.widget.Toast;
 
 import com.android.samchat.activity.SamchatMemberSelectActivity;
 import com.android.samchat.service.SamDBManager;
+import com.android.samservice.Constants;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
 import com.netease.nim.demo.contact.activity.UserProfileActivity;
@@ -154,6 +156,13 @@ public class MessageInfoActivity extends UI {
         });
     }
 
+    private void sendBroadcastForBlockMuteUpdata(){
+		Intent intent = new Intent();
+		intent.setAction(Constants.BROADCAST_CHAT_BLOCK_MUTE_UPDATE);
+		LocalBroadcastManager manager = LocalBroadcastManager.getInstance(DemoCache.getContext());
+		manager.sendBroadcast(intent);
+	}
+
     private void updateMuteSwitchBtn() {
         boolean mute = !NIMClient.getService(FriendService.class).isNeedMessageNotify(account);
         switchButtonMute.setCheck(mute);
@@ -176,6 +185,8 @@ public class MessageInfoActivity extends UI {
                     } else {
                         Toast.makeText(MessageInfoActivity.this, R.string.samchat_unmute_chat_succeed, Toast.LENGTH_SHORT).show();
                     }
+
+                    sendBroadcastForBlockMuteUpdata();
                 }
 
                 @Override
@@ -221,6 +232,7 @@ public class MessageInfoActivity extends UI {
                 NIMClient.getService(FriendService.class).addToBlackList(account).setCallback(new RequestCallback<Void>() {
                     @Override
                     public void onSuccess(Void param) {
+                        sendBroadcastForBlockMuteUpdata();
                         Toast.makeText(MessageInfoActivity.this, R.string.samchat_block_chat_succeed, Toast.LENGTH_SHORT).show();
                     }
 
@@ -244,6 +256,7 @@ public class MessageInfoActivity extends UI {
                 NIMClient.getService(FriendService.class).removeFromBlackList(account).setCallback(new RequestCallback<Void>() {
                     @Override
                     public void onSuccess(Void param) {
+                        sendBroadcastForBlockMuteUpdata();
                         Toast.makeText(MessageInfoActivity.this, R.string.samchat_unblock_chat_succeed, Toast.LENGTH_SHORT).show();
                     }
 

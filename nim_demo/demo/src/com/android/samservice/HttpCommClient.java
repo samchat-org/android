@@ -76,6 +76,7 @@ public class HttpCommClient {
 	public static final String URL_queryStateDate=ROOT_URL+"api_1.0_profile_queryStateDate.do";
 	public static final String URL_editCellphoneCodeRequest=ROOT_URL+"api_1.0_profile_editCellPhoneCodeRequest.do";
 	public static final String URL_editCellphoneUpdate=ROOT_URL+"api_1.0_profile_editCellPhoneUpdate.do";
+	public static final String URL_updateQuestionNotify=ROOT_URL+"api_1.0_profile_updateQuestionNotify.do";
 	
 	public static final int CONNECTION_TIMEOUT = 10000;
 	public static final int HTTP_TIMEOUT = 20000;
@@ -255,6 +256,17 @@ public class HttpCommClient {
 		}catch(JSONException e){
 			SamLog.i(TAG,"no phone for this sam user");	
 			return null;
+		}
+	}
+
+	private int getQuestionNotify(JSONObject user){
+		try{
+			JSONObject my_settings = user.getJSONObject("my_settings");
+			int notify = my_settings.getInt("question_notify");
+			return notify;
+		}catch(JSONException e){
+			SamLog.i(TAG,"no countrycode for this sam user");	
+			return 1;
 		}
 	}
 
@@ -503,7 +515,8 @@ public class HttpCommClient {
 					userinfo.setusertype(Constants.USER);
 					userinfo.setlastupdate(user.getLong("lastupdate"));
 					userinfo.setcountrycode(suobj.countrycode);
-					userinfo.setcellphone(suobj.cellphone); 
+					userinfo.setcellphone(suobj.cellphone);
+					userinfo.setquestion_notify(getQuestionNotify(user));
 				}
 
 				SamLog.i(TAG,"signup end");
@@ -585,6 +598,7 @@ public class HttpCommClient {
 					userinfo.setcellphone(user.getString("cellphone"));
 					userinfo.setemail(getEmail(user));
 					userinfo.setaddress(getAddress(user));
+					userinfo.setquestion_notify(getQuestionNotify(user));
 
 					if(userinfo.getusertype() == Constants.SAM_PROS){
 						JSONObject sam_pros = user.getJSONObject("sam_pros_info");
@@ -2869,6 +2883,70 @@ public class HttpCommClient {
 		} catch (Exception e) { 
 			exception = true;
 			SamLog.e(TAG,"edit cellphone:Exception");
+			e.printStackTrace(); 
+			return false;
+		}
+	}
+
+	private JSONObject constructUpdateQuestionNotifyJson(UpdateQuestionNotifyCoreObj  ecobj) throws JSONException{
+			JSONObject header = new JSONObject();
+			header.putOpt("action", "update-question-notify");
+			header.putOpt("token", ecobj.token);
+			
+			JSONObject body = new JSONObject();
+			body.putOpt("question_notify",ecobj.user.getquestion_notify());
+			
+			JSONObject data = new JSONObject();
+			data.put("header", header);
+			data.put("body", body);
+
+			return data;
+	}
+
+	public boolean update_question_notify(UpdateQuestionNotifyCoreObj ecobj){
+		try{
+			JSONObject  data = constructUpdateQuestionNotifyJson(ecobj);
+
+			HttpResponse response = httpCmdStart(URL_updateQuestionNotify,data);
+			
+			statusCode = response.getStatusLine().getStatusCode();
+			
+			if(isHttpOK()){
+				String rev = EntityUtils.toString(response.getEntity());
+				SamLog.i(TAG,"rev:" + rev);
+				
+				JSONObject obj = new JSONObject(rev); 
+				ret = obj.getInt("ret");
+				if(isRetOK()){
+					userinfo = ecobj.user;
+					JSONObject user = obj.getJSONObject("user");
+					userinfo.setlastupdate(user.getLong("lastupdate"));
+				}
+				
+				return true;
+			}else{
+				SamLog.i(TAG,"update question notify http status code:"+statusCode);
+				return false;
+			}
+		
+		}catch (JSONException e) {  
+			exception = true;
+			e.printStackTrace();
+			SamLog.e(TAG,"update question notify:JSONException");
+			return false;
+		} catch (ClientProtocolException e) {
+			exception = true;
+			SamLog.e(TAG,"update question notify:ClientProtocolException");
+			e.printStackTrace(); 
+			return false;
+		} catch (IOException e) { 
+			exception = true;
+			SamLog.e(TAG,"update question notify:IOException");
+			e.printStackTrace(); 
+			return false;
+		} catch (Exception e) { 
+			exception = true;
+			SamLog.e(TAG,"update question notify:Exception");
 			e.printStackTrace(); 
 			return false;
 		}

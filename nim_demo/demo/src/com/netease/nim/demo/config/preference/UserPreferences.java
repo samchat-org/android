@@ -16,7 +16,6 @@ public class UserPreferences {
     private final static String KEY_SB_NOTIFY_TOGGLE="sb_notify_toggle";
     private final static String KEY_TEAM_ANNOUNCE_CLOSED = "team_announce_closed";
     private final static String KEY_STATUS_BAR_NOTIFICATION_CONFIG = "KEY_STATUS_BAR_NOTIFICATION_CONFIG";
-    private final static String KEY_STATUS_BAR_QUESTION_NOTIFICATION_CONFIG = "KEY_STATUS_BAR_QUESTION_NOTIFICATION_CONFIG";
 
     private final static String KEY_AVCHAT_SERVER_AUDIO_RECORD = "KEY_AVCHAT_SERVER_AUDIO_RECORD";
     private final static String KEY_AVCHAT_SERVER_VIDEO_RECORD = "KEY_AVCHAT_SERVER_VIDEO_RECORD";
@@ -31,6 +30,8 @@ public class UserPreferences {
     private final static String KEY_NOTICE_CONTENT_TOGGLE = "KEY_NOTICE_CONTENT_TOGGLE";
 
     private final static String KEY_VIBRATE_TOGGLE = "KEY_VIBRATE_TOGGLE";
+
+    private final static String KEY_SP_REQUEST_TOGGLE = "KEY_REQUEST_TOGGLE";
 
     public static void setMsgIgnore(boolean enable) {
         saveBoolean(KEY_MSG_IGNORE, enable);
@@ -80,6 +81,14 @@ public class UserPreferences {
         return getBoolean(KEY_VIBRATE_TOGGLE, true);
     }
 
+    public static void setRequestToggle(boolean on) {
+        saveBoolean(KEY_SP_REQUEST_TOGGLE, on);
+    }
+
+    public static boolean getRequestToggle() {
+        return getBoolean(KEY_SP_REQUEST_TOGGLE, true);
+    }
+
     public static void setLedToggle(boolean on) {
         saveBoolean(KEY_LED_TOGGLE, on);
     }
@@ -110,14 +119,6 @@ public class UserPreferences {
 
     public static StatusBarNotificationConfig getStatusConfig() {
         return getConfig(KEY_STATUS_BAR_NOTIFICATION_CONFIG);
-    }
-
-	public static void setStatusQuestionConfig(StatusBarQuestionNotificationConfig config) {
-        saveStatusBarQuestionNotificationConfig(KEY_STATUS_BAR_QUESTION_NOTIFICATION_CONFIG, config);
-    }
-
-    public static StatusBarQuestionNotificationConfig getStatusQuestionConfig() {
-        return getStatusBarQuestionNotificationConfig(KEY_STATUS_BAR_QUESTION_NOTIFICATION_CONFIG);
     }
 
     public static void setTeamAnnounceClosed(String teamId, boolean closed) {
@@ -177,57 +178,7 @@ public class UserPreferences {
         editor.putString(key, jsonObject.toString());
         editor.commit();
     }
-
-	private static StatusBarQuestionNotificationConfig getStatusBarQuestionNotificationConfig(String key) {
-        StatusBarQuestionNotificationConfig config = new StatusBarQuestionNotificationConfig();
-        String jsonString = getSharedPreferences().getString(key, "");
-        try {
-            JSONObject jsonObject = JSONObject.parseObject(jsonString);
-            if (jsonObject == null) {
-                return null;
-            }
-            config.downTimeBegin = jsonObject.getString("downTimeBegin");
-            config.downTimeEnd = jsonObject.getString("downTimeEnd");
-            config.downTimeToggle = jsonObject.getBoolean("downTimeToggle");
-            config.ring = jsonObject.getBoolean("ring");
-            config.vibrate = jsonObject.getBoolean("vibrate");
-            config.notificationSmallIconId = jsonObject.getIntValue("notificationSmallIconId");
-            config.notificationSound = jsonObject.getString("notificationSound");
-            config.hideContent = jsonObject.getBoolean("hideContent");
-            config.ledARGB = jsonObject.getIntValue("ledargb");
-            config.ledOnMs = jsonObject.getIntValue("ledonms");
-            config.ledOffMs = jsonObject.getIntValue("ledoffms");
-            config.titleOnlyShowAppName = jsonObject.getBoolean("titleOnlyShowAppName");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return config;
-    }
-
-	private static void saveStatusBarQuestionNotificationConfig(String key , StatusBarQuestionNotificationConfig config) {
-        SharedPreferences.Editor editor = getSharedPreferences().edit();
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("downTimeBegin", config.downTimeBegin);
-            jsonObject.put("downTimeEnd", config.downTimeEnd);
-            jsonObject.put("downTimeToggle", config.downTimeToggle);
-            jsonObject.put("ring", config.ring);
-            jsonObject.put("vibrate", config.vibrate);
-            jsonObject.put("notificationSmallIconId", config.notificationSmallIconId);
-            jsonObject.put("notificationSound", config.notificationSound);
-            jsonObject.put("hideContent", config.hideContent);
-            jsonObject.put("ledargb", config.ledARGB);
-            jsonObject.put("ledonms", config.ledOnMs);
-            jsonObject.put("ledoffms", config.ledOffMs);
-            jsonObject.put("titleOnlyShowAppName", config.titleOnlyShowAppName);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        editor.putString(key, jsonObject.toString());
-        editor.commit();
-    }
-
+		
     private static boolean getBoolean(String key, boolean value) {
         return getSharedPreferences().getBoolean(key, value);
     }

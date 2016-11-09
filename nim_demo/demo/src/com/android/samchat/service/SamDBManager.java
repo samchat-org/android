@@ -5,6 +5,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 
 import com.android.samchat.R;
 import com.android.samchat.cache.MsgSessionDataCache;
@@ -21,12 +24,14 @@ import java.util.List;
 import java.util.ArrayList;
 import com.android.samservice.info.Message;
 import com.android.samservice.info.RcvdAdvSession;
+import com.netease.nim.demo.config.preference.UserPreferences;
 import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.cache.SendIMMessageCache;
 import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.util.storage.StorageType;
 import com.netease.nim.uikit.session.sam_message.SessionBasicInfo;
 import com.netease.nimlib.sdk.RequestCallback;
+import com.netease.nimlib.sdk.StatusBarNotificationConfig;
 import com.netease.nimlib.sdk.msg.constant.MsgDirectionEnum;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
@@ -224,15 +229,33 @@ public class SamDBManager{
 
 	private void notifyBar(Context context, ReceivedQuestion rq, ContactUser ui){
 		NotificationManager manager = (NotificationManager) context.getSystemService( Context.NOTIFICATION_SERVICE );
-		StatusBarQuestionNotificationConfig qconfig = DemoCache.getQuestionNotificationConfig();	
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,new Intent(context, qconfig.notificationEntrance), 0);    
-		Notification notify = new Notification.Builder(context)  
-                    .setSmallIcon(qconfig.notificationSmallIconId) 
-                    .setTicker(ui.getusername() +"'s"+ DemoCache.getContext().getString(R.string.samchat_request)+":"+rq.getquestion())
-                    .setContentTitle(DemoCache.getContext().getString(R.string.samchat_new_request))
-                    .setContentText(ui.getusername()+":"+rq.getquestion())
-                    .setContentIntent(pendingIntent)
-                     .getNotification();
+		boolean reminder_toggle = UserPreferences.getNotificationToggle();
+		boolean request_toggle = UserPreferences.getRequestToggle();
+		boolean sound_toggle = UserPreferences.getRingToggle();
+		boolean vibrate_toggle = UserPreferences.getVibrateToggle();
+
+		if(!reminder_toggle || !request_toggle){
+			return;
+		}
+
+		Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_logo);
+		
+		StatusBarNotificationConfig config = DemoCache.getNotificationConfig();
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,new Intent(context, config.notificationEntrance), PendingIntent.FLAG_CANCEL_CURRENT);
+		Notification.Builder builder = new Notification.Builder(context);
+		builder.setSmallIcon(config.notificationSmallIconId)
+				.setLargeIcon(bitmap)
+				.setTicker(ui.getusername() +"'s"+ DemoCache.getContext().getString(R.string.samchat_request)+":"+rq.getquestion())
+				.setContentTitle(DemoCache.getContext().getString(R.string.samchat_new_request))
+				.setContentText(ui.getusername()+":"+rq.getquestion())
+				.setContentIntent(pendingIntent);
+		if(sound_toggle){
+			builder.setSound(Uri.parse(config.notificationSound));
+		}
+		if(vibrate_toggle){
+			builder.setDefaults(Notification.DEFAULT_VIBRATE);
+		}
+		Notification notify = builder.getNotification();
 		notify.flags |= Notification.FLAG_AUTO_CANCEL;  
 		manager.notify(NimConstants.QUESTION_NOTIFICATION_ID,notify);
 	}
