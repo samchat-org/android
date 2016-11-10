@@ -89,7 +89,7 @@
                         android:layout_marginStart="@dimen/title_left_margin"
                         android:layout_marginRight="@dimen/title_right_margin"
                         android:layout_marginEnd="@dimen/title_right_margin"
-                        android:layout_centerVertical="true"
+                        android:layout_centerInParent="true"
                         android:contentDescription="@null"/>
                     <TextView
                         android:id="@+id/titlebar_right_text"

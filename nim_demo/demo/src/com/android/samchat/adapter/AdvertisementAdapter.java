@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.android.samchat.activity.SamchatContactUserSPNameCardActivity;
+import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samchat.common.SamchatFileNameUtils;
 import com.android.samservice.Constants;
 import com.android.samservice.info.Advertisement;
@@ -87,6 +89,8 @@ public class AdvertisementAdapter extends BaseAdapter{
 			holder = (ViewHolder)convertView.getTag();
 		}
 
+		holder.img_head.setOnClickListener(new COrder(position));
+
 		switch(viewType){
 		case TYPE_ADV:
 			Advertisement adv = items.get(position);
@@ -164,9 +168,20 @@ public class AdvertisementAdapter extends BaseAdapter{
 		public MsgThumbImageView content_image;
 		public FrameLayout content_image_layout;
 	}
-	
-	
-	
+
+	private class COrder implements View.OnClickListener {
+		private int position;
+		COrder(int p) {
+			position = p;
+		}
+		@Override
+		public void onClick(View v) {
+			ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(items.get(position).getsender_unique_id());
+			if(user != null){
+				SamchatContactUserSPNameCardActivity.start(mContext, user);
+			}
+		}
+	}
 }
 
 

@@ -60,7 +60,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:divider="@null"
+            android:cacheColorHint="@android:color/transparent"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="0dip"
+            android:fadingEdge="none"
             android:scrollbars="none"
             android:background="@color/samchat_color_white"/>
     </LinearLayout>
@@ -75,6 +78,8 @@
             android:id="@+id/sp_request_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:cacheColorHint="@android:color/transparent"
+            android:fadingEdge="none"
             android:divider="@color/samchat_color_grey"
             android:dividerHeight="1dp"
             android:scrollbars="none">

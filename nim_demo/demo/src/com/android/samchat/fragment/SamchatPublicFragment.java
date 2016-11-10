@@ -292,9 +292,8 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 		return !NIMClient.getService(FriendService.class).isNeedMessageNotify(public_account);
 	}
 
-	private boolean isBlock(long unique_id){
-		String public_account = NimConstants.PUBLIC_ACCOUNT_PREFIX+unique_id;
-		return NIMClient.getService(FriendService.class).isInBlackList(public_account);
+	private boolean isBlock(FollowedSamPros fsp){
+		return (fsp.getblock_tag()!=Constants.NO_TAG);
 	}
 
 	private boolean isSending = false;
@@ -316,7 +315,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 			}
 		});
 
-		title = (isBlock(fsp.getunique_id())?getString(R.string.samchat_unblock):getString(R.string.samchat_block));
+		title = (isBlock(fsp)?getString(R.string.samchat_unblock):getString(R.string.samchat_block));
 		alertDialog.addItem(title, new CustomAlertDialog.onSeparateItemClickListener() {
 			@Override
 			public void onClick() {
@@ -328,12 +327,12 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 					return;
 				}
 				isSending = true;
-				if(isBlock(fsp.getunique_id())){
+				if(isBlock(fsp)){
 					//do unblock
-					
+					block(false, fsp);
 				}else{
 					//do block
-					
+					block(true, fsp);
 				}
 			}
 		});
@@ -854,8 +853,6 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 							DialogMaker.dismissProgressDialog();
 							isSending = false;
 							removeRcvdAdvSessionByID(hcc.userinfo.getunique_id());
-							loadedFollowSPs= FollowDataCache.getInstance().getMyFollowSPsList();
-							onFollowedSPsLoaded();
 						}
 					}, 0);
 				}
@@ -894,10 +891,14 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 	}
 
 	
-	/*private void block(boolean block,FollowedSamPros fsp){
+	private void block(final boolean block,FollowedSamPros fsp){
 		ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(fsp.getunique_id());
 		if(user == null){
-			return;
+			user = new ContactUser(Constants.SAM_PROS);
+			user.setunique_id(fsp.getunique_id());
+			user.setusername(fsp.getusername());
+			user.setavatar(fsp.getavatar());
+			user.setservice_category(fsp.getservice_category());
 		}
 		
 		DialogMaker.showProgressDialog(getActivity(), null, getString(R.string.samchat_processing), false, null).setCanceledOnTouchOutside(false);
@@ -908,40 +909,41 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 						@Override
 						public void run() {
 							DialogMaker.dismissProgressDialog();
+							isSending = false;
+							Toast.makeText(getActivity(), block?R.string.samchat_block_public_succeed:R.string.samchat_unblock_public_succeed, Toast.LENGTH_SHORT).show();
 						}
 					}, 0);
 				}
 
 				@Override
 				public void onFailed(int code) {
-					DialogMaker.dismissProgressDialog();
 					final ErrorString error = new ErrorString(getActivity(),code);
-					
 					getHandler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
-							EasyAlertDialogHelper.showOneButtonDiolag(getActivity(), null,
-                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							DialogMaker.dismissProgressDialog();
+							isSending = false;
+							Toast.makeText(getActivity(), block?R.string.samchat_block_public_failed:R.string.samchat_unblock_public_failed, Toast.LENGTH_SHORT).show();
 						}
 					}, 0);
 				}
 
 				@Override
 				public void onError(int code) {
-					DialogMaker.dismissProgressDialog();
 					final ErrorString error = new ErrorString(getActivity(),code);
 					getHandler().postDelayed(new Runnable() {
 						@Override
 						public void run() {
-							EasyAlertDialogHelper.showOneButtonDiolag(getActivity(), null,
-                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							DialogMaker.dismissProgressDialog();
+							isSending = false;
+							Toast.makeText(getActivity(), block?R.string.samchat_block_public_failed:R.string.samchat_unblock_public_failed, Toast.LENGTH_SHORT).show();
 						}
 					}, 0);
 				}
 
 		} );
 
-	}*/
+	}
 
 	private void mute(final boolean muteState,FollowedSamPros fsp){
 		String public_account = NimConstants.PUBLIC_ACCOUNT_PREFIX+fsp.getunique_id();
@@ -983,8 +985,9 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 		});
 	}
 
-	private void block(boolean blockState,FollowedSamPros fsp){
+	/*private void block(boolean blockState,FollowedSamPros fsp){
 		String public_account = NimConstants.PUBLIC_ACCOUNT_PREFIX+fsp.getunique_id();
+		LogUtil.e("test","blockState:"+blockState+" public_account:"+public_account);
 		DialogMaker.showProgressDialog(getActivity(), null, getString(R.string.samchat_processing), false, null).setCanceledOnTouchOutside(false);
 		if(blockState){
 			NIMClient.getService(FriendService.class).addToBlackList(public_account).setCallback(new RequestCallback<Void>() {
@@ -1034,7 +1037,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 				}    
 			});
 		}
-	}
+	}*/
 }
 
 

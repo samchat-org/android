@@ -313,6 +313,13 @@
                 android:gravity="start|center_vertical"
                 android:textSize="@dimen/text_size_16"
                 android:textColor="@color/samchat_color_ink"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignLeft="@+id/address"
+                android:layout_alignStart="@+id/address"
+                android:background="@color/samchat_color_grey"/>
         </RelativeLayout>
 
     </LinearLayout>

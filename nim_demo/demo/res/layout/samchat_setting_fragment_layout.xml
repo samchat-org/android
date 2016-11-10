@@ -4,7 +4,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fillViewport="true"
-        android:scrollbars="none">
+        android:scrollbars="none"
+        android:background="@color/samchat_color_main_bg">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -386,6 +387,7 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
+                    android:layout_marginBottom="20dp"
                     android:background="@color/samchat_color_grey"/>
             </LinearLayout>
             <LinearLayout
@@ -597,8 +599,6 @@
                     android:layout_height="1dp"
                     android:background="@color/samchat_color_grey"/>
             </LinearLayout>
-
-
     </LinearLayout>
 
 

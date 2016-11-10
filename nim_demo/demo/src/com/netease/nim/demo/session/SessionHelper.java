@@ -7,6 +7,12 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
+import com.android.samchat.SamchatGlobal;
+import com.android.samchat.activity.SamchatContactUserNameCardActivity;
+import com.android.samchat.activity.SamchatContactUserSPNameCardActivity;
+import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samservice.SamService;
+import com.android.samservice.info.ContactUser;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
 import com.netease.nim.demo.contact.activity.UserProfileActivity;
@@ -389,7 +395,19 @@ public class SessionHelper {
             @Override
             public void onAvatarClicked(Context context, IMMessage message) {
                 // 一般用于打开用户资料页面
-                UserProfileActivity.start(context, message.getFromAccount());
+                //UserProfileActivity.start(context, message.getFromAccount());
+                String account = message.getFromAccount();
+                if(SamService.getInstance().get_current_user().getAccount().equals(account))
+                    return;
+
+                ContactUser user = SamchatUserInfoCache.getInstance().getUserByAccount(account);
+                if(user != null){
+                    if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+                        SamchatContactUserSPNameCardActivity.start(context, user);
+                    }else{
+                        SamchatContactUserNameCardActivity.start(context,user);
+                    }
+                }
             }
 
             @Override

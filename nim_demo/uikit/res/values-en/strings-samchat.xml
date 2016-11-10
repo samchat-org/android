@@ -587,4 +587,12 @@
     <string name="samchat_request_reminder">Request reminder</string>
     <string name="samchat_mute">Mute</string>
     <string name="samchat_unmute">UnMute</string>
+
+    <string name="samchat_team_name">Team Name</string>
+    <string name="samchat_quite_team">Quit Team</string>
+    <string name="samchat_add">add</string>
+    <string name="samchat_remove">remove</string>
+    <string name="samchat_fetch_team_info_failed">Fetch team info failed</string>
+    <string name="samchat_team_invalid_tip">you have quit this team</string>
+    <string name="samchat_normal_team_invalid_tip">you have quit this team</string>
 </resources>

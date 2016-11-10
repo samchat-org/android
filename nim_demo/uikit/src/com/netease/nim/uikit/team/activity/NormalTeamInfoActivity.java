@@ -416,7 +416,7 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
         View nameView = findViewById(R.id.settings_item_name);
         nameView.setOnClickListener(this);
         TextView nameLabel = (TextView) nameView.findViewById(R.id.item_title);
-        nameLabel.setText(R.string.normal_team_name);
+        nameLabel.setText(R.string.samchat_team_name);
 
         // talk button
         Button quitBtn = (Button) findViewById(R.id.quit_team);
@@ -540,8 +540,12 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
     private void updateDataSource() {
 		if(isSelfAdmin){
 			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
+			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_white));
+            getToolBar().setNavigationIcon(R.drawable.samchat_arrow_left_sp);
 		}else{
 			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
+			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_dark_blue));
+            getToolBar().setNavigationIcon(R.drawable.samchat_arrow_left);
 		}
 			
         dataSource.clear();
@@ -735,7 +739,9 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
 
     @Override
     public void onHeadImageViewClick(String account) {
-        NimUIKit.getContactEventListener().onAvatarClick(this, account);
+		//NimUIKit.getContactEventListener().onAvatarClick(this, account);
+		NimUIKit.getCallback().onAvatarClick(account,creator);
+				
     }
 
     private void registerUserInfoChangedObserver(boolean register) {

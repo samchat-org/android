@@ -113,13 +113,13 @@
         <RelativeLayout
             android:id="@+id/follow_layout"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginLeft="@dimen/body_left_margin"
-            android:layout_marginStart="@dimen/body_left_margin">
+            android:layout_height="48dp">
             <ImageView
                 android:id="@+id/follow_img"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/body_left_margin"
+                android:layout_marginStart="@dimen/body_left_margin"
                 android:layout_centerVertical="true"
                 android:contentDescription="@null"
                 android:src="@drawable/samchat_ic_list_follow"/>
@@ -155,16 +155,16 @@
             android:id="@+id/chat_layout"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginLeft="@dimen/body_left_margin"
-            android:layout_marginStart="@dimen/body_left_margin"
             android:background="@drawable/samchat_list_item_selector">
             <ImageView
                 android:id="@+id/chat_img"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/body_left_margin"
+                android:layout_marginStart="@dimen/body_left_margin"
                 android:layout_centerVertical="true"
                 android:contentDescription="@null"
-                android:src="@drawable/samchat_chat_icon"/>
+                android:src="@drawable/samchat_chat_icon_hint"/>
             <TextView
                 android:id="@+id/chat_text"
                 android:layout_width="wrap_content"
@@ -189,16 +189,16 @@
             android:id="@+id/op_layout"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginLeft="@dimen/body_left_margin"
-            android:layout_marginStart="@dimen/body_left_margin"
             android:background="@drawable/samchat_list_item_selector">
             <ImageView
                 android:id="@+id/op_img"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/body_left_margin"
+                android:layout_marginStart="@dimen/body_left_margin"
                 android:layout_centerVertical="true"
                 android:contentDescription="@null"
-                android:src="@drawable/samchat_ic_list_add_to_chat"/>
+                android:src="@drawable/samchat_ic_add_user"/>
             <TextView
                 android:id="@+id/op_text"
                 android:layout_width="wrap_content"
@@ -223,13 +223,13 @@
             android:id="@+id/qr_layout"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginLeft="@dimen/body_left_margin"
-            android:layout_marginStart="@dimen/body_left_margin"
             android:background="@drawable/samchat_list_item_selector">
             <ImageView
                 android:id="@+id/qr_img"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/body_left_margin"
+                android:layout_marginStart="@dimen/body_left_margin"
                 android:layout_centerVertical="true"
                 android:contentDescription="@null"
                 android:src="@drawable/samchat_scan"/>
@@ -269,14 +269,13 @@
             android:text="@string/samchat_contact_details"/>
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="@dimen/body_left_margin"
-            android:layout_marginStart="@dimen/body_left_margin">
+            android:layout_height="48dp">
             <ImageView
                 android:id="@+id/img_phone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/body_left_margin"
+                android:layout_marginStart="@dimen/body_left_margin"
                 android:layout_centerVertical="true"
                 android:contentDescription="@null"
                 android:src="@drawable/samchat_ic_input_phone_hint"/>
@@ -302,13 +301,13 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginLeft="@dimen/body_left_margin"
-            android:layout_marginStart="@dimen/body_left_margin">
+            android:layout_height="48dp">
             <ImageView
                 android:id="@+id/img_email"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/body_left_margin"
+                android:layout_marginStart="@dimen/body_left_margin"
                 android:layout_centerVertical="true"
                 android:contentDescription="@null"
                 android:src="@drawable/samchat_ic_input_email_hint"/>
@@ -334,13 +333,13 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginLeft="@dimen/body_left_margin"
-            android:layout_marginStart="@dimen/body_left_margin">
+            android:layout_height="48dp">
             <ImageView
                 android:id="@+id/img_location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/body_left_margin"
+                android:layout_marginStart="@dimen/body_left_margin"
                 android:layout_centerVertical="true"
                 android:contentDescription="@null"
                 android:src="@drawable/samchat_ic_input_location_hint"/>

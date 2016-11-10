@@ -14,6 +14,7 @@ import com.android.samservice.Constants;
 import com.android.samservice.type.TypeEnum;
 import com.android.samservice.callback.SMCallBack;
 import com.android.samservice.info.MultipleUserProfile;
+import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 
 
@@ -61,6 +62,29 @@ public class SamchatUserInfoCache {
 
 		}
         return user;
+	}
+
+	private long stringTolong(String s){
+	 	long ret = -1;
+		String account = s;
+		if (s.startsWith(NimConstants.PUBLIC_ACCOUNT_PREFIX)) {
+            account = s.substring(s.indexOf(NimConstants.PUBLIC_ACCOUNT_PREFIX) + NimConstants.PUBLIC_ACCOUNT_PREFIX.length());
+		}
+		try{
+			ret = Long.valueOf(account);
+		}catch(Exception e){
+			e.printStackTrace();
+			return ret;
+		}
+		return ret;
+	 }
+	public ContactUser getUserByAccount(String account){
+		long unique_id = stringTolong(account);
+		ContactUser user =  userInfoMap.get(unique_id);
+		if(user == null){
+
+		}
+		return user;
 	}
 
 	public void getUserByUniqueIDFromRemote(final Long unique_id){

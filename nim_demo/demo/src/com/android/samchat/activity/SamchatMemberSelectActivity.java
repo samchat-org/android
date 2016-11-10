@@ -21,6 +21,7 @@ import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.model.ToolBarOptions;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -33,7 +34,8 @@ public class SamchatMemberSelectActivity extends UI implements OnKeyListener {
 	public static final String RESULT_DATA="RESULT_DATA";
 
 	private FrameLayout back_arrow_layout;
-	private FrameLayout right_button_layout;
+	private FrameLayout invite_layout;
+	private TextView invite_tv;
 	private ListView member_list_listview;
 
 	private SamchatMemberSelectActivity.Option option;
@@ -42,6 +44,8 @@ public class SamchatMemberSelectActivity extends UI implements OnKeyListener {
 	private boolean memberListLoaded = false;
 
 	private SelectMemberAdapter adapter;
+
+	private boolean ready=false;
 
 	public static void startActivityForResult(Context context,SamchatMemberSelectActivity.Option option, int requestCode) {
 		Intent intent = new Intent(context, SamchatMemberSelectActivity.class);
@@ -92,13 +96,26 @@ public class SamchatMemberSelectActivity extends UI implements OnKeyListener {
 
 	private void findView(){	
 		back_arrow_layout = findView(R.id.back_arrow_layout);
-		right_button_layout = findView(R.id.right_button_layout);
+		invite_layout = findView(R.id.invite_layout);
+		invite_tv = findView(R.id.invite);
 		member_list_listview = findView(R.id.member_list);
 	}
 
 	private void setupPanel() {
 		setupBackArrowClick();
-		setupOKClick();
+		setupInviteClick();
+	}
+
+	private void updateInvite(){
+		if(ready){
+			invite_layout.setEnabled(true);
+			invite_tv.setTextColor(getResources().getColor(R.color.samchat_color_white));
+			invite_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_sp);
+		}else{
+			invite_layout.setEnabled(false);
+			invite_tv.setTextColor(getResources().getColor(R.color.samchat_color_grey));
+			invite_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_sp_inactive);
+		}
 	}
 	
 	private void setupBackArrowClick(){
@@ -110,8 +127,8 @@ public class SamchatMemberSelectActivity extends UI implements OnKeyListener {
 		});
 	}
 
-	private void setupOKClick(){
-		right_button_layout.setOnClickListener(new OnClickListener() {
+	private void setupInviteClick(){
+		invite_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
 				if(selectMembers.size() > option.getalreadySelectedAccounts().size()){
@@ -122,6 +139,7 @@ public class SamchatMemberSelectActivity extends UI implements OnKeyListener {
 				}
 			}
 		});
+		updateInvite();
 	}
 
 	private boolean inSelectedMembers(String account){
@@ -186,11 +204,17 @@ public class SamchatMemberSelectActivity extends UI implements OnKeyListener {
 
 				if(inSelectedMembers(member.getAccount())){
 					removeSelectMember(member.getAccount());
-					refreshMemberList();
 				}else{
 					addSelectMember(member.getAccount());
-					refreshMemberList();
 				}
+				
+				if(selectMembers.size() > option.getalreadySelectedAccounts().size()){
+					ready = true;
+				}else{
+					ready = false;
+				}
+				updateInvite();
+				refreshMemberList();
 			}
 		});
 

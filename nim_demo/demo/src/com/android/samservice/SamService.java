@@ -1896,6 +1896,8 @@ public class SamService{
 		int category = hcc.parsePushJson(jsonString);
 		boolean isDBError = false;
 
+		LogUtil.i(TAG,"jsonString:"+jsonString);
+
 		switch(category){
 			case Constants.PUSH_CATEGORY_QUESTION:
 				SamDBManager.getInstance().handleReceivedQuestion(context,hcc);

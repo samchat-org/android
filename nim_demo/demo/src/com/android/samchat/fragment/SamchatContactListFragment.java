@@ -8,8 +8,12 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 
+import com.android.samchat.activity.SamchatContactUserNameCardActivity;
+import com.android.samchat.activity.SamchatContactUserSPNameCardActivity;
+import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samchat.callback.ContactCallback;
 import com.android.samservice.info.Contact;
+import com.android.samservice.info.ContactUser;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
 import com.netease.nim.demo.contact.activity.BlackListActivity;
@@ -67,7 +71,11 @@ public class SamchatContactListFragment extends MainTabFragment {
 
 			@Override
 			public void onItemClick(Contact ui){
-				SessionHelper.startP2PSession(getActivity(), ""+ui.getunique_id());
+				//SessionHelper.startP2PSession(getActivity(), ""+ui.getunique_id());
+				ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(ui.getunique_id());
+				if(user != null){
+					SamchatContactUserSPNameCardActivity.start(getActivity(), user);
+				}
 			}
 
 			@Override
@@ -89,7 +97,11 @@ public class SamchatContactListFragment extends MainTabFragment {
 
 			@Override
 			public void onItemClick(Contact ui){
-				SessionHelper.startP2PSession(getActivity(), ""+ui.getunique_id());
+				//SessionHelper.startP2PSession(getActivity(), ""+ui.getunique_id());
+				ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(ui.getunique_id());
+				if(user != null){
+					SamchatContactUserNameCardActivity.start(getActivity(), user);
+				}
 			}
 
 			@Override

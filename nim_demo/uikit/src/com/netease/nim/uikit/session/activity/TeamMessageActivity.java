@@ -13,6 +13,7 @@ import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.FriendDataCache;
 import com.netease.nim.uikit.cache.SimpleCallback;
 import com.netease.nim.uikit.cache.TeamDataCache;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.model.ToolBarOptions;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.constant.Extras;
@@ -107,7 +108,7 @@ public class TeamMessageActivity extends BaseMessageActivity {
     }
 
     private void onRequestTeamInfoFailed() {
-        Toast.makeText(TeamMessageActivity.this, "获取群组信息失败!", Toast.LENGTH_SHORT);
+        Toast.makeText(TeamMessageActivity.this, R.string.samchat_fetch_team_info_failed, Toast.LENGTH_SHORT);
         finish();
     }
 
@@ -124,9 +125,9 @@ public class TeamMessageActivity extends BaseMessageActivity {
         team = d;
         fragment.setTeam(team);
 
-        setTitle(team == null ? sessionId : team.getName() + "(" + team.getMemberCount() + "人)");
+        setTitle(team == null ? sessionId : team.getName() + "(" + team.getMemberCount() + ")");
 
-        invalidTeamTipText.setText(team.getType() == TeamTypeEnum.Normal ? R.string.normal_team_invalid_tip : R.string.team_invalid_tip);
+        invalidTeamTipText.setText(team.getType() == TeamTypeEnum.Normal ? R.string.samchat_normal_team_invalid_tip : R.string.samchat_team_invalid_tip);
         invalidTeamTipView.setVisibility(team.isMyTeam() ? View.GONE : View.VISIBLE);
     }
 
@@ -237,12 +238,23 @@ public class TeamMessageActivity extends BaseMessageActivity {
         return R.layout.nim_team_message_activity;
     }
 
-    @Override
-    protected void initToolBar() {
-        ToolBarOptions options = new ToolBarOptions();
-        options.titleString = "群聊";
+	@Override
+	protected void initToolBar() {
+		ToolBarOptions options = new ToolBarOptions();
+		if(NimUIKit.getCallback().getCurrentMode() == ModeEnum.CUSTOMER_MODE.getValue()){
+            options.navigateId = R.drawable.samchat_arrow_left;
+        }else{
+             options.navigateId = R.drawable.samchat_arrow_left_sp;
+        }
         setToolBar(R.id.toolbar, options);
-    }
+        if(NimUIKit.getCallback().getCurrentMode() == ModeEnum.CUSTOMER_MODE.getValue()){
+			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
+			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_dark_blue));
+		}else{
+			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
+			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_white));
+		}
+	}
 
     @Override
     public void onBackPressed() {

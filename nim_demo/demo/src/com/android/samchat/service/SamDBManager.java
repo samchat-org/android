@@ -1631,6 +1631,7 @@ public class SamDBManager{
 
 	private void convertAdvertisement(IMMessage im){
 		SamService.getInstance().handlePushCmd(null,im.getContent());
+		NIMClient.getService(MsgService.class).deleteChattingHistory(im);
 	}
 
 	private Observer<List<IMMessage>> incomingP2PMessageObserver = new Observer<List<IMMessage>>() {

@@ -256,6 +256,7 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 			@Override
 			public void onClick(View arg0) {
 				SessionHelper.startP2PSession(SamchatContactUserSPNameCardActivity.this, sp.getAccount());
+				finish();
 			}
 		});
 	}

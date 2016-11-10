@@ -68,33 +68,17 @@
                     android:background="@drawable/nim_semitransparency_selector"
                     android:paddingLeft="@dimen/isetting_item_padding_left"
                     android:paddingRight="@dimen/isetting_item_padding_right">
-                    <ImageView
-                        android:id="@+id/delete_img"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="@null"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignParentStart="true"
-                        android:layout_centerVertical="true"
-                        android:src="@drawable/samchat_ic_list_mute"/>
 
                     <TextView
                         android:id="@+id/delete_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginStart="20dp"
-                        android:layout_toRightOf="@id/delete_img"
-                        android:layout_toEndOf="@id/delete_img"
-
                         android:layout_centerVertical="true"
                         android:textColor="@color/color_black_ff333333"
                         android:textSize="16sp"/>
 
                     <View
                         style="@style/horizontal_light_thin_divider"
-                        android:layout_alignLeft="@id/delete_title"
-                        android:layout_alignStart="@id/delete_title"
                         android:layout_alignParentBottom="true"/>
 
                 </RelativeLayout>
@@ -117,7 +101,7 @@
                     android:layout_alignParentBottom="true"
                     android:background="@drawable/nim_red_round_button_selector"
                     android:minHeight="50dp"
-                    android:text="@string/quit_normal_team"
+                    android:text="@string/samchat_quite_team"
                     android:textColor="@color/white"
                     android:textSize="@dimen/text_size_17" />
 

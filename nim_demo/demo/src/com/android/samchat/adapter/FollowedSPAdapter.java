@@ -3,8 +3,11 @@ package com.android.samchat.adapter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.android.samchat.activity.SamchatContactUserSPNameCardActivity;
+import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samservice.Constants;
 import com.android.samservice.SamService;
+import com.android.samservice.info.ContactUser;
 import com.android.samservice.info.FollowedSamPros;
 import com.android.samservice.info.RcvdAdvSession;
 import com.android.samchat.R;
@@ -18,10 +21,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
+import com.netease.nimlib.sdk.NIMClient;
+import com.netease.nimlib.sdk.friend.FriendService;
+
 import android.widget.ImageView;
 
 public class FollowedSPAdapter extends BaseAdapter{
@@ -56,6 +63,15 @@ public class FollowedSPAdapter extends BaseAdapter{
 	public int getItemViewType(int position){
 		return TYPE_FOLLOWEDSP;
 	}
+
+	private boolean isBlock(FollowedSamPros user) {
+		return (user.getblock_tag() != Constants.NO_TAG);
+	}
+
+	private boolean isMute(FollowedSamPros user) {
+		String public_account = NimConstants.PUBLIC_ACCOUNT_PREFIX+user.getunique_id();
+		return !NIMClient.getService(FriendService.class).isNeedMessageNotify(public_account);
+    }
 	
 	@Override
 	public View getView(int position,View convertView, ViewGroup parent){
@@ -71,10 +87,14 @@ public class FollowedSPAdapter extends BaseAdapter{
 			holder.adv_content= (TextView) convertView.findViewById(R.id.adv_content);
 			holder.unread_reminder = (TextView) convertView.findViewById(R.id.unread_reminder);
 			holder.adv_time = (TextView) convertView.findViewById(R.id.adv_time);
+			holder.mute_img = (ImageView) convertView.findViewById(R.id.mute_img);
+			holder.block_img = (ImageView) convertView.findViewById(R.id.block_img);
 			convertView.setTag(holder);
 		}else{
 			holder = (ViewHolder)convertView.getTag();
 		}
+
+		holder.avatar.setOnClickListener(new COrder(position));
 		
 		switch(viewType){
 		case TYPE_FOLLOWEDSP:
@@ -90,6 +110,8 @@ public class FollowedSPAdapter extends BaseAdapter{
 				holder.service_category.setMaxWidth(labelWidth/2);
 			}
 			holder.service_category.setText(user.getservice_category());
+			holder.mute_img.setVisibility(isMute(user)?View.VISIBLE:View.GONE);
+			holder.block_img.setVisibility(isBlock(user)?View.VISIBLE:View.GONE);
 			RcvdAdvSession session = findSession(user.getunique_id());
 			if(session != null && session.getrecent_adv_id()!=0){
 				if(session.getrecent_adv_type() == Constants.ADV_TYPE_TEXT){
@@ -162,10 +184,23 @@ public class FollowedSPAdapter extends BaseAdapter{
 		public TextView adv_content;
 		public TextView unread_reminder;
 		public TextView adv_time;
+		public ImageView mute_img;
+		public ImageView block_img;
 	}
-	
-	
-	
+
+	private class COrder implements View.OnClickListener {
+		private int position;
+		COrder(int p) {
+			position = p;
+		}
+		@Override
+		public void onClick(View v) {
+			ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(items.get(position).getunique_id());
+			if(user != null){
+				SamchatContactUserSPNameCardActivity.start(mContext, user);
+			}
+		}
+	}
 }
 
 

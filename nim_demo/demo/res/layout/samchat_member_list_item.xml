@@ -2,46 +2,50 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="wrap_content">
     <TextView
         android:id="@+id/tv_lv_item_tag"
         android:layout_width="match_parent"
         android:layout_height="20dp"
         android:background="#e6e6e6"
         android:gravity="center_vertical"
-        android:paddingLeft="10dip"
+        android:paddingLeft="16dp"
         android:text="Z"
         android:visibility="visible" />
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/body_left_margin"
+        android:layout_marginStart="@dimen/body_left_margin"
+        android:layout_marginRight="@dimen/body_right_margin"
+        android:layout_marginEnd="@dimen/body_right_margin">
         <com.netease.nim.uikit.common.ui.imageview.HeadImageView
             android:id="@+id/avatar"
             android:layout_width="@dimen/avatar_size_in_contact"
             android:layout_height="@dimen/avatar_size_in_contact"
-            android:layout_gravity="center_vertical"/>
+            android:layout_gravity="center_vertical"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"/>
 
-        <LinearLayout
-            android:id="@+id/info_layout"
-            android:orientation="vertical"
+        <TextView
+            android:id="@+id/username"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="center_vertical">
-            <TextView
-                android:id="@+id/username"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:textSize="14sp"/>
-        </LinearLayout>
+            android:layout_gravity="center_vertical"
+            android:gravity="start"
+            android:textColor="@color/samchat_color_ink"
+            android:textSize="@dimen/text_size_16"
+            android:maxLines="1"/>
 
         <ImageView
             android:id="@+id/indicate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
+            android:layout_marginLeft="@dimen/body_left_margin"
+            android:layout_marginStart="@dimen/body_left_margin"
+            android:contentDescription="@null"
             android:layout_gravity="center_vertical"/>
     </LinearLayout>
 </LinearLayout>

@@ -3015,22 +3015,13 @@ public class HttpCommClient {
 			
 			category = header.getInt("category");
 
-			long dest_id;
 			switch(category){
 				case Constants.PUSH_CATEGORY_QUESTION:
-					dest_id = body.getLong("dest_id");
-					if(dest_id != SamService.getInstance().get_current_user().getunique_id()){
-						return Constants.PUSH_CATEGORY_UNKONW;
-					}
 					rq = parseReceivedQuestionJson(body);
 					userinfo = parseUserJson(body.getJSONObject("user"));
 				break;
 
 				case Constants.PUSH_CATEGORY_ADV:
-                    dest_id = body.getLong("dest_id");
-					if(dest_id != SamService.getInstance().get_current_user().getunique_id()){
-						return Constants.PUSH_CATEGORY_UNKONW;
-					}
 					adv = parseReceivedAdvertisementJson(body);
 				break;
 

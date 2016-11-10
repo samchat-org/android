@@ -69,7 +69,7 @@ public class TeamMemberHolder extends TViewHolder {
             if (memberItem.getTag() == TeamMemberAdapter.TeamMemberItemTag.ADD) {
                 // add team member
                 headImageView.setBackgroundResource(R.drawable.nim_team_member_add_selector);
-                nameTextView.setText(context.getString(R.string.add));
+                nameTextView.setText(context.getString(R.string.samchat_add));
                 headImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -79,7 +79,7 @@ public class TeamMemberHolder extends TViewHolder {
             } else if (memberItem.getTag() == TeamMemberAdapter.TeamMemberItemTag.DELETE) {
                 // delete team member
                 headImageView.setBackgroundResource(R.drawable.nim_team_member_delete_selector);
-                nameTextView.setText(context.getString(R.string.remove));
+                nameTextView.setText(context.getString(R.string.samchat_remove));
                 headImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

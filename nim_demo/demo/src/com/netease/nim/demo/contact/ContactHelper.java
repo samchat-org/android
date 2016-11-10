@@ -21,7 +21,7 @@ public class ContactHelper {
         NimUIKit.setContactEventListener(new ContactEventListener() {
             @Override
             public void onItemClick(Context context, String account) {
-                UserProfileActivity.start(context, account);
+                //UserProfileActivity.start(context, account);
             }
 
             @Override
@@ -31,7 +31,7 @@ public class ContactHelper {
 
             @Override
             public void onAvatarClick(Context context, String account) {
-                UserProfileActivity.start(context, account);
+                //UserProfileActivity.start(context, account);
             }
         });
     }

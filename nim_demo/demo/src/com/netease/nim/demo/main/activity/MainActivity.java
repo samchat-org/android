@@ -1002,6 +1002,23 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 		}
 		return null;
     }
+
+	public void onAvatarClick(String clickAccount, String creator){
+		if(clickAccount.equals(NimUIKit.getAccount())){
+			return;
+		}
+
+		ContactUser user = SamchatUserInfoCache.getInstance().getUserByAccount(clickAccount);
+		if(user == null)
+			return;
+
+		if(clickAccount.equals(creator)){
+			//click owner
+			SamchatContactUserSPNameCardActivity.start(MainActivity.this,user);
+		}else{
+			SamchatContactUserNameCardActivity.start(MainActivity.this,user);
+		}
+	}
 	
 /*SAMC_END(...)*/
 }
