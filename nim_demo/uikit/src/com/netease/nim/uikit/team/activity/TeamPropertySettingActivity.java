@@ -35,7 +35,7 @@ public class TeamPropertySettingActivity extends UI implements View.OnClickListe
 
     // view
     private EditText editText;
-
+		
     // data
     private String teamId;
     private TeamFieldEnum filed;

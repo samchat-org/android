@@ -18,6 +18,7 @@ public class ImageAction extends PickImageAction {
     @Override
     protected void onPicked(File file) {
         IMMessage message = MessageBuilder.createImageMessage(getAccount(), getSessionType(), file, file.getName());
+        message.setPushContent("a new picture message");
         sendMessage(message);
     }
 }

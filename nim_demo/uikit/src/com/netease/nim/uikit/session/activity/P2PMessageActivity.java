@@ -40,7 +40,7 @@ public class P2PMessageActivity extends BaseMessageActivity {
         intent.putExtra(Extras.EXTRA_QUESTIONID,question_id);
         intent.putExtra(Extras.EXTRA_ADVID,adv_id);
         intent.setClass(context, P2PMessageActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         context.startActivity(intent);
     }
@@ -51,7 +51,7 @@ public class P2PMessageActivity extends BaseMessageActivity {
         intent.putExtra(Extras.EXTRA_ACCOUNT, contactId);
         intent.putExtra(Extras.EXTRA_CUSTOMIZATION, customization);
         intent.setClass(context, P2PMessageActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         context.startActivity(intent);
     }

@@ -93,8 +93,6 @@ public class FollowedSPAdapter extends BaseAdapter{
 		}else{
 			holder = (ViewHolder)convertView.getTag();
 		}
-
-		holder.avatar.setOnClickListener(new COrder(position));
 		
 		switch(viewType){
 		case TYPE_FOLLOWEDSP:
@@ -186,20 +184,6 @@ public class FollowedSPAdapter extends BaseAdapter{
 		public TextView adv_time;
 		public ImageView mute_img;
 		public ImageView block_img;
-	}
-
-	private class COrder implements View.OnClickListener {
-		private int position;
-		COrder(int p) {
-			position = p;
-		}
-		@Override
-		public void onClick(View v) {
-			ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(items.get(position).getunique_id());
-			if(user != null){
-				SamchatContactUserSPNameCardActivity.start(mContext, user);
-			}
-		}
 	}
 }
 

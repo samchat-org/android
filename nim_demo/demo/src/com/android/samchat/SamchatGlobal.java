@@ -24,4 +24,8 @@ public class SamchatGlobal {
 	public static long getoneWeekSysTime(){
 		return (System.currentTimeMillis() - 7*24*60*60*1000L);
 	}
+
+	public static boolean isCustomerMode(){
+		return (mode == ModeEnum.CUSTOMER_MODE);
+	}
 }

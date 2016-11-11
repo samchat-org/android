@@ -10,6 +10,7 @@ import android.view.View.OnKeyListener;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.android.samchat.SamchatGlobal;
 import com.android.samservice.info.ContactUser;
 import com.google.zxing.WriterException;
 import com.android.samchat.R;
@@ -147,12 +148,8 @@ public class SamchatQRCodeActivity extends UI implements OnKeyListener {
         titlebar_name_tv.setTextColor(getResources().getColor(R.color.samchat_color_sp_titlbar_title));
     }
 
-    private boolean isCustomerMode(){
-        return (show_which_info == Constants.SHOW_SP_INFO);
-    }
-
     private void setupTitleBar(){
-        if(isCustomerMode()){
+        if(SamchatGlobal.isCustomerMode()){
             setTitlebarCustomerMode();
         }else{
             setTitlebarSPMode();

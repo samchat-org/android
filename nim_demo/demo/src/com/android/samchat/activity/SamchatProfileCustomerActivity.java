@@ -55,8 +55,6 @@ import java.util.List;
 import com.android.samservice.info.ContactUser;
 import com.netease.nim.uikit.session.constant.Extras;
 
-import me.nereo.multi_image_selector.MultiImageSelectorActivity;
-
 public class SamchatProfileCustomerActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatProfileCustomerActivity.class.getSimpleName();
 	public static final int CONFIRM_ID_AVATAR_SELECTED=200;
@@ -134,18 +132,7 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		 if(requestCode == CONFIRM_ID_AVATAR_SELECTED){
 			if(resultCode == Activity.RESULT_OK){
-				if( data.hasExtra(MultiImageSelectorActivity.EXTRA_RESULT)) {
-					List<String> resultList = data.getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
-					if(resultList.get(0)!=null){
-						try{
-							startCropIntent(resultList.get(0));
-						}catch(IOException e){
-							e.printStackTrace();
-							Toast.makeText(this, R.string.samchat_start_crop_window_failed, Toast.LENGTH_SHORT).show();
-							cropImageUri = null;
-						}
-					}
-				}else if(data.hasExtra(Extras.EXTRA_PHOTO_LISTS)){
+				if(data.hasExtra(Extras.EXTRA_PHOTO_LISTS)){
 					List<PhotoInfo> photoes = PickerContract.getPhotos(data);
 					if(photoes !=null && photoes.size()>0 && photoes.get(0)!=null){
 						try{
@@ -345,19 +332,6 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 				SamchatProfileEditActivity.start(SamchatProfileCustomerActivity.this, SamchatProfileEditActivity.EDIT_PROFILE_TYPE_CUSTOMER_ADDRESS, address_textview.getText().toString().trim());
 			}
 		});
-	}
-
-	private void launchAvatarActivity(){
-		Intent intent = new Intent(this, MultiImageSelectorActivity.class);
-		// whether show camera
-		intent.putExtra(MultiImageSelectorActivity.EXTRA_SHOW_CAMERA, true);
-		// max select image amount
-		intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_COUNT, 1);
-		// select mode (MultiImageSelectorActivity.MODE_SINGLE OR MultiImageSelectorActivity.MODE_MULTI)
-		intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_MODE, MultiImageSelectorActivity.MODE_MULTI);
-		// default select images (support array list)
-		//intent.putStringArrayListExtra(MultiImageSelectorActivity.EXTRA_DEFAULT_SELECTED_LIST, defaultDataArray);
-		startActivityForResult(intent, CONFIRM_ID_AVATAR_SELECTED);
 	}
 
 	private void launchAvatarSelectActivity(){

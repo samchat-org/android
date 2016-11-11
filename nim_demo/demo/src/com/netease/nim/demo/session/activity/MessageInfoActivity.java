@@ -13,9 +13,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.samchat.activity.SamchatContactUserNameCardActivity;
+import com.android.samchat.activity.SamchatContactUserSPNameCardActivity;
 import com.android.samchat.activity.SamchatMemberSelectActivity;
+import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samchat.service.SamDBManager;
 import com.android.samservice.Constants;
+import com.android.samservice.info.ContactUser;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
 import com.netease.nim.demo.contact.activity.UserProfileActivity;
@@ -124,9 +128,16 @@ public class MessageInfoActivity extends UI {
         userHead.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openUserProfile();
-            }
-        });
+            	ContactUser user = SamchatUserInfoCache.getInstance().getUserByAccount(account);
+				if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
+					if(user != null)
+						SamchatContactUserSPNameCardActivity.start(MessageInfoActivity.this,user);
+				}else{
+					if(user != null)
+						SamchatContactUserNameCardActivity.start(MessageInfoActivity.this, user, false);
+				}
+			}
+		});
 
         ((TextView)findViewById(R.id.create_team_layout).findViewById(R.id.textViewName)).setText(R.string.samchat_create_group_chat);
         HeadImageView addImage = (HeadImageView) findViewById(R.id.create_team_layout).findViewById(R.id.imageViewHeader);

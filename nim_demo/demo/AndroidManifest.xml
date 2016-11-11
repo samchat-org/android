@@ -195,7 +195,7 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <!-- 多端登录管理 -->
         <activity
@@ -206,13 +206,13 @@
             android:windowSoftInputMode="adjustResize|stateHidden"/>
 
         <!-- 登录界面 -->
-        <activity
+        <!--activity
             android:name="com.netease.nim.demo.login.LoginActivity"
             android:configChanges="orientation"
             android:label="@string/login"
             android:screenOrientation="portrait"
             android:theme="@style/LoginTheme"
-            android:windowSoftInputMode="adjustResize|stateHidden" />
+            android:windowSoftInputMode="adjustResize|stateHidden" /-->
 
         <activity
             android:name="com.android.samchat.activity.SamchatLoginActivity"
@@ -355,11 +355,6 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateHidden"/>
         <activity
-            android:name="me.nereo.multi_image_selector.MultiImageSelectorActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden"/>
-        <activity
             android:name="com.android.samchat.activity.SamchatMemberSelectActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
@@ -404,8 +399,11 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateHidden"/>
-
-
+        <activity
+            android:name="com.netease.nim.uikit.team.activity.SamchatTeamNameSettingActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden"/>
 
 
 

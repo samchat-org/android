@@ -29,7 +29,7 @@
 
     <!-- toolbar 文本 -->
     <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
-        <item name="android:textSize">16sp</item>
+        <item name="android:textSize">20sp</item>
     </style>
 
     <!-- 黑色主题 -->

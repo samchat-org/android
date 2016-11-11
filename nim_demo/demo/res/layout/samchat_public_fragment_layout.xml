@@ -9,7 +9,8 @@
         android:id="@+id/customer_public_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:visibility="gone">
         <ListView
             android:id="@+id/customer_public_list"
             android:layout_width="match_parent"
@@ -159,7 +160,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="@drawable/nim_message_input_edittext_box"
-                            android:text="@string/record_audio"
+                            android:text="@string/samchat_record_audio"
                             android:textColor="@color/color_black_333333"
                             android:textSize="16sp"
                             android:visibility="gone" />
@@ -176,8 +177,7 @@
                         android:layout_toRightOf="@+id/switchLayout"
                         android:autoLink="all"
                         android:background="@drawable/nim_message_input_edittext_box"
-                        android:maxHeight="72dip"
-                        android:maxLines="1"
+                        android:maxLines="4"
                         android:textSize="16sp" />
 
                     <ImageView

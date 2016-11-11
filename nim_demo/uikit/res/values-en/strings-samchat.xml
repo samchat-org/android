@@ -595,4 +595,5 @@
     <string name="samchat_fetch_team_info_failed">Fetch team info failed</string>
     <string name="samchat_team_invalid_tip">you have quit this team</string>
     <string name="samchat_normal_team_invalid_tip">you have quit this team</string>
+    <string name="samchat_edit_name">Edit Name</string>
 </resources>

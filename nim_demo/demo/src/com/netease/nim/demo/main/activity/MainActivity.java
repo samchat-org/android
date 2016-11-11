@@ -1016,7 +1016,11 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 			//click owner
 			SamchatContactUserSPNameCardActivity.start(MainActivity.this,user);
 		}else{
-			SamchatContactUserNameCardActivity.start(MainActivity.this,user);
+			if(creator.equals(NimUIKit.getAccount())){
+				SamchatContactUserNameCardActivity.start(MainActivity.this,user,false);
+			}else{
+				SamchatContactUserNameCardActivity.start(MainActivity.this,user,true);
+			}
 		}
 	}
 	

@@ -46,13 +46,14 @@ public class TeamMessageActivity extends BaseMessageActivity {
 
     private Class<? extends Activity> backToClass;
 
-    public static void start(Context context, String tid, SessionCustomization customization, Class<? extends Activity> backToClass) {
+    public static void start(Context context, String tid, SessionCustomization customization, int mode, Class<? extends Activity> backToClass) {
         Intent intent = new Intent();
         intent.putExtra(Extras.EXTRA_ACCOUNT, tid);
         intent.putExtra(Extras.EXTRA_CUSTOMIZATION, customization);
+        intent.putExtra(Extras.EXTRA_MODE,mode);
         intent.putExtra(Extras.EXTRA_BACK_TO_CLASS, backToClass);
         intent.setClass(context, TeamMessageActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         context.startActivity(intent);
     }
@@ -241,13 +242,13 @@ public class TeamMessageActivity extends BaseMessageActivity {
 	@Override
 	protected void initToolBar() {
 		ToolBarOptions options = new ToolBarOptions();
-		if(NimUIKit.getCallback().getCurrentMode() == ModeEnum.CUSTOMER_MODE.getValue()){
+		if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
             options.navigateId = R.drawable.samchat_arrow_left;
         }else{
              options.navigateId = R.drawable.samchat_arrow_left_sp;
         }
         setToolBar(R.id.toolbar, options);
-        if(NimUIKit.getCallback().getCurrentMode() == ModeEnum.CUSTOMER_MODE.getValue()){
+        if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
 			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
 			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_dark_blue));
 		}else{

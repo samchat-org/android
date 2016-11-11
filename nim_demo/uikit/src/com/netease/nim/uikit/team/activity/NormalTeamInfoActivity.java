@@ -562,11 +562,8 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
                     .NORMAL, teamId, account, identity));
         }
 
-        // add item
-        dataSource.add(new TeamMemberAdapter.TeamMemberItem(TeamMemberAdapter.TeamMemberItemTag.ADD, null, null, null));
-
-        // remove item
         if (isSelfAdmin) {
+            dataSource.add(new TeamMemberAdapter.TeamMemberItem(TeamMemberAdapter.TeamMemberItemTag.ADD, null, null, null));
             dataSource.add(new TeamMemberAdapter.TeamMemberItem(TeamMemberAdapter.TeamMemberItemTag.DELETE, null, null,
                     null));
         }
@@ -713,7 +710,7 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
             quitTeam();
 
         } else if (i == R.id.settings_item_name) {
-            TeamPropertySettingActivity.start(NormalTeamInfoActivity.this, teamId, TeamFieldEnum.Name, teamNameTextView.getText().toString(), REQUEST_CODE_NAME);
+            SamchatTeamNameSettingActivity.start(NormalTeamInfoActivity.this, teamId, TeamFieldEnum.Name, teamNameTextView.getText().toString(), REQUEST_CODE_NAME);
 
         } else {
         }

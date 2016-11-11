@@ -117,7 +117,7 @@ public final class NimUIKit {
         if (sessionType == SessionTypeEnum.P2P) {
             P2PMessageActivity.start(context, id, customization,NimUIKit.getCallback().getCurrentMode(),0,0);
         } else if (sessionType == SessionTypeEnum.Team) {
-            TeamMessageActivity.start(context, id, customization, null);
+            TeamMessageActivity.start(context, id, customization,NimUIKit.getCallback().getCurrentMode(), null);
         }
     }
 
@@ -148,7 +148,7 @@ public final class NimUIKit {
     public static void startChatting(Context context, String id, SessionTypeEnum sessionType, SessionCustomization customization,
                                      Class<? extends Activity> backToClass) {
         if (sessionType == SessionTypeEnum.Team) {
-            TeamMessageActivity.start(context, id, customization, backToClass);
+            TeamMessageActivity.start(context, id, customization, NimUIKit.getCallback().getCurrentMode(),backToClass);
         }
     }
 

@@ -43,7 +43,9 @@ public class SamchatContactUserNameCardActivity extends UI implements OnKeyListe
 	private static final String TAG = SamchatContactUserNameCardActivity.class.getSimpleName();
 
 	private FrameLayout back_arrow_layout;
+	private RelativeLayout titlebar_layout;
 	private TextView titlebar_name_textview;
+	private ImageView back_icon_iv;
 	private HeadImageView avatar_headimageview;
 	private RelativeLayout chat_layout;
 	private RelativeLayout username_layout;
@@ -56,6 +58,7 @@ public class SamchatContactUserNameCardActivity extends UI implements OnKeyListe
 	private TextView username_tv;
 
 	private ContactUser user;
+	private boolean opposite=false;
 
 	private boolean isOpting=false;
 
@@ -64,6 +67,16 @@ public class SamchatContactUserNameCardActivity extends UI implements OnKeyListe
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		Bundle bundle = new Bundle();
 		bundle.putSerializable("customer", user);
+		intent.putExtras(bundle);
+		context.startActivity(intent);
+	}
+
+	public static void start(Context context,ContactUser user, boolean oppo) {
+		Intent intent = new Intent(context, SamchatContactUserNameCardActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		Bundle bundle = new Bundle();
+		bundle.putSerializable("customer", user);
+		bundle.putBoolean("opposite",oppo);
 		intent.putExtras(bundle);
 		context.startActivity(intent);
 	}
@@ -99,6 +112,8 @@ public class SamchatContactUserNameCardActivity extends UI implements OnKeyListe
 
 	private void setupPanel() {
 		back_arrow_layout = findView(R.id.back_arrow_layout);
+		titlebar_layout = findView(R.id.titlebar_layout);
+		back_icon_iv = findView(R.id.back_icon);
 		titlebar_name_textview = findView(R.id.titlebar_name);
 		avatar_headimageview = findView(R.id.avatar);
 		chat_layout = findView(R.id.chat_layout);
@@ -137,10 +152,18 @@ public class SamchatContactUserNameCardActivity extends UI implements OnKeyListe
 		if(!TextUtils.isEmpty(user.getaddress())){
 			location_tv.setText(user.getaddress());
 		}
+
+		if(opposite){
+			titlebar_layout.setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
+			back_icon_iv.setImageResource(R.drawable.samchat_arrow_left);
+			back_arrow_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_customer);
+			titlebar_name_textview.setTextColor(getResources().getColor(R.color.samchat_color_customer_titlbar_title));	
+		}
 	}
 
 	private void onParseIntent() {
 		user = (ContactUser)getIntent().getSerializableExtra("customer");
+		opposite = getIntent().getBooleanExtra("opposite",false);
 	}
 	
 	private void setupBackArrowClick(){
@@ -168,6 +191,9 @@ public class SamchatContactUserNameCardActivity extends UI implements OnKeyListe
 			}
 		});
 		updateOpCustomer();
+		if(opposite){
+			op_layout.setVisibility(View.GONE);
+		}
 	}
 
 	private void updateOpCustomer(){
@@ -186,6 +212,9 @@ public class SamchatContactUserNameCardActivity extends UI implements OnKeyListe
 				finish();
 			}
 		});
+		if(opposite){
+			chat_layout.setVisibility(View.GONE);
+		}
 	}
 
 	private void setupUsernameClick(){

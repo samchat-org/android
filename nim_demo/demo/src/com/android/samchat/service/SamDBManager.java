@@ -546,7 +546,7 @@ public class SamDBManager{
 		int num = 0;
 		for(IMMessage im : ims){
 			Map<String, Object> content = im.getRemoteExtension();
-			if(content == null || (!content.containsKey(NimConstants.QUEST_ID) && !content.containsKey(NimConstants.SQ_QUEST_ID))){
+			if(content == null || (/*!content.containsKey(NimConstants.QUEST_ID) &&*/ !content.containsKey(NimConstants.SQ_QUEST_ID))){
 				num++;
 			}
 		}
@@ -1562,11 +1562,11 @@ public class SamDBManager{
 				
 				if(sq.getsp_ids() == null){
 					sq.setsp_ids(m.getSessionId());
-					sq.setunread(sq.getunread()+1);
+					sq.setunread(0/*sq.getunread()+1*/);
 					result.add(new AdvancedMessage(null, m, sq));
 				}else if(!isIdExisted(sq.getsp_ids(),m.getSessionId())){
 					sq.setsp_ids(sq.getsp_ids()+":"+m.getSessionId());
-					sq.setunread(sq.getunread()+1);
+					sq.setunread(0/*sq.getunread()+1*/);
 					result.add(new AdvancedMessage(null, m, sq));
 				}
 				sq.setlatest_answer_time(m.getTime());

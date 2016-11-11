@@ -19,6 +19,10 @@
             android:background="?attr/colorPrimary"
             app:titleTextAppearance="@style/Toolbar.TitleText" />
     </android.support.design.widget.AppBarLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/samchat_color_split_line"/>
 
     <LinearLayout
         android:id="@+id/create_layout"
@@ -52,24 +56,11 @@
             android:background="@drawable/nim_semitransparency_selector"
             android:paddingLeft="@dimen/isetting_item_padding_left"
             android:paddingRight="@dimen/isetting_item_padding_right">
-            <ImageView
-                android:id="@+id/mute_img"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@null"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:src="@drawable/samchat_ic_list_mute"/>
 
             <TextView
                 android:id="@+id/mute_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_marginStart="20dp"
-                android:layout_toRightOf="@id/mute_img"
-                android:layout_toEndOf="@id/mute_img"
                 android:layout_centerVertical="true"
                 android:textColor="@color/color_black_ff333333"
                 android:textSize="16sp"/>
@@ -104,24 +95,10 @@
             android:paddingLeft="@dimen/isetting_item_padding_left"
             android:paddingRight="@dimen/isetting_item_padding_right">
 
-            <ImageView
-                android:id="@+id/block_img"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@null"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:src="@drawable/samchat_ic_list_mute"/>
-
             <TextView
                 android:id="@+id/block_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_marginStart="20dp"
-                android:layout_toRightOf="@id/block_img"
-                android:layout_toEndOf="@id/block_img"
                 android:layout_centerVertical="true"
                 android:textColor="@color/color_black_ff333333"
                 android:textSize="16sp"/>
@@ -135,8 +112,6 @@
 
             <View
                 style="@style/horizontal_light_thin_divider"
-                android:layout_alignLeft="@id/block_title"
-                android:layout_alignStart="@id/block_title"
                 android:layout_alignParentBottom="true"/>
 
         </RelativeLayout>
@@ -154,25 +129,11 @@
             android:background="@drawable/nim_semitransparency_selector"
             android:paddingLeft="@dimen/isetting_item_padding_left"
             android:paddingRight="@dimen/isetting_item_padding_right">
-            <ImageView
-                android:id="@+id/delete_img"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@null"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:src="@drawable/samchat_ic_list_mute"/>
 
             <TextView
                 android:id="@+id/delete_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_marginStart="20dp"
-                android:layout_toRightOf="@id/delete_img"
-                android:layout_toEndOf="@id/delete_img"
-
                 android:layout_centerVertical="true"
                 android:textColor="@color/color_black_ff333333"
                 android:textSize="16sp"/>
