@@ -17,6 +17,7 @@ import com.android.samchat.activity.SamchatContactUserNameCardActivity;
 import com.android.samchat.activity.SamchatContactUserSPNameCardActivity;
 import com.android.samchat.activity.SamchatMemberSelectActivity;
 import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samchat.common.BasicUserInfoHelper;
 import com.android.samchat.service.SamDBManager;
 import com.android.samservice.Constants;
 import com.android.samservice.info.ContactUser;
@@ -130,11 +131,17 @@ public class MessageInfoActivity extends UI {
             public void onClick(View v) {
             	ContactUser user = SamchatUserInfoCache.getInstance().getUserByAccount(account);
 				if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
-					if(user != null)
+					if(user != null){
 						SamchatContactUserSPNameCardActivity.start(MessageInfoActivity.this,user);
+					}else{
+						SamchatContactUserSPNameCardActivity.start(MessageInfoActivity.this, account, BasicUserInfoHelper.getUserName(account));
+					}
 				}else{
-					if(user != null)
+					if(user != null){
 						SamchatContactUserNameCardActivity.start(MessageInfoActivity.this, user, false);
+					}else{
+						SamchatContactUserNameCardActivity.start(MessageInfoActivity.this, account, BasicUserInfoHelper.getUserName(account),false);
+					}
 				}
 			}
 		});

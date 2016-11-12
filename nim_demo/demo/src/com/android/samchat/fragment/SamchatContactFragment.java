@@ -43,6 +43,7 @@ import com.android.samchat.cache.CustomerDataCache;
 import android.widget.RelativeLayout;
 import com.android.samchat.ui.SideBar;
 import com.android.samchat.ui.SideBar.OnSideBarTouchingLetterChangedListener;
+import com.netease.nim.uikit.common.ui.listview.ListViewUtil;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 
 /**
@@ -111,8 +112,10 @@ public class SamchatContactFragment extends TFragment {
 					loadedCustomers= new ArrayList<Contact>(CustomerDataCache.getInstance().getMyCustomers());
 					onCustomersLoaded();
 				}else if(intent.getAction().equals(Constants.BROADCAST_USER_INFO_UPDATE)){
-					refreshContactList();
-					refreshCustomerList();
+					ContactUser updateUser = (ContactUser)intent.getSerializableExtra("user");
+					userInfoUpdate(updateUser);
+					//refreshContactList();
+					//refreshCustomerList();
 				}else if(intent.getAction().equals(Constants.BROADCAST_CHAT_BLOCK_MUTE_UPDATE)){
 					refreshContactList();
 					refreshCustomerList();
@@ -294,6 +297,65 @@ public class SamchatContactFragment extends TFragment {
 
 	public void setContactCallback(ContactCallback callback) {
 		contact_callback = callback;
+	}
+
+	private void userInfoUpdate(ContactUser updateUser){
+		int updateContactIndex = -1;
+		boolean contactNameUpdate = false;
+		int updateCustomerIndex = -1;
+		boolean customerNameUpdate = false;
+		
+		for(int i=0; i<contactList.size(); i++){
+			if(updateUser.getunique_id() == contactList.get(i).getunique_id()){
+				if(!updateUser.getusername().equals(contactList.get(i).getusername())){
+					contactList.get(i).setusername(updateUser.getusername());
+					contactNameUpdate = true;
+				}
+				contactList.get(i).setavatar(updateUser.getavatar());
+				contactList.get(i).setservice_category(updateUser.getservice_category());
+				contactList.get(i).setlastupdate(updateUser.getlastupdate());
+				updateContactIndex = i;
+				break;
+			}
+		}
+
+		for(int i=0; i<customerList.size(); i++){
+			if(updateUser.getunique_id() == customerList.get(i).getunique_id()){
+				if(!updateUser.getusername().equals(customerList.get(i).getusername())){
+					customerList.get(i).setusername(updateUser.getusername());
+					customerNameUpdate = true;
+				}
+				customerList.get(i).setavatar(updateUser.getavatar());
+				customerList.get(i).setservice_category(updateUser.getservice_category());
+				customerList.get(i).setlastupdate(updateUser.getlastupdate());
+				updateCustomerIndex = i;
+				break;
+			}
+		}
+
+		if(updateContactIndex != -1){
+			if(contactNameUpdate){
+				refreshContactList();
+			}else{
+				Object tag = ListViewUtil.getViewHolderByIndex(customer_contact_list, updateContactIndex);
+				ContactAdapter.ViewHolder viewHolder = (ContactAdapter.ViewHolder) tag;
+				if(viewHolder != null){
+					ContactAdapter.ViewHolder.refreshItem(viewHolder,contactList.get(updateContactIndex),0);
+				}
+			}
+		}
+
+		if(updateCustomerIndex != -1){
+			if(customerNameUpdate){
+				refreshCustomerList();
+			}else{
+				Object tag = ListViewUtil.getViewHolderByIndex(sp_contact_list, updateCustomerIndex);
+				ContactAdapter.ViewHolder viewHolder = (ContactAdapter.ViewHolder) tag;
+				if(viewHolder != null){
+					ContactAdapter.ViewHolder.refreshItem(viewHolder,customerList.get(updateCustomerIndex),1);
+				}
+			}
+		}
 	}
 
 

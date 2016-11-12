@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.android.samchat.activity.SamchatContactUserSPNameCardActivity;
 import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samchat.common.BasicUserInfoHelper;
 import com.android.samservice.Constants;
 import com.android.samservice.SamService;
 import com.android.samservice.info.ContactUser;
@@ -21,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.netease.nim.demo.DemoCache;
 import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
@@ -41,6 +43,7 @@ public class FollowedSPAdapter extends BaseAdapter{
 	private LayoutInflater mInflater;
 	private List<FollowedSamPros> items;
 	private List<RcvdAdvSession> sessions;
+	
 
 	public FollowedSPAdapter(Context context,List<FollowedSamPros> list,List<RcvdAdvSession> snlist){
 		mContext = context;
@@ -93,6 +96,9 @@ public class FollowedSPAdapter extends BaseAdapter{
 		}else{
 			holder = (ViewHolder)convertView.getTag();
 		}
+
+		holder.avatar.setOnClickListener(new COrder(position));
+
 		
 		switch(viewType){
 		case TYPE_FOLLOWEDSP:
@@ -184,6 +190,36 @@ public class FollowedSPAdapter extends BaseAdapter{
 		public TextView adv_time;
 		public ImageView mute_img;
 		public ImageView block_img;
+
+		public static void refreshItem(ViewHolder holder, FollowedSamPros user){
+			holder.avatar.loadBuddyAvatar(""+user.getunique_id(), (int) DemoCache.getContext().getResources().getDimension(R.dimen.avatar_size_default));
+			int labelWidth = ScreenUtil.screenWidth;
+			labelWidth -= ScreenUtil.dip2px(50 + 64 + 12 + 12 + 12); 
+			if (labelWidth > 0) {
+				holder.username.setMaxWidth(labelWidth/2);
+			}
+			holder.username.setText(user.getusername());
+			if (labelWidth > 0) {
+				holder.service_category.setMaxWidth(labelWidth/2);
+			}
+			holder.service_category.setText(user.getservice_category());
+		}
+	}
+
+	private class COrder implements View.OnClickListener {
+		private int position;
+		COrder(int p) {
+			position = p;
+		}
+		@Override
+		public void onClick(View v) {
+			ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(items.get(position).getunique_id());
+			if(user != null){
+				SamchatContactUserSPNameCardActivity.start(mContext, user);
+			}else{
+				SamchatContactUserSPNameCardActivity.start(mContext, ""+items.get(position).getunique_id(), BasicUserInfoHelper.getUserName(items.get(position).getunique_id()));
+			}
+		}
 	}
 }
 

@@ -67,6 +67,7 @@ import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
+import com.netease.nim.uikit.common.ui.listview.ListViewUtil;
 import com.netease.nim.uikit.common.ui.listview.MessageListView;
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
 import com.netease.nim.uikit.common.util.log.LogUtil;
@@ -169,8 +170,8 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 					loadedFollowSPs= FollowDataCache.getInstance().getMyFollowSPsList();
 					onFollowedSPsLoaded();
 				}else if(intent.getAction().equals(Constants.BROADCAST_USER_INFO_UPDATE)){
-					loadedFollowSPs= FollowDataCache.getInstance().getMyFollowSPsList();
-					onFollowedSPsLoaded();
+					ContactUser updateUser = (ContactUser)intent.getSerializableExtra("user");
+					userInfoUpdate(updateUser);
 				}else if(intent.getAction().equals(Constants.BROADCAST_POST_ADV)){
 					//launchAdvertisementPostActivity();
 					LogUtil.i(TAG,"receive BROADCAST_POST_ADV");
@@ -181,11 +182,40 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 		
 		broadcastManager.registerReceiver(broadcastReceiver, filter);
 	}
-		
-
 	
 	private void unregisterBroadcastReceiver(){
 	    broadcastManager.unregisterReceiver(broadcastReceiver);
+	}
+
+	private void userInfoUpdate(ContactUser updateUser){
+		int index = -1;
+		boolean nameUpdate = false;
+		
+		for(int i=0; i<followedSPs.size(); i++){
+			if(updateUser.getunique_id() == followedSPs.get(i).getunique_id()){
+				if(!updateUser.getusername().equals(followedSPs.get(i).getusername())){
+					followedSPs.get(i).setusername(updateUser.getusername());
+					nameUpdate = true;
+				}
+				followedSPs.get(i).setavatar(updateUser.getavatar());
+				followedSPs.get(i).setservice_category(updateUser.getservice_category());
+				followedSPs.get(i).setlastupdate(updateUser.getlastupdate());
+				index = i;
+				break;
+			}
+		}
+
+		if(index != -1){
+			if(nameUpdate){
+				refreshFollowedSPsList();
+			}else{
+				Object tag = ListViewUtil.getViewHolderByIndex(customer_public_list, index);
+				FollowedSPAdapter.ViewHolder viewHolder = (FollowedSPAdapter.ViewHolder) tag;
+				if(viewHolder != null){
+					FollowedSPAdapter.ViewHolder.refreshItem(viewHolder,followedSPs.get(index));
+				}
+			}
+		}
 	}
 
 	public SamchatPublicFragment(){

@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.android.samchat.activity.SamchatContactUserSPNameCardActivity;
 import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samchat.common.BasicUserInfoHelper;
 import com.android.samchat.common.SamchatFileNameUtils;
 import com.android.samservice.Constants;
 import com.android.samservice.info.Advertisement;
@@ -179,6 +180,8 @@ public class AdvertisementAdapter extends BaseAdapter{
 			ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(items.get(position).getsender_unique_id());
 			if(user != null){
 				SamchatContactUserSPNameCardActivity.start(mContext, user);
+			}else{
+				SamchatContactUserSPNameCardActivity.start(mContext, ""+items.get(position).getsender_unique_id(), BasicUserInfoHelper.getUserName(items.get(position).getsender_unique_id()));
 			}
 		}
 	}

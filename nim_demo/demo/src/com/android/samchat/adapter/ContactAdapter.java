@@ -138,6 +138,22 @@ public class ContactAdapter extends BaseAdapter{
 		public TextView username;
 		public TextView service_category;
 		public ImageView block_img;
+
+		public static void refreshItem(ViewHolder holder,Contact user, int type){
+			if(holder == null || holder.avatar == null){
+				LogUtil.i("test","holder:"+holder+" avatar:"+holder.avatar);
+			}
+
+			if(user == null ){
+				LogUtil.i("test","user null");
+			}
+			holder.avatar.loadBuddyAvatar(Long.toString(user.getunique_id()));
+			if(type == 0){
+				holder.service_category.setText(user.getservice_category());
+			}
+			boolean block = NIMClient.getService(FriendService.class).isInBlackList(user.getAccount());
+        	holder.block_img.setVisibility(block ? View.VISIBLE:View.GONE);
+		}
 	}
 	
 	

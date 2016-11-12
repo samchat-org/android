@@ -17,6 +17,7 @@ import com.android.samservice.type.TypeEnum;
 import com.netease.nim.demo.DemoCache;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.HandlerThread;
 import android.support.v4.content.LocalBroadcastManager;
@@ -63,7 +64,7 @@ public class SamService{
 	private SamDBDao dao;
 	private String dbFolder;
 
-	private String clientID;
+	private String clientID="";
 	private static final int  INITED=0;
 	private static final int  SYNCING=1;
 	private static final int  SYNCED=2;
@@ -75,7 +76,7 @@ public class SamService{
 	private static int SYNC_BIND=4;
 	private static int SYNC_SEND_CLIENT_ID=5;
 	private boolean startSync = false;
-	private boolean clientidReady = false;
+	private boolean clientidReady = true;
 	private int [] syncStatus = {INITED,INITED,INITED,INITED,INITED,INITED};
 	private Object syncStatusObject = new Object();
 	private StateDateInfo sdinfo;
@@ -1709,7 +1710,7 @@ public class SamService{
 		boolean bindSucceed = false;
 		
 		if(alias == null || !alias.equals(StringUtil.makeMd5(account))){
-			bindSucceed = PushManager.getInstance().bindAlias(DemoCache.getContext(),StringUtil.makeMd5(account));
+			bindSucceed = true;//PushManager.getInstance().bindAlias(DemoCache.getContext(),StringUtil.makeMd5(account));
 		}else{
 			SamLog.e(TAG, "do not bind alias this time");
 			samobj.callback.onSuccess(null,0);
@@ -2312,7 +2313,6 @@ public class SamService{
 				}
 			}
 		}
-
 		return isDbError;
 	}
 
@@ -2325,6 +2325,12 @@ public class SamService{
 				if(dao.update_ContactUser_db(user) == -1){
 					isDbError = true;
 				}
+				Intent intent = new Intent();
+				intent.setAction(Constants.BROADCAST_USER_INFO_UPDATE);
+				Bundle bundle = new Bundle();
+				bundle.putSerializable("user", user);
+				intent.putExtras(bundle);
+				sendbroadcast(intent);
 			}
 		}
 
@@ -2334,9 +2340,15 @@ public class SamService{
 	private boolean syncUpdateUserInfo(ContactUser user){
 		boolean isDbError = false;
 		SamchatUserInfoCache.getInstance().addUser(user.getunique_id(), user);
-		 if(dao.update_ContactUser_db(user) == -1){
+		if(dao.update_ContactUser_db(user) == -1){
 			isDbError = true;
 		}
+		Intent intent = new Intent();
+		intent.setAction(Constants.BROADCAST_USER_INFO_UPDATE);
+		Bundle bundle = new Bundle();
+		bundle.putSerializable("user", user);
+		intent.putExtras(bundle);
+		sendbroadcast(intent);
 		 
 		return isDbError;
 	}

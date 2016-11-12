@@ -36,7 +36,7 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"
             android:background="@null"
-            android:singleLine="true"
+            android:maxLines="1"
             android:hint="@string/samchat_search_location"
             android:textColorHint="@color/color_grey_999999"
             android:textSize="16sp"

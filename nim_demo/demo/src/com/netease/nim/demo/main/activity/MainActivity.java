@@ -31,6 +31,7 @@ import com.android.samchat.cache.ContactDataCache;
 import com.android.samchat.cache.CustomerDataCache;
 import com.android.samchat.cache.FollowDataCache;
 import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samchat.common.BasicUserInfoHelper;
 import com.android.samchat.fragment.SamchatPublicFragment;
 import com.android.samchat.receiver.NetworkStateBroadcastReceiver;
 import com.android.samchat.receiver.PushReceiver;
@@ -124,8 +125,8 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
     private HomeFragment mainFragment;
 
     /*SAMC_BEGIN(Getu SDK initilized tag)*/
-    private static final int MSG_START_GETUI_INIT = 1;
-    private boolean isGetuInited = false;
+    //private static final int MSG_START_GETUI_INIT = 1;
+    //private boolean isGetuInited = false;
     /*SAMC_END(Getu SDK initilized tag)*/
 
     /*SAMC_BEGIN(Customized title bar)*/
@@ -266,9 +267,9 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
         initSamAutoLogin();
         initMode();
         registerObservers(true);
-        if(NIMClient.getStatus() == StatusCode.LOGINED){
+        /*if(NIMClient.getStatus() == StatusCode.LOGINED){
             initGeTui();
-        }
+        }*/
         /*SAMC_END(import GETU)*/
         setContentView(R.layout.activity_main_tab);
 
@@ -547,7 +548,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 										SamchatContactUserSPNameCardActivity.start(MainActivity.this, hcc.users.getusers().get(0));
 									}
 								}else{
-									SamchatContactUserNameCardActivity.start(MainActivity.this, hcc.users.getusers().get(0));
+									SamchatContactUserNameCardActivity.start(MainActivity.this, hcc.users.getusers().get(0),false);
 								}
 							}
 						}, 0);
@@ -642,7 +643,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 				if (code == StatusCode.LOGINED) {
 					LogUtil.ui("SDK auto login succeed");
 					initSamAutoLogin();
-					initGeTui();
+					//initGeTui();
 				} 
 			}
 		}
@@ -652,17 +653,17 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	public void onDestroy() {
 		unregisterNetworkReceiver();
 		registerObservers(false);
-		if(isGetuInited){
+		/*if(isGetuInited){
 			LogUtil.e(TAG,"stop getui service");
 			//PushManager.getInstance().turnOffPush(DemoCache.getContext());
 			PushManager.getInstance().stopService(DemoCache.getContext());
 			//registerGetuiReceiver(false);
 			isGetuInited = false;
-		}
+		}*/
 		super.onDestroy();
 	}
 
-	private void initGeTui(){
+	/*private void initGeTui(){
 		if(!isGetuInited){
 			LogUtil.e(TAG,"init getui service");
 			//registerGetuiReceiver(true);
@@ -670,7 +671,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 			//PushManager.getInstance().turnOnPush(DemoCache.getContext());
 			isGetuInited = true;
 		}
-	}
+	}*/
 	
 	private void initSamAutoLogin(){
 		String account = Preferences.getUserAccount();
@@ -971,14 +972,18 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
 	private long stringTolong(String s){
 	 	long ret = -1;
+		String account = s;
+		if (s.startsWith(NimConstants.PUBLIC_ACCOUNT_PREFIX)) {
+            account = s.substring(s.indexOf(NimConstants.PUBLIC_ACCOUNT_PREFIX) + NimConstants.PUBLIC_ACCOUNT_PREFIX.length());
+		}
 		try{
-			ret = Long.valueOf(s);
+			ret = Long.valueOf(account);
 		}catch(Exception e){
 			e.printStackTrace();
 			return ret;
 		}
 		return ret;
-	}
+	 }
 	
 	public String getServiceCategory(String account){
        ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
@@ -1009,17 +1014,25 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 		}
 
 		ContactUser user = SamchatUserInfoCache.getInstance().getUserByAccount(clickAccount);
-		if(user == null)
-			return;
+		String username = BasicUserInfoHelper.getUserName(clickAccount);
 
 		if(clickAccount.equals(creator)){
 			//click owner
-			SamchatContactUserSPNameCardActivity.start(MainActivity.this,user);
+			if(user != null)
+				SamchatContactUserSPNameCardActivity.start(MainActivity.this,user);
+			else
+				SamchatContactUserSPNameCardActivity.start(MainActivity.this, clickAccount, username);
 		}else{
 			if(creator.equals(NimUIKit.getAccount())){
-				SamchatContactUserNameCardActivity.start(MainActivity.this,user,false);
+				if(user != null)
+					SamchatContactUserNameCardActivity.start(MainActivity.this,user,false);
+				else
+					SamchatContactUserNameCardActivity.start(MainActivity.this, clickAccount, username, false);
 			}else{
-				SamchatContactUserNameCardActivity.start(MainActivity.this,user,true);
+				if(user != null)
+					SamchatContactUserNameCardActivity.start(MainActivity.this,user,true);
+				else
+					SamchatContactUserNameCardActivity.start(MainActivity.this, clickAccount, username, true);
 			}
 		}
 	}

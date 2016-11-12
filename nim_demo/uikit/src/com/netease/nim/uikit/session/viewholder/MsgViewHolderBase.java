@@ -16,6 +16,7 @@ import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.SendIMMessageCache;
 import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
@@ -82,7 +83,11 @@ public abstract class MsgViewHolderBase extends TViewHolder {
 
     // 当是发送出去的消息时，内容区域背景的drawable id
     protected int rightBackground() {
-        return R.drawable.nim_message_item_right_selector;
+        if(NimUIKit.getCallback().getCurrentMode() == ModeEnum.CUSTOMER_MODE.getValue()){
+            return R.drawable.samchat_message_item_right_green_selector;
+        }else{
+            return R.drawable.samchat_message_item_right_blue_selector;
+        }
     }
 
     // 返回该消息是不是居中显示

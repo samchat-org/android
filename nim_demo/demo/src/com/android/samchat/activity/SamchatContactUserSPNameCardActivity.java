@@ -18,8 +18,12 @@ import android.widget.TextView;
 import com.android.samchat.cache.ContactDataCache;
 import com.android.samchat.cache.FollowDataCache;
 import com.android.samchat.R;
+import com.android.samchat.common.BasicUserInfoHelper;
 import com.android.samchat.common.FastBlurUtils;
+import com.android.samservice.HttpCommClient;
+import com.android.samservice.type.TypeEnum;
 import com.netease.nim.demo.session.SessionHelper;
+import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
@@ -58,6 +62,10 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 	private ImageView wall_iv;
 
 	private ContactUser sp;
+	private String account;
+	private String username;
+
+	private long unique_id;
 
 	private boolean isFollowing = false;
 	private boolean isOpting=false;
@@ -82,12 +90,16 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		};
 		
 		broadcastManager.registerReceiver(broadcastReceiver, filter);
+		isBroadcastRegistered = true;
 	}
 		
 
 	
 	private void unregisterBroadcastReceiver(){
-	    broadcastManager.unregisterReceiver(broadcastReceiver);
+	    if(isBroadcastRegistered){
+			broadcastManager.unregisterReceiver(broadcastReceiver);
+			isBroadcastRegistered = false;
+		}
 	}
 	
 
@@ -96,6 +108,16 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		Bundle bundle = new Bundle();
 		bundle.putSerializable("service_provider", sp);
+		intent.putExtras(bundle);
+		context.startActivity(intent);
+	}
+
+	public static void start(Context context,String id, String name) {
+		Intent intent = new Intent(context, SamchatContactUserNameCardActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		Bundle bundle = new Bundle();
+		bundle.putString("account",id);
+		bundle.putString("username",name);
 		intent.putExtras(bundle);
 		context.startActivity(intent);
 	}
@@ -119,11 +141,15 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		options.isNeedNavigate = false;
 		options.logoId = R.drawable.actionbar_white_logo_space;
 		setToolBar(R.id.toolbar, options);
-
-		onParseIntent();
-		setupPanel();
-
-		registerBroadcastReceiver();
+		
+		if(onParseIntent()){
+			query_user_precise(unique_id);
+			setupPanel();
+			registerBroadcastReceiver();
+		}else{
+			finish();
+		}
+		
 	}
 
 	@Override
@@ -154,34 +180,57 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		setupFollowClick();
 		setupOpServiceProviderClick();
 		setupQrcodeClick();
+
+		refresh();
 		
-		avatar_headimageview.loadBuddyAvatarByUrl(sp.getAccount(), sp.getAvatar(),(int) getResources().getDimension(R.dimen.samchat_avatar_size_in_namecard), new HeadImageView.OnImageLoadedListener(){
-			@Override
-			public void OnImageLoadedListener(Bitmap bitmap){
-				FastBlurUtils.blur(bitmap, wall_iv);
-			}
-		});
-		titlebar_name_textview.setText(sp.getusername());
-		company_name_tv.setText(sp.getcompany_name());
-		service_category_tv.setText(sp.getservice_category());
-		service_description_tv.setText(sp.getservice_description());
-		if(!TextUtils.isEmpty(sp.getphone_sp())){
+	}
+
+	private void refresh(){
+		if(sp != null && !TextUtils.isEmpty(sp.getAvatar())){
+			avatar_headimageview.loadBuddyAvatarByUrl(sp.getAccount(), sp.getAvatar(),(int) getResources().getDimension(R.dimen.samchat_avatar_size_in_namecard), new HeadImageView.OnImageLoadedListener(){
+				@Override
+				public void OnImageLoadedListener(Bitmap bitmap){
+					FastBlurUtils.blur(bitmap, wall_iv);
+				}
+			});
+		}else{
+			avatar_headimageview.setImageResource(NimUIKit.getUserInfoProvider().getDefaultIconResId());
+		}
+				
+		titlebar_name_textview.setText(sp !=null ?sp.getusername():username);
+		company_name_tv.setText(sp!= null ? sp.getcompany_name():"");
+		service_category_tv.setText(sp!=null ? sp.getservice_category():"");
+		service_description_tv.setText(sp!=null ? sp.getservice_description():"");
+		if(sp != null && !TextUtils.isEmpty(sp.getphone_sp())){
 			if(!TextUtils.isEmpty(sp.getcountrycode_sp())){
 				work_phone_tv.setText("+"+sp.getcountrycode_sp()+sp.getphone_sp());
 			}else{
 				work_phone_tv.setText(sp.getphone_sp());
 			}
 		}
-		if(!TextUtils.isEmpty(sp.getemail_sp())){
+		if(sp!= null && !TextUtils.isEmpty(sp.getemail_sp())){
 			email_tv.setText(sp.getemail_sp());
 		}
-		if(!TextUtils.isEmpty(sp.getaddress_sp())){
+		if(sp!= null && !TextUtils.isEmpty(sp.getaddress_sp())){
 			location_tv.setText(sp.getaddress_sp());
 		}
 	}
 
-	private void onParseIntent() {
+	private boolean onParseIntent() {
 		sp = (ContactUser)getIntent().getSerializableExtra("service_provider");
+		account = getIntent().getStringExtra("account");
+		username = getIntent().getStringExtra("username");
+		if(sp !=null){
+			unique_id = sp.getunique_id();
+		}else if(!TextUtils.isEmpty(account)){
+			unique_id = BasicUserInfoHelper.stringTolong(account);
+			if(unique_id == -1)
+				return false;
+		}else{
+			return false;
+		}
+
+		return true;
 	}
 	
 	private void setupBackArrowClick(){
@@ -202,7 +251,7 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 				return;
 			}
 
-			if(isFollowing){
+			if(isFollowing || sp == null){
 				switchButtonFollow.setCheck(!followState);
 				return;
 			}
@@ -212,7 +261,7 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
     };
 
 	private void updateFollow(){
-		if(FollowDataCache.getInstance().getFollowSPByUniqueID(sp.getunique_id()) != null){
+		if(FollowDataCache.getInstance().getFollowSPByUniqueID(unique_id) != null){
 			switchButtonFollow.setCheck(true);
 		}else{
 			switchButtonFollow.setCheck(false);
@@ -232,10 +281,12 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 					return;
 				}
 
-				if(ContactDataCache.getInstance().getContactByUniqueID(sp.getunique_id()) != null){
-					removeServiceProvider();
-				}else{
-					addServiceProvider();
+				if(sp != null){
+					if(ContactDataCache.getInstance().getContactByUniqueID(unique_id) != null){
+						removeServiceProvider();
+					}else{
+						addServiceProvider();
+					}
 				}
 				
 			}
@@ -244,7 +295,7 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 	}
 
 	private void updateOpServiceProvider(){
-		if(ContactDataCache.getInstance().getContactByUniqueID(sp.getunique_id()) != null){
+		if(ContactDataCache.getInstance().getContactByUniqueID(unique_id) != null){
 			op_text_tv.setText(getString(R.string.samchat_delete_service_provider));
 		}else{
 			op_text_tv.setText(getString(R.string.samchat_add_to_service_provider));
@@ -255,7 +306,7 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		chat_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				SessionHelper.startP2PSession(SamchatContactUserSPNameCardActivity.this, sp.getAccount());
+				SessionHelper.startP2PSession(SamchatContactUserSPNameCardActivity.this, ""+unique_id);
 				finish();
 			}
 		});
@@ -265,7 +316,8 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		qr_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				SamchatQRCodeActivity.start(SamchatContactUserSPNameCardActivity.this, Constants.SHOW_SP_INFO,sp);
+				if(sp!= null)
+					SamchatQRCodeActivity.start(SamchatContactUserSPNameCardActivity.this, Constants.SHOW_SP_INFO,sp);
 			}
 		});
 	}
@@ -435,6 +487,31 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 
 	}
 
+	private void query_user_precise(long unique_id){
+		SamService.getInstance().query_user_precise(TypeEnum.UNIQUE_ID, null, unique_id, null, true, new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					final HttpCommClient hcc = (HttpCommClient)obj;
+					if(hcc.users.getcount() > 0){
+						getHandler().postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								if(!isDestroyedCompatible()){
+									sp = hcc.users.getusers().get(0);
+									refresh();
+								}
+							}
+						}, 0);
+					}
+				}
+
+				@Override
+				public void onFailed(final int code) {}
+
+				@Override
+				public void onError(int code) {}
+		});
+	}
 }
 
 

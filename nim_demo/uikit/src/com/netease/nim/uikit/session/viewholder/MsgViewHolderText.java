@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.session.emoji.MoonUtil;
 
@@ -48,7 +49,11 @@ public class MsgViewHolderText extends MsgViewHolderBase {
             bodyTextView.setBackgroundResource(R.drawable.nim_message_item_left_selector);
             bodyTextView.setPadding(ScreenUtil.dip2px(15), ScreenUtil.dip2px(8), ScreenUtil.dip2px(10), ScreenUtil.dip2px(8));
         } else {
-            bodyTextView.setBackgroundResource(R.drawable.nim_message_item_right_selector);
+            if(NimUIKit.getCallback().getCurrentMode() == ModeEnum.CUSTOMER_MODE.getValue()){
+                bodyTextView.setBackgroundResource(R.drawable.samchat_message_item_right_green_selector);
+            }else{
+                bodyTextView.setBackgroundResource(R.drawable.samchat_message_item_right_blue_selector);
+            }
             bodyTextView.setPadding(ScreenUtil.dip2px(10), ScreenUtil.dip2px(8), ScreenUtil.dip2px(15), ScreenUtil.dip2px(8));
         }
     }

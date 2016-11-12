@@ -290,7 +290,7 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 							public void run() {
 								DialogMaker.dismissProgressDialog();
 								isSending = false;
-								SamchatContactUserNameCardActivity.start(SamchatAddCustomerActivity.this, hcc.users.getusers().get(0));
+								SamchatContactUserNameCardActivity.start(SamchatAddCustomerActivity.this, hcc.users.getusers().get(0),false);
 							}
 						}, 0);
 					}else{
@@ -375,7 +375,7 @@ public class SamchatAddCustomerActivity extends UI implements OnKeyListener {
 							@Override
 							public void run() {
 								DialogMaker.dismissProgressDialog();
-								SamchatContactUserNameCardActivity.start(SamchatAddCustomerActivity.this, user);
+								SamchatContactUserNameCardActivity.start(SamchatAddCustomerActivity.this, user,false);
 								isSending = false;
 							}
 						}, 0);

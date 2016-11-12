@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import com.android.samchat.common.SamchatOpenFileUtil;
 import com.android.samchat.R;
+import com.netease.nim.uikit.NimUIKit;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
 import com.netease.nim.uikit.common.util.file.FileUtil;
 import com.netease.nim.demo.file.FileIcons;
@@ -121,7 +123,11 @@ public class MsgViewHolderFile extends MsgViewHolderBase {
 
     @Override
     protected int rightBackground() {
-        return R.drawable.nim_message_right_blue_bg;
+        if(NimUIKit.getCallback().getCurrentMode() == ModeEnum.CUSTOMER_MODE.getValue()){
+            return R.drawable.samchat_message_item_right_green_selector;
+        }else{
+            return R.drawable.samchat_message_item_right_blue_selector;
+        }
     }
 
 	@Override

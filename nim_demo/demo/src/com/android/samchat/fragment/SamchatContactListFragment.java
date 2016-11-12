@@ -75,6 +75,8 @@ public class SamchatContactListFragment extends MainTabFragment {
 				ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(ui.getunique_id());
 				if(user != null){
 					SamchatContactUserSPNameCardActivity.start(getActivity(), user);
+				}else{
+					SamchatContactUserSPNameCardActivity.start(getActivity(), ui.getAccount(), ui.getusername());
 				}
 			}
 
@@ -100,7 +102,9 @@ public class SamchatContactListFragment extends MainTabFragment {
 				//SessionHelper.startP2PSession(getActivity(), ""+ui.getunique_id());
 				ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(ui.getunique_id());
 				if(user != null){
-					SamchatContactUserNameCardActivity.start(getActivity(), user);
+					SamchatContactUserNameCardActivity.start(getActivity(), user,false);
+				}else{
+					SamchatContactUserNameCardActivity.start(getActivity(), ui.getAccount(),ui.getusername(),false);
 				}
 			}
 

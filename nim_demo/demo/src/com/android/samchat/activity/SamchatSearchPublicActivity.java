@@ -1,10 +1,13 @@
 package com.android.samchat.activity;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -54,6 +57,34 @@ public class SamchatSearchPublicActivity extends Activity {
 
 	private List<ContactUser> items_search_result;
 	private ContactUserAdapter adapter;
+
+	//observer and broadcast
+	private boolean isBroadcastRegistered = false;
+	private BroadcastReceiver broadcastReceiver;
+	private LocalBroadcastManager broadcastManager;
+	private void registerBroadcastReceiver() {
+		broadcastManager = LocalBroadcastManager.getInstance(SamchatSearchPublicActivity.this);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(Constants.BROADCAST_FOLLOWEDSP_UPDATE);
+
+		broadcastReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if(intent.getAction().equals(Constants.BROADCAST_FOLLOWEDSP_UPDATE)){
+					refreshContactUserList();
+				}
+			}
+		};
+		
+		broadcastManager.registerReceiver(broadcastReceiver, filter);
+		isBroadcastRegistered = true;
+	}
+	private void unregisterBroadcastReceiver(){
+	    if(isBroadcastRegistered){
+			broadcastManager.unregisterReceiver(broadcastReceiver);
+			isBroadcastRegistered = false;
+		}
+	}
 	
 	public static void start(Context context) {
 		Intent intent = new Intent(context, SamchatSearchPublicActivity.class);
@@ -66,6 +97,7 @@ public class SamchatSearchPublicActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.samchat_searchpublic_activity);
 		setupPanel();
+		registerBroadcastReceiver();
 	}
 
 	@Override
@@ -77,6 +109,7 @@ public class SamchatSearchPublicActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		unregisterBroadcastReceiver();
 	}
 
 	private void setupPanel() {

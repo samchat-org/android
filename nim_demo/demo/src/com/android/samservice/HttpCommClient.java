@@ -2715,8 +2715,10 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean send_clientid(SendClientIDCoreObj bdobj){			
-		try{
+	public boolean send_clientid(SendClientIDCoreObj bdobj){	
+		ret = 0;
+		return true;
+		/*try{
 			JSONObject  data = constructSendClientIDJson(bdobj);
 
 			HttpResponse response = httpCmdStart(URL_sendClientId,data);
@@ -2757,7 +2759,7 @@ public class HttpCommClient {
 			SamLog.e(TAG,"send client id :Exception");
 			e.printStackTrace(); 
 			return false;
-		}
+		}*/
 		
 	}
 

@@ -19,8 +19,12 @@ import com.android.samchat.cache.ContactDataCache;
 import com.android.samchat.cache.CustomerDataCache;
 import com.android.samchat.cache.FollowDataCache;
 import com.android.samchat.R;
+import com.android.samchat.common.BasicUserInfoHelper;
 import com.android.samchat.common.FastBlurUtils;
+import com.android.samservice.HttpCommClient;
+import com.android.samservice.type.TypeEnum;
 import com.netease.nim.demo.session.SessionHelper;
+import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
@@ -58,24 +62,31 @@ public class SamchatContactUserNameCardActivity extends UI implements OnKeyListe
 	private TextView username_tv;
 
 	private ContactUser user;
+	private String account;
+	private String username;
+
+	private long unique_id;
+	
 	private boolean opposite=false;
 
 	private boolean isOpting=false;
-
-	public static void start(Context context,ContactUser user) {
-		Intent intent = new Intent(context, SamchatContactUserNameCardActivity.class);
-		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-		Bundle bundle = new Bundle();
-		bundle.putSerializable("customer", user);
-		intent.putExtras(bundle);
-		context.startActivity(intent);
-	}
 
 	public static void start(Context context,ContactUser user, boolean oppo) {
 		Intent intent = new Intent(context, SamchatContactUserNameCardActivity.class);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 		Bundle bundle = new Bundle();
 		bundle.putSerializable("customer", user);
+		bundle.putBoolean("opposite",oppo);
+		intent.putExtras(bundle);
+		context.startActivity(intent);
+	}
+
+	public static void start(Context context,String id, String name, boolean oppo) {
+		Intent intent = new Intent(context, SamchatContactUserNameCardActivity.class);
+		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+		Bundle bundle = new Bundle();
+		bundle.putString("account",id);
+		bundle.putString("username",name);
 		bundle.putBoolean("opposite",oppo);
 		intent.putExtras(bundle);
 		context.startActivity(intent);
@@ -101,8 +112,12 @@ public class SamchatContactUserNameCardActivity extends UI implements OnKeyListe
 		options.logoId = R.drawable.actionbar_white_logo_space;
 		setToolBar(R.id.toolbar, options);
 
-		onParseIntent();
-		setupPanel();
+		if(onParseIntent()){
+			query_user_precise(unique_id);
+			setupPanel();
+		}else{
+			finish();
+		}
 	}
 
 	@Override
@@ -131,39 +146,62 @@ public class SamchatContactUserNameCardActivity extends UI implements OnKeyListe
 		setupOpCustomerClick();
 		setupUsernameClick();
 		
-		avatar_headimageview.loadBuddyAvatarByUrl(user.getAccount(), user.getAvatar(),(int) getResources().getDimension(R.dimen.samchat_avatar_size_in_namecard), new HeadImageView.OnImageLoadedListener(){
-			@Override
-			public void OnImageLoadedListener(Bitmap bitmap){
-				FastBlurUtils.blur(bitmap, wall_iv);
-			}
-		});
-		titlebar_name_textview.setText(user.getusername());
-		username_tv.setText(user.getusername());
-		if(!TextUtils.isEmpty(user.getcellphone())){
-			if(!TextUtils.isEmpty(user.getcountrycode())){
-				phone_tv.setText("+"+user.getcountrycode()+user.getcellphone());
-			}else{
-				phone_tv.setText(user.getcellphone());
-			}
-		}
-		if(!TextUtils.isEmpty(user.getemail())){
-			email_tv.setText(user.getemail());
-		}
-		if(!TextUtils.isEmpty(user.getaddress())){
-			location_tv.setText(user.getaddress());
-		}
-
 		if(opposite){
 			titlebar_layout.setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
 			back_icon_iv.setImageResource(R.drawable.samchat_arrow_left);
 			back_arrow_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_customer);
 			titlebar_name_textview.setTextColor(getResources().getColor(R.color.samchat_color_customer_titlbar_title));	
 		}
+
+		refresh();
 	}
 
-	private void onParseIntent() {
+	private void refresh(){
+		if(user != null && !TextUtils.isEmpty(user.getAvatar())){
+				avatar_headimageview.loadBuddyAvatarByUrl(user.getAccount(), user.getAvatar(),(int) getResources().getDimension(R.dimen.samchat_avatar_size_in_namecard), new HeadImageView.OnImageLoadedListener(){
+				@Override
+				public void OnImageLoadedListener(Bitmap bitmap){
+					FastBlurUtils.blur(bitmap, wall_iv);
+				}
+			});
+		}else{
+			avatar_headimageview.setImageResource(NimUIKit.getUserInfoProvider().getDefaultIconResId());
+		}
+		
+		titlebar_name_textview.setText(user!=null ?user.getusername():username);
+		username_tv.setText(user!=null ?user.getusername():username);
+		if(user!= null && !TextUtils.isEmpty(user.getcellphone())){
+			if(!TextUtils.isEmpty(user.getcountrycode())){
+				phone_tv.setText("+"+user.getcountrycode()+user.getcellphone());
+			}else{
+				phone_tv.setText(user.getcellphone());
+			}
+		}
+		if(user != null && !TextUtils.isEmpty(user.getemail())){
+			email_tv.setText(user.getemail());
+		}
+		if(user != null  && !TextUtils.isEmpty(user.getaddress())){
+			location_tv.setText(user.getaddress());
+		}		
+	}
+
+	private boolean onParseIntent() {
 		user = (ContactUser)getIntent().getSerializableExtra("customer");
-		opposite = getIntent().getBooleanExtra("opposite",false);
+		account = getIntent().getStringExtra("account");
+		username = getIntent().getStringExtra("username");
+		opposite = getIntent().getBooleanExtra("username",false);
+
+		if(user!=null){
+			unique_id = user.getunique_id();
+		}else if(!TextUtils.isEmpty(account)){
+			unique_id = BasicUserInfoHelper.stringTolong(account);
+			if(unique_id == -1)
+				return false;
+		}else{
+			return false;
+		}
+
+		return true;
 	}
 	
 	private void setupBackArrowClick(){
@@ -183,10 +221,12 @@ public class SamchatContactUserNameCardActivity extends UI implements OnKeyListe
 					return;
 				}
 
-				if(CustomerDataCache.getInstance().getCustomerByUniqueID(user.getunique_id()) != null){
-					removeCustomer();
-				}else{
-					addCustomer();
+				if(user != null){
+					if(CustomerDataCache.getInstance().getCustomerByUniqueID(unique_id) != null){
+						removeCustomer();
+					}else{
+						addCustomer();
+					}
 				}
 			}
 		});
@@ -197,7 +237,7 @@ public class SamchatContactUserNameCardActivity extends UI implements OnKeyListe
 	}
 
 	private void updateOpCustomer(){
-		if(CustomerDataCache.getInstance().getCustomerByUniqueID(user.getunique_id()) != null){
+		if(CustomerDataCache.getInstance().getCustomerByUniqueID(unique_id) != null){
 			op_text_tv.setText(getString(R.string.samchat_delete_customer));
 		}else{
 			op_text_tv.setText(getString(R.string.samchat_add_to_customer));
@@ -208,7 +248,7 @@ public class SamchatContactUserNameCardActivity extends UI implements OnKeyListe
 		chat_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				SessionHelper.startP2PSession(SamchatContactUserNameCardActivity.this, user.getAccount());
+				SessionHelper.startP2PSession(SamchatContactUserNameCardActivity.this, ""+unique_id);
 				finish();
 			}
 		});
@@ -221,7 +261,9 @@ public class SamchatContactUserNameCardActivity extends UI implements OnKeyListe
 		username_layout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				SamchatQRCodeActivity.start(SamchatContactUserNameCardActivity.this, Constants.SHOW_CUSTOMER_INFO, user);
+				if(user != null){
+					SamchatQRCodeActivity.start(SamchatContactUserNameCardActivity.this, Constants.SHOW_CUSTOMER_INFO, user);
+				}
 			}
 		});
 	}
@@ -336,6 +378,34 @@ public class SamchatContactUserNameCardActivity extends UI implements OnKeyListe
 		});
 
 	}
+
+
+	private void query_user_precise(long unique_id){
+		SamService.getInstance().query_user_precise(TypeEnum.UNIQUE_ID, null, unique_id, null, true, new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					final HttpCommClient hcc = (HttpCommClient)obj;
+					if(hcc.users.getcount() > 0){
+						getHandler().postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								if(!isDestroyedCompatible()){
+									user = hcc.users.getusers().get(0);
+									refresh();
+								}
+							}
+						}, 0);
+					}
+				}
+
+				@Override
+				public void onFailed(final int code) {}
+
+				@Override
+				public void onError(int code) {}
+		});
+	}
+
 
 }
 

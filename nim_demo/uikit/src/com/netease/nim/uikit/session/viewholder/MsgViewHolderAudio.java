@@ -9,8 +9,10 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.media.audioplayer.Playable;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
 import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.session.audio.MessageAudioControl;
@@ -90,8 +92,11 @@ public class MsgViewHolderAudio extends MsgViewHolderBase {
             setGravity(animationView, Gravity.RIGHT | Gravity.CENTER_VERTICAL);
             setGravity(durationLabel, Gravity.LEFT | Gravity.CENTER_VERTICAL);
             unreadIndicator.setVisibility(View.GONE);
-
-            containerView.setBackgroundResource(R.drawable.nim_message_item_right_selector);
+            if(NimUIKit.getCallback().getCurrentMode() == ModeEnum.CUSTOMER_MODE.getValue()){
+                containerView.setBackgroundResource(R.drawable.samchat_message_item_right_green_selector);
+            }else{
+                containerView.setBackgroundResource(R.drawable.samchat_message_item_right_blue_selector);
+            }
             containerView.setPadding(ScreenUtil.dip2px(10),ScreenUtil.dip2px(8), ScreenUtil.dip2px(15), ScreenUtil.dip2px(8));
             animationView.setBackgroundResource(R.drawable.nim_audio_animation_list_right);
             durationLabel.setTextColor(Color.WHITE);

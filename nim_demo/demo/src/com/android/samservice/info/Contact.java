@@ -1,5 +1,6 @@
 package com.android.samservice.info;
 
+import com.android.samchat.cache.SamchatUserInfoCache;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 import com.android.samservice.utils.PinyinUtils;
 	/*
@@ -78,21 +79,37 @@ public class Contact implements UserInfoProvider.UserInfo
 	}
 
 	public String getusername(){
-		return username;
+		ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(unique_id);
+		if(user != null){
+			return user.getusername();
+		}else{
+			return username;
+		}
 	}
 	public void setusername(String username){
 		this.username = username;
+		translateToPinYin();
 	}
 
 	public String getavatar(){
-		return avatar;
+		ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(unique_id);
+		if(user != null){
+			return user.getavatar();
+		}else{
+			return avatar;
+		}
 	}
 	public void setavatar(String avatar){
 		this.avatar = avatar;
 	}
 
 	public String getservice_category(){
-		return service_category;
+		ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(unique_id);
+		if(user != null){
+			return user.getservice_category();
+		}else{
+			return service_category;
+		}
 	}
 	public void setservice_category(String service_category){
 		this.service_category = service_category;
@@ -112,12 +129,12 @@ public class Contact implements UserInfoProvider.UserInfo
 
 	@Override
 	public String getName(){
-		return username;
+		return getusername();
 	}
 
 	@Override
 	public String getAvatar(){
-		return avatar;
+		return getavatar();
 	}
 	
 }

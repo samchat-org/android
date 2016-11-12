@@ -11,6 +11,7 @@ import com.android.samchat.SamchatGlobal;
 import com.android.samchat.activity.SamchatContactUserNameCardActivity;
 import com.android.samchat.activity.SamchatContactUserSPNameCardActivity;
 import com.android.samchat.cache.SamchatUserInfoCache;
+import com.android.samchat.common.BasicUserInfoHelper;
 import com.android.samservice.SamService;
 import com.android.samservice.info.ContactUser;
 import com.netease.nim.demo.DemoCache;
@@ -405,7 +406,13 @@ public class SessionHelper {
                     if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
                         SamchatContactUserSPNameCardActivity.start(context, user);
                     }else{
-                        SamchatContactUserNameCardActivity.start(context,user);
+                        SamchatContactUserNameCardActivity.start(context,user,false);
+                    }
+                }else{
+                    if(SamchatGlobal.getmode() == ModeEnum.CUSTOMER_MODE){
+                        SamchatContactUserSPNameCardActivity.start(context, account, BasicUserInfoHelper.getUserName(account));
+                    }else{
+                        SamchatContactUserNameCardActivity.start( context, account, BasicUserInfoHelper.getUserName(account), false);
                     }
                 }
             }
