@@ -91,8 +91,6 @@
     <string name="samchat_ok">OK</string>
     <string name="samchat_cancel">Cancel</string>
 
-    <string name="permision_apply_succeed">permission apply succeed</string>
-    <string name="permision_apply_failed">permssion apply failed , samchat will run abnormally</string>
     <string name="customer_request_service">Request Service</string>
     <string name="customer_public">Public</string>
     <string name="customer_chat">Chat</string>
@@ -304,8 +302,12 @@
 
     <string name="samchat_add_customer">Add Client</string>
 
-    <string name="samchat_permision_grant">Permission granted</string>
-    <string name="samchat_permision_refused">Permission refused, some function will not work!</string>
+    <string name="samchat_permission_grant">Permission granted</string>
+    <string name="samchat_permission_refused_storage">SD card access permission refused!</string>
+    <string name="samchat_permission_refused_read_contact">Permission deny, contacts could not read!</string>
+    <string name="samchat_permission_refused_location">Permission deny, location info could not get!</string>
+    <string name="samchat_permission_refused_camera">Permission deny, camera could not use!</string>
+    <string name="samchat_permission_refused_message">Permission deny, some message function will not work!</string>
 
     <string name="samchat_file_transfer_state_send">send</string>
     <string name="samchat_file_transfer_state_unsend">unsend</string>
@@ -461,7 +463,7 @@
     <string name="menu_settings">Settings</string>
     <string name="menu_share">Share</string>
     <string name="msg_bulk_mode_scanned">Bulk mode: barcode scanned and saved</string>
-    <string name="msg_camera_framework_bug">Sorry, the Android camera encountered a problem. You may need to restart the device.</string>
+    <string name="msg_camera_framework_bug">Sorry, the Android camera encountered a problem.</string>
     <string name="msg_default_format">Format</string>
     <string name="msg_default_meta">Metadata</string>
     <string name="msg_default_mms_subject">Hi</string>
@@ -597,5 +599,5 @@
     <string name="samchat_normal_team_invalid_tip">you have quit this team</string>
     <string name="samchat_edit_name">Edit Name</string>
     <string name="samchat_record_audio">Press Speaker</string>
-
+    <string name="samchat_browse_failed">Browse file failed!</string>
 </resources>

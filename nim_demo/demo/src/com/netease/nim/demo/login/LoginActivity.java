@@ -136,12 +136,12 @@ public class LoginActivity extends UI implements OnKeyListener {
 
     @OnMPermissionGranted(BASIC_PERMISSION_REQUEST_CODE)
     public void onBasicPermissionSuccess(){
-        Toast.makeText(this, getString(R.string.permision_apply_succeed), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.samchat_permission_grant), Toast.LENGTH_SHORT).show();
     }
 
     @OnMPermissionDenied(BASIC_PERMISSION_REQUEST_CODE)
     public void onBasicPermissionFailed(){
-        Toast.makeText(this, getString(R.string.permision_apply_failed), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.samchat_permission_refused_storage), Toast.LENGTH_SHORT).show();
     }
 
     private void onParseIntent() {

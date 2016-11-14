@@ -52,8 +52,14 @@ public class FileBrowserActivity extends UI implements TAdapterDelegate {
         ToolBarOptions options = new ToolBarOptions();
         setToolBar(R.id.toolbar, options);
 
-        findViews();
-        showFileDir(ROOT_PATH);
+        try{
+            findViews();
+            showFileDir(ROOT_PATH);
+        }catch(Exception e){
+            e.printStackTrace();
+            Toast.makeText(this,R.string.samchat_browse_failed, Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
     private void findViews() {

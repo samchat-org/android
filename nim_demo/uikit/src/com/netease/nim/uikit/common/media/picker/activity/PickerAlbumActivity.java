@@ -1,6 +1,7 @@
 package com.netease.nim.uikit.common.media.picker.activity;
 
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.activity.UI;
@@ -21,6 +23,10 @@ import com.netease.nim.uikit.common.media.picker.model.AlbumInfo;
 import com.netease.nim.uikit.common.media.picker.model.PhotoInfo;
 import com.netease.nim.uikit.common.media.picker.model.PickerContract;
 import com.netease.nim.uikit.model.ToolBarOptions;
+import com.netease.nim.uikit.permission.MPermission;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionDenied;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionGranted;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionNeverAskAgain;
 import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.constant.RequestCode;
 
@@ -34,6 +40,8 @@ import java.util.List;
 public class PickerAlbumActivity extends UI implements OnAlbumItemClickListener,
 	OnPhotoSelectClickListener, OnClickListener{
 
+	private final int BASIC_PERMISSION_REQUEST_CODE = 100;
+	
 	private FrameLayout pickerAlbumLayout;
 	
 	private FrameLayout pickerPhotosLayout;
@@ -60,6 +68,39 @@ public class PickerAlbumActivity extends UI implements OnAlbumItemClickListener,
 	
 	private boolean isAlbumPage;
 
+	private void requestBasicPermission() {
+		MPermission.with(PickerAlbumActivity.this)
+			.addRequestCode(BASIC_PERMISSION_REQUEST_CODE)
+			.permissions(
+				Manifest.permission.WRITE_EXTERNAL_STORAGE,
+				Manifest.permission.READ_EXTERNAL_STORAGE
+			)
+			.request();
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		MPermission.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+	}
+
+	@OnMPermissionGranted(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionSuccess(){
+		//Toast.makeText(this, getString(R.string.samchat_permission_grant), Toast.LENGTH_SHORT).show();
+		switchContent(photoFolderFragment);
+	}
+
+	@OnMPermissionDenied(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionFailed(){
+		Toast.makeText(this, getString(R.string.samchat_permission_refused_storage), Toast.LENGTH_SHORT).show();
+		switchContent(photoFolderFragment);
+	}
+
+	@OnMPermissionNeverAskAgain(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionNeverAskAgainFailed(){
+		Toast.makeText(this, getString(R.string.samchat_permission_refused_storage), Toast.LENGTH_SHORT).show();
+		switchContent(photoFolderFragment);
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -71,7 +112,10 @@ public class PickerAlbumActivity extends UI implements OnAlbumItemClickListener,
 		proceedExtra();
 		initActionBar();
 		initUI();
+		requestBasicPermission();
 	}
+
+	
 	
 	private void proceedExtra(){
 		Intent intent = getIntent();
@@ -103,7 +147,7 @@ public class PickerAlbumActivity extends UI implements OnAlbumItemClickListener,
 		pickerAlbumLayout = (FrameLayout) findViewById(R.id.picker_album_fragment);
 		pickerPhotosLayout = (FrameLayout) findViewById(R.id.picker_photos_fragment);
 		photoFolderFragment = new PickerAlbumFragment();
-		switchContent(photoFolderFragment);
+		//switchContent(photoFolderFragment);
 		
 		isAlbumPage = true;
 	}

@@ -30,7 +30,7 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />   <!-- 6.0 permission -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />  <!-- 6.0 permission -->
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" /> <!-- 6.0 permission -->
+    <!-- <uses-permission android:name="android.permission.WRITE_SETTINGS" />  6.0 permission -->
 
     <!-- 手机状态 -->
     <uses-permission android:name="android.permission.GET_TASKS" />
@@ -39,7 +39,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" /> <!-- 6.0 permission -->
+    <!--<uses-permission android:name="android.permission.CHANGE_CONFIGURATION" /> 6.0 permission -->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <!-- 读写文件 -->
@@ -49,7 +49,7 @@
     <!-- 多媒体 -->
     <uses-permission android:name="android.permission.CAMERA" /> <!-- 6.0 permission -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" /><!-- 6.0 permission -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" /><!-- 6.0 permission -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" /><!-- 6.0 permission y-->
     <uses-permission android:name="android.permission.READ_CONTACTS"/><!-- 6.0 permission -->
 
     <!-- SDK权限申明, 第三方APP接入时，请将com.netease.nim.demo替换为自己的包名 -->
@@ -275,11 +275,6 @@
             android:windowSoftInputMode="adjustResize|stateHidden"/>
         <activity
             android:name="com.android.samchat.activity.SamchatUpdatePasswordActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateHidden"/>
-        <activity
-            android:name="com.zbar.scan.ScanCaptureAct"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateHidden"/>

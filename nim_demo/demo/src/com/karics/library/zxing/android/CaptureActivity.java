@@ -18,7 +18,13 @@ import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
+import com.netease.nim.uikit.permission.MPermission;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionDenied;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionGranted;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionNeverAskAgain;
+import com.netease.nim.uikit.permission.util.MPermissionUtil;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -41,6 +47,7 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import android.content.Context;
 
@@ -53,6 +60,7 @@ public final class CaptureActivity extends Activity implements
         SurfaceHolder.Callback {
 
     private static final String TAG = CaptureActivity.class.getSimpleName();
+    private final int BASIC_PERMISSION_REQUEST_CODE = 100;
 
     // 鐩告満鎺у埗
     private CameraManager cameraManager;
@@ -85,6 +93,7 @@ public final class CaptureActivity extends Activity implements
     //0:customer  1:sp
     private int mode;
     private boolean isScanner;
+    private boolean isPermit;
 
     //public static OnMyQRCodeListner callback;
     private Bitmap qrcode;
@@ -161,15 +170,19 @@ public final class CaptureActivity extends Activity implements
             titlebar_name.setText(getString(R.string.samchat_my_qr_code));
             titlebar_right_text.setText(getString(R.string.samchat_qr_scanner));
             isScanner = false;
-            Log.i("test","isScanner:"+isScanner);
+            Log.i(TAG,"isScanner:"+isScanner);
         }else{
             isScanner = true;
+            if(!isPermit){
+                requestBasicPermission();
+            }else{
+                resumeScanner();
+            }
             scanner_layout.setVisibility(View.VISIBLE);
             myqrcode_layout.setVisibility(View.GONE);
             titlebar_name.setText(getString(R.string.samchat_qr_scanner));
             titlebar_right_text.setText(getString(R.string.samchat_my_qr_code));
-            resumeScanner();
-            Log.i("test","isScanner:"+isScanner);
+            Log.i(TAG,"isScanner:"+isScanner);
         }
     }
 
@@ -190,6 +203,19 @@ public final class CaptureActivity extends Activity implements
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         parseIntent();
+        if(MPermissionUtil.isOverMarshmallow()){
+            List<String> denies = MPermissionUtil.findDeniedPermissions(CaptureActivity.this,Manifest.permission.CAMERA);
+            if(denies != null && denies.size()>0){
+                isPermit = false;
+            }else{
+                isPermit = true;
+            }
+        }else{
+             isPermit = true;
+        }
+        if(!isPermit && isScanner){
+            requestBasicPermission();
+        }
 
         // 淇濇寔Activity澶勪簬鍞ら啋鐘舵€?
         Window window = getWindow();
@@ -222,13 +248,7 @@ public final class CaptureActivity extends Activity implements
            service_category.setVisibility(View.VISIBLE); 
            service_category.setText(SamService.getInstance().get_current_user().getservice_category());
         }
-				
-        hasSurface = false;
 
-        inactivityTimer = new InactivityTimer(this);
-        beepManager = new BeepManager(this);
-
-        
         //imageButton_back = (ImageButton) findViewById(R.id.capture_imageview_back);
         back_arrow_layout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -259,7 +279,42 @@ public final class CaptureActivity extends Activity implements
             titlebar_right_text.setText(getString(R.string.samchat_qr_scanner));
         }
 
+		hasSurface = false;
+		inactivityTimer = new InactivityTimer(this);
+		beepManager = new BeepManager(this);
+
     }
+
+	private void requestBasicPermission() {
+		MPermission.with(CaptureActivity.this)
+			.addRequestCode(BASIC_PERMISSION_REQUEST_CODE)
+			.permissions(
+				Manifest.permission.CAMERA
+			)
+			.request();
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		MPermission.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+	}
+
+	@OnMPermissionGranted(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionSuccess(){
+		isPermit = true;
+	}
+
+	@OnMPermissionDenied(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionFailed(){
+		isPermit = false;
+		Toast.makeText(this, getString(R.string.samchat_permission_refused_camera), Toast.LENGTH_SHORT).show();
+	}
+
+	@OnMPermissionNeverAskAgain(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionNeverAskAgainFailed(){
+		isPermit = false;
+		Toast.makeText(this, getString(R.string.samchat_permission_refused_camera), Toast.LENGTH_SHORT).show();
+	}
 
     private void resumeScanner(){
          // CameraManager蹇呴』鍦ㄨ繖閲屽垵濮嬪寲锛岃€屼笉鏄湪onCreate()涓€?
@@ -280,7 +335,9 @@ public final class CaptureActivity extends Activity implements
             initCamera(surfaceHolder);
         } else {
             // 閲嶇疆callback锛岀瓑寰卻urfaceCreated()鏉ュ垵濮嬪寲camera
-            surfaceHolder.addCallback(this);
+           surfaceHolder.addCallback(this);
+           surfaceView.setVisibility(View.INVISIBLE); 
+           surfaceView.setVisibility(View.VISIBLE);
         }
 
         beepManager.updatePrefs();
@@ -293,7 +350,8 @@ public final class CaptureActivity extends Activity implements
 
     @Override
     protected void onResume() {
-        if(isScanner){
+    	Log.i(TAG,"onResume isScanner:"+isScanner+" isPermit: "+isPermit);
+        if(isScanner && isPermit){
             resumeScanner();
         }
         super.onResume();
@@ -306,7 +364,9 @@ public final class CaptureActivity extends Activity implements
         }
         inactivityTimer.onPause();
         beepManager.close();
-        cameraManager.closeDriver();
+        if(cameraManager != null)
+			cameraManager.closeDriver();
+				
         if (!hasSurface) {
             SurfaceView surfaceView = (SurfaceView) findViewById(R.id.preview_view);
             SurfaceHolder surfaceHolder = surfaceView.getHolder();
@@ -316,7 +376,7 @@ public final class CaptureActivity extends Activity implements
 
     @Override
     protected void onPause() {
-        if(isScanner){
+        if(isScanner && isPermit){
             pauseScanner();
         }
         super.onPause();
@@ -333,9 +393,10 @@ public final class CaptureActivity extends Activity implements
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+    	Log.i(TAG,"surfaceCreated");
         if (!hasSurface) {
             hasSurface = true;
-            if(isScanner){
+            if(isScanner && isPermit){
                 initCamera(holder);
             }
         }
@@ -343,7 +404,7 @@ public final class CaptureActivity extends Activity implements
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.i("test","surfaceDestroyed");
+        Log.i(TAG,"surfaceDestroyed");
         hasSurface = false;
     }
 

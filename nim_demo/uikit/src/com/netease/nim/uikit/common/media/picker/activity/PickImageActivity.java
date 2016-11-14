@@ -135,7 +135,7 @@ public class PickImageActivity extends UI {
         } catch (ActivityNotFoundException e) {
             finish();
         } catch (Exception e) {
-            Toast.makeText(this, R.string.sdcard_not_enough_head_error, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.msg_camera_framework_bug, Toast.LENGTH_LONG).show();
             finish();
         }
     }

@@ -77,27 +77,37 @@ public class HeadImageView extends CircleImageView {
      * @param account
      * @param thumbSize 缩略图的宽、高
      */
-    public void loadBuddyAvatar(final String account, final int thumbSize) {
-        // 先显示默认头像
-        setImageResource(NimUIKit.getUserInfoProvider().getDefaultIconResId());
+	public void loadBuddyAvatar(final String account, final int thumbSize) {
+		try{
+			// 先显示默认头像
+			setImageResource(NimUIKit.getUserInfoProvider().getDefaultIconResId());
 
-        // 判断是否需要ImageLoader加载
-        final UserInfoProvider.UserInfo userInfo = NimUIKit.getUserInfoProvider().getUserInfo(account);
-        boolean needLoad = userInfo != null && ImageLoaderKit.isImageUriValid(userInfo.getAvatar());
+			// 判断是否需要ImageLoader加载
+			final UserInfoProvider.UserInfo userInfo = NimUIKit.getUserInfoProvider().getUserInfo(account);
+			boolean needLoad = userInfo != null && ImageLoaderKit.isImageUriValid(userInfo.getAvatar());
 
-        doLoadImage(needLoad, account, userInfo != null ? userInfo.getAvatar() : null, thumbSize,NimUIKit.getUserInfoProvider().getDefaultIconResId());
+			doLoadImage(needLoad, account, userInfo != null ? userInfo.getAvatar() : null, thumbSize,NimUIKit.getUserInfoProvider().getDefaultIconResId());
+		}catch(Exception e){
+			e.printStackTrace(); 
+		}
     }
 
     public void loadBuddyAvatarByUrl(final String account, final String path, final int thumbSize) {
-        boolean needLoad = path != null && ImageLoaderKit.isImageUriValid(path);
-
-        doLoadImage(needLoad, account, path != null ? path : null, thumbSize,NimUIKit.getUserInfoProvider().getDefaultIconResId());
+		try{
+			boolean needLoad = path != null && ImageLoaderKit.isImageUriValid(path);
+			doLoadImage(needLoad, account, path != null ? path : null, thumbSize,NimUIKit.getUserInfoProvider().getDefaultIconResId());
+		}catch(Exception e){
+			e.printStackTrace(); 
+		}
     }
 
-    public void loadBuddyAvatarByUrl(final String account,final String path, final int thumbSize, final OnImageLoadedListener callback) {
-        boolean needLoad = path != null && ImageLoaderKit.isImageUriValid(path);
-
-        doLoadImage(needLoad, account, path != null ? path : null, thumbSize,NimUIKit.getUserInfoProvider().getDefaultIconResId(),callback);
+	public void loadBuddyAvatarByUrl(final String account,final String path, final int thumbSize, final OnImageLoadedListener callback) {
+		try{
+			boolean needLoad = path != null && ImageLoaderKit.isImageUriValid(path);
+			doLoadImage(needLoad, account, path != null ? path : null, thumbSize,NimUIKit.getUserInfoProvider().getDefaultIconResId(),callback);
+		}catch(Exception e){
+			e.printStackTrace(); 
+		}
     }
 
 	public interface OnImageLoadedListener {
@@ -105,14 +115,18 @@ public class HeadImageView extends CircleImageView {
 	}
 
 	public void loadBuddyAvatar(final String account, final int thumbSize, final OnImageLoadedListener callback) {
-        // 先显示默认头像
-        setImageResource(NimUIKit.getUserInfoProvider().getDefaultIconResId());
+		try{
+			// 先显示默认头像
+			setImageResource(NimUIKit.getUserInfoProvider().getDefaultIconResId());
 
-        // 判断是否需要ImageLoader加载
-        final UserInfoProvider.UserInfo userInfo = NimUIKit.getUserInfoProvider().getUserInfo(account);
-        boolean needLoad = userInfo != null && ImageLoaderKit.isImageUriValid(userInfo.getAvatar());
+			// 判断是否需要ImageLoader加载
+			final UserInfoProvider.UserInfo userInfo = NimUIKit.getUserInfoProvider().getUserInfo(account);
+			boolean needLoad = userInfo != null && ImageLoaderKit.isImageUriValid(userInfo.getAvatar());
 
-        doLoadImage(needLoad, account, userInfo != null ? userInfo.getAvatar() : null, thumbSize,NimUIKit.getUserInfoProvider().getDefaultIconResId(),callback);
+			doLoadImage(needLoad, account, userInfo != null ? userInfo.getAvatar() : null, thumbSize,NimUIKit.getUserInfoProvider().getDefaultIconResId(),callback);
+		}catch(Exception e){
+			e.printStackTrace(); 
+		}
     }
 
 	private void doLoadImage(final boolean needLoad, final String tag, final String url, final int thumbSize,final int default_resid,final OnImageLoadedListener callback) {
@@ -155,19 +169,25 @@ public class HeadImageView extends CircleImageView {
 		}
     }
 
-    public void loadTeamIcon(String tid) {
-        Bitmap bitmap = NimUIKit.getUserInfoProvider().getTeamIcon(tid);
-        setImageBitmap(bitmap);
-    }
+	public void loadTeamIcon(String tid) {
+		try{
+			Bitmap bitmap = NimUIKit.getUserInfoProvider().getTeamIcon(tid);
+			setImageBitmap(bitmap);
+		}catch(Exception e){
+			e.printStackTrace(); 
+		}
+	}
 
-    public void loadTeamIconByTeam(final Team team) {
-        // 先显示默认头像
-        //setImageResource(R.drawable.nim_avatar_group);
-
-        // 判断是否需要ImageLoader加载
-        boolean needLoad = team != null && ImageLoaderKit.isImageUriValid(team.getIcon());
-
-        doLoadImage(needLoad, team != null ? team.getId() : null, team.getIcon(), DEFAULT_AVATAR_THUMB_SIZE,R.drawable.nim_avatar_group);
+	public void loadTeamIconByTeam(final Team team) {
+		try{
+			// 先显示默认头像
+			setImageResource(R.drawable.nim_avatar_group);
+			// 判断是否需要ImageLoader加载
+			boolean needLoad = team != null && ImageLoaderKit.isImageUriValid(team.getIcon());
+			doLoadImage(needLoad, team != null ? team.getId() : null, team.getIcon(), DEFAULT_AVATAR_THUMB_SIZE,R.drawable.nim_avatar_group);
+		}catch(Exception e){
+			e.printStackTrace(); 
+		}
     }
 
     /**

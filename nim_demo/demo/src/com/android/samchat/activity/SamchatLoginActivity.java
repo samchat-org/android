@@ -2,7 +2,9 @@ package com.android.samchat.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -33,6 +35,7 @@ import com.netease.nim.uikit.common.util.string.MD5;
 import com.netease.nim.uikit.permission.MPermission;
 import com.netease.nim.uikit.permission.annotation.OnMPermissionDenied;
 import com.netease.nim.uikit.permission.annotation.OnMPermissionGranted;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionNeverAskAgain;
 import com.netease.nimlib.sdk.AbortableFuture;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -60,7 +63,7 @@ import com.android.samchat.service.ErrorString;
 public class SamchatLoginActivity extends Activity {
 	private static final String TAG = SamchatLoginActivity.class.getSimpleName();
 	private static final String KICK_OUT = "KICK_OUT";
-	private final int BASIC_PERMISSION_REQUEST_CODE = 110;
+	private final int BASIC_PERMISSION_REQUEST_CODE = 100;
 	
 	public static final int CONFIRM_ID_SELECT_COUNTRY_CODE = 200;
 
@@ -135,7 +138,7 @@ public class SamchatLoginActivity extends Activity {
 		Preferences.saveMode(ModeEnum.CUSTOMER_MODE.getValue());
 		Preferences.clearSyncDate();
 
-		requestBasicPermission();
+		//requestBasicPermission();
 
 		onParseIntent();
 		setupLoginPanel();
@@ -160,30 +163,29 @@ public class SamchatLoginActivity extends Activity {
 	}
 
 
-    private void requestBasicPermission() {
-        MPermission.with(SamchatLoginActivity.this)
-                .addRequestCode(BASIC_PERMISSION_REQUEST_CODE)
-                .permissions(
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_EXTERNAL_STORAGE
-                )
-                .request();
-    }
+	private void requestBasicPermission() {
+		MPermission.with(SamchatLoginActivity.this)
+			.addRequestCode(BASIC_PERMISSION_REQUEST_CODE)
+			.permissions(
+				Manifest.permission.READ_PHONE_STATE
+			)
+			.request();
+	}
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        MPermission.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
-    }
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		MPermission.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+	}
 
-    @OnMPermissionGranted(BASIC_PERMISSION_REQUEST_CODE)
-    public void onBasicPermissionSuccess(){
-        Toast.makeText(this, getString(R.string.permision_apply_succeed), Toast.LENGTH_SHORT).show();
-    }
+	@OnMPermissionGranted(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionSuccess(){
+		//Toast.makeText(this, getString(R.string.samchat_permission_grant), Toast.LENGTH_SHORT).show();
+	}
 
-    @OnMPermissionDenied(BASIC_PERMISSION_REQUEST_CODE)
-    public void onBasicPermissionFailed(){
-        Toast.makeText(this, getString(R.string.permision_apply_failed), Toast.LENGTH_SHORT).show();
-    }
+	@OnMPermissionDenied(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionFailed(){
+		Toast.makeText(this, getString(R.string.samchat_permission_refused_storage), Toast.LENGTH_SHORT).show();
+	}
 
     private void onParseIntent() {
         if (getIntent().getBooleanExtra(KICK_OUT, false)) {

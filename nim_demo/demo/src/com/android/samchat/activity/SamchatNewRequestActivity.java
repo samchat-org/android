@@ -1,5 +1,6 @@
 package com.android.samchat.activity;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
@@ -35,17 +36,24 @@ import com.netease.nim.uikit.model.ToolBarOptions;
 import com.android.samservice.SamService;
 import android.widget.FrameLayout;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import com.android.samservice.Constants;
 import com.android.samservice.callback.SMCallBack;
 import com.android.samchat.service.ErrorString;
 import com.android.samservice.HttpCommClient;
+import com.netease.nim.uikit.permission.MPermission;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionDenied;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionGranted;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionNeverAskAgain;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatNewRequestActivity.class.getSimpleName();
-	public static final int CONFIRM_ID_LOCATION_FOUND=300;
+	private final int BASIC_PERMISSION_REQUEST_CODE = 100;
+	private final int CONFIRM_ID_LOCATION_FOUND=101;
 	
 	private FrameLayout back_arrow_layout;
 	private TextView send_textview;
@@ -87,6 +95,8 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.samchat_newrequest_activity);
 
+		requestBasicPermission();
+
 		ToolBarOptions options = new ToolBarOptions();
 		options.isNeedNavigate = false;
 		options.logoId = R.drawable.actionbar_white_logo_space;
@@ -94,8 +104,6 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 
 		setupPanel();
 		initHistoryRequestList();
-
-		LocationFactory.getInstance().startLocationMonitor();
 	}
 
 	@Override
@@ -116,6 +124,37 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 		setupSendClick();
 		setupQuestionEditClick();
 		setupLocationEditClick();
+	}
+
+	private void requestBasicPermission() {
+        MPermission.with(SamchatNewRequestActivity.this)
+                .addRequestCode(BASIC_PERMISSION_REQUEST_CODE)
+                .permissions(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.READ_PHONE_STATE
+                )
+                .request();
+    }
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		 MPermission.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+	}
+
+	@OnMPermissionGranted(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionSuccess(){
+		LocationFactory.getInstance().startLocationMonitor();
+	}
+
+	@OnMPermissionDenied(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionFailed(){
+		Toast.makeText(this, getString(R.string.samchat_permission_refused_location), Toast.LENGTH_SHORT).show();
+	}
+
+	@OnMPermissionNeverAskAgain(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionNeverAskAgainFailed(){
+		Toast.makeText(this, getString(R.string.samchat_permission_refused_location), Toast.LENGTH_SHORT).show();
 	}
 	
 

@@ -18,14 +18,18 @@ public class UuidFactory {
 	}
 	
     public String getDeviceId(){
-		final TelephonyManager tm = (TelephonyManager) DemoCache.getContext().getSystemService(Context.TELEPHONY_SERVICE);
-		final String tmDevice, tmSerial, tmPhone, androidId;
-		tmDevice = "" + tm.getDeviceId();
-		tmSerial = "" + tm.getSimSerialNumber();
-		androidId = "" + android.provider.Settings.Secure.getString(DemoCache.getContext().getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
+		try{
+			final TelephonyManager tm = (TelephonyManager) DemoCache.getContext().getSystemService(Context.TELEPHONY_SERVICE);
+			final String tmDevice, tmSerial, tmPhone, androidId;
+			tmDevice = "" + tm.getDeviceId();
+			tmSerial = "" + tm.getSimSerialNumber();
+			androidId = "" + android.provider.Settings.Secure.getString(DemoCache.getContext().getContentResolver(), android.provider.Settings.Secure.ANDROID_ID);
 
-		UUID deviceUuid = new UUID(androidId.hashCode(), ((long)tmDevice.hashCode() << 32) | tmSerial.hashCode());
-		String uniqueId = (StringUtil.makeMd5(deviceUuid.toString())).substring(11, 17);
-		return uniqueId;
+			UUID deviceUuid = new UUID(androidId.hashCode(), ((long)tmDevice.hashCode() << 32) | tmSerial.hashCode());
+			String uniqueId = (StringUtil.makeMd5(deviceUuid.toString())).substring(11, 17);
+			return uniqueId;
+		}catch(Exception e){
+			return "032792";
+		}
 	}  
 }

@@ -1,5 +1,6 @@
 package com.netease.nim.uikit.session.activity;
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -9,11 +10,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
+import com.netease.nim.uikit.permission.MPermission;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionDenied;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionGranted;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionNeverAskAgain;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.fragment.MessageFragment;
@@ -24,7 +30,7 @@ import java.util.List;
  * Created by zhoujianghua on 2015/9/10.
  */
 public abstract class BaseMessageActivity extends UI {
-
+    private final int BASIC_PERMISSION_REQUEST_CODE = 100;
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
     protected int mode;
     protected long question_id;
@@ -40,9 +46,42 @@ public abstract class BaseMessageActivity extends UI {
     protected abstract int getContentViewId();
     protected abstract void initToolBar();
 
+	private void requestBasicPermission() {
+		MPermission.with(BaseMessageActivity.this)
+			.addRequestCode(BASIC_PERMISSION_REQUEST_CODE)
+			.permissions(
+				Manifest.permission.RECORD_AUDIO,
+				Manifest.permission.CAMERA,
+				Manifest.permission.READ_EXTERNAL_STORAGE,
+				Manifest.permission.WRITE_EXTERNAL_STORAGE
+			)
+			.request();
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		MPermission.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+	}
+
+	@OnMPermissionGranted(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionSuccess(){
+		//Toast.makeText(this, getString(R.string.samchat_permission_grant), Toast.LENGTH_SHORT).show();
+	}
+
+	@OnMPermissionDenied(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionFailed(){
+		Toast.makeText(this, getString(R.string.samchat_permission_refused_message), Toast.LENGTH_SHORT).show();
+	}
+
+	@OnMPermissionNeverAskAgain(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionNeverAskAgainFailed(){
+		Toast.makeText(this, getString(R.string.samchat_permission_refused_message), Toast.LENGTH_SHORT).show();
+	}
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestBasicPermission();
 				
         sessionId = getIntent().getStringExtra(Extras.EXTRA_ACCOUNT);
         setContentView(getContentViewId());

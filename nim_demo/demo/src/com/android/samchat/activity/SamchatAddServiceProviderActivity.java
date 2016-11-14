@@ -1,5 +1,6 @@
 package com.android.samchat.activity;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -60,9 +61,15 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import com.android.samservice.HttpCommClient;
+import com.netease.nim.uikit.permission.MPermission;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionDenied;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionGranted;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionNeverAskAgain;
+
 public class SamchatAddServiceProviderActivity extends UI implements OnKeyListener {
 	private static final String TAG = SamchatAddServiceProviderActivity.class.getSimpleName();
-	private static final int REQUEST_CODE_SCAN = 0x0000;
+	private final int BASIC_PERMISSION_REQUEST_CODE = 100;
+	private static final int REQUEST_CODE_SCAN = 101;
 
     private static final String[]PHONES_PROJECTION={ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME
             , ContactsContract.CommonDataKinds.Phone.NUMBER,ContactsContract.CommonDataKinds.Phone.PHOTO_ID,ContactsContract.CommonDataKinds.Phone.CONTACT_ID};
@@ -123,10 +130,41 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 		}
 	}
 
+	private void requestBasicPermission() {
+        MPermission.with(SamchatAddServiceProviderActivity.this)
+                .addRequestCode(BASIC_PERMISSION_REQUEST_CODE)
+                .permissions(
+                        Manifest.permission.READ_CONTACTS
+                )
+                .request();
+    }
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		MPermission.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+	}
+
+	@OnMPermissionGranted(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionSuccess(){
+		LoadPhoneContacts();
+	}
+
+	@OnMPermissionDenied(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionFailed(){
+		Toast.makeText(this, getString(R.string.samchat_permission_refused_read_contact), Toast.LENGTH_SHORT).show();
+	}
+
+	@OnMPermissionNeverAskAgain(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionNeverAskAgainFailed(){
+		Toast.makeText(this, getString(R.string.samchat_permission_refused_read_contact), Toast.LENGTH_SHORT).show();
+	}
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.samchat_addserviceprovider_activity);
+
+		requestBasicPermission();
 
 		ToolBarOptions options = new ToolBarOptions();
 		options.isNeedNavigate = false;
@@ -134,7 +172,6 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 		setToolBar(R.id.toolbar, options);
 
 		setupPanel();
-
 	}
 
 	@Override
@@ -252,8 +289,6 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 				query_user_precise(contact);
 			}
 		});
-
-		LoadPhoneContacts();
 	}
 
 	private List<PhoneContact> loadedContacts;
@@ -261,40 +296,45 @@ public class SamchatAddServiceProviderActivity extends UI implements OnKeyListen
 		NimSingleThreadExecutor.getInstance().execute(new Runnable() {
 			@Override
 			public void run() {
-				loadedContacts = new ArrayList<>();
-				ContentResolver resolver = getBaseContext().getContentResolver();
-				Cursor phoneCursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,PHONES_PROJECTION, null, null, null);
+				Cursor phoneCursor = null;
+				try{
+					loadedContacts = new ArrayList<>();
+					ContentResolver resolver = getBaseContext().getContentResolver();
+					phoneCursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,PHONES_PROJECTION, null, null, null);
       
-				if (phoneCursor != null) {  
-					while (phoneCursor.moveToNext()) {  
-						String phoneNumber = phoneCursor.getString(PHONES_NUMBER_INDEX);  
-						if (TextUtils.isEmpty(phoneNumber))
-							continue;  
-						String contactName = phoneCursor.getString(PHONES_DISPLAY_NAME_INDEX);  
-						Long contactid = phoneCursor.getLong(PHONES_CONTACT_ID_INDEX);  
-						Long photoid = phoneCursor.getLong(PHONES_PHOTO_ID_INDEX);  
-						Bitmap contactPhoto = null;
-						/*if(photoid > 0 ) {  
-							Uri uri = ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI,contactid);
-							InputStream input = ContactsContract.Contacts.openContactPhotoInputStream(resolver, uri);
-							contactPhoto = BitmapFactory.decodeStream(input);
-						}else {  
-							contactPhoto = null;//BitmapFactory.decodeResource(getResources(), R.drawable.avatar_def);  
-						}*/
-						loadedContacts.add(new PhoneContact(contactName, phoneNumber, contactPhoto));
+					if (phoneCursor != null) {  
+						while (phoneCursor.moveToNext()) {  
+							String phoneNumber = phoneCursor.getString(PHONES_NUMBER_INDEX);  
+							if (TextUtils.isEmpty(phoneNumber))
+								continue;  
+							String contactName = phoneCursor.getString(PHONES_DISPLAY_NAME_INDEX);  
+							Long contactid = phoneCursor.getLong(PHONES_CONTACT_ID_INDEX);  
+							Long photoid = phoneCursor.getLong(PHONES_PHOTO_ID_INDEX);  
+							loadedContacts.add(new PhoneContact(contactName, phoneNumber, null));
+						}  
+						phoneCursor.close();  
 					}  
-					phoneCursor.close();  
-				}  
 
-				getHandler().postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						if (((UI)SamchatAddServiceProviderActivity.this).isDestroyedCompatible()){
-							return;
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							if (((UI)SamchatAddServiceProviderActivity.this).isDestroyedCompatible()){
+								return;
+							}
+							onContactsLoaded();
 						}
-						onContactsLoaded();
+					}, 0);
+				}catch(Exception e){
+					e.printStackTrace(); 
+				}finally{
+					try{
+						if(phoneCursor != null){
+							phoneCursor.close();  
+						}
+					}catch(Exception e){
+						e.printStackTrace(); 
 					}
-				}, 0);
+				}
 			}
 		});
 	}  

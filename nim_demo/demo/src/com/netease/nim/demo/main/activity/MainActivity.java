@@ -2,6 +2,7 @@ package com.netease.nim.demo.main.activity;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -66,6 +67,7 @@ import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
 import com.netease.nim.uikit.permission.MPermission;
 import com.netease.nim.uikit.permission.annotation.OnMPermissionDenied;
 import com.netease.nim.uikit.permission.annotation.OnMPermissionGranted;
+import com.netease.nim.uikit.permission.annotation.OnMPermissionNeverAskAgain;
 import com.netease.nim.uikit.session.sam_message.SessionBasicInfo;
 import com.netease.nim.uikit.team.helper.TeamHelper;
 import com.netease.nimlib.sdk.NIMClient;
@@ -313,12 +315,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
                 .addRequestCode(BASIC_PERMISSION_REQUEST_CODE)
                 .permissions(
                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.READ_PHONE_STATE,
-                        Manifest.permission.RECORD_AUDIO,
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION
+                        Manifest.permission.READ_EXTERNAL_STORAGE
                         )
                 .request();
     }
@@ -330,13 +327,18 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
     @OnMPermissionGranted(BASIC_PERMISSION_REQUEST_CODE)
     public void onBasicPermissionSuccess(){
-        Toast.makeText(this, getString(R.string.samchat_permision_grant), Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, getString(R.string.samchat_permission_grant), Toast.LENGTH_SHORT).show();
     }
 
     @OnMPermissionDenied(BASIC_PERMISSION_REQUEST_CODE)
     public void onBasicPermissionFailed(){
-        Toast.makeText(this, getString(R.string.samchat_permision_refused), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.samchat_permission_refused_storage), Toast.LENGTH_SHORT).show();
     }
+
+	@OnMPermissionNeverAskAgain(BASIC_PERMISSION_REQUEST_CODE)
+	public void onBasicPermissionNeverAskAgainFailed(){
+		Toast.makeText(this, getString(R.string.samchat_permission_refused_storage), Toast.LENGTH_SHORT).show();
+	}
 
     private void onInit() {
         // 加载主页面

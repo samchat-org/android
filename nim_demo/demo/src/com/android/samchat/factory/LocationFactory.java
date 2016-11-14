@@ -55,21 +55,32 @@ public class LocationFactory {
 	}
 	
 	public void startLocationMonitor(){
-		if(!monitorStart){
-			LogUtil.i(TAG,"start LocationMonitor");
-			lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000 * 2L,500F,gpsListener);
-			lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 10F,networkListener); 
+		try{
+			if(!monitorStart){
+				LogUtil.i(TAG,"start LocationMonitor");
+				lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 10F,networkListener); 
+				lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000 * 2L,500F,gpsListener);
+			}
+			monitorStart = true;
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			monitorStart = true;
 		}
-		monitorStart = true;
 	}
 
 	public void stopLocationMonitor(){
-		if(monitorStart){
-			LogUtil.i(TAG,"stop LocationMonitor");
-			lm.removeUpdates(gpsListener);
-			lm.removeUpdates(networkListener);
+		try{
+			if(monitorStart){
+				LogUtil.i(TAG,"stop LocationMonitor");
+				lm.removeUpdates(gpsListener);
+				lm.removeUpdates(networkListener);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}finally{
+			monitorStart = false;
 		}
-		monitorStart = false;
 	}
 	  
 	private class GPSLocationListener implements LocationListener {
@@ -210,73 +221,76 @@ public class LocationFactory {
     }
 
 	public SCell getCurrentCellInfo() {
-		SCell cell = new SCell();
+		try{
+			SCell cell = new SCell();
  
-		TelephonyManager mTelNet = (TelephonyManager) DemoCache.getContext().getSystemService(Context.TELEPHONY_SERVICE);
-		if (mTelNet == null){
-			return null;
-		}
-		
-		if(mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_GPRS
-			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_EDGE){
-			cell.radioType = SCell.RADIO_TYPE_GSM;
-		}else if(mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_UMTS
-			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_HSDPA
-			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_HSUPA
-			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_HSPA){
-			cell.radioType = SCell.RADIO_TYPE_WCDMA;
-		}else if(mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_CDMA
-			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_1xRTT
-			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_EVDO_0
-			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_EVDO_A
-			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_EVDO_B
-			|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_EHRPD){
-			cell.radioType = SCell.RADIO_TYPE_CDMA;
-		}else if(mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_LTE){
-			cell.radioType = SCell.RADIO_TYPE_LTE;
-		}
-
-		if(mTelNet.getCellLocation() instanceof GsmCellLocation){
-			GsmCellLocation location = (GsmCellLocation) mTelNet.getCellLocation();
-			if (location == null){
-				return null;
-        	}
-			String operator = mTelNet.getNetworkOperator();
-       	 if(TextUtils.isEmpty(operator)){
-            	return null;
-        	}
-			int mcc = Integer.parseInt(operator.substring(0, 3));
-			int mnc = Integer.parseInt(operator.substring(3));
-			int cid = location.getCid();
-			int lac = location.getLac();
- 
-			cell.mcc = mcc;
-			cell.mnc = mnc;
-			cell.lac = lac;
-			cell.cid = cid;
- 
-			return cell;
-		}else{
-			CdmaCellLocation location = (CdmaCellLocation) mTelNet.getCellLocation();
-			if(location == null){
+			TelephonyManager mTelNet = (TelephonyManager) DemoCache.getContext().getSystemService(Context.TELEPHONY_SERVICE);
+			if (mTelNet == null){
 				return null;
 			}
+		
+			if(mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_GPRS
+				|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_EDGE){
+				cell.radioType = SCell.RADIO_TYPE_GSM;
+			}else if(mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_UMTS
+				|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_HSDPA
+				|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_HSUPA
+				|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_HSPA){
+				cell.radioType = SCell.RADIO_TYPE_WCDMA;
+			}else if(mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_CDMA
+				|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_1xRTT
+				|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_EVDO_0
+				|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_EVDO_A
+				|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_EVDO_B
+				|| mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_EHRPD){
+				cell.radioType = SCell.RADIO_TYPE_CDMA;
+			}else if(mTelNet.getNetworkType() == TelephonyManager.NETWORK_TYPE_LTE){
+				cell.radioType = SCell.RADIO_TYPE_LTE;
+			}
+
+			if(mTelNet.getCellLocation() instanceof GsmCellLocation){
+				GsmCellLocation location = (GsmCellLocation) mTelNet.getCellLocation();
+				if (location == null){
+					return null;
+    	    	}
+				String operator = mTelNet.getNetworkOperator();
+				if(TextUtils.isEmpty(operator)){
+					return null;
+				}
+				int mcc = Integer.parseInt(operator.substring(0, 3));
+				int mnc = Integer.parseInt(operator.substring(3));
+				int cid = location.getCid();
+				int lac = location.getLac();
+ 
+				cell.mcc = mcc;
+				cell.mnc = mnc;
+				cell.lac = lac;
+				cell.cid = cid;
+ 
+				return cell;
+			}else{
+				CdmaCellLocation location = (CdmaCellLocation) mTelNet.getCellLocation();
+				if(location == null){
+					return null;
+				}
 			
-			String operator = mTelNet.getNetworkOperator();
-       	 	if(TextUtils.isEmpty(operator)){
-            	return null;
-        	}
-			int mcc = Integer.parseInt(operator.substring(0, 3));
-			int mnc = location.getSystemId();
-			int cid = location.getBaseStationId();
-			int lac = location.getNetworkId();
+				String operator = mTelNet.getNetworkOperator();
+				if(TextUtils.isEmpty(operator)){
+					return null;
+        		}
+				int mcc = Integer.parseInt(operator.substring(0, 3));
+				int mnc = location.getSystemId();
+				int cid = location.getBaseStationId();
+				int lac = location.getNetworkId();
 			
-			cell.mcc = mcc;
-			cell.mnc = mnc;
-			cell.lac = lac;
-			cell.cid = cid;
-			return cell;
-			
+				cell.mcc = mcc;
+				cell.mnc = mnc;
+				cell.lac = lac;
+				cell.cid = cid;
+				return cell;
+			}
+		}catch(Exception e){
+			return null;
 		}
 	}
 }
