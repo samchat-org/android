@@ -34,45 +34,45 @@ public class ContactUser implements UserInfoProvider.UserInfo
 	public ContactUser(){
 		this.id = 0;
 		this.unique_id = 0;
-		this.username = null;
+		this.username = "";
 		this.usertype = Constants.USER;
 		this.question_notify = 1;
 		this.lastupdate = 0;
-		this.avatar = null;
-		this.avatar_original = null;
-		this.countrycode = null;
-		this.cellphone = null;
-		this.email = null;
-		this.address = null;
-		this.company_name = null;
-		this.service_category = null;
-		this.service_description = null;
-		this.countrycode_sp = null;
-		this.phone_sp = null;
-		this.email_sp = null;
-		this.address_sp = null;
+		this.avatar = "";
+		this.avatar_original = "";
+		this.countrycode = "";
+		this.cellphone = "";
+		this.email = "";
+		this.address = "";
+		this.company_name = "";
+		this.service_category = "";
+		this.service_description = "";
+		this.countrycode_sp = "";
+		this.phone_sp = "";
+		this.email_sp = "";
+		this.address_sp = "";
 	}
 
 	public ContactUser(int type){
 		this.id = 0;
 		this.unique_id = 0;
-		this.username = null;
+		this.username = "";
 		this.usertype = type;
 		this.question_notify = 1;
 		this.lastupdate = 0;
-		this.avatar = null;
-		this.avatar_original = null;
-		this.countrycode = null;
-		this.cellphone = null;
-		this.email = null;
-		this.address = null;
-		this.company_name = null;
-		this.service_category = null;
-		this.service_description = null;
-		this.countrycode_sp = null;
-		this.phone_sp = null;
-		this.email_sp = null;
-		this.address_sp = null;
+		this.avatar = "";
+		this.avatar_original = "";
+		this.countrycode = "";
+		this.cellphone = "";
+		this.email = "";
+		this.address = "";
+		this.company_name = "";
+		this.service_category = "";
+		this.service_description = "";
+		this.countrycode_sp = "";
+		this.phone_sp = "";
+		this.email_sp = "";
+		this.address_sp = "";
 	}
 
 	public ContactUser(ContactUser user){

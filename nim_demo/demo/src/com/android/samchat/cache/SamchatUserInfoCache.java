@@ -92,17 +92,6 @@ public class SamchatUserInfoCache {
 			new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
-					MultipleUserProfile users = ((HttpCommClient)obj).users;
-					if(users.getcount() > 0){
-						ContactUser user = users.getusers().get(0);
-						//addUser( unique_id,  user);
-						Intent intent = new Intent();
-						intent.setAction(Constants.BROADCAST_USER_INFO_UPDATE);
-						Bundle bundle = new Bundle();
-						bundle.putSerializable("user", user);
-						intent.putExtras(bundle);
-						SamService.getInstance().sendbroadcast(intent);
-					}
 
 				}
 

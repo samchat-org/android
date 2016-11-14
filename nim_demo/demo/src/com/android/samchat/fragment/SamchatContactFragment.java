@@ -453,6 +453,9 @@ public class SamchatContactFragment extends TFragment {
 		if (list.size() == 0) {
 			return;
 		}
+		for(Contact user: list){
+			user.updateFPinYin();
+		}
 		Collections.sort(list, comp);
 	}
 

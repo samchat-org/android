@@ -32,8 +32,12 @@ public class Contact implements UserInfoProvider.UserInfo
 		return FPinYin;
 	}
 
+	public void updateFPinYin(){
+		translateToPinYin();
+	}
+
 	private void translateToPinYin(){
-		String py = PinyinUtils.getPingYin(username);
+		String py = PinyinUtils.getPingYin(getusername());
 		String fpy = py.substring(0, 1).toUpperCase();
 
 		setPinYin(py);
@@ -49,7 +53,7 @@ public class Contact implements UserInfoProvider.UserInfo
 		this.unique_id = unique_id;
 		this.username = username;
 		this.avatar = avatar;
-		this.service_category = null;
+		this.service_category = "";
 
 		translateToPinYin();
 	}
