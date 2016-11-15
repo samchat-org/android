@@ -87,12 +87,16 @@ public class SamchatRegisterCodeVerifyActivity extends UI implements OnKeyListen
 		};
 		
 		broadcastManager.registerReceiver(broadcastReceiver, filter);
+		isBroadcastRegistered = true;
 	}
 		
 
 	
 	private void unregisterBroadcastReceiver(){
-	    broadcastManager.unregisterReceiver(broadcastReceiver);
+		if(isBroadcastRegistered){
+			broadcastManager.unregisterReceiver(broadcastReceiver);
+			isBroadcastRegistered = false;
+		}
 	}
 	
 	public static void start(Context context,String countrycode, String cellphone,String deviceid,int from, int countdown) {

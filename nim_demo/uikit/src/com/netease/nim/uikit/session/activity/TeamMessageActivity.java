@@ -1,13 +1,17 @@
 package com.netease.nim.uikit.session.activity;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.FriendDataCache;
@@ -21,6 +25,7 @@ import com.netease.nim.uikit.session.fragment.MessageFragment;
 import com.netease.nim.uikit.session.fragment.TeamMessageFragment;
 import com.netease.nim.uikit.session.sam_message.SamchatObserver;
 import com.netease.nim.uikit.session.sam_message.SessionBasicInfo;
+import com.netease.nim.uikit.team.activity.NormalTeamInfoActivity;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
 import com.netease.nimlib.sdk.team.constant.TeamTypeEnum;
 import com.netease.nimlib.sdk.team.model.Team;
@@ -45,6 +50,42 @@ public class TeamMessageActivity extends BaseMessageActivity {
     private TeamMessageFragment fragment;
 
     private Class<? extends Activity> backToClass;
+
+	//observer and broadcast
+	private boolean isBroadcastRegistered = false;
+	private BroadcastReceiver broadcastReceiver;
+	private LocalBroadcastManager broadcastManager;
+
+	private void registerBroadcastReceiver() {
+		broadcastManager = LocalBroadcastManager.getInstance(TeamMessageActivity.this);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(NimConstants.BROADCAST_P2P_ACTIVITY_START);
+
+		broadcastReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if(intent.getAction().equals(NimConstants.BROADCAST_P2P_ACTIVITY_START)){
+					finish();
+				}
+			}
+		};
+		
+		broadcastManager.registerReceiver(broadcastReceiver, filter);
+		isBroadcastRegistered  = true;
+	}
+	private void unregisterBroadcastReceiver(){
+	    if(isBroadcastRegistered){
+			broadcastManager.unregisterReceiver(broadcastReceiver);
+			isBroadcastRegistered = false;
+		}
+	}
+
+	private void sendbroadcast(){
+		Intent intent = new Intent();
+		intent.setAction(NimConstants.BROADCAST_TEAM_ACTIVITY_START);
+		LocalBroadcastManager manager = LocalBroadcastManager.getInstance(getApplicationContext());
+		manager.sendBroadcast(intent);
+	}
 
     public static void start(Context context, String tid, SessionCustomization customization, int mode, Class<? extends Activity> backToClass) {
         Intent intent = new Intent();
@@ -71,13 +112,15 @@ public class TeamMessageActivity extends BaseMessageActivity {
         findViews();
 
         registerTeamUpdateObserver(true);
+        registerBroadcastReceiver();
+        sendbroadcast();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         registerTeamUpdateObserver(false);
+        unregisterBroadcastReceiver();
     }
 
     @Override

@@ -57,7 +57,8 @@
             <com.netease.nim.uikit.common.ui.imageview.HeadImageView
                 android:id="@+id/sp3"
                 android:layout_width="30dp"
-                android:layout_height="30dp"/>
+                android:layout_height="30dp"
+                android:src="@drawable/avatar_def"/>
             <com.netease.nim.uikit.common.ui.imageview.HeadImageView
                 android:id="@+id/sp2"
                 android:layout_width="30dp"
@@ -65,7 +66,8 @@
                 android:layout_toRightOf="@id/sp3"
                 android:layout_toEndOf="@id/sp3"
                 android:layout_marginLeft="2dp"
-                android:layout_marginStart="2dp"/>
+                android:layout_marginStart="2dp"
+                android:src="@drawable/avatar_def"/>
             <com.netease.nim.uikit.common.ui.imageview.HeadImageView
                 android:id="@+id/sp1"
                 android:layout_width="30dp"
@@ -73,7 +75,8 @@
                 android:layout_toRightOf="@id/sp2"
                 android:layout_toEndOf="@id/sp2"
                 android:layout_marginLeft="2dp"
-                android:layout_marginStart="2dp"/>
+                android:layout_marginStart="2dp"
+                android:src="@drawable/avatar_def"/>
         </RelativeLayout>
     </LinearLayout>
     <View

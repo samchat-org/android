@@ -181,10 +181,14 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 		};
 		
 		broadcastManager.registerReceiver(broadcastReceiver, filter);
+		isBroadcastRegistered = true;
 	}
 	
 	private void unregisterBroadcastReceiver(){
-	    broadcastManager.unregisterReceiver(broadcastReceiver);
+		if(isBroadcastRegistered){
+			broadcastManager.unregisterReceiver(broadcastReceiver);
+			isBroadcastRegistered = false;
+		}
 	}
 
 	private void userInfoUpdate(ContactUser updateUser){

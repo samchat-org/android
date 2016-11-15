@@ -1,11 +1,14 @@
 package com.netease.nim.uikit.team.activity;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.netease.nim.uikit.NIMCallback;
+import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.SimpleCallback;
@@ -117,6 +121,35 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
         ((Activity) context).startActivityForResult(intent, TeamRequestCode.REQUEST_CODE);
     }
 
+	//observer and broadcast
+	private boolean isBroadcastRegistered = false;
+	private BroadcastReceiver broadcastReceiver;
+	private LocalBroadcastManager broadcastManager;
+
+	private void registerBroadcastReceiver() {
+		broadcastManager = LocalBroadcastManager.getInstance(NormalTeamInfoActivity.this);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(NimConstants.BROADCAST_P2P_ACTIVITY_START);
+
+		broadcastReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if(intent.getAction().equals(NimConstants.BROADCAST_P2P_ACTIVITY_START)){
+					finish();
+				}
+			}
+		};
+		
+		broadcastManager.registerReceiver(broadcastReceiver, filter);
+		isBroadcastRegistered  = true;
+	}
+	private void unregisterBroadcastReceiver(){
+	    if(isBroadcastRegistered){
+			broadcastManager.unregisterReceiver(broadcastReceiver);
+			isBroadcastRegistered = false;
+		}
+	}
+
     /**
      * ************************ TAdapterDelegate **************************
      */
@@ -156,6 +189,7 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
         requestMembers();
 
         registerObservers(true);
+        registerBroadcastReceiver();
     }
 
     @Override
@@ -167,6 +201,7 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
     protected void onDestroy() {
         super.onDestroy();
         registerObservers(false);
+        unregisterBroadcastReceiver();
     }
 
     @Override

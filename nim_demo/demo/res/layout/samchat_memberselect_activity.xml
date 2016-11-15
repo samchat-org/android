@@ -7,6 +7,7 @@
         android:orientation="vertical"
         android:background="@color/samchat_color_main_bg">
         <RelativeLayout
+            android:id="@+id/titlebar_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/samchat_color_sp_titlebar_bg">

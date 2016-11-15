@@ -80,7 +80,7 @@ public class HeadImageView extends CircleImageView {
 	public void loadBuddyAvatar(final String account, final int thumbSize) {
 		try{
 			// 先显示默认头像
-			setImageResource(NimUIKit.getUserInfoProvider().getDefaultIconResId());
+			//setImageResource(NimUIKit.getUserInfoProvider().getDefaultIconResId());
 
 			// 判断是否需要ImageLoader加载
 			final UserInfoProvider.UserInfo userInfo = NimUIKit.getUserInfoProvider().getUserInfo(account);
@@ -117,7 +117,7 @@ public class HeadImageView extends CircleImageView {
 	public void loadBuddyAvatar(final String account, final int thumbSize, final OnImageLoadedListener callback) {
 		try{
 			// 先显示默认头像
-			setImageResource(NimUIKit.getUserInfoProvider().getDefaultIconResId());
+			//setImageResource(NimUIKit.getUserInfoProvider().getDefaultIconResId());
 
 			// 判断是否需要ImageLoader加载
 			final UserInfoProvider.UserInfo userInfo = NimUIKit.getUserInfoProvider().getUserInfo(account);

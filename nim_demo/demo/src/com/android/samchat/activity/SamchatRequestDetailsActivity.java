@@ -133,12 +133,16 @@ public class SamchatRequestDetailsActivity extends UI implements OnKeyListener {
 		};
 		
 		broadcastManager.registerReceiver(broadcastReceiver, filter);
+		isBroadcastRegistered = true;
 	}
 
 
 	
 	private void unregisterBroadcastReceiver(){
-	    broadcastManager.unregisterReceiver(broadcastReceiver);
+		if(isBroadcastRegistered){
+			broadcastManager.unregisterReceiver(broadcastReceiver);
+			isBroadcastRegistered = false;
+		}
 	}
 	
 	public static void start(Context context,QuestionInfo info) {

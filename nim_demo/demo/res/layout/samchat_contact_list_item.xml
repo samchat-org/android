@@ -27,7 +27,8 @@
             android:id="@+id/avatar"
             android:layout_width="@dimen/avatar_size_in_contact"
             android:layout_height="@dimen/avatar_size_in_contact"
-            android:layout_gravity="center_vertical"/>
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/avatar_def"/>
         <LinearLayout
             android:id="@+id/info_layout"
             android:orientation="vertical"

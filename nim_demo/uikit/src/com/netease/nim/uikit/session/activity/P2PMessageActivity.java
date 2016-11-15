@@ -1,12 +1,16 @@
 package com.netease.nim.uikit.session.activity;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.FriendDataCache;
@@ -17,6 +21,7 @@ import com.netease.nim.uikit.session.constant.Extras;
 import com.netease.nim.uikit.session.fragment.MessageFragment;
 import com.netease.nim.uikit.session.sam_message.SamchatObserver;
 import com.netease.nim.uikit.session.sam_message.SessionBasicInfo;
+import com.netease.nim.uikit.team.activity.NormalTeamInfoActivity;
 import com.netease.nim.uikit.uinfo.UserInfoHelper;
 import com.netease.nim.uikit.uinfo.UserInfoObservable;
 import com.netease.nimlib.sdk.NIMClient;
@@ -31,6 +36,41 @@ import java.util.List;
 public class P2PMessageActivity extends BaseMessageActivity {
 
     private boolean isResume = false;
+	//observer and broadcast
+	private boolean isBroadcastRegistered = false;
+	private BroadcastReceiver broadcastReceiver;
+	private LocalBroadcastManager broadcastManager;
+
+	private void registerBroadcastReceiver() {
+		broadcastManager = LocalBroadcastManager.getInstance(P2PMessageActivity.this);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(NimConstants.BROADCAST_TEAM_ACTIVITY_START);
+
+		broadcastReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if(intent.getAction().equals(NimConstants.BROADCAST_TEAM_ACTIVITY_START)){
+					finish();
+				}
+			}
+		};
+		
+		broadcastManager.registerReceiver(broadcastReceiver, filter);
+		isBroadcastRegistered  = true;
+	}
+	private void unregisterBroadcastReceiver(){
+	    if(isBroadcastRegistered){
+			broadcastManager.unregisterReceiver(broadcastReceiver);
+			isBroadcastRegistered = false;
+		}
+	}
+
+	private void sendbroadcast(){
+		Intent intent = new Intent();
+		intent.setAction(NimConstants.BROADCAST_P2P_ACTIVITY_START);
+		LocalBroadcastManager manager = LocalBroadcastManager.getInstance(getApplicationContext());
+		manager.sendBroadcast(intent);
+	}
     /*SAMC_BEGIN(support mode setting for p2p activity)*/
     public static void start(Context context, String contactId, SessionCustomization customization,int mode, long question_id,long adv_id) {
         Intent intent = new Intent();
@@ -63,12 +103,15 @@ public class P2PMessageActivity extends BaseMessageActivity {
         // 单聊特例话数据，包括个人信息，
         requestBuddyInfo();
         registerObservers(true);
+        registerBroadcastReceiver();
+        sendbroadcast();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         registerObservers(false);
+        unregisterBroadcastReceiver();
     }
 
     @Override

@@ -85,12 +85,16 @@ public class SamchatRegisterCodeRequestActivity extends UI implements OnKeyListe
 		};
 		
 		broadcastManager.registerReceiver(broadcastReceiver, filter);
+		isBroadcastRegistered = true;
 	}
 		
 
 	
 	private void unregisterBroadcastReceiver(){
-	    broadcastManager.unregisterReceiver(broadcastReceiver);
+		if(isBroadcastRegistered){
+			broadcastManager.unregisterReceiver(broadcastReceiver);
+			isBroadcastRegistered  = false;
+		}
 	}
 
 	public static void start(Context context,int from) {

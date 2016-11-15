@@ -320,7 +320,9 @@ public final class NimUIKit {
         void registerClearHistoryObserver(SamchatObserver<SessionBasicInfo> observer, boolean register);
         void asyncClearChatHisotry(final SessionTypeEnum type, final String account, final int mode, final NIMCallback callback);
         String getServiceCategory(String id);
-        void onAvatarClick(String clickAccount, String creator);	
+        void onAvatarClick(String clickAccount, String creator);
+        void selectForwardMember(Context context, int requestCode);
+        void selectForwardTeam(Context context, int requestCode);	
     }
 
     static private NimUIKitInterface callback;

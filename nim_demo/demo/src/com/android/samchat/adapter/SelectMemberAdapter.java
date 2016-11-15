@@ -1,11 +1,6 @@
 package com.android.samchat.adapter;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import com.android.samservice.info.Contact;
-import com.android.samchat.R;
-import com.android.samservice.info.SendQuestion;
 import android.widget.BaseAdapter;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -15,13 +10,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.samchat.R;
+import com.android.samservice.info.Contact;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
-import com.netease.nim.uikit.common.util.sys.TimeUtil;
-import com.netease.nim.uikit.common.util.log.LogUtil;
-import com.netease.nimlib.sdk.msg.model.IMMessage;
 
 public class SelectMemberAdapter extends BaseAdapter{
-	static private String TAG = "SamchatContactAdapter";
+	static private String TAG = "SelectMemberAdapter";
 	
 	private final int TYPE_CONTACT = 0;
 	private final int TYPE_MAX = TYPE_CONTACT + 1;
@@ -30,12 +24,13 @@ public class SelectMemberAdapter extends BaseAdapter{
 	private LayoutInflater mInflater;
 	private List<Contact> items;
 	private List<String> selected;
-
-	public SelectMemberAdapter(Context context,List<Contact> list, List<String> s){
+	private boolean isMuti;
+	public SelectMemberAdapter(Context context,List<Contact> list, List<String> s , boolean muti){
 		mContext = context;
 		mInflater = LayoutInflater.from(mContext);
 		items = list;
 		selected = s;
+		isMuti = muti;
 	}
 	
 	@Override
@@ -87,10 +82,15 @@ public class SelectMemberAdapter extends BaseAdapter{
 				holder.tv_tag.setVisibility(View.GONE);
 			}
 
-			if(inSelectedMembers(user.getAccount())){
-				holder.indicate.setImageResource((R.drawable.nim_contact_checkbox_checked_green));
+			if(isMuti){
+				holder.indicate.setVisibility(View.VISIBLE);
+				if(inSelectedMembers(user.getAccount())){
+					holder.indicate.setImageResource((R.drawable.nim_contact_checkbox_checked_green));
+				}else{
+					holder.indicate.setImageResource((R.drawable.nim_contact_checkbox_checked_grey));
+				}
 			}else{
-				holder.indicate.setImageResource((R.drawable.nim_contact_checkbox_checked_grey));
+				holder.indicate.setVisibility(View.GONE);
 			}
 			
 			break;

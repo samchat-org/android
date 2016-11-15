@@ -186,12 +186,16 @@ public class SamchatChatFragment extends TFragment{
 		};
 		
 		broadcastManager.registerReceiver(broadcastReceiver, filter);
+		isBroadcastRegistered  = true;
 	}
 
 
 	
 	private void unregisterBroadcastReceiver(){
-	    broadcastManager.unregisterReceiver(broadcastReceiver);
+	    if(isBroadcastRegistered){
+			broadcastManager.unregisterReceiver(broadcastReceiver);
+			isBroadcastRegistered = false;
+		}
 	}
 
 	private void sendBroadcastForCustomerItemsUpdata(){
@@ -1018,6 +1022,7 @@ public class SamchatChatFragment extends TFragment{
 	Observer<IMMessage> statusObserver = new Observer<IMMessage>() {
 		@Override
 		public void onEvent(IMMessage message){
+			LogUtil.i("TAG","status change msg status:"+message.getStatus());
 			if(message.	getDirect() == MsgDirectionEnum.Out){
 				Map<String, Object> content = message.getRemoteExtension();
 				if(content == null){
@@ -1028,6 +1033,7 @@ public class SamchatChatFragment extends TFragment{
 						return;
 					}
 					index = findRecentContactIndex(items_sp,message);
+					LogUtil.i("TAG","status change msg index:"+index+" status:"+message.getStatus());
 					if(index != -1){
 						items_sp.get(index).setMsgStatus(message.getStatus());
 						refreshViewHolderSPByIndex(index);

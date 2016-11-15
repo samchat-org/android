@@ -600,4 +600,6 @@
     <string name="samchat_edit_name">Edit Name</string>
     <string name="samchat_record_audio">Press Speaker</string>
     <string name="samchat_browse_failed">Browse file failed!</string>
+    <string name="samchat_can_not_forward_this_type_message">Can not forward this type message!</string>
+    <string name="samchat_team_max_not_exceed">Max number of team memebers could not exceed </string>
 </resources>

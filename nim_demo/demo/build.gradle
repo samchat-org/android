@@ -14,8 +14,8 @@ android {
     useLibrary 'org.apache.http.legacy'
 
     defaultConfig {
-        minSdkVersion 9
-        targetSdkVersion 22
+        minSdkVersion 11
+        targetSdkVersion 23
         buildConfigField "String", "GIT_REVISION", "\"${getGitVersion()}\""
         buildConfigField "String", "BUILD_DATE", "\"${new Date().toLocaleString()}\"";
     }
@@ -83,9 +83,7 @@ dependencies {
     compile fileTree(include: '*.jar', dir: 'libs')
     compile project(path: ':uikit')
     compile files('libs/pinyin4j-2.5.0.jar')
-    compile files('libs/zbardecoder.jar')
     compile files('libs/core-3.0.0.jar')
     compile files('libs/aws-android-sdk-core-2.3.0.jar')
     compile files('libs/aws-android-sdk-cognito-2.3.0.jar')
-    compile project(':multi-image-selector')
 }

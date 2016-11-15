@@ -895,7 +895,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
 	//NimUIKitInterface
 	public void startMemberSelectActivity(Context context,List<String> selected,int requestCode){
-		SamchatMemberSelectActivity.startActivityForResult(context, new SamchatMemberSelectActivity.Option(1,50, selected), requestCode);
+		SamchatMemberSelectActivity.startActivityForResult(context, 
+			new SamchatMemberSelectActivity.Option(1,NimConstants.MAX_TEAM_MEMBER_NUMBERS, selected,true,
+				SamchatMemberSelectActivity.MemberSelectType.BUDDY_CUSTOMER), 
+			requestCode);
 	}
 	
 	public  int getCurrentMode(){
@@ -1037,6 +1040,21 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 					SamchatContactUserNameCardActivity.start(MainActivity.this, clickAccount, username, true);
 			}
 		}
+	}
+
+	public void selectForwardMember(Context context, int requestCode){
+		SamchatMemberSelectActivity.Option option=null;
+		if(NimUIKit.getCallback().getCurrentMode() == ModeEnum.CUSTOMER_MODE.getValue()){
+			option = new SamchatMemberSelectActivity.Option(1,1,null,false,SamchatMemberSelectActivity.MemberSelectType.BUDDY_SP);
+		}else{
+			option = new SamchatMemberSelectActivity.Option(1,1,null,false,SamchatMemberSelectActivity.MemberSelectType.BUDDY_CUSTOMER);
+		}
+		SamchatMemberSelectActivity.startActivityForResult(context,option, requestCode);
+	}
+
+	public void selectForwardTeam(Context context, int requestCode){
+		SamchatMemberSelectActivity.Option option = new SamchatMemberSelectActivity.Option(1,1,null,false,SamchatMemberSelectActivity.MemberSelectType.TEAM);
+		SamchatMemberSelectActivity.startActivityForResult(context,option, requestCode);
 	}
 	
 /*SAMC_END(...)*/

@@ -1,9 +1,11 @@
 package com.netease.nim.demo.session.activity;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.content.LocalBroadcastManager;
@@ -26,6 +28,7 @@ import com.android.samchat.R;
 import com.netease.nim.demo.contact.activity.UserProfileActivity;
 import com.netease.nim.demo.team.TeamCreateHelper;
 import com.netease.nim.uikit.NIMCallback;
+import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.cache.NimUserInfoCache;
 import com.netease.nim.uikit.common.activity.UI;
@@ -36,6 +39,7 @@ import com.netease.nim.uikit.common.ui.widget.SwitchButton;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
 import com.netease.nim.uikit.model.ToolBarOptions;
+import com.netease.nim.uikit.team.activity.NormalTeamInfoActivity;
 import com.netease.nim.uikit.team.helper.TeamHelper;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -63,6 +67,35 @@ public class MessageInfoActivity extends UI {
 	private RelativeLayout delete_layout;
 
     private int mode;
+
+	//observer and broadcast
+	private boolean isBroadcastRegistered = false;
+	private BroadcastReceiver broadcastReceiver;
+	private LocalBroadcastManager broadcastManager;
+
+	private void registerBroadcastReceiver() {
+		broadcastManager = LocalBroadcastManager.getInstance(MessageInfoActivity.this);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(NimConstants.BROADCAST_TEAM_ACTIVITY_START);
+
+		broadcastReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if(intent.getAction().equals(NimConstants.BROADCAST_TEAM_ACTIVITY_START)){
+					finish();
+				}
+			}
+		};
+		
+		broadcastManager.registerReceiver(broadcastReceiver, filter);
+		isBroadcastRegistered  = true;
+	}
+	private void unregisterBroadcastReceiver(){
+	    if(isBroadcastRegistered){
+			broadcastManager.unregisterReceiver(broadcastReceiver);
+			isBroadcastRegistered = false;
+		}
+	}
 
     public static void startActivity(Context context, String account, int mode) {
         Intent intent = new Intent();
@@ -103,6 +136,8 @@ public class MessageInfoActivity extends UI {
 			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_white));
 		}
        findViews();
+
+       registerBroadcastReceiver();
     }
 
 	@Override
@@ -111,6 +146,12 @@ public class MessageInfoActivity extends UI {
 		updateMuteSwitchBtn();
 		updateBlockSwitchBtn();
 	}
+
+	@Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterBroadcastReceiver();
+    }
 
     private void findViews() {
         create_layout = (LinearLayout) findViewById(R.id.create_layout);
@@ -343,7 +384,7 @@ public class MessageInfoActivity extends UI {
 		 LogUtil.e("test","createTeamMsg 2 memberAccounts:"+memberAccounts);
         NimUIKit.startContactSelect(this, option, REQUEST_CODE_NORMAL);*/
         /*SAMC_BEGIN(samchat team msg)*/
-        SamchatMemberSelectActivity.startActivityForResult(MessageInfoActivity.this,new SamchatMemberSelectActivity.Option(1,50,memberAccounts),REQUEST_CODE_NORMAL);
+        SamchatMemberSelectActivity.startActivityForResult(MessageInfoActivity.this,new SamchatMemberSelectActivity.Option(1, NimConstants.MAX_TEAM_MEMBER_NUMBERS,memberAccounts,true,SamchatMemberSelectActivity.MemberSelectType.BUDDY_CUSTOMER),REQUEST_CODE_NORMAL);
 		 
 		 /*SAMC_END(samchat team msg)*/
     }

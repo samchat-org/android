@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/samchat_list_item_selector">
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="@dimen/body_left_margin"
+        android:layout_marginStart="@dimen/body_left_margin"
+        android:layout_marginRight="@dimen/body_right_margin"
+        android:layout_marginEnd="@dimen/body_right_margin">
+        <com.netease.nim.uikit.common.ui.imageview.HeadImageView
+            android:id="@+id/avatar"
+            android:layout_width="@dimen/avatar_size_in_contact"
+            android:layout_height="@dimen/avatar_size_in_contact"
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/nim_avatar_group"/>
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_gravity="center_vertical"
+            android:textSize="@dimen/text_size_16"
+            android:textColor="@color/samchat_color_ink"
+            android:maxLines="1"/>
+    </LinearLayout>
+</LinearLayout>

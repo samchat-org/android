@@ -946,12 +946,13 @@ public class MessageListPanel implements TAdapterDelegate {
                 @Override
                 public void onClick() {
                     forwardMessage = item;
-                    ContactSelectActivity.Option option = new ContactSelectActivity.Option();
+                    /*ContactSelectActivity.Option option = new ContactSelectActivity.Option();
                     option.title = "选择转发的人";
                     option.type = ContactSelectActivity.ContactSelectType.BUDDY;
                     option.multi = false;
                     option.maxSelectNum = 1;
-                    NimUIKit.startContactSelect(container.activity, option, REQUEST_CODE_FORWARD_PERSON);
+                    NimUIKit.startContactSelect(container.activity, option, REQUEST_CODE_FORWARD_PERSON);*/
+                    NimUIKit.getCallback().selectForwardMember(container.activity,REQUEST_CODE_FORWARD_PERSON);
                 }
             });
         }
@@ -963,12 +964,13 @@ public class MessageListPanel implements TAdapterDelegate {
                 @Override
                 public void onClick() {
                     forwardMessage = item;
-                    ContactSelectActivity.Option option = new ContactSelectActivity.Option();
+                    /*ContactSelectActivity.Option option = new ContactSelectActivity.Option();
                     option.title = "选择转发的群";
                     option.type = ContactSelectActivity.ContactSelectType.TEAM;
                     option.multi = false;
                     option.maxSelectNum = 1;
-                    NimUIKit.startContactSelect(container.activity, option, REQUEST_CODE_FORWARD_TEAM);
+                    NimUIKit.startContactSelect(container.activity, option, REQUEST_CODE_FORWARD_TEAM);*/
+                    NimUIKit.getCallback().selectForwardTeam(container.activity, REQUEST_CODE_FORWARD_TEAM);
                 }
             });
         }
@@ -1121,7 +1123,7 @@ public class MessageListPanel implements TAdapterDelegate {
     private void doForwardMessage(final String sessionId, final SessionTypeEnum sessionTypeEnum) {
         IMMessage message = MessageBuilder.createForwardMessage(forwardMessage, sessionId, sessionTypeEnum);
         if (message == null) {
-            Toast.makeText(container.activity, "该类型不支持转发", Toast.LENGTH_SHORT).show();
+            Toast.makeText(container.activity, R.string.samchat_can_not_forward_this_type_message, Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -1164,6 +1166,7 @@ public class MessageListPanel implements TAdapterDelegate {
             /*SAMC_END(add local and remote tag)*/
         }
 
+        message.setRemoteExtension(null);
         NIMClient.getService(MsgService.class).sendMessage(message, false);
         if (container.account.equals(sessionId) && container.sessionType == sessionTypeEnum) {
             onMsgSend(message);

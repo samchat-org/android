@@ -37,6 +37,8 @@ public class NimConstants{
 	public static final long RECENT_TAG_STICKY_CUSTOMER_ROLE = 8;
 	public static final long RECENT_TAG_STICKY_SP_ROLE = 16;
 
+	public static final int MAX_TEAM_MEMBER_NUMBERS = 4;
+
 
 	public static final String SESSION_ACCOUNT_ADVERTISEMENT = "999999";
 
@@ -55,6 +57,10 @@ public class NimConstants{
 	public static final String PUBLIC_ACCOUNT_PREFIX="public_";
 
 	public final static int QUESTION_NOTIFICATION_ID = "QUESTION_NOTIFICATION_ID".hashCode();
+
+	/****************************Broadcast***********************************************/
+	public static final String BROADCAST_P2P_ACTIVITY_START = "com.android.samchat.p2pactivitystart";
+	public static final String BROADCAST_TEAM_ACTIVITY_START = "com.android.samchat.teamactivitystart";
 
 }
 
