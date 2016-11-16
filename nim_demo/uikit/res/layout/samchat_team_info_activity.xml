@@ -3,28 +3,54 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/samchat_color_main_bg">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/app_bar_layout"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        app:elevation="0dp">
-
+        android:layout_height="?attr/actionBarSize">
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:titleTextAppearance="@style/Toolbar.TitleText"></android.support.v7.widget.Toolbar>
-    </android.support.design.widget.AppBarLayout>
+            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+        <FrameLayout
+            android:id="@+id/back_arrow_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@drawable/samchat_action_bar_button_selector_customer">
+            <ImageView
+                android:id="@+id/back_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/title_left_margin"
+                android:layout_marginStart="@dimen/title_left_margin"
+                android:layout_marginRight="@dimen/title_right_margin"
+                android:layout_marginEnd="@dimen/title_right_margin"
+                android:src="@drawable/samchat_arrow_left"
+                android:layout_gravity="center"
+                android:contentDescription="@null"/>
+        </FrameLayout>
+        <TextView
+            android:id="@+id/titlebar_name"
+            android:layout_width="wrap_content"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_toRightOf="@+id/back_arrow_layout"
+            android:layout_toEndOf="@+id/back_arrow_layout"
+            android:gravity="start|center_vertical"
+            android:maxLines="1"
+            android:textSize="20sp"/>
+    </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/samchat_color_split_line"/>
 
     <ScrollView
         style="@style/scroll_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@color/white"
         android:fillViewport="true"
         android:scrollbarStyle="outsideOverlay">
 
@@ -32,13 +58,69 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:orientation="vertical">
+            <RelativeLayout
+                android:id="@+id/owner_layout"
+                android:layout_width="match_parent"
+                android:layout_height="88dp"
+                android:background="@color/samchat_color_white">
+                <com.netease.nim.uikit.common.ui.imageview.HeadImageView
+                    android:id="@+id/owner_avatar"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:src="@drawable/avatar_def"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_toRightOf="@+id/owner_avatar"
+                    android:layout_toEndOf="@+id/owner_avatar"
+                    android:layout_marginRight="@dimen/body_right_margin"
+                    android:layout_marginEnd="@dimen/body_right_margin"
+                    android:layout_centerVertical="true">
+                    <TextView
+                        android:id="@+id/owner_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start|center_vertical"
+                        android:maxLines="1"
+                        android:textSize="@dimen/text_size_18"
+                        android:textColor="@color/samchat_color_ink"/>
+                    <TextView
+                        android:id="@+id/owner_category"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start|center_vertical"
+                        android:maxLines="1"
+                        android:textSize="@dimen/text_size_14"
+                        android:textColor="@color/samchat_color_dark_grey"/>
+                </LinearLayout>
+                <View
+                    style="@style/horizontal_light_thin_divider"
+                    android:layout_alignParentBottom="true"/>
+            </RelativeLayout>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginLeft="@dimen/body_left_margin"
+                android:layout_marginRight="@dimen/body_right_margin"
+                android:textColor="@color/samchat_color_dark_grey"
+                android:textSize="@dimen/text_size_16"
+                android:maxLines="1"
+                android:text="@string/samchat_participant"/>
+            <View
+                style="@style/horizontal_light_thin_divider"/>
             <com.netease.nim.uikit.team.ui.TeamInfoGridView
                 android:id="@+id/team_members_grid_view"
                 style="@style/grid_view"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/color_background"
+                android:background="@color/samchat_color_white"
                 android:gravity="center"
                 android:numColumns="4"
                 android:paddingBottom="25dip"
@@ -46,10 +128,19 @@
                 android:paddingRight="12dip"
                 android:paddingTop="16dip"
                 android:verticalSpacing="16dip" />
+            <View
+                style="@style/horizontal_light_thin_divider"/>
 
-            <include
-                android:id="@+id/settings_item_name"
-                layout="@layout/nim_team_info_divider_item" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/samchat_color_white"
+                android:orientation="vertical">
+                <include
+                    android:id="@+id/settings_item_name"
+                    layout="@layout/nim_team_info_divider_item" />
+            </LinearLayout>
+
 
             <LinearLayout
                 android:id="@+id/toggle_layout"
@@ -66,8 +157,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/isetting_item_height"
                     android:background="@drawable/nim_semitransparency_selector"
-                    android:paddingLeft="@dimen/isetting_item_padding_left"
-                    android:paddingRight="@dimen/isetting_item_padding_right">
+                    android:paddingLeft="16dp">
 
                     <TextView
                         android:id="@+id/delete_title"

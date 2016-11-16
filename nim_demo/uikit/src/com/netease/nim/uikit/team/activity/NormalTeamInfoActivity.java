@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,6 +17,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.Button;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,7 +32,9 @@ import com.netease.nim.uikit.cache.TeamDataCache;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
+import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.ui.widget.SwitchButton;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nim.uikit.contact.core.item.ContactIdFilter;
@@ -51,6 +56,7 @@ import com.netease.nimlib.sdk.team.constant.TeamFieldEnum;
 import com.netease.nimlib.sdk.team.constant.TeamMemberType;
 import com.netease.nimlib.sdk.team.model.Team;
 import com.netease.nimlib.sdk.team.model.TeamMember;
+import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -102,6 +108,10 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
     private SwitchButton noticeBtn;
 
 	private RelativeLayout delete_layout;
+
+	private HeadImageView owner_avatar_iv;
+	private TextView owner_name_tv;
+	private TextView owner_category_tv;
 
     // state
     private boolean isSelfAdmin = false;
@@ -173,24 +183,33 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
      * ***************************** Life cycle *****************************
      */
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.samchat_team_info_activity);
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.samchat_team_info_activity);
 
-        ToolBarOptions options = new ToolBarOptions();
-        setToolBar(R.id.toolbar, options);
+		setToolBar(R.id.toolbar);
+		parseIntentData();
+		
+		back_arrow_layout = findView(R.id.back_arrow_layout);
+		back_icon_iv = findView(R.id.back_icon);
+		titlebar_name_tv = findView(R.id.titlebar_name);
+		owner_avatar_iv = findView(R.id.owner_avatar);
+		owner_name_tv = findView(R.id.owner_name);
+		owner_category_tv = findView(R.id.owner_category);
 
-        parseIntentData();
-        initToggleBtn();
-        loadTeamInfo();
-        initAdapter();
-        findViews();
-        requestMembers();
+		setupBackArrowClick();
+		initToggleBtn();
+		loadTeamInfo();
+		initAdapter();
+		findViews();
+				
+		updateToolBar();
+		requestMembers();
 
-        registerObservers(true);
-        registerBroadcastReceiver();
-    }
+		registerObservers(true);
+		registerBroadcastReceiver();
+	}
 
     @Override
     protected void onResume() {
@@ -383,24 +402,27 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
 
     }
 
-    private void updateTeamInfo(Team t) {
-        if (t == null) {
-            return;
-        }
+	private void updateTeamInfo(Team t) {
+		if (t == null) {
+			return;
+		}
 
-        team = t;
+		team = t;
 
-        // title
-        String teamName = team.getName();
-        setTitle(teamName);
+		// title
+		String teamName = team.getName();
+		if(!TextUtils.isEmpty(teamName))
+			titlebar_name_tv.setText(teamName);
 
-        // team name
-        View nameView = findViewById(R.id.settings_item_name);
-        teamNameTextView = (TextView) nameView.findViewById(R.id.item_detail);
-        teamNameTextView.setText(teamName);
-        teamNameTextView.setEnabled(isSelfAdmin);
+		// team name
+		View nameView = findViewById(R.id.settings_item_name);
+		teamNameTextView = (TextView) nameView.findViewById(R.id.item_detail);
+		teamNameTextView.setText(teamName);
+		teamNameTextView.setEnabled(isSelfAdmin);
 
-        setToggleBtn(team);
+		setToggleBtn(team);
+
+		
     }
 
     private void onGetTeamInfoFailed() {
@@ -523,7 +545,7 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
                         }
                         addMember(accounts, true);
                     } else {
-                        Toast.makeText(NormalTeamInfoActivity.this, "获取成员列表失败", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(NormalTeamInfoActivity.this, R.string.samchat_get_team_member_list_failed, Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -572,16 +594,62 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
         updateDataSource();
     }
 
-    private void updateDataSource() {
-		if(isSelfAdmin){
-			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
-			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_white));
-            getToolBar().setNavigationIcon(R.drawable.samchat_arrow_left_sp);
-		}else{
-			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
-			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_dark_blue));
-            getToolBar().setNavigationIcon(R.drawable.samchat_arrow_left);
+	private void setOwnerInformation(){
+		if(!TextUtils.isEmpty(creator)){
+			UserInfoProvider.UserInfo user = NimUIKit.getUserInfoProvider().getUserInfo(creator);
+			if(user != null){
+				owner_name_tv.setText(user.getName());
+				owner_avatar_iv.loadBuddyAvatarByUrl(user.getAccount(), user.getAvatar(), 56);
+				owner_category_tv.setText(UserInfoHelper.getServiceCategory(creator));
+			}
 		}
+	}
+
+	private FrameLayout back_arrow_layout;
+	private ImageView back_icon_iv;
+	private TextView titlebar_name_tv;
+
+	private void setTitlebarCustomerMode(){
+        getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
+        back_arrow_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_customer);
+        back_icon_iv.setImageResource(R.drawable.samchat_arrow_left);
+        titlebar_name_tv.setTextColor(getResources().getColor(R.color.samchat_color_customer_titlbar_title));
+    }
+
+    private void setTitlebarSPMode(){
+        getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
+        back_arrow_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_sp);
+        back_icon_iv.setImageResource(R.drawable.samchat_arrow_left_sp);
+        titlebar_name_tv.setTextColor(getResources().getColor(R.color.samchat_color_sp_titlbar_title));
+    }
+
+	private void setupBackArrowClick(){
+		back_arrow_layout.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				onNavigateUpClicked();
+			}
+		});
+	}
+
+	protected void updateToolBar() {
+		if(team == null || TextUtils.isEmpty(team.getName())){
+			titlebar_name_tv.setText("");
+		}else{
+			titlebar_name_tv.setText(team.getName());
+		}
+		
+		if(NimUIKit.getCallback().getCurrentMode() == ModeEnum.CUSTOMER_MODE.getValue()){
+			setTitlebarCustomerMode();
+		}else{
+			setTitlebarSPMode();
+		}
+    }
+
+    private void updateDataSource() {
+		updateToolBar();
+
+		setOwnerInformation();
 			
         dataSource.clear();
 
@@ -772,7 +840,8 @@ public class NormalTeamInfoActivity extends UI implements OnClickListener, TAdap
     @Override
     public void onHeadImageViewClick(String account) {
 		//NimUIKit.getContactEventListener().onAvatarClick(this, account);
-		NimUIKit.getCallback().onAvatarClick(account,creator);
+		if(!TextUtils.isEmpty(creator))
+			NimUIKit.getCallback().onAvatarClick(account,creator);
 				
     }
 

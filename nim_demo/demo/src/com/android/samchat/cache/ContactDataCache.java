@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import com.android.samservice.info.Contact;
 import com.android.samservice.SamService;
+import com.netease.nim.uikit.common.util.string.ConvertHelper;
+
 import java.util.Collection;
 
 public class ContactDataCache {
@@ -43,6 +45,11 @@ public class ContactDataCache {
 
 	public int getMyContactCount(){
 		return contactMap.size();
+	}
+	
+	public Contact getContactByAccount(String account){
+		long unique_id = ConvertHelper.stringTolong(account);
+		return getContactByUniqueID(unique_id);
 	}
 
 	public Contact getContactByUniqueID(Long unique_id){

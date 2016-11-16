@@ -8,40 +8,26 @@ import com.android.samservice.info.Contact;
 import com.android.samservice.info.ContactUser;
 import com.android.samservice.info.FollowedSamPros;
 import com.netease.nim.uikit.NimConstants;
+import com.netease.nim.uikit.common.util.string.ConvertHelper;
 
 public class BasicUserInfoHelper {
-	static public long stringTolong(String s){
-	 	long ret = -1;
-		String account = s;
-		if (s.startsWith(NimConstants.PUBLIC_ACCOUNT_PREFIX)) {
-            account = s.substring(s.indexOf(NimConstants.PUBLIC_ACCOUNT_PREFIX) + NimConstants.PUBLIC_ACCOUNT_PREFIX.length());
-		}
-		try{
-			ret = Long.valueOf(account);
-		}catch(Exception e){
-			e.printStackTrace();
-			return ret;
-		}
-		return ret;
-	}
-	
     static public String getUserName(String account) {
-        	ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
+        	ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(ConvertHelper.stringTolong(account));
 			if(user != null){
 				return user.getusername();
 			}
 
-			Contact contact = ContactDataCache.getInstance().getContactByUniqueID(stringTolong(account));
+			Contact contact = ContactDataCache.getInstance().getContactByUniqueID(ConvertHelper.stringTolong(account));
 			if(contact != null){
 				return contact.getusername();
 			}
 
-			contact = CustomerDataCache.getInstance().getCustomerByUniqueID(stringTolong(account));
+			contact = CustomerDataCache.getInstance().getCustomerByUniqueID(ConvertHelper.stringTolong(account));
 			if(contact != null){
 				return contact.getusername();
 			}	
 						
-			FollowedSamPros fsp = FollowDataCache.getInstance().getFollowSPByUniqueID(stringTolong(account));
+			FollowedSamPros fsp = FollowDataCache.getInstance().getFollowSPByUniqueID(ConvertHelper.stringTolong(account));
 			if(fsp !=null){
 				return fsp.getusername();
 			}

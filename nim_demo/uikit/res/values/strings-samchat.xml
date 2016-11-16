@@ -407,7 +407,6 @@
     <string name="samchat_unblock_public_failed">public unblock failed</string>
 
     <string name="samchat_select_one_member_at_least">select one member at least</string>
-    <string name="samchat_create_group_chat">create group chat</string>
 
     <string name="samchat_with">With</string>
     <string name="samchat_invite_title">Invite Contact</string>
@@ -602,4 +601,7 @@
     <string name="samchat_browse_failed">Browse file failed!</string>
     <string name="samchat_can_not_forward_this_type_message">Can not forward this type message!</string>
     <string name="samchat_team_max_not_exceed">Max number of team memebers could not exceed </string>
+    <string name="samchat_participant">Participants</string>
+    <string name="samchat_get_team_member_list_failed">Get team member list failed</string>
+    <string name="samchat_token_invalid">Connect invalid, login in manually</string>
 </resources>

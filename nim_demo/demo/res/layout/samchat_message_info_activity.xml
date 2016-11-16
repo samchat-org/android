@@ -5,146 +5,263 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/app_bar_layout"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay"
-        app:elevation="0dp">
-
+        android:layout_height="?attr/actionBarSize">
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:titleTextAppearance="@style/Toolbar.TitleText" />
-    </android.support.design.widget.AppBarLayout>
+            app:titleTextAppearance="@style/Toolbar.TitleText"/>
+        <FrameLayout
+            android:id="@+id/back_arrow_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@drawable/samchat_action_bar_button_selector_customer">
+            <ImageView
+                android:id="@+id/back_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/title_left_margin"
+                android:layout_marginStart="@dimen/title_left_margin"
+                android:layout_marginRight="@dimen/title_right_margin"
+                android:layout_marginEnd="@dimen/title_right_margin"
+                android:src="@drawable/samchat_arrow_left"
+                android:layout_gravity="center"
+                android:contentDescription="@null"/>
+        </FrameLayout>
+        <TextView
+            android:id="@+id/titlebar_name"
+            android:layout_width="wrap_content"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_toRightOf="@+id/back_arrow_layout"
+            android:layout_toEndOf="@+id/back_arrow_layout"
+            android:gravity="start|center_vertical"
+            android:maxLines="1"
+            android:textSize="20sp"/>
+    </RelativeLayout>
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/samchat_color_split_line"/>
-
-    <LinearLayout
-        android:id="@+id/create_layout"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="30dp">
-
-        <include
-            android:id="@+id/user_layout"
-            layout="@layout/nim_team_member_item" />
-
-        <include
-            android:id="@+id/create_team_layout"
-            layout="@layout/nim_team_member_item"
-            android:layout_width="wrap_content"
+        android:fillViewport="true"
+        android:scrollbars="none"
+        android:background="@color/samchat_color_main_bg">
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp" />
-    </LinearLayout>
+            android:orientation="vertical">
+            <RelativeLayout
+                android:id="@+id/owner_layout"
+                android:layout_width="match_parent"
+                android:layout_height="88dp"
+                android:background="@color/samchat_color_white">
+                <com.netease.nim.uikit.common.ui.imageview.HeadImageView
+                    android:id="@+id/owner_avatar"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:src="@drawable/avatar_def"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_toRightOf="@+id/owner_avatar"
+                    android:layout_toEndOf="@+id/owner_avatar"
+                    android:layout_marginRight="@dimen/body_right_margin"
+                    android:layout_marginEnd="@dimen/body_right_margin"
+                    android:layout_centerVertical="true">
+                    <TextView
+                        android:id="@+id/owner_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start|center_vertical"
+                        android:maxLines="1"
+                        android:textSize="@dimen/text_size_18"
+                        android:textColor="@color/samchat_color_ink"/>
+                    <TextView
+                        android:id="@+id/owner_category"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start|center_vertical"
+                        android:maxLines="1"
+                        android:textSize="@dimen/text_size_14"
+                        android:textColor="@color/samchat_color_dark_grey"/>
+                </LinearLayout>
+                <View
+                    style="@style/horizontal_light_thin_divider"
+                    android:layout_alignParentBottom="true"/>
+            </RelativeLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <RelativeLayout
-            android:id="@+id/mute_layout"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/isetting_item_height"
-            android:background="@drawable/nim_semitransparency_selector"
-            android:paddingLeft="@dimen/isetting_item_padding_left"
-            android:paddingRight="@dimen/isetting_item_padding_right">
-
-            <TextView
-                android:id="@+id/mute_title"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/create_layout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:textColor="@color/color_black_ff333333"
-                android:textSize="16sp"/>
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginLeft="@dimen/body_left_margin"
+                    android:layout_marginRight="@dimen/body_right_margin"
+                    android:textColor="@color/samchat_color_dark_grey"
+                    android:textSize="@dimen/text_size_16"
+                    android:maxLines="1"
+                    android:text="@string/samchat_participant"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/samchat_color_white"
+                    android:orientation="vertical">
+                    <View
+                        style="@style/horizontal_light_thin_divider"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/body_left_margin"
+                        android:layout_marginRight="@dimen/body_right_margin"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="30dp"
+                        android:orientation="horizontal">
+                        <include
+                            android:id="@+id/user_layout"
+                            layout="@layout/nim_team_member_item" />
 
-            <com.netease.nim.uikit.common.ui.widget.SwitchButton
-                android:id="@+id/mute_toggle"
-                android:layout_width="58dip"
-                android:layout_height="36.67dip"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"/>
+                        <include
+                            android:id="@+id/create_team_layout"
+                            layout="@layout/nim_team_member_item"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="16dp" />
+                    </LinearLayout>
+                    <View
+                        style="@style/horizontal_light_thin_divider"/>
+                </LinearLayout>
+            </LinearLayout>
 
-            <View
-                android:id="@+id/line"
-                style="@style/horizontal_light_thin_divider"
-                android:layout_alignLeft="@id/mute_title"
-                android:layout_alignStart="@id/mute_title"
-                android:layout_alignParentBottom="true"/>
-
-        </RelativeLayout>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-
-        <RelativeLayout
-            android:id="@+id/block_layout"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/isetting_item_height"
-            android:background="@drawable/nim_semitransparency_selector"
-            android:paddingLeft="@dimen/isetting_item_padding_left"
-            android:paddingRight="@dimen/isetting_item_padding_right">
-
-            <TextView
-                android:id="@+id/block_title"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:textColor="@color/color_black_ff333333"
-                android:textSize="16sp"/>
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:layout_marginBottom="8dp"
+                    android:layout_marginLeft="@dimen/body_left_margin"
+                    android:layout_marginRight="@dimen/body_right_margin"
+                    android:textColor="@color/samchat_color_dark_grey"
+                    android:textSize="@dimen/text_size_16"
+                    android:maxLines="1"
+                    android:text="@string/samchat_option"/>
+                <View
+                    style="@style/horizontal_light_thin_divider"/>
+                <RelativeLayout
+                    android:id="@+id/mute_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/isetting_item_height"
+                    android:background="@drawable/nim_semitransparency_selector"
+                    android:paddingLeft="@dimen/isetting_item_padding_left">
 
-            <com.netease.nim.uikit.common.ui.widget.SwitchButton
-                android:id="@+id/block_toggle"
-                android:layout_width="58dip"
-                android:layout_height="36.67dip"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"/>
+                    <TextView
+                        android:id="@+id/mute_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:textColor="@color/color_black_ff333333"
+                        android:textSize="16sp"/>
 
-            <View
-                style="@style/horizontal_light_thin_divider"
-                android:layout_alignParentBottom="true"/>
+                    <com.netease.nim.uikit.common.ui.widget.SwitchButton
+                        android:id="@+id/mute_toggle"
+                        android:layout_width="58dip"
+                        android:layout_height="36.67dip"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="@dimen/isetting_item_padding_right" />
 
-        </RelativeLayout>
-    </LinearLayout>
+                    <View
+                        android:id="@+id/line"
+                        style="@style/horizontal_light_thin_divider"
+                        android:layout_alignLeft="@id/mute_title"
+                        android:layout_alignStart="@id/mute_title"
+                        android:layout_alignParentBottom="true"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+                </RelativeLayout>
+            </LinearLayout>
 
-        <RelativeLayout
-            android:id="@+id/delete_layout"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/isetting_item_height"
-            android:background="@drawable/nim_semitransparency_selector"
-            android:paddingLeft="@dimen/isetting_item_padding_left"
-            android:paddingRight="@dimen/isetting_item_padding_right">
-
-            <TextView
-                android:id="@+id/delete_title"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:textColor="@color/color_black_ff333333"
-                android:textSize="16sp"/>
+                android:orientation="vertical">
 
-            <View
-                style="@style/horizontal_light_thin_divider"
-                android:layout_alignLeft="@id/delete_title"
-                android:layout_alignStart="@id/delete_title"
-                android:layout_alignParentBottom="true"/>
+                <RelativeLayout
+                    android:id="@+id/block_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/isetting_item_height"
+                    android:background="@drawable/nim_semitransparency_selector"
+                    android:paddingLeft="@dimen/isetting_item_padding_left">
 
-        </RelativeLayout>
-    </LinearLayout>
+                    <TextView
+                        android:id="@+id/block_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:textColor="@color/color_black_ff333333"
+                        android:textSize="16sp"/>
+
+                    <com.netease.nim.uikit.common.ui.widget.SwitchButton
+                        android:id="@+id/block_toggle"
+                        android:layout_width="58dip"
+                        android:layout_height="36.67dip"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="@dimen/isetting_item_padding_right" />
+
+                    <View
+                        style="@style/horizontal_light_thin_divider"
+                        android:layout_alignParentBottom="true"/>
+
+                </RelativeLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RelativeLayout
+                    android:id="@+id/delete_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/isetting_item_height"
+                    android:background="@drawable/nim_semitransparency_selector"
+                    android:paddingLeft="@dimen/isetting_item_padding_left">
+
+                    <TextView
+                        android:id="@+id/delete_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:textColor="@color/color_black_ff333333"
+                        android:textSize="16sp"/>
+
+                    <View
+                        style="@style/horizontal_light_thin_divider"
+                        android:layout_alignLeft="@id/delete_title"
+                        android:layout_alignStart="@id/delete_title"
+                        android:layout_alignParentBottom="true"/>
+                </RelativeLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
 
 </LinearLayout>

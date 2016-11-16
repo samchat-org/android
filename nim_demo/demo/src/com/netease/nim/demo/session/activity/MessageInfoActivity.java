@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -18,10 +20,13 @@ import android.widget.Toast;
 import com.android.samchat.activity.SamchatContactUserNameCardActivity;
 import com.android.samchat.activity.SamchatContactUserSPNameCardActivity;
 import com.android.samchat.activity.SamchatMemberSelectActivity;
+import com.android.samchat.cache.ContactDataCache;
+import com.android.samchat.cache.CustomerDataCache;
 import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samchat.common.BasicUserInfoHelper;
 import com.android.samchat.service.SamDBManager;
 import com.android.samservice.Constants;
+import com.android.samservice.info.Contact;
 import com.android.samservice.info.ContactUser;
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
@@ -48,6 +53,7 @@ import com.netease.nimlib.sdk.friend.FriendService;
 import java.util.ArrayList;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.msg.constant.SessionTypeEnum;
+import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 
 /**
  * Created by hzxuwen on 2015/10/13.
@@ -65,6 +71,11 @@ public class MessageInfoActivity extends UI {
 
 	private SwitchButton switchButtonBlock;
 	private RelativeLayout delete_layout;
+
+	private RelativeLayout owner_layout;
+	private HeadImageView owner_avatar_iv;
+	private TextView owner_name_tv;
+	private TextView owner_category_tv;
 
     private int mode;
 
@@ -112,33 +123,61 @@ public class MessageInfoActivity extends UI {
         context.startActivity(intent);
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.samchat_message_info_activity);
+	private FrameLayout back_arrow_layout;
+	private ImageView back_icon_iv;
+	private TextView titlebar_name_tv;
 
-        account = getIntent().getStringExtra(EXTRA_ACCOUNT);
-        mode = getIntent().getIntExtra(EXTRA_MODE, ModeEnum.CUSTOMER_MODE.getValue());
-
-        ToolBarOptions options = new ToolBarOptions();
-        options.titleId = R.string.samchat_chat_options;
-        if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
-            options.navigateId = R.drawable.samchat_arrow_left;
-        }else{
-             options.navigateId = R.drawable.samchat_arrow_left_sp;
-        }
-        setToolBar(R.id.toolbar, options);
-        if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
-			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
-			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_dark_blue));
-		}else{
-			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
-			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_white));
-		}
-       findViews();
-
-       registerBroadcastReceiver();
+	private void setTitlebarCustomerMode(){
+        getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
+        back_arrow_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_customer);
+        back_icon_iv.setImageResource(R.drawable.samchat_arrow_left);
+        titlebar_name_tv.setTextColor(getResources().getColor(R.color.samchat_color_customer_titlbar_title));
     }
+
+    private void setTitlebarSPMode(){
+        getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
+        back_arrow_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_sp);
+        back_icon_iv.setImageResource(R.drawable.samchat_arrow_left_sp);
+        titlebar_name_tv.setTextColor(getResources().getColor(R.color.samchat_color_sp_titlbar_title));
+    }
+
+	private void setupBackArrowClick(){
+		back_arrow_layout.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				onNavigateUpClicked();
+			}
+		});
+	}
+
+	protected void initToolBar() {
+		setToolBar(R.id.toolbar);
+		back_arrow_layout = findView(R.id.back_arrow_layout);
+		back_icon_iv = findView(R.id.back_icon);
+		titlebar_name_tv = findView(R.id.titlebar_name);
+		String titleString = getString(R.string.samchat_chat_options);
+		titlebar_name_tv.setText(titleString);
+		if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
+			setTitlebarCustomerMode();
+		}else{
+			setTitlebarSPMode();
+		}
+		setupBackArrowClick();
+    }
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.samchat_message_info_activity);
+
+		account = getIntent().getStringExtra(EXTRA_ACCOUNT);
+		mode = getIntent().getIntExtra(EXTRA_MODE, ModeEnum.CUSTOMER_MODE.getValue());
+
+		initToolBar();
+		setupPanel();
+
+		registerBroadcastReceiver();
+	}
 
 	@Override
 	protected void onResume() {
@@ -153,15 +192,31 @@ public class MessageInfoActivity extends UI {
         unregisterBroadcastReceiver();
     }
 
-    private void findViews() {
-        create_layout = (LinearLayout) findViewById(R.id.create_layout);
-        if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
-            getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
-            create_layout.setVisibility(View.GONE);
-        }else{
-            getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
-            create_layout.setVisibility(View.VISIBLE);
-        }
+    private void setupPanel() {
+		owner_layout = findView(R.id.owner_layout);
+		owner_avatar_iv = findView(R.id.owner_avatar);
+		owner_name_tv = findView(R.id.owner_name);
+		owner_category_tv = findView(R.id.owner_category);
+		create_layout = (LinearLayout) findViewById(R.id.create_layout);
+		if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
+			owner_layout.setVisibility(View.VISIBLE);
+			create_layout.setVisibility(View.GONE);
+			Contact user = ContactDataCache.getInstance().getContactByAccount(account);
+			if(user != null){
+				owner_name_tv.setText(user.getName());
+				owner_avatar_iv.loadBuddyAvatarByUrl(account, user.getAvatar(),56);
+				owner_category_tv.setVisibility(View.GONE);
+			}
+		}else{
+			owner_layout.setVisibility(View.GONE);
+			create_layout.setVisibility(View.VISIBLE);
+			Contact user = CustomerDataCache.getInstance().getCustomerByAccount(account);
+			if(user != null){
+				owner_name_tv.setText(user.getName());
+				owner_avatar_iv.loadBuddyAvatarByUrl(account, user.getAvatar(),56);
+				owner_category_tv.setText(user.getservice_category());
+			}
+		}
 			
         HeadImageView userHead = (HeadImageView) findViewById(R.id.user_layout).findViewById(R.id.imageViewHeader);
         TextView userName = (TextView) findViewById(R.id.user_layout).findViewById(R.id.textViewName);
@@ -187,7 +242,7 @@ public class MessageInfoActivity extends UI {
 			}
 		});
 
-        ((TextView)findViewById(R.id.create_team_layout).findViewById(R.id.textViewName)).setText(R.string.samchat_create_group_chat);
+        ((TextView)findViewById(R.id.create_team_layout).findViewById(R.id.textViewName)).setText(R.string.samchat_add);
         HeadImageView addImage = (HeadImageView) findViewById(R.id.create_team_layout).findViewById(R.id.imageViewHeader);
         addImage.setBackgroundResource(com.netease.nim.uikit.R.drawable.nim_team_member_add_selector);
         addImage.setOnClickListener(new View.OnClickListener() {

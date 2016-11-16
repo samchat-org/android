@@ -29,6 +29,7 @@ import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.ui.imageview.HeadImageView;
 import com.netease.nim.uikit.common.ui.widget.SwitchButton;
+import com.netease.nim.uikit.common.util.string.ConvertHelper;
 import com.netease.nim.uikit.common.util.sys.NetworkUtil;
 import com.netease.nim.uikit.model.ToolBarOptions;
 import com.android.samservice.SamService;
@@ -223,7 +224,7 @@ public class SamchatContactUserSPNameCardActivity extends UI implements OnKeyLis
 		if(sp !=null){
 			unique_id = sp.getunique_id();
 		}else if(!TextUtils.isEmpty(account)){
-			unique_id = BasicUserInfoHelper.stringTolong(account);
+			unique_id = ConvertHelper.stringTolong(account);
 			if(unique_id == -1)
 				return false;
 		}else{

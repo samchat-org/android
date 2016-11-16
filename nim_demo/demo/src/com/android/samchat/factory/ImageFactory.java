@@ -146,8 +146,7 @@ public class ImageFactory {
             // interval 10  
             options -= 10;  
             image.compress(Bitmap.CompressFormat.JPEG, options, os);  
-		//SamLog.e("Test",""+os.toByteArray().length+" options:"+options);
-
+						
 	     if(options == 0){
                  break;
 	     }

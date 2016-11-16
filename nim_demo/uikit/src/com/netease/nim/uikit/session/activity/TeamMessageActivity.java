@@ -8,6 +8,8 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -169,7 +171,8 @@ public class TeamMessageActivity extends BaseMessageActivity {
         team = d;
         fragment.setTeam(team);
 
-        setTitle(team == null ? sessionId : team.getName() + "(" + team.getMemberCount() + ")");
+        //setTitle(team == null ? sessionId : team.getName() + "(" + team.getMemberCount() + ")");
+        titlebar_name_tv.setText(team == null ? sessionId : team.getName() + "(" + team.getMemberCount() + ")");
 
         invalidTeamTipText.setText(team.getType() == TeamTypeEnum.Normal ? R.string.samchat_normal_team_invalid_tip : R.string.samchat_team_invalid_tip);
         invalidTeamTipView.setVisibility(team.isMyTeam() ? View.GONE : View.VISIBLE);
@@ -282,24 +285,6 @@ public class TeamMessageActivity extends BaseMessageActivity {
         return R.layout.nim_team_message_activity;
     }
 
-	@Override
-	protected void initToolBar() {
-		ToolBarOptions options = new ToolBarOptions();
-		if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
-            options.navigateId = R.drawable.samchat_arrow_left;
-        }else{
-             options.navigateId = R.drawable.samchat_arrow_left_sp;
-        }
-        setToolBar(R.id.toolbar, options);
-        if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
-			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
-			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_dark_blue));
-		}else{
-			getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
-			getToolBar().setTitleTextColor(getResources().getColor(R.color.samchat_color_white));
-		}
-	}
-
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -310,5 +295,47 @@ public class TeamMessageActivity extends BaseMessageActivity {
             startActivity(intent);
             finish();
         }
+    }
+
+	private FrameLayout back_arrow_layout;
+	private ImageView back_icon_iv;
+	private TextView titlebar_name_tv;
+
+	private void setTitlebarCustomerMode(){
+        getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_customer_titlebar_bg));
+        back_arrow_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_customer);
+        back_icon_iv.setImageResource(R.drawable.samchat_arrow_left);
+        titlebar_name_tv.setTextColor(getResources().getColor(R.color.samchat_color_customer_titlbar_title));
+    }
+
+    private void setTitlebarSPMode(){
+        getToolBar().setBackgroundColor(getResources().getColor(R.color.samchat_color_sp_titlebar_bg));
+        back_arrow_layout.setBackgroundResource(R.drawable.samchat_action_bar_button_selector_sp);
+        back_icon_iv.setImageResource(R.drawable.samchat_arrow_left_sp);
+        titlebar_name_tv.setTextColor(getResources().getColor(R.color.samchat_color_sp_titlbar_title));
+    }
+
+	private void setupBackArrowClick(){
+		back_arrow_layout.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				onNavigateUpClicked();
+			}
+		});
+	}
+
+	@Override
+	protected void initToolBar() {
+		setToolBar(R.id.toolbar);
+		back_arrow_layout = findView(R.id.back_arrow_layout);
+		back_icon_iv = findView(R.id.back_icon);
+		titlebar_name_tv = findView(R.id.titlebar_name);
+		titlebar_name_tv.setText(team == null ? sessionId : team.getName() + "(" + team.getMemberCount() + ")");
+		if(mode == ModeEnum.CUSTOMER_MODE.getValue()){
+			setTitlebarCustomerMode();
+		}else{
+			setTitlebarSPMode();
+		}
+		setupBackArrowClick();
     }
 }

@@ -81,6 +81,7 @@ public class Constants{
 	public static final int SHOW_SP_INFO = 1;
 
 	/****************************Broadcast***********************************************/
+	public static final String BROADCAST_TOKEN_ILLEAGLE = "com.android.samchat.tokenilleagle";
 	public static final String BROADCAST_SWITCH_MODE = "com.android.samchat.switchmode";
 	public static final String BROADCAST_SIGN_IN_ALREADY = "com.android.samchat.signinalready";
 	public static final String BROADCAST_SIGN_UP_ALREADY = "com.android.samchat.signupalready";
@@ -95,7 +96,6 @@ public class Constants{
 	public static final String BROADCAST_POST_ADV = "com.android.samchat.postadv";
 	public static final String BROADCAST_CHANGE_PHONE_ALREADY = "com.android.samchat.changephonealready";
 	public static final String BROADCAST_CHAT_BLOCK_MUTE_UPDATE = "com.android.samchat.chatblockmuteupdate";
-
 	/****************************Message From***********************************************/
 	public static final String MSG_FROM = "msg_from";
 	public static final int FROM_CUSTOMER = 0;

@@ -1,12 +1,24 @@
 package com.android.samchat.service;
 import com.android.samchat.R;
 import com.android.samservice.Constants;
+import com.netease.nim.demo.DemoCache;
+
 import android.app.Activity;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
+import android.widget.Toast;
 
 public class ErrorString{
 	public int code;
 	public String reminder;
 	public String title;
+
+	private void sendTokenIlleageBroadcast(){
+		Intent intent = new Intent();
+		intent.setAction(Constants.BROADCAST_TOKEN_ILLEAGLE);
+		LocalBroadcastManager manager = LocalBroadcastManager.getInstance(DemoCache.getContext());
+		manager.sendBroadcast(intent);
+	}
 
 	public ErrorString(Activity activity, int ret){
 		switch(ret){
@@ -57,6 +69,7 @@ public class ErrorString{
 				break;
 			case Constants.RET_TOKEN_ILLEAGE_ERROR:
 				reminder = activity.getString(R.string.samchat_token_error);
+				sendTokenIlleageBroadcast();
 				break;
 			case Constants.RET_ALREADY_UPGRADE_ERROR:
 				reminder = activity.getString(R.string.samchat_upgrade_error);

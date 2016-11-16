@@ -42,15 +42,20 @@ public class LocationFactory {
 	}
 
 	public Location getCurrentBestLocation(){
-		if(currentBestLocation != null){
-			return currentBestLocation;
-		}else{
-			Location location =  lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-			if(location != null){
-				return location;
+		try{
+			if(currentBestLocation != null){
+				return currentBestLocation;
 			}else{
-				return lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+				Location location =  lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+				if(location != null){
+					return location;
+				}else{
+					return lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+				}
 			}
+		}catch(Exception e){
+			e.printStackTrace(); 
+			return null;
 		}
 	}
 	

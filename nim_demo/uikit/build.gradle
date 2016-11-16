@@ -6,7 +6,6 @@ android {
     compileSdkVersion 23
     buildToolsVersion buildToolsVer
 
-
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'

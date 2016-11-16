@@ -2,23 +2,15 @@ package com.netease.nim.demo.main.activity;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -33,9 +25,7 @@ import com.android.samchat.cache.CustomerDataCache;
 import com.android.samchat.cache.FollowDataCache;
 import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samchat.common.BasicUserInfoHelper;
-import com.android.samchat.fragment.SamchatPublicFragment;
 import com.android.samchat.receiver.NetworkStateBroadcastReceiver;
-import com.android.samchat.receiver.PushReceiver;
 import com.android.samchat.R;
 import com.android.samchat.service.ErrorString;
 import com.android.samchat.ui.ReminderRedPointView;
@@ -47,14 +37,9 @@ import com.android.samservice.type.TypeEnum;
 import com.netease.nim.demo.avchat.AVChatProfile;
 import com.netease.nim.demo.avchat.activity.AVChatActivity;
 import com.netease.nim.demo.chatroom.helper.ChatRoomHelper;
-import com.netease.nim.demo.contact.activity.AddFriendActivity;
 import com.android.samchat.activity.SamchatLoginActivity;
 import com.netease.nim.demo.login.LogoutHelper;
 import com.netease.nim.demo.main.fragment.HomeFragment;
-import com.netease.nim.demo.main.reminder.ReminderSettings;
-import com.netease.nim.demo.session.SessionHelper;
-import com.netease.nim.demo.team.TeamCreateHelper;
-import com.netease.nim.demo.team.activity.AdvancedTeamSearchActivity;
 import com.netease.nim.uikit.LoginSyncDataStatusObserver;
 import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.NimUIKit;
@@ -63,13 +48,12 @@ import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.util.log.LogUtil;
-import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
+import com.netease.nim.uikit.common.util.string.ConvertHelper;
 import com.netease.nim.uikit.permission.MPermission;
 import com.netease.nim.uikit.permission.annotation.OnMPermissionDenied;
 import com.netease.nim.uikit.permission.annotation.OnMPermissionGranted;
 import com.netease.nim.uikit.permission.annotation.OnMPermissionNeverAskAgain;
 import com.netease.nim.uikit.session.sam_message.SessionBasicInfo;
-import com.netease.nim.uikit.team.helper.TeamHelper;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.NimIntent;
 import com.netease.nimlib.sdk.Observer;
@@ -79,12 +63,8 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
 
 import java.util.ArrayList;
 /*SAMC_BEGIN(......)*/
-import com.igexin.sdk.PushManager;
 import com.netease.nimlib.sdk.auth.AuthServiceObserver;
 import com.netease.nimlib.sdk.StatusCode;
-import com.netease.nim.uikit.common.util.string.StringUtil;
-import android.os.HandlerThread;
-import android.os.Handler;
 import com.android.samservice.SamService;
 import com.netease.nim.demo.config.preference.Preferences;
 import com.android.samservice.info.ContactUser;
@@ -100,9 +80,7 @@ import com.android.samchat.service.SamDBManager;
 import com.netease.nimlib.sdk.msg.model.QueryDirectionEnum;
 import com.netease.nim.uikit.NIMCallback;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.netease.nim.uikit.session.sam_message.SamchatObserver;
 import com.netease.nim.demo.main.reminder.ReminderManager;
@@ -125,11 +103,6 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
     private final int BASIC_PERMISSION_REQUEST_CODE = 100;
 
     private HomeFragment mainFragment;
-
-    /*SAMC_BEGIN(Getu SDK initilized tag)*/
-    //private static final int MSG_START_GETUI_INIT = 1;
-    //private boolean isGetuInited = false;
-    /*SAMC_END(Getu SDK initilized tag)*/
 
     /*SAMC_BEGIN(Customized title bar)*/
     private ImageView switch_icon;
@@ -262,17 +235,45 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
         return false;
     }
 
+	//observer and broadcast
+	private boolean isBroadcastRegistered = false;
+	private BroadcastReceiver broadcastReceiver;
+	private LocalBroadcastManager broadcastManager;
+
+	private void registerBroadcastReceiver() {
+		broadcastManager = LocalBroadcastManager.getInstance(MainActivity.this);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(Constants.BROADCAST_TOKEN_ILLEAGLE);
+		
+		broadcastReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if(intent.getAction().equals(Constants.BROADCAST_TOKEN_ILLEAGLE)){
+					Toast.makeText(DemoCache.getContext(), R.string.samchat_token_invalid, Toast.LENGTH_SHORT).show();
+					logout();
+				}
+			}
+		};
+		
+		broadcastManager.registerReceiver(broadcastReceiver, filter);
+		isBroadcastRegistered = true;
+	}
+
+	private void unregisterBroadcastReceiver(){
+		if(isBroadcastRegistered){
+			broadcastManager.unregisterReceiver(broadcastReceiver);
+			isBroadcastRegistered  = false;
+		}
+	}
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        /*SAMC_BEGIN(import GETU)*/
+				
         initSamAutoLogin();
         initMode();
         registerObservers(true);
-        /*if(NIMClient.getStatus() == StatusCode.LOGINED){
-            initGeTui();
-        }*/
-        /*SAMC_END(import GETU)*/
+
         setContentView(R.layout.activity_main_tab);
 
         /*SAMC_END(tool bar customized)*/
@@ -294,8 +295,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
         });
 
         /*SAMC_BEGIN(sync samchat data including contact list, follow list, ...)*/
+        registerBroadcastReceiver();
         registerNetworkReceiver();
         SamService.getInstance().startSync();
+
         /*SAMC_END(sync samchat data including contact list, follow list, ...)*/
 
         Log.i(TAG, "sync completed = " + syncCompleted);
@@ -611,8 +614,6 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
         Preferences.saveUserAccount("");
     }
     private void kickOut(StatusCode code) {
-        Preferences.saveUserToken("");
-
         if (code == StatusCode.PWD_ERROR) {
             LogUtil.e("Auth", "user password error");
         } else {
@@ -645,7 +646,6 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 				if (code == StatusCode.LOGINED) {
 					LogUtil.ui("SDK auto login succeed");
 					initSamAutoLogin();
-					//initGeTui();
 				} 
 			}
 		}
@@ -653,32 +653,16 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 
 	@Override
 	public void onDestroy() {
+		unregisterBroadcastReceiver();
 		unregisterNetworkReceiver();
 		registerObservers(false);
-		/*if(isGetuInited){
-			LogUtil.e(TAG,"stop getui service");
-			//PushManager.getInstance().turnOffPush(DemoCache.getContext());
-			PushManager.getInstance().stopService(DemoCache.getContext());
-			//registerGetuiReceiver(false);
-			isGetuInited = false;
-		}*/
 		super.onDestroy();
 	}
-
-	/*private void initGeTui(){
-		if(!isGetuInited){
-			LogUtil.e(TAG,"init getui service");
-			//registerGetuiReceiver(true);
-			PushManager.getInstance().initialize(getApplicationContext());
-			//PushManager.getInstance().turnOnPush(DemoCache.getContext());
-			isGetuInited = true;
-		}
-	}*/
 	
 	private void initSamAutoLogin(){
 		String account = Preferences.getUserAccount();
 		String token = Preferences.getUserToken()+UuidFactory.getInstance().getDeviceId();
-		LogUtil.i(TAG,"auto login account:"+account+" token:"+token);
+		//LogUtil.i(TAG,"auto login account:"+account+" token:"+token);
 		if(SamService.getInstance().get_current_user() == null || SamService.getInstance().get_current_token() == null){
 			ContactUser cuser = SamchatUserInfoCache.getInstance().getUserByUniqueID(Long.valueOf(account));
 			SamService.getInstance().set_current_user(cuser);
@@ -974,43 +958,28 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	public void asyncClearChatHisotry(final SessionTypeEnum type, final String account, final int mode, final NIMCallback callback){
 		SamDBManager.getInstance().asyncClearChatHisotry(type, account, mode, callback);
 	}
-
-	private long stringTolong(String s){
-	 	long ret = -1;
-		String account = s;
-		if (s.startsWith(NimConstants.PUBLIC_ACCOUNT_PREFIX)) {
-            account = s.substring(s.indexOf(NimConstants.PUBLIC_ACCOUNT_PREFIX) + NimConstants.PUBLIC_ACCOUNT_PREFIX.length());
-		}
-		try{
-			ret = Long.valueOf(account);
-		}catch(Exception e){
-			e.printStackTrace();
-			return ret;
-		}
-		return ret;
-	 }
 	
 	public String getServiceCategory(String account){
-       ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
+       ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(ConvertHelper.stringTolong(account));
 		if(user != null){
 			return user.getservice_category();
 		}
 
-		Contact contact = ContactDataCache.getInstance().getContactByUniqueID(stringTolong(account));
+		Contact contact = ContactDataCache.getInstance().getContactByUniqueID(ConvertHelper.stringTolong(account));
 		if(contact != null){
 			return contact.getservice_category();
 		}
 
-		contact = CustomerDataCache.getInstance().getCustomerByUniqueID(stringTolong(account));
+		contact = CustomerDataCache.getInstance().getCustomerByUniqueID(ConvertHelper.stringTolong(account));
 		if(contact != null){
 			return contact.getservice_category();
 		}	
 						
-		FollowedSamPros fsp = FollowDataCache.getInstance().getFollowSPByUniqueID(stringTolong(account));
+		FollowedSamPros fsp = FollowDataCache.getInstance().getFollowSPByUniqueID(ConvertHelper.stringTolong(account));
 		if(fsp !=null){
 			return fsp.getservice_category();
 		}
-		return null;
+		return "";
     }
 
 	public void onAvatarClick(String clickAccount, String creator){

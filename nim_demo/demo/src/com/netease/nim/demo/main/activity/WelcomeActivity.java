@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.netease.nim.demo.DemoCache;
 import com.android.samchat.R;
@@ -170,7 +172,6 @@ public class WelcomeActivity extends UI {
      * 首次进入，打开欢迎界面
      */
     private void showSplashView() {
-        getWindow().setBackgroundDrawableResource(R.drawable.splash_bg);
         customSplash = true;
     }
 

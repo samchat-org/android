@@ -142,7 +142,7 @@ public class SamchatLoginActivity extends Activity {
 		Preferences.saveMode(ModeEnum.CUSTOMER_MODE.getValue());
 		Preferences.clearSyncDate();
 
-		//requestBasicPermission();
+		requestBasicPermission();
 
 		onParseIntent();
 		setupLoginPanel();
@@ -188,7 +188,7 @@ public class SamchatLoginActivity extends Activity {
 
 	@OnMPermissionDenied(BASIC_PERMISSION_REQUEST_CODE)
 	public void onBasicPermissionFailed(){
-		Toast.makeText(this, getString(R.string.samchat_permission_refused_storage), Toast.LENGTH_SHORT).show();
+		//Toast.makeText(this, getString(R.string.samchat_permission_refused_storage), Toast.LENGTH_SHORT).show();
 	}
 
     private void onParseIntent() {

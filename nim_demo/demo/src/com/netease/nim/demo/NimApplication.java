@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
@@ -17,13 +16,10 @@ import com.android.samchat.R;
 import com.android.samchat.cache.ContactDataCache;
 import com.android.samchat.cache.CustomerDataCache;
 import com.android.samchat.cache.FollowDataCache;
-import com.android.samchat.service.StatusBarQuestionNotificationConfig;
 import com.android.samservice.Constants;
-import com.android.samservice.SamLog;
 import com.android.samservice.info.Contact;
 import com.android.samservice.info.ContactUser;
 import com.android.samservice.info.FollowedSamPros;
-import com.igexin.sdk.PushManager;
 import com.netease.nim.demo.avchat.AVChatProfile;
 import com.netease.nim.demo.avchat.activity.AVChatActivity;
 import com.netease.nim.demo.common.util.crash.AppCrashHandler;
@@ -42,6 +38,7 @@ import com.netease.nim.uikit.NimUIKit;
 import com.netease.nim.uikit.cache.FriendDataCache;
 import com.netease.nim.uikit.cache.NimUserInfoCache;
 import com.netease.nim.uikit.cache.TeamDataCache;
+import com.netease.nim.uikit.common.util.string.ConvertHelper;
 import com.netease.nim.uikit.contact.ContactProvider;
 import com.netease.nim.uikit.contact.core.query.PinYin;
 import com.netease.nim.uikit.session.viewholder.MsgViewHolderThumbBase;
@@ -73,7 +70,6 @@ import com.android.samservice.SamService;
 import com.netease.nim.uikit.common.util.string.StringUtil;
 import com.android.samchat.cache.SamchatDataCacheManager;
 import com.android.samchat.service.SamDBManager;
-import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.android.samchat.factory.UuidFactory;
 
 import org.json.JSONObject;
@@ -313,45 +309,30 @@ public class NimApplication extends Application {
     }
 
 	 /*SAMC_BEGIN(samchat user info provider)*/
-
-	 private long stringTolong(String s){
-	 	long ret = -1;
-		String account = s;
-		if (s.startsWith(NimConstants.PUBLIC_ACCOUNT_PREFIX)) {
-            account = s.substring(s.indexOf(NimConstants.PUBLIC_ACCOUNT_PREFIX) + NimConstants.PUBLIC_ACCOUNT_PREFIX.length());
-		}
-		try{
-			ret = Long.valueOf(account);
-		}catch(Exception e){
-			e.printStackTrace();
-			return ret;
-		}
-		return ret;
-	 }
     private UserInfoProvider infoProvider = new UserInfoProvider() {
         @Override
         public UserInfo getUserInfo(String account) {
-			ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
+			ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(ConvertHelper.stringTolong(account));
 			if(user != null){
 				return user;
 			}
 
-			Contact contact = ContactDataCache.getInstance().getContactByUniqueID(stringTolong(account));
+			Contact contact = ContactDataCache.getInstance().getContactByUniqueID(ConvertHelper.stringTolong(account));
 			if(contact != null){
 				return contact;
 			}
 
-			contact = CustomerDataCache.getInstance().getCustomerByUniqueID(stringTolong(account));
+			contact = CustomerDataCache.getInstance().getCustomerByUniqueID(ConvertHelper.stringTolong(account));
 			if(contact != null){
 				return contact;
 			}	
 						
-			FollowedSamPros fsp = FollowDataCache.getInstance().getFollowSPByUniqueID(stringTolong(account));
+			FollowedSamPros fsp = FollowDataCache.getInstance().getFollowSPByUniqueID(ConvertHelper.stringTolong(account));
 			if(fsp !=null){
 				return fsp;
 			}
 			
-			SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(stringTolong(account));
+			SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(ConvertHelper.stringTolong(account));
 			return null;
         }
 
@@ -372,7 +353,7 @@ public class NimApplication extends Application {
 
         @Override
         public Bitmap getAvatarForMessageNotifier(String account) {
-            UserInfo user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
+            UserInfo user = SamchatUserInfoCache.getInstance().getUserByUniqueID(ConvertHelper.stringTolong(account));
             return (user != null) ? ImageLoaderKit.getNotificationBitmapFromCache(user) : null;
         }
 
@@ -380,7 +361,7 @@ public class NimApplication extends Application {
         public String getDisplayNameForMessageNotifier(String account, String sessionId, SessionTypeEnum sessionType) {
             String nick = null;
             if (sessionType == SessionTypeEnum.P2P) {
-					UserInfo user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
+					UserInfo user = SamchatUserInfoCache.getInstance().getUserByUniqueID(ConvertHelper.stringTolong(account));
 					nick = (user != null) ? user.getName():null;
             } else if (sessionType == SessionTypeEnum.Team) {
                 nick = TeamDataCache.getInstance().getTeamNick(sessionId, account);
@@ -416,22 +397,22 @@ public class NimApplication extends Application {
 
         @Override
         public String getUserDisplayName(String account) {
-            ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(stringTolong(account));
+            ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(ConvertHelper.stringTolong(account));
             if(user != null){
                return user.getusername();
             }
 
-            Contact contact = ContactDataCache.getInstance().getContactByUniqueID(stringTolong(account));
+            Contact contact = ContactDataCache.getInstance().getContactByUniqueID(ConvertHelper.stringTolong(account));
             if(contact != null){
                 return contact.getusername();
             }
 
-            contact = CustomerDataCache.getInstance().getCustomerByUniqueID(stringTolong(account));
+            contact = CustomerDataCache.getInstance().getCustomerByUniqueID(ConvertHelper.stringTolong(account));
             if(contact != null){
                 return contact.getusername();
             }	
 						
-            FollowedSamPros fsp = FollowDataCache.getInstance().getFollowSPByUniqueID(stringTolong(account));
+            FollowedSamPros fsp = FollowDataCache.getInstance().getFollowSPByUniqueID(ConvertHelper.stringTolong(account));
             if(fsp !=null){
                 return fsp.getusername();
             }

@@ -22,6 +22,7 @@ import com.android.samchat.adapter.SimpleListAdapter;
 import com.android.samchat.common.SCell;
 import com.android.samchat.factory.LocationFactory;
 import com.android.samchat.service.SamDBManager;
+import com.android.samservice.SamLog;
 import com.android.samservice.info.QuestionInfo;
 import com.android.samservice.info.PlacesInfo;
 import com.android.samservice.info.SendQuestion;
@@ -359,9 +360,9 @@ public class SamchatNewRequestActivity extends UI implements OnKeyListener {
 				placeId = infoFound.place_id;
 			}
 		}
-		LogUtil.i(TAG,"latitude:"+latitude+" longitude:"+longitude+" placeId:"+placeId +" cell:"+cell);
+		SamLog.e(TAG,"latitude:"+latitude+" longitude:"+longitude+" placeId:"+placeId +" cell:"+cell);
 		if(cell != null){
-			LogUtil.i(TAG,"mcc:"+cell.mcc+" mnc:"+cell.mnc+" lac:"+cell.lac +" cid:"+cell.cid);
+			SamLog.e(TAG,"mcc:"+cell.mcc+" mnc:"+cell.mnc+" lac:"+cell.lac +" cid:"+cell.cid);
 		}
 		SamService.getInstance().send_question(question,latitude,longitude,placeId,location,cell,new SMCallBack(){
 				@Override
