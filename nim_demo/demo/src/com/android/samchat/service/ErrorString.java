@@ -28,6 +28,9 @@ public class ErrorString{
 			case Constants.RET_TOKEN_FORMAT_ERROR:
 				reminder = activity.getString(R.string.samchat_internal_error);
 				break;
+			case Constants.RET_APP_VERSION_EXPIRATION_ERROR:
+				reminder = activity.getString(R.string.samchat_app_version_expiration_error);
+				break;
 			case Constants.RET_SERVER_INTERNAL_ERROR:
 				reminder = activity.getString(R.string.samchat_server_error);
 				break;
@@ -101,6 +104,16 @@ public class ErrorString{
 			case Constants.RET_NOT_SERVICE_PROVIDER_ERROR:
 				reminder = activity.getString(R.string.samchat_your_not_sp_error);
 				break;
+			case Constants.RET_SAMCHAT_ID_NOT_UNIQUE_ERROR:
+				reminder = activity.getString(R.string.samchat_id_not_unique_error);
+				break;
+			case Constants.RET_ADV_RECALL_FAILED_ERROR:
+				reminder = activity.getString(R.string.samchat_adv_recall_failed_error);
+				break;
+			case Constants.RET_SAMCHAT_ID_SET_ALREADY_ERROR:
+				reminder = activity.getString(R.string.samchat_id_set_already_error);
+				break;
+				
 			default:
 				reminder = activity.getString(R.string.samchat_default_error);
 				break;

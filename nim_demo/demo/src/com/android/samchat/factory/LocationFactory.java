@@ -9,6 +9,7 @@ import android.content.Context;
 import android.telephony.cdma.CdmaCellLocation;
 import android.telephony.gsm.GsmCellLocation;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import java.util.UUID;
 
@@ -63,8 +64,9 @@ public class LocationFactory {
 		try{
 			if(!monitorStart){
 				LogUtil.i(TAG,"start LocationMonitor");
-				lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 10F,networkListener); 
-				lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000 * 2L,500F,gpsListener);
+				Toast.makeText(DemoCache.getContext(), "startLocationMonitor", Toast.LENGTH_SHORT).show();
+				lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 60*1000 * 2L, 5000F,networkListener); 
+				lm.requestLocationUpdates(LocationManager.GPS_PROVIDER,1000 * 2L,100F,gpsListener);
 			}
 			monitorStart = true;
 		}catch(Exception e){
@@ -78,6 +80,7 @@ public class LocationFactory {
 		try{
 			if(monitorStart){
 				LogUtil.i(TAG,"stop LocationMonitor");
+				Toast.makeText(DemoCache.getContext(), "stopLocationMonitor", Toast.LENGTH_SHORT).show();
 				lm.removeUpdates(gpsListener);
 				lm.removeUpdates(networkListener);
 			}
@@ -93,40 +96,56 @@ public class LocationFactory {
 		
   		@Override  
 		public void onLocationChanged(Location location) {
-			LogUtil.i(TAG,"GPS Location:"+location);
-			boolean flag = isBetterLocation(location,currentBestLocation);  
+			try{
+				LogUtil.i(TAG,"GPS Location:"+location);
+				Toast.makeText(DemoCache.getContext(), "onLocationChanged", Toast.LENGTH_SHORT).show();
+				boolean flag = isBetterLocation(location,currentBestLocation);
   
-			if (flag) {  
-				currentBestLocation = location;  
-			}  
+				if (flag) {
+					currentBestLocation = location;
+				}
 
-			if (location !=null && !isRemove) {  
-				lm.removeUpdates(networkListener);  
-				isRemove = true;  
-			}  
+				if (location !=null && !isRemove) {
+					lm.removeUpdates(networkListener);
+					isRemove = true;
+				}
+			}catch(Exception e){
+				e.printStackTrace();
+			}
 	}  
   
 	@Override  
-	public void onProviderDisabled(String provider) {  
-		LogUtil.i(TAG,"GPS onProviderDisabled");
-		if(isRemove){
-			lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 10F,networkListener); 
-			isRemove = false;
+	public void onProviderDisabled(String provider) {
+		try{
+			LogUtil.i(TAG,"GPS onProviderDisabled");
+			Toast.makeText(DemoCache.getContext(), "onProviderDisabled", Toast.LENGTH_SHORT).show();
+			if(isRemove){
+				lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 10F,networkListener);
+				isRemove = false;
+			}
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 	}  
   
 	@Override  
 	public void onProviderEnabled(String provider) {  
 		LogUtil.i(TAG,"GPS onProviderEnabled");
+		Toast.makeText(DemoCache.getContext(), "onProviderEnabled", Toast.LENGTH_SHORT).show();
 	}  
   
 	@Override  
 	public void onStatusChanged(String provider, int status, Bundle extras) {
-		LogUtil.i(TAG,"GPS onStatusChanged");
-		if (LocationProvider.OUT_OF_SERVICE == status) {
-			lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 10F, networkListener); 
-			isRemove = false;
-		}  
+		try{
+			LogUtil.i(TAG,"GPS onStatusChanged");
+			Toast.makeText(DemoCache.getContext(), "onStatusChanged", Toast.LENGTH_SHORT).show();
+			if (LocationProvider.OUT_OF_SERVICE == status) {
+				lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 10F, networkListener);
+				isRemove = false;
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 	}  
  } 
 

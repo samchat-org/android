@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
+import com.netease.nim.demo.config.preference.UserPreferences;
 import com.netease.nim.uikit.common.util.file.AttachmentStore;
 import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nim.uikit.common.util.string.StringUtil;
@@ -107,7 +108,8 @@ public class SamService{
 	public static final int MSG_QUERY_USER_WITHOUT_TOKEN = MSG_QUERY_USER_MULT + 1;
 	public static final int MSG_SEND_INVITE_MSG = MSG_QUERY_USER_WITHOUT_TOKEN + 1;
 	public static final int MSG_EDIT_PROFILE = MSG_SEND_INVITE_MSG + 1;
-	public static final int MSG_UPDATE_AVATAR = MSG_EDIT_PROFILE + 1;
+	public static final int MSG_CREATE_SAMCHAT_ID = MSG_EDIT_PROFILE + 1;
+	public static final int MSG_UPDATE_AVATAR = MSG_CREATE_SAMCHAT_ID + 1;
 	public static final int MSG_QUERY_PUBLIC = MSG_UPDATE_AVATAR + 1;
 	public static final int MSG_ADD_CONTACT = MSG_QUERY_PUBLIC + 1;
 	public static final int MSG_REMOVE_CONTACT = MSG_ADD_CONTACT + 1;
@@ -115,7 +117,8 @@ public class SamService{
 	public static final int MSG_SYNC_FOLLOW_LIST = MSG_SYNC_CONTACT_LIST + 1;
 	public static final int MSG_WRITE_ADV = MSG_SYNC_FOLLOW_LIST + 1;
 	public static final int MSG_DELETE_ADV = MSG_WRITE_ADV + 1;
-	public static final int MSG_DOWNLOAD = MSG_DELETE_ADV + 1;
+	public static final int MSG_RECALL_REQUEST = MSG_DELETE_ADV + 1;
+	public static final int MSG_DOWNLOAD = MSG_RECALL_REQUEST + 1;
 	public static final int MSG_BIND_ALIAS = MSG_DOWNLOAD + 1;
 	public static final int MSG_SEND_CLIENTID = MSG_BIND_ALIAS + 1;
 	public static final int MSG_QUERY_STATE = MSG_SEND_CLIENTID + 1;
@@ -845,7 +848,7 @@ public class SamService{
 				}
 				
 				ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(hcc.userinfo.getunique_id());
-				if(user == null || user.getlastupdate() != hcc.latest_lastupdate){
+				if(user == null){
 					SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(hcc.userinfo.getunique_id());
 				}
 
@@ -912,7 +915,7 @@ public class SamService{
 				}
 
 				ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(hcc.userinfo.getunique_id());
-				if(user == null || user.getlastupdate() != hcc.latest_lastupdate){
+				if(user == null){
 					SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(hcc.userinfo.getunique_id());
 				}
 
@@ -1155,9 +1158,9 @@ public class SamService{
 
 /***************************************edit profile*******************************************************/
 //this parm ContactUser user should be a copy of current user 
-	public void edit_profile(ContactUser user, SMCallBack callback){
+	public void edit_profile(int type, ContactUser user, String data, PlacesInfo place_info, SMCallBack callback){
 		EditProfileCoreObj samobj = new EditProfileCoreObj(callback);
-		samobj.init(get_current_token(), user);
+		samobj.init(get_current_token(), type, user , data , place_info);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_EDIT_PROFILE, samobj);
 		mSamServiceHandler.sendMessage(msg);
 		startTimeOut(samobj);
@@ -1197,7 +1200,60 @@ public class SamService{
 	private void retry_edit_profile(EditProfileCoreObj samobj){
 		EditProfileCoreObj  retryobj = new EditProfileCoreObj(samobj.callback);
 		
-		retryobj.init( samobj.token, samobj.user);
+		retryobj.init(samobj.token, samobj.type, samobj.user, samobj.data,  samobj.place_info);
+		
+		retryobj.setRetryCount(samobj.retry_count);
+		Message msg = mSamServiceHandler.obtainMessage(MSG_EDIT_PROFILE,retryobj);
+		mSamServiceHandler.sendMessageDelayed(msg, SAMSERVICE_RETRY_WAIT);
+		startTimeOutRetry(retryobj);
+	}
+
+/***************************************create samchat id*******************************************************/
+	public void create_samchat_id(String samchat_id, SMCallBack callback){
+		CreateSamchatIDCoreObj samobj = new CreateSamchatIDCoreObj(callback);
+		samobj.init(get_current_token(), samchat_id);
+		Message msg = mSamServiceHandler.obtainMessage(MSG_CREATE_SAMCHAT_ID, samobj);
+		mSamServiceHandler.sendMessage(msg);
+		startTimeOut(samobj);
+	}
+
+	private void do_create_samchat_id(SamCoreObj samobj){
+		CreateSamchatIDCoreObj epobj = (CreateSamchatIDCoreObj)samobj;
+		HttpCommClient hcc = new HttpCommClient();
+
+		boolean http_ret = hcc.create_samchat_id(epobj);
+
+		if(isTimeOut(samobj)){
+			return;
+		}else if(http_ret){
+			if(hcc.ret == 0){
+				ContactUser user = get_current_user();
+				user.setsamchat_id(epobj.samchat_id);
+				user.setlastupdate(hcc.latest_lastupdate);
+				SamchatUserInfoCache.getInstance().addUser(user.getunique_id(), user);
+				if(dao.update_ContactUser_db(user) == -1){
+					samobj.callback.onSuccess(hcc,Constants.DB_OPT_ERROR);
+				}else{
+					samobj.callback.onSuccess(hcc,0);
+				}
+			}else{
+				samobj.callback.onFailed(hcc.ret);
+			}
+		}else if(!hcc.exception){
+			if(0<samobj.retry_count--){
+				retry_create_samchat_id(epobj);
+			}else{
+				samobj.callback.onError(Constants.CONNECTION_HTTP_ERROR);
+			}
+		}else{
+			samobj.callback.onError(Constants.EXCEPTION_ERROR);
+		}
+    }
+
+	private void retry_create_samchat_id(CreateSamchatIDCoreObj samobj){
+		CreateSamchatIDCoreObj  retryobj = new CreateSamchatIDCoreObj(samobj.callback);
+		
+		retryobj.init(samobj.token, samobj.samchat_id);
 		
 		retryobj.setRetryCount(samobj.retry_count);
 		Message msg = mSamServiceHandler.obtainMessage(MSG_EDIT_PROFILE,retryobj);
@@ -1453,6 +1509,31 @@ public class SamService{
 		startTimeOut(samobj);
 	}
 
+	private boolean updateContactUserInfoByContact(boolean isCustomer, Contact contact){
+		ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(contact.getunique_id());
+		if(user != null){
+			user.setunique_id(contact.getunique_id());
+			user.setusername(contact.getusername());
+			user.setavatar(contact.getavatar());
+			if(!isCustomer)
+				user.setservice_category(contact.getservice_category());
+		}else{
+			user = new ContactUser();
+			user.setunique_id(contact.getunique_id());
+			user.setusername(contact.getusername());
+			user.setavatar(contact.getavatar());
+			if(!isCustomer)
+				user.setservice_category(contact.getservice_category());
+
+			SamchatUserInfoCache.getInstance().addUser(user.getunique_id(), user);
+		}
+		if(dao.update_ContactUser_db(user) == -1){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
 	private boolean syncUpdateContactList(boolean isCustomer,MultipleContact contacts){
 		boolean isDbError = false;
 		dao.delete_ContactList_db_all(isCustomer);
@@ -1472,8 +1553,13 @@ public class SamService{
 			if(dao.add_ContactList_db(contact, isCustomer) == -1){
 				isDbError = true;
 			}
+
+			//update contact user table
+			if(updateContactUserInfoByContact(isCustomer,contact)){
+				isDbError = true;
+			}
 		}
-		return isDbError = true;
+		return isDbError;
 	}
 
 	private void do_sync_contact_list(SamCoreObj samobj){
@@ -1485,8 +1571,7 @@ public class SamService{
 		if(isTimeOut(samobj)){
 			return;
 		}else if(http_ret){
-			if(hcc.ret == 0){
-				
+			if(hcc.ret == 0){	
 				boolean isDbError = syncUpdateContactList(scobj.isCustomer,hcc.contacts);
 				samobj.callback.onSuccess(hcc,isDbError?Constants.DB_OPT_ERROR:0);
 				Intent intent = new Intent();
@@ -1496,13 +1581,6 @@ public class SamService{
 					intent.setAction(Constants.BROADCAST_CUSTOMERLIST_UPDATE);
 				}
 				sendbroadcast(intent);
-				
-				for(Contact contact:hcc.contacts.getcontacts()){
-					ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(contact.getunique_id());
-					if(user == null || user.getlastupdate() != contact.getlastupdate()){
-						SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(contact.getunique_id());
-					}
-				}
 			}else{
 				samobj.callback.onFailed(hcc.ret);
 			}
@@ -1547,13 +1625,6 @@ public class SamService{
 			if(hcc.ret == 0){
 				boolean isDbError = syncUpdateFollowList(hcc.followusers);
 				samobj.callback.onSuccess(hcc,isDbError?Constants.DB_OPT_ERROR:0);
-				for(FollowedSamPros sp:hcc.followusers.getsps()){
-					ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(sp.getunique_id());
-					if(user == null || user.getlastupdate() != sp.getlastupdate()){
-						SamchatUserInfoCache.getInstance().getUserByUniqueIDFromRemote(sp.getunique_id());
-					}
-				}
-
 				Intent intent = new Intent();
 				intent.setAction(Constants.BROADCAST_FOLLOWEDSP_UPDATE);
 				sendbroadcast(intent);
@@ -1626,6 +1697,51 @@ public class SamService{
 		mSamServiceHandler.sendMessageDelayed(msg, SAMSERVICE_RETRY_WAIT);
 		startTimeOutRetry(retryobj);
 	}	
+
+/***************************************recall request*******************************************************/
+	public void recall_request(int type, long request_id, SMCallBack callback){
+		RecallRequestCoreObj samobj = new RecallRequestCoreObj(callback);
+		samobj.init(get_current_token(),type,request_id);
+		Message msg = mSamServiceHandler.obtainMessage(MSG_RECALL_REQUEST, samobj);
+		mSamServiceHandler.sendMessage(msg);
+		startTimeOut(samobj);
+	}
+
+	private void do_recall_request(SamCoreObj samobj){
+		RecallRequestCoreObj advobj = (RecallRequestCoreObj)samobj;
+		HttpCommClient hcc = new HttpCommClient();
+
+		boolean http_ret = hcc.recall_request(advobj);
+
+		if(isTimeOut(samobj)){
+			return;
+		}else if(http_ret){
+			if(hcc.ret == 0){
+				samobj.callback.onSuccess(hcc,0);
+			}else{
+				samobj.callback.onFailed(hcc.ret);
+			}
+		}else if(!hcc.exception){
+			if(0<samobj.retry_count--){
+				retry_recall_request(advobj);
+			}else{
+				samobj.callback.onError(Constants.CONNECTION_HTTP_ERROR);
+			}
+		}else{
+			samobj.callback.onError(Constants.EXCEPTION_ERROR);
+		}
+    }
+
+	private void retry_recall_request(RecallRequestCoreObj samobj){
+		RecallRequestCoreObj  retryobj = new RecallRequestCoreObj(samobj.callback);
+		
+		retryobj.init(samobj.token, samobj.type,samobj.request_id);
+		
+		retryobj.setRetryCount(samobj.retry_count);
+		Message msg = mSamServiceHandler.obtainMessage(MSG_RECALL_REQUEST,retryobj);
+		mSamServiceHandler.sendMessageDelayed(msg, SAMSERVICE_RETRY_WAIT);
+		startTimeOutRetry(retryobj);
+	}
 
 /***************************************delete advertisement*******************************************************/
 	public void delete_advertisement(List<Long> advs, SMCallBack callback){
@@ -1897,7 +2013,7 @@ public class SamService{
 			return false;
 		}
 		
-		String date = Preferences.getFldate();
+		String date = UserPreferences.getFldate();
 		if(date == null || !date.equals(""+sdinfo.getfollow_list_date())){
 			return true;
 		}
@@ -1910,7 +2026,7 @@ public class SamService{
 			return false;
 		}
 		
-		String date = Preferences.getCcdate();
+		String date = UserPreferences.getCcdate();
 		if(date == null || !date.equals(""+sdinfo.getcontact_list_date())){
 			return true;
 		}
@@ -1923,7 +2039,7 @@ public class SamService{
 			return false;
 		}
 		
-		String date = Preferences.getCudate();
+		String date = UserPreferences.getCudate();
 		if(date == null || !date.equals(""+sdinfo.getcustomer_list_date())){
 			return true;
 		}
@@ -2227,6 +2343,28 @@ public class SamService{
 		return isDbError;
 	}
 
+	private boolean updateContactUserInfoByFSP(FollowedSamPros fsp){
+		ContactUser user = SamchatUserInfoCache.getInstance().getUserByUniqueID(fsp.getunique_id());
+		if(user != null){
+			user.setunique_id(fsp.getunique_id());
+			user.setusername(fsp.getusername());
+			user.setavatar(fsp.getavatar());
+			user.setservice_category(fsp.getservice_category());
+		}else{
+			user = new ContactUser();
+			user.setunique_id(fsp.getunique_id());
+			user.setusername(fsp.getusername());
+			user.setavatar(fsp.getavatar());
+			user.setservice_category(fsp.getservice_category());
+			SamchatUserInfoCache.getInstance().addUser(user.getunique_id(), user);
+		}
+		if(dao.update_ContactUser_db(user) == -1){
+			return true;
+		}else{
+			return false;
+		}
+	}
+
 	private boolean syncUpdateFollowList(MultipleFollowUser followusers){
 		boolean isDbError = false;
 		dao.delete_FollowList_db_all();
@@ -2234,6 +2372,10 @@ public class SamService{
 		for(FollowedSamPros sp:followusers.getsps()){
 			FollowDataCache.getInstance().addFollowSP(sp.getunique_id(), sp);
 			if(dao.add_FollowList_db(sp) == -1){
+				isDbError = true;
+			}
+
+			if(updateContactUserInfoByFSP(sp)){
 				isDbError = true;
 			}
 		}
@@ -2327,7 +2469,7 @@ public class SamService{
 							sync_follow_list(syncFollowListCallback);
 						}else{
 							syncStatus[SYNC_FOLLOW_LIST]=SYNCED;
-							Preferences.saveFldate(""+sdinfo.getfollow_list_date());
+							UserPreferences.saveFldate(""+sdinfo.getfollow_list_date());
 						}
 
 						if(needSyncContactList(sdinfo)){
@@ -2335,7 +2477,7 @@ public class SamService{
 							sync_contact_list(false, syncContactListCallback);
 						}else{
 							syncStatus[SYNC_CONTACT_LIST]=SYNCED;
-							Preferences.saveCcdate(""+sdinfo.getcontact_list_date());
+							UserPreferences.saveCcdate(""+sdinfo.getcontact_list_date());
 						}
 
 						if(needSyncCustomerList(sdinfo)){
@@ -2343,7 +2485,7 @@ public class SamService{
 							sync_contact_list(true, syncCustomerListCallback);
 						}else{
 							syncStatus[SYNC_CUSTOMER_LIST]=SYNCED;
-							Preferences.saveCudate(""+sdinfo.getcustomer_list_date());
+							UserPreferences.saveCudate(""+sdinfo.getcustomer_list_date());
 						}
 					}else{
 						syncStatus[SYNC_QUERY_STATE]=INITED;
@@ -2355,7 +2497,7 @@ public class SamService{
 					SyncCoreObj followObj = (SyncCoreObj)msg.obj;
 					if(followObj.succeed){
 						syncStatus[SYNC_FOLLOW_LIST]=SYNCED;
-						Preferences.saveFldate(""+sdinfo.getfollow_list_date());
+						UserPreferences.saveFldate(""+sdinfo.getfollow_list_date());
 					}else{
 						syncStatus[SYNC_FOLLOW_LIST]=INITED;
 						sync_status_check();
@@ -2366,7 +2508,7 @@ public class SamService{
 					SyncCoreObj contactObj = (SyncCoreObj)msg.obj;
 					if(contactObj.succeed){
 						syncStatus[SYNC_CONTACT_LIST]=SYNCED;
-						Preferences.saveCcdate(""+sdinfo.getcontact_list_date());
+						UserPreferences.saveCcdate(""+sdinfo.getcontact_list_date());
 					}else{
 						syncStatus[SYNC_CONTACT_LIST]=INITED;
 						sync_status_check();
@@ -2377,7 +2519,7 @@ public class SamService{
 					SyncCoreObj customerObj = (SyncCoreObj)msg.obj;
 					if(customerObj.succeed){
 						syncStatus[SYNC_CUSTOMER_LIST]=SYNCED;
-						Preferences.saveCudate(""+sdinfo.getcustomer_list_date());
+						UserPreferences.saveCudate(""+sdinfo.getcustomer_list_date());
 					}else{
 						syncStatus[SYNC_CUSTOMER_LIST]=INITED;
 						sync_status_check();
@@ -2595,6 +2737,16 @@ public class SamService{
 						}
 					});
 					break;
+					
+				case MSG_CREATE_SAMCHAT_ID:
+					mFixedHttpThreadPool.execute(new Runnable(){
+						@Override
+						public void run(){
+							do_create_samchat_id(msgObj);
+						}
+					});
+					break;
+					
 				case MSG_UPDATE_AVATAR:
 					mFixedHttpThreadPool.execute(new Runnable(){
 						@Override
@@ -2720,7 +2872,15 @@ public class SamService{
 						}
 					});
 					break;
-					
+
+				case MSG_RECALL_REQUEST:
+					mFixedHttpThreadPool.execute(new Runnable(){
+						@Override
+						public void run(){
+							do_recall_request(msgObj);
+						}
+					});
+					break;	
 			}
 		}
 	}

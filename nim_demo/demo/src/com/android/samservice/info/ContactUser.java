@@ -5,13 +5,14 @@ import java.io.Serializable;
 import com.android.samservice.Constants;
 import com.netease.nimlib.sdk.uinfo.UserInfoProvider;
 	/*
-	id(primary) | unique_id | username | usertype |question_notify | lastupdate | avatar | avatar_original |countrycode | cellphone | email | address 
+	id(primary) | unique_id | samchat_id |username | usertype |question_notify | lastupdate | avatar | avatar_original |countrycode | cellphone | email | address 
 						| company_name | service_category | service_description |countrycode_sp | phone_sp | email_sp | address_sp 
 	*/
 public class ContactUser implements UserInfoProvider.UserInfo
 {
 	private long id;
 	private long unique_id;
+	private String samchat_id;
 	private String username;
 	private int usertype;
 	private int question_notify;
@@ -34,6 +35,7 @@ public class ContactUser implements UserInfoProvider.UserInfo
 	public ContactUser(){
 		this.id = 0;
 		this.unique_id = 0;
+		this.samchat_id = "";
 		this.username = "";
 		this.usertype = Constants.USER;
 		this.question_notify = 1;
@@ -56,6 +58,7 @@ public class ContactUser implements UserInfoProvider.UserInfo
 	public ContactUser(int type){
 		this.id = 0;
 		this.unique_id = 0;
+		this.samchat_id = "";
 		this.username = "";
 		this.usertype = type;
 		this.question_notify = 1;
@@ -78,6 +81,7 @@ public class ContactUser implements UserInfoProvider.UserInfo
 	public ContactUser(ContactUser user){
 		this.id = user.getid();
 		this.unique_id = user.getunique_id();
+		this.samchat_id = user.getsamchat_id();
 		this.username = user.getusername();
 		this.usertype = user.getusertype();
 		this.question_notify = user.getquestion_notify();
@@ -109,6 +113,13 @@ public class ContactUser implements UserInfoProvider.UserInfo
 	}
 	public void setunique_id(long unique_id){
 		this.unique_id = unique_id;
+	}
+
+	public String getsamchat_id(){
+		return this.samchat_id;
+	}
+	public void setsamchat_id(String samchat_id){
+		this.samchat_id = samchat_id;
 	}
 
 	public String getusername(){

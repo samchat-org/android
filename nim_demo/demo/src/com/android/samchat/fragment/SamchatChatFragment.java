@@ -227,8 +227,6 @@ public class SamchatChatFragment extends TFragment{
 	@Override
     public void onResume() {
 		super.onResume();
-		notifyDataSetChangedSP();
-		notifyDataSetChangedCustomer();
     }
     
 

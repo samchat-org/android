@@ -39,13 +39,14 @@ public class DatabaseHelper extends SQLiteOpenHelper
 
 	private void createContactUserTable(SQLiteDatabase db){
 	/*
-	id(primary) | unique_id | username | usertype |question_notify| lastupdate | avatar | avatar_original | countrycode |cellphone | email | address
+	id(primary) | unique_id |samchat_id | username | usertype |question_notify| lastupdate | avatar | avatar_original | countrycode |cellphone | email | address
 						| company_name | service_category | service_description |countrycode_sp | phone_sp | email_sp | address_sp 
 	*/
 		StringBuffer sBuffer = new StringBuffer();
 		sBuffer.append("CREATE TABLE IF NOT EXISTS [" + TABLE_NAME_CONTACT_USER + "] (");
 		sBuffer.append("[id] INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, ");
 		sBuffer.append("[unique_id] INTEGER, ");
+		sBuffer.append("[samchat_id] TEXT ,");
 		sBuffer.append("[username] TEXT ,");
 		sBuffer.append("[usertype] INTEGER, ");
 		sBuffer.append("[question_notify] INTEGER, ");

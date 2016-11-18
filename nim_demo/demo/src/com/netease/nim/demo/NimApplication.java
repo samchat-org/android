@@ -417,7 +417,7 @@ public class NimApplication extends Application {
                 return fsp.getusername();
             }
 
-            return null;
+            return account;
         }
     };
 
@@ -449,10 +449,10 @@ public class NimApplication extends Application {
 					String jsonString = message.getContent();
 					return getTicker(jsonString);
 				}else{
-					return null;
+					return "";
 				}
 			}else{
-				return null;
+				return "";
 			}
         }
 
@@ -464,10 +464,10 @@ public class NimApplication extends Application {
 					String jsonString = message.getContent();
                     return nick + ":" + getTicker(jsonString);
 				}else{
-					return null;
+					return "";
 				}
 			}else{
-				return null;
+				return "";
 			}
 		}
 	};

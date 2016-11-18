@@ -99,12 +99,14 @@
                 android:textColor="@color/samchat_color_ink"
                 android:textSize="16sp"
                 android:gravity="start|center_vertical"/>
+
             <com.netease.nim.uikit.common.ui.widget.ClearableEditTextWithIcon
                 android:id="@+id/phone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@null"
                 android:layout_gravity="center_vertical"
+                android:textCursorDrawable="@null"
                 android:inputType="phone"
                 android:maxLength="11"
                 android:textSize="16sp"

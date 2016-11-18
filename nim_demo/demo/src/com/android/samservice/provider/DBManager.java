@@ -394,6 +394,7 @@ public class DBManager
 
 		ContentValues cv = new ContentValues();
 		cv.put("unique_id",user.getunique_id());
+		cv.put("samchat_id",user.getsamchat_id());
 		cv.put("username",user.getusername());
 		cv.put("usertype",user.getusertype());
 		cv.put("question_notify",user.getquestion_notify());
@@ -422,6 +423,7 @@ public class DBManager
 
 		ContentValues cv = new ContentValues();
 		cv.put("unique_id",user.getunique_id());
+		cv.put("samchat_id",user.getsamchat_id());
 		cv.put("username",user.getusername());
 		cv.put("usertype",user.getusertype());
 		cv.put("question_notify",user.getquestion_notify());
@@ -454,6 +456,7 @@ public class DBManager
 
 		ContentValues cv = new ContentValues();
 		cv.put("unique_id",user.getunique_id());
+		cv.put("samchat_id",user.getsamchat_id());
 		cv.put("username",user.getusername());
 		cv.put("usertype",user.getusertype());
 		cv.put("question_notify",user.getquestion_notify());
@@ -506,6 +509,7 @@ public class DBManager
 			user = new ContactUser();
 			user.setid(c.getLong(c.getColumnIndex("id")));
 			user.setunique_id(c.getLong(c.getColumnIndex("unique_id")));
+			user.setsamchat_id(c.getString(c.getColumnIndex("samchat_id")));
 			user.setusername(c.getString(c.getColumnIndex("username")));
 			user.setusertype( c.getInt(c.getColumnIndex("usertype")));
 			user.setquestion_notify( c.getInt(c.getColumnIndex("question_notify")));
@@ -543,6 +547,7 @@ public class DBManager
 			user = new ContactUser();
 			user.setid(c.getLong(c.getColumnIndex("id")));
 			user.setunique_id(c.getLong(c.getColumnIndex("unique_id")));
+			user.setsamchat_id(c.getString(c.getColumnIndex("samchat_id")));
 			user.setusername(c.getString(c.getColumnIndex("username")));
 			user.setusertype( c.getInt(c.getColumnIndex("usertype")));
 			user.setquestion_notify( c.getInt(c.getColumnIndex("question_notify")));
@@ -584,6 +589,7 @@ public class DBManager
 			user = new ContactUser();
 			user.setid(c.getLong(c.getColumnIndex("id")));
 			user.setunique_id(c.getLong(c.getColumnIndex("unique_id")));
+			user.setsamchat_id(c.getString(c.getColumnIndex("samchat_id")));
 			user.setusername(c.getString(c.getColumnIndex("username")));
 			user.setusertype( c.getInt(c.getColumnIndex("usertype")));
 			user.setquestion_notify( c.getInt(c.getColumnIndex("question_notify")));
@@ -625,6 +631,7 @@ public class DBManager
 			user = new ContactUser();
 			user.setid(c.getLong(c.getColumnIndex("id")));
 			user.setunique_id(c.getLong(c.getColumnIndex("unique_id")));
+			user.setsamchat_id(c.getString(c.getColumnIndex("samchat_id")));
 			user.setusername(c.getString(c.getColumnIndex("username")));
 			user.setusertype( c.getInt(c.getColumnIndex("usertype")));
 			user.setquestion_notify( c.getInt(c.getColumnIndex("question_notify")));

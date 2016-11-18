@@ -1,6 +1,8 @@
 package com.android.samservice.coreobj;
 
+import com.android.samservice.Constants;
 import com.android.samservice.callback.SMCallBack;
+import com.netease.nim.uikit.common.util.string.MD5;
 
 public class VerifyCodeCoreObj extends SamCoreObj{
 	public String countrycode;
@@ -43,11 +45,7 @@ public class VerifyCodeCoreObj extends SamCoreObj{
 		this.countrycode = countrycode;
 		this.cellphone = cellphone;
 		this.verifycode = verifycode;
-		this.new_password = new_password;
+		this.new_password = MD5.getStringMD5(new_password+Constants.PWD_SUFFIX);
 		this.deviceid = deviceid;
 	}
-
-	
-	
-	
 }

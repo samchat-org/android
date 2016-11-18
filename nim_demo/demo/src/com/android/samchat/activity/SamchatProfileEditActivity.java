@@ -28,6 +28,7 @@ import android.widget.Toast;
 import com.android.samchat.R;
 import com.android.samchat.adapter.PlaceInfoAdapter;
 import com.android.samservice.HttpCommClient;
+import com.android.samservice.info.ContactUser;
 import com.android.samservice.info.PlacesInfo;
 import com.netease.nim.uikit.common.activity.UI;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
@@ -40,7 +41,6 @@ import android.widget.FrameLayout;
 import com.android.samservice.Constants;
 import com.android.samservice.callback.SMCallBack;
 import com.android.samchat.service.ErrorString;
-import com.android.samservice.info.ContactUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,9 +59,9 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 	public static final int EDIT_PROFILE_TYPE_SP_COMPANY_NAME=5;
 	public static final int EDIT_PROFILE_TYPE_SP_SERVICE_CATEGORY=6;
 	public static final int EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION=7;
+	public static final int EDIT_PROFILE_TYPE_SP_PHONE=8;
 
-	public static final int EDIT_PROFILE_TYPE_CUSTOMER_PHONE=8;
-	public static final int EDIT_PROFILE_TYPE_SP_PHONE=9;
+	public static final int EDIT_PROFILE_TYPE_CUSTOMER_SAMCHAT_ID=9;
 
 	private static final int CONFIRM_ID_SELECT_COUNTRY_CODE=202;
 
@@ -80,9 +80,13 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 	private RelativeLayout edit_layout_multiple;
 	private ListView address_lv;
 
+	private TextView illustration_tv;
+
 	private String data;
 	private String new_data;
 	private int type;
+
+	private PlacesInfo place_info=null;
 
 	private String countrycode;
 	private String new_countrycode;
@@ -159,9 +163,6 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 		type = getIntent().getIntExtra("type",EDIT_PROFILE_TYPE_UNKNOW);
 		if(type == EDIT_PROFILE_TYPE_UNKNOW){
 			finish();
-		}else if(type == EDIT_PROFILE_TYPE_CUSTOMER_PHONE){
-			countrycode = getIntent().getStringExtra("countrycode");
-			data = getIntent().getStringExtra("data");
 		}else{
 			data = getIntent().getStringExtra("data");
 		}
@@ -170,7 +171,7 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 	private boolean isCustomerMode(){
 		if(type == EDIT_PROFILE_TYPE_CUSTOMER_EMAIL
 			|| type == EDIT_PROFILE_TYPE_CUSTOMER_ADDRESS
-			|| type == EDIT_PROFILE_TYPE_CUSTOMER_PHONE){
+			|| type == EDIT_PROFILE_TYPE_CUSTOMER_SAMCHAT_ID){
 			return true;
 		}else{
 			return false;
@@ -229,11 +230,11 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 			case EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION:
 				titlebar_name_tv.setText(R.string.samchat_edit_description);
 				break;
-			case EDIT_PROFILE_TYPE_CUSTOMER_PHONE:
-				titlebar_name_tv.setText(R.string.samchat_edit_phone_number);
-				break;
 			case EDIT_PROFILE_TYPE_SP_PHONE:
 				titlebar_name_tv.setText(R.string.samchat_edit_phone_number);
+				break;
+			case EDIT_PROFILE_TYPE_CUSTOMER_SAMCHAT_ID:
+				titlebar_name_tv.setText(R.string.samchat_edit_samchat_id);
 				break;
 		}
 	}
@@ -244,28 +245,27 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 				edit_edittext.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
 				break;
 			case EDIT_PROFILE_TYPE_CUSTOMER_ADDRESS:
-				//titlebar_name_tv.setText(R.string.samchat_edit_address);
+
 				break;
 			case EDIT_PROFILE_TYPE_SP_EMAIL:
 				edit_edittext.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
 				break;
 			case EDIT_PROFILE_TYPE_SP_ADDRESS:
-				//titlebar_name_tv.setText(R.string.samchat_edit_address);
+
 				break;
 			case EDIT_PROFILE_TYPE_SP_COMPANY_NAME:
-				//titlebar_name_tv.setText(R.string.samchat_edit_company);
+
 				break;
 			case EDIT_PROFILE_TYPE_SP_SERVICE_CATEGORY:
-				//titlebar_name_tv.setText(R.string.samchat_edit_category);
+
 				break;
 			case EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION:
-				//titlebar_name_tv.setText(R.string.samchat_edit_description);
-				break;
-			case EDIT_PROFILE_TYPE_CUSTOMER_PHONE:
-				edit_edittext.setInputType(InputType.TYPE_CLASS_PHONE);
+
 				break;
 			case EDIT_PROFILE_TYPE_SP_PHONE:
 				edit_edittext.setInputType(InputType.TYPE_CLASS_PHONE);
+				break;
+			case EDIT_PROFILE_TYPE_CUSTOMER_SAMCHAT_ID:
 				break;
 		}
 	}
@@ -275,6 +275,40 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 			countrycode_textview.setText("+");
 		}else{
 			countrycode_textview.setText("+"+c);
+		}
+	}
+
+	private void setIllustrationText(){
+		switch(type){
+			case EDIT_PROFILE_TYPE_CUSTOMER_EMAIL:
+				illustration_tv.setText(getString(R.string.samchat_illustration_email));
+				break;
+			case EDIT_PROFILE_TYPE_CUSTOMER_ADDRESS:
+				illustration_tv.setText(getString(R.string.samchat_illustration_address));
+				break;
+			case EDIT_PROFILE_TYPE_SP_EMAIL:
+				edit_edittext.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+				illustration_tv.setText(getString(R.string.samchat_illustration_email));
+				break;
+			case EDIT_PROFILE_TYPE_SP_ADDRESS:
+				illustration_tv.setText(getString(R.string.samchat_illustration_address));
+				break;
+			case EDIT_PROFILE_TYPE_SP_COMPANY_NAME:
+				illustration_tv.setText(getString(R.string.samchat_illustration_company));
+				break;
+			case EDIT_PROFILE_TYPE_SP_SERVICE_CATEGORY:
+				illustration_tv.setText(getString(R.string.samchat_illustration_service_category));
+				break;
+			case EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION:
+				illustration_tv.setText(getString(R.string.samchat_illustration_service_description));
+				break;
+			case EDIT_PROFILE_TYPE_SP_PHONE:
+				edit_edittext.setInputType(InputType.TYPE_CLASS_PHONE);
+				illustration_tv.setText(getString(R.string.samchat_illustration_phone));
+				break;
+			case EDIT_PROFILE_TYPE_CUSTOMER_SAMCHAT_ID:
+				illustration_tv.setText(getString(R.string.samchat_illustration_samchat_id));
+				break;
 		}
 	}
 
@@ -292,14 +326,9 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 		sp_save_tv= findView(R.id.sp_save);
 		sp_save_layout = findView(R.id.sp_save_layout);
 		customer_save_tv = findView(R.id.customer_save);
+		illustration_tv = findView(R.id.illustration);
 
-		if(type == EDIT_PROFILE_TYPE_CUSTOMER_PHONE){
-			countrycode_textview.setVisibility(View.VISIBLE);
-			updateCountryCode(countrycode);
-			edit_layout_single.setVisibility(View.VISIBLE);
-			edit_layout_multiple.setVisibility(View.GONE);
-			edit_edittext.setFilters(new InputFilter[]{new InputFilter.LengthFilter(Constants.MAX_MPHONE_NUMBER_LENGTH)});
-		}else if(type == EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION){
+		if(type == EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION){
 			countrycode_textview.setVisibility(View.GONE);
 			edit_layout_single.setVisibility(View.GONE);
 			edit_layout_multiple.setVisibility(View.VISIBLE);
@@ -322,6 +351,8 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 			address_lv.setVisibility(View.GONE);
 		}
 
+		setIllustrationText();
+
 		setupBackArrowClick();
 		setupSpSaveClick();
 		setupCustomerSaveClick();
@@ -335,22 +366,23 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 			@Override
 			public void afterTextChangedCallback(Editable s){
 				if(isAddressSelect()){
+					place_info = null;
 					Selection.setSelection(s, s.length());
 					pre_locationInput = locationInput;
 					locationInput = edit_edittext.getText().toString().trim();
 					if(!stringEquals(pre_locationInput,locationInput) 
 						&& !locationInput.equals(getString(R.string.samchat_current_location))
-						&& findAddress() == null){
+						&& findAddress()==null
+						&& !TextUtils.isEmpty(locationInput)){
 						cancelQueryCountDown();
 						startQueryCountDown();
-					}else if(locationInput.equals(getString(R.string.samchat_current_location))){
-						cancelQueryCountDown();
-					}else if(findAddress() != null){
+					}else{
 						cancelQueryCountDown();
 					}
 					new_data = locationInput;
 					updateSaveButton(s);
 				}else{
+					new_data = edit_edittext.getText().toString().trim();
 					updateSaveButton(s);
 				}
 			}
@@ -375,6 +407,7 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 
 		@Override
 		public void afterTextChanged(Editable s) {
+			new_data = multi_edit_ev.getText().toString().trim();
 			updateSaveButton(s);
 		}
 	};
@@ -398,23 +431,22 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 	}
 
 	private void updateSaveButton(Editable s){
-		if(type == EDIT_PROFILE_TYPE_CUSTOMER_PHONE){
-			if( s.length()>=Constants.MIN_MPHONE_NUMBER_LENGTH
-				&& countrycode_textview.getText().toString().trim().length()>=2){
-				customer_save_tv.setEnabled(true);
-				updateSaveButtonBackground(true);
-			}else{
-				customer_save_tv.setEnabled(false);
-				updateSaveButtonBackground(false);
-			}
-		}else if(type == EDIT_PROFILE_TYPE_SP_COMPANY_NAME ||
-						type == EDIT_PROFILE_TYPE_SP_SERVICE_CATEGORY||
-						type == EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION){
+		if(type == EDIT_PROFILE_TYPE_SP_COMPANY_NAME ||
+			type == EDIT_PROFILE_TYPE_SP_SERVICE_CATEGORY||
+			type == EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION){
 			if(s.length()>0){
 				sp_save_layout.setEnabled(true);
 				updateSaveButtonBackground(true);
 			}else{
 				sp_save_layout.setEnabled(false);
+				updateSaveButtonBackground(false);
+			}
+		}else if(type == EDIT_PROFILE_TYPE_CUSTOMER_SAMCHAT_ID){
+			if(s.length()>0){
+				customer_save_tv.setEnabled(true);
+				updateSaveButtonBackground(true);
+			}else{
+				customer_save_tv.setEnabled(false);
 				updateSaveButtonBackground(false);
 			}
 		}else{
@@ -474,6 +506,13 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 					return;
 				}
 
+				if(isAddressSelect()){
+					place_info = findAddress();
+					if(place_info != null){
+						new_data = place_info.description;
+					}
+				}
+				
 				isSaving = true;
 				save();
 			}
@@ -498,8 +537,8 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 		address_lv.setItemsCanFocus(true);
 		address_lv.setOnItemClickListener(new AdapterView.OnItemClickListener(){
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				PlacesInfo info = (PlacesInfo)parent.getAdapter().getItem(position);
-				edit_edittext.setText(info.description);
+				place_info = (PlacesInfo)parent.getAdapter().getItem(position);
+				edit_edittext.setText(place_info.description);
 			}
 		});
 
@@ -594,46 +633,18 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 	}
 
 	private void save(){
-		if(type == EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION){
-			new_data = multi_edit_ev.getText().toString().trim();
+		if(type == EDIT_PROFILE_TYPE_CUSTOMER_SAMCHAT_ID){
+			create_samchat_id();
 		}else{
-			new_data = edit_edittext.getText().toString().trim();
+			edit_profile();
 		}
-		
-		ContactUser user = new ContactUser(SamService.getInstance().get_current_user());
-		switch(type){
-			case EDIT_PROFILE_TYPE_CUSTOMER_EMAIL:
-				user.setemail(new_data);
-				break;
-			case EDIT_PROFILE_TYPE_CUSTOMER_ADDRESS:
-				user.setaddress(new_data);
-				break;
-			case EDIT_PROFILE_TYPE_SP_EMAIL:
-				user.setemail_sp(new_data);
-				break;
-			case EDIT_PROFILE_TYPE_SP_ADDRESS:
-				user.setaddress_sp(new_data);
-				break;
-			case EDIT_PROFILE_TYPE_SP_COMPANY_NAME:
-				user.setcompany_name(new_data);
-				break;
-			case EDIT_PROFILE_TYPE_SP_SERVICE_CATEGORY:
-				user.setservice_category(new_data);
-				break;
-			case EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION:
-				user.setservice_description(new_data);
-				break;
-			case EDIT_PROFILE_TYPE_CUSTOMER_PHONE:
-				user.setcountrycode(new_countrycode == null ? countrycode:new_countrycode);
-				user.setcellphone(new_data);
-				break;
-			case EDIT_PROFILE_TYPE_SP_PHONE:
-				user.setphone_sp(new_data);
-				break;
-		}
+	}
 
+
+	private void edit_profile(){
 		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_processing), false, null).setCanceledOnTouchOutside(false);
-		SamService.getInstance().edit_profile(user,new SMCallBack(){
+		ContactUser user = new ContactUser(SamService.getInstance().get_current_user());
+		SamService.getInstance().edit_profile( type, user, new_data, place_info, new SMCallBack(){
 				@Override
 				public void onSuccess(final Object obj, final int WarningCode) {
 					getHandler().postDelayed(new Runnable() {
@@ -675,6 +686,54 @@ public class SamchatProfileEditActivity extends UI implements OnKeyListener{
 				}
 
 		} );
+		
+	}
+
+	private void create_samchat_id(){
+		DialogMaker.showProgressDialog(this, null, getString(R.string.samchat_processing), false, null).setCanceledOnTouchOutside(false);
+		SamService.getInstance().create_samchat_id( new_data , new SMCallBack(){
+				@Override
+				public void onSuccess(final Object obj, final int WarningCode) {
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+							finish();
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onFailed(int code) {
+					final ErrorString error = new ErrorString(SamchatProfileEditActivity.this,code);
+					
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+							EasyAlertDialogHelper.showOneButtonDiolag(SamchatProfileEditActivity.this, null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							isSaving = false;
+						}
+					}, 0);
+				}
+
+				@Override
+				public void onError(int code) {
+					final ErrorString error = new ErrorString(SamchatProfileEditActivity.this,code);
+					getHandler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							DialogMaker.dismissProgressDialog();
+							EasyAlertDialogHelper.showOneButtonDiolag(SamchatProfileEditActivity.this, null,
+                    			error.reminder, getString(R.string.samchat_ok), true, null);
+							isSaving = false;
+						}
+					}, 0);
+				}
+
+		} );
+		
 	}
 }
 

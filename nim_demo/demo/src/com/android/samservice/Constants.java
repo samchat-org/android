@@ -2,7 +2,8 @@ package com.android.samservice;
 
 
 public class Constants{
-
+	public static final int SVN=1;
+	public static final String PWD_SUFFIX="s!a@m#c$h%a^t&";
 
 	
 	/*
@@ -57,7 +58,7 @@ public class Constants{
 	public static final int AVATAR_UPDATE_SAM_PROS = 1;
 
 	/****************************Http Command Config***********************************************/
-	public static final boolean POST_CMD = false;
+	public static final boolean POST_CMD = true;
 
 	/****************************Login Final Config***********************************************/
 	public static final int MIN_MPHONE_NUMBER_LENGTH = 6;
@@ -128,6 +129,7 @@ public class Constants{
 	public static final int RET_ACTION_NOT_SUPPORT_ERROR = -2;
 	public static final int RET_PARAM_NOT_SUPPORT_ERROR = -3;
 	public static final int RET_TOKEN_FORMAT_ERROR = -4;
+	public static final int RET_APP_VERSION_EXPIRATION_ERROR = -5;
 
 	//-100 ~ -199: server error
 	public static final int RET_SERVER_INTERNAL_ERROR = -103;
@@ -162,6 +164,9 @@ public class Constants{
 	public static final int RET_SEND_QUESTION_TOO_OFFTEN = -509;
 	public static final int RET_NOT_SERVICE_PROVIDER_ERROR = -510;
 	public static final int RET_SAME_CELLPHONE_ERROR = -512;
+	public static final int RET_SAMCHAT_ID_NOT_UNIQUE_ERROR = -513;
+	public static final int RET_ADV_RECALL_FAILED_ERROR = -514;
+	public static final int RET_SAMCHAT_ID_SET_ALREADY_ERROR = -515;
 
 	/****************************Longitude/Latitude null value***********************************************/
 	public static final double CONSTANTS_LONGITUDE_LATITUDE_NULL = -400;
@@ -197,6 +202,9 @@ public class Constants{
 	public static final int PUSH_CATEGORY_UNKONW = 0;
 	public static final int PUSH_CATEGORY_QUESTION = 1;
 	public static final int PUSH_CATEGORY_ADV = 2;
+
+	/****************************Recall Request Type ***********************************************/
+	public static final int RECALL_TYPE_ADV = 2;
 
 	/****************************Advertisement Max Picutre pixel***********************************************/
 	public static final int ADV_PIC_MAX = 1280;

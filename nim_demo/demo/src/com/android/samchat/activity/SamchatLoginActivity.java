@@ -136,12 +136,6 @@ public class SamchatLoginActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.samchat_login_activity);
 
-		
-		/*clear all persist storage info*/
-		Preferences.saveUserAlias("");
-		Preferences.saveMode(ModeEnum.CUSTOMER_MODE.getValue());
-		Preferences.clearSyncDate();
-
 		requestBasicPermission();
 
 		onParseIntent();
@@ -171,7 +165,9 @@ public class SamchatLoginActivity extends Activity {
 		MPermission.with(SamchatLoginActivity.this)
 			.addRequestCode(BASIC_PERMISSION_REQUEST_CODE)
 			.permissions(
-				Manifest.permission.READ_PHONE_STATE
+				Manifest.permission.READ_PHONE_STATE,
+				Manifest.permission.WRITE_EXTERNAL_STORAGE,
+				Manifest.permission.READ_EXTERNAL_STORAGE
 			)
 			.request();
 	}

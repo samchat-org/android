@@ -20,7 +20,7 @@ public class UserInfoHelper {
             if(user != null){
                 return user.getName();
             }else{
-                return null;
+                return id;
             }
             /*SAMC_END(user samchat user info cache)*/		
         }  else if (sessionType == SessionTypeEnum.Team) {

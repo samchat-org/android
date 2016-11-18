@@ -3,7 +3,7 @@
     package="com.android.samchat"
     android:installLocation="auto"
     android:versionCode="25"
-    android:versionName="2.5.0">
+    android:versionName="1.0.0">
 
     <!-- 加入应用需要的权限 -->
     <!-- 网络相关 -->
@@ -63,7 +63,7 @@
 
         <meta-data
             android:name="com.netease.nim.appKey"
-			android:value="a95830f52659eec125b54bc1b88f05b2" />
+			android:value="e1a577a0658770e251de3aa530270077" />
 
         <uses-library
             android:name="com.google.android.maps"

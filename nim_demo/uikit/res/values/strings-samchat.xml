@@ -604,4 +604,23 @@
     <string name="samchat_participant">Participants</string>
     <string name="samchat_get_team_member_list_failed">Get team member list failed</string>
     <string name="samchat_token_invalid">Connect invalid, login in manually</string>
+
+    <string name="samchat_edit_samchat_id">Edit Samchat ID</string>
+    <string name="samchat_illustration_email">Enter your email</string>
+    <string name="samchat_illustration_address">Enter your address</string>
+    <string name="samchat_illustration_company">Enter your company name</string>
+    <string name="samchat_illustration_service_category">Enter your service category</string>
+    <string name="samchat_illustration_service_description">Enter your service description</string>
+    <string name="samchat_illustration_phone">Enter your phone number</string>
+    <string name="samchat_illustration_samchat_id">Samchat ID is a unique certification for your account and can only be set once.</string>
+
+    <string name="samchat_app_version_expiration_error">This version has been expired</string>
+    <string name="samchat_id_not_unique_error">This SamchatID has been reigstered by others</string>
+    <string name="samchat_adv_recall_failed_error">Recall failed</string>
+    <string name="samchat_id_set_already_error">You have set samchat id before </string>
+    <string name="samchat_recall">Recall</string>
+    <string name="samchat_recall_failed">Recall failed</string>
+
+    <string name="samchat_send_advertisement_title">Send Advertisement</string>
+    <string name="samchat_send_advertisement_desc">Are your sure to send this picture?</string>
 </resources>

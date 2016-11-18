@@ -43,14 +43,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.apache.http.message.BasicNameValuePair;
 
-import com.android.samchat.SamchatGlobal;
 import com.android.samservice.info.*;
 import com.android.samservice.coreobj.*;
 import com.android.samservice.type.TypeEnum;
-import com.netease.nim.demo.config.preference.Preferences;
-import com.netease.nim.demo.config.preference.UserPreferences;
 import com.netease.nim.uikit.common.util.log.LogUtil;
-import com.netease.nim.uikit.common.util.sys.TimeUtil;
 
 public class HttpCommClient {
 	public static final String TAG="HttpCommClient";
@@ -58,8 +54,8 @@ public class HttpCommClient {
 	public static final int HTTP_TIMEOUT=20000;
 	
 	//public static final String ROOT_URL = "http://ec2-52-40-15-21.us-west-2.compute.amazonaws.com:8081/sam_svr/";
-	public static final String ROOT_URL = "http://service-test.samchat.com/";
-	//public static final String ROOT_URL = "http://54.223.46.106:8081/sam_svr/";
+	//public static final String ROOT_URL = "http://service-test.samchat.com/";
+	public static final String ROOT_URL = "http://service-dev.samchat.com:8081/sam_svr/";
 
 	public static final String URL_registerCodeRequest = ROOT_URL+"api_1.0_user_registerCodeRequest.do";
 	public static final String URL_registerCodeVerify =ROOT_URL+"api_1.0_user_signupCodeVerify.do";
@@ -99,8 +95,6 @@ public class HttpCommClient {
 	public static final String URL_editCellphoneCodeRequest=ROOT_URL+"api_1.0_profile_editCellPhoneCodeRequest.do";
 	public static final String URL_editCellphoneUpdate=ROOT_URL+"api_1.0_profile_editCellPhoneUpdate.do";
 	public static final String URL_updateQuestionNotify=ROOT_URL+"api_1.0_profile_updateQuestionNotify.do";
-	public static final String URL_createSamchatID =ROOT_URL+"api_1.0_profile_createSamchatId.do";
-	public static final String URL_recallRequest =ROOT_URL+"api_1.0_common_recall.do";
 	
 	public int statusCode;
 	public int ret;
@@ -144,45 +138,30 @@ public class HttpCommClient {
 		HttpURLConnection connection = null;
 		String json = jsonData.toString();
 
-		LogUtil.i(TAG,"http cmd:"+url+json);
-
-		if(Constants.POST_CMD){
-			URL u = new URL(url);
-			connection = (HttpURLConnection) u.openConnection();
-			connection.setRequestMethod("POST");
+		URL u = new URL(url);
+		connection = (HttpURLConnection) u.openConnection();
+		connection.setRequestMethod(Constants.POST_CMD ? "POST":"GET");
          
-			//set the sending type and receiving type to json
-			connection.setRequestProperty("Content-Type", "application/json");
-			connection.setRequestProperty("Accept", "application/json");
-			connection.setAllowUserInteraction(false);
-			connection.setConnectTimeout(CONNECTION_TIMEOUT);
-			connection.setReadTimeout(HTTP_TIMEOUT);
+		//set the sending type and receiving type to json
+		connection.setRequestProperty("Content-Type", "application/json");
+		connection.setRequestProperty("Accept", "application/json");
+		connection.setAllowUserInteraction(false);
+		connection.setConnectTimeout(CONNECTION_TIMEOUT);
+		connection.setReadTimeout(HTTP_TIMEOUT);
  
-			//set the content length of the body
-			connection.setRequestProperty("Content-length", json.getBytes().length + "");
-			connection.setDoInput(true);
-			connection.setDoOutput(true);
-			connection.setUseCaches(false);
+		//set the content length of the body
+		connection.setRequestProperty("Content-length", json.getBytes().length + "");
+		connection.setDoInput(true);
+		connection.setDoOutput(true);
+		connection.setUseCaches(false);
  
-			//send the json as body of the request
-			OutputStream outputStream = connection.getOutputStream();
-			outputStream.write(json.getBytes("UTF-8"));
-			outputStream.close();
+		//send the json as body of the request
+		OutputStream outputStream = connection.getOutputStream();
+		outputStream.write(json.getBytes("UTF-8"));
+		outputStream.close();
  
-			//Connect to the server
-			connection.connect();
-		}else{
-			List<BasicNameValuePair> params = new LinkedList<BasicNameValuePair>();
-			params.add(new BasicNameValuePair("data",jsonData.toString()));
-			String param = URLEncodedUtils.format(params, "UTF-8"); 			
-			String final_url = url + "?" + param;
-
-			SamLog.i(TAG,final_url);	
-
-			URL u = new URL(final_url);
-			connection = (HttpURLConnection) u.openConnection();
-			connection.setRequestMethod("GET");   
-		}
+		//Connect to the server
+		connection.connect();
 
 		return connection;
 	}
@@ -236,7 +215,7 @@ public class HttpCommClient {
 			HttpConnectionParams.setConnectionTimeout(http_params, CONNECTION_TIMEOUT);
 			HttpConnectionParams.setSoTimeout(http_params, HTTP_TIMEOUT);
 
-			connection =  client.execute(requestGet);
+			HttpResponse response =  client.execute(requestGet);
 			return new httpElement(response,client);
 		}
 	}*/
@@ -350,22 +329,6 @@ public class HttpCommClient {
 		}catch(JSONException e){
 			SamLog.i(TAG,"no countrycode for this sam user");	
 			return 1;
-		}
-	}
-
-	private void setSystemParam(JSONObject json){
-		try{
-			JSONArray jsonArrayX = json.getJSONArray("sys_params");
-			for (int i = 0; i < jsonArrayX.length(); i++) {
-				JSONObject jo = (JSONObject) jsonArrayX.get(i);
-				String code = jo.getString("param_code");
-				if(code.equals("app_advertisement_recall_minute")){
-					int recall = jo.getInt("param_value");
-					Preferences.saveAVRecall(recall);
-				}
-			}
-		}catch(JSONException e){
-			LogUtil.i(TAG,"no system params");
 		}
 	}
 
@@ -608,8 +571,6 @@ public class HttpCommClient {
 			body.putOpt("username",suobj.username);
 			body.putOpt("pwd",suobj.password);
 			body.putOpt("deviceid",suobj.deviceid);
-			body.putOpt("device_type",suobj.device_type);
-			body.putOpt("app_version",suobj.app_version);
 			
 			JSONObject data = new JSONObject();
 			data.put("header", header);
@@ -646,7 +607,6 @@ public class HttpCommClient {
 					userinfo.setcountrycode(suobj.countrycode);
 					userinfo.setcellphone(suobj.cellphone);
 					userinfo.setquestion_notify(getQuestionNotify(user));
-					setSystemParam(obj);
 				}
 
 				SamLog.i(TAG,"signup end");
@@ -699,8 +659,6 @@ public class HttpCommClient {
 			body.putOpt("account",siobj.account);
 			body.putOpt("pwd",siobj.password);
 			body.putOpt("deviceid",siobj.deviceid);
-			body.putOpt("device_type",siobj.device_type);
-			body.putOpt("app_version",siobj.app_version);
 			
 			JSONObject data = new JSONObject();
 			data.put("header", header);
@@ -731,7 +689,6 @@ public class HttpCommClient {
 					userinfo = new ContactUser();
 					userinfo.setunique_id(user.getLong("id"));
 					userinfo.setusername(user.getString("username"));
-					userinfo.setsamchat_id(user.getString("samchat_id"));
 					userinfo.setusertype(user.getInt("type"));
 					userinfo.setlastupdate(user.getLong("lastupdate"));
 					userinfo.setavatar(getAvatarThumb(user));
@@ -752,8 +709,6 @@ public class HttpCommClient {
 						userinfo.setemail_sp(getEmail(sam_pros));
 						userinfo.setaddress_sp(getAddress(sam_pros));
 					}
-
-					setSystemParam(obj);
 				}
 				
 				return true;
@@ -783,14 +738,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"signin:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -809,17 +756,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean get_app_key(GetAppKeyCoreObj gakobj){
-		HttpURLConnection connection = null;
+	public boolean get_app_key(GetAppKeyCoreObj gakobj){		
 		try{
 			JSONObject  data = constructGetAppKeyJson(gakobj);
 
-			connection = httpCmdStart(URL_getappkey,data);
+			HttpResponse response = httpCmdStart(URL_getappkey,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -859,14 +805,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"getappkey:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -885,17 +823,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean signout(SignOutCoreObj soobj){
-		HttpURLConnection connection = null;
+	public boolean signout(SignOutCoreObj soobj){	
 		try{
 			JSONObject  data = constructSignOutJson(soobj);
 
-			connection = httpCmdStart(URL_signout,data);
+			HttpResponse response = httpCmdStart(URL_signout,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -928,14 +865,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"signout:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 	}
 
@@ -992,16 +921,15 @@ public class HttpCommClient {
 	}
 	
 	public boolean create_sam_pros(CreateSamProsCoreObj cspobj){
-		HttpURLConnection connection = null;
 		try{
 			JSONObject  data = constructCreateSamProsJson(cspobj);
 
-			connection = httpCmdStart(URL_createsp,data);
+			HttpResponse response = httpCmdStart(URL_createsp,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -1011,8 +939,17 @@ public class HttpCommClient {
 					JSONObject user = obj.getJSONObject("user");
 					userinfo = new ContactUser(cspobj.sam_pros);
 					userinfo.setlastupdate(user.getLong("lastupdate"));
-					userinfo.setusertype(Constants.SAM_PROS);
+					userinfo.setusertype(user.getInt("type"));
+					userinfo.setcompany_name(cspobj.sam_pros.getcompany_name());
+					userinfo.setservice_category(cspobj.sam_pros.getservice_category());
+					userinfo.setservice_description(cspobj.sam_pros.getservice_description());
+					userinfo.setcountrycode_sp(cspobj.sam_pros.getcountrycode_sp());
+					userinfo.setphone_sp(cspobj.sam_pros.getphone_sp());
+					userinfo.setemail_sp(cspobj.sam_pros.getemail_sp());
+					userinfo.setaddress_sp(cspobj.sam_pros.getaddress_sp());
+					
 				}
+				
 				
 				return true;
 				
@@ -1041,14 +978,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"create sam pros:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -1070,17 +999,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean findpwd_code_request(VerifyCodeCoreObj vcobj){
-		HttpURLConnection connection = null;
+	public boolean findpwd_code_request(VerifyCodeCoreObj vcobj){			
 		try{
 			JSONObject  data = constructFindpwdCodeRequestJson(vcobj);
 
-			connection = httpCmdStart(URL_findpwdCodeRequest,data);
+			HttpResponse response = httpCmdStart(URL_findpwdCodeRequest,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -1113,14 +1041,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"findpwd-code-request:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -1142,17 +1062,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean findpwd_code_verify(VerifyCodeCoreObj vcobj){
-		HttpURLConnection connection = null;
+	public boolean findpwd_code_verify(VerifyCodeCoreObj vcobj){			
 		try{
 			JSONObject  data = constructFindpwdCodeVerifyJson(vcobj);
 
-			connection = httpCmdStart(URL_findpwdCodeVerify,data);
+			HttpResponse response = httpCmdStart(URL_findpwdCodeVerify,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -1185,14 +1104,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"findpwd-code-verify:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -1216,17 +1127,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean findpwd_update(VerifyCodeCoreObj vcobj){
-		HttpURLConnection connection = null;
+	public boolean findpwd_update(VerifyCodeCoreObj vcobj){			
 		try{
 			JSONObject  data = constructFindpwdUpdateJson(vcobj);
 
-			connection = httpCmdStart(URL_findpwdUpdate,data);
+			HttpResponse response = httpCmdStart(URL_findpwdUpdate,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -1259,14 +1169,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"findpwd-update:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -1287,17 +1189,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean update_password(UpdatePwdCoreObj upobj){
-		HttpURLConnection connection = null;
+	public boolean update_password(UpdatePwdCoreObj upobj){			
 		try{
 			JSONObject  data = constructUpdatePasswordJson(upobj);
 
-			connection = httpCmdStart(URL_pwdUpdate,data);
+			HttpResponse response = httpCmdStart(URL_pwdUpdate,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -1330,14 +1231,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"update password:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -1396,17 +1289,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean send_question(SendqCoreObj sqobj){
-		HttpURLConnection connection = null;
+	public boolean send_question(SendqCoreObj sqobj){			
 		try{
 			JSONObject  data = constructSendQuestionJson(sqobj);
 
-			connection = httpCmdStart(URL_questionSend,data);
+			HttpResponse response = httpCmdStart(URL_questionSend,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -1449,14 +1341,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"send question:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -1477,17 +1361,16 @@ public class HttpCommClient {
 			return data;
 	}
 
-	public boolean get_places_info(GetPlacesInfoCoreObj gpiobj){
-		HttpURLConnection connection = null;
+	public boolean get_places_info(GetPlacesInfoCoreObj gpiobj){			
 		try{
 			JSONObject  data = constructGetPlacesInfoJson(gpiobj);
 
-			connection = httpCmdStart(URL_getPlacesInfoRequest,data);
+			HttpResponse response = httpCmdStart(URL_getPlacesInfoRequest,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -1536,14 +1419,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"get places info:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -1564,31 +1439,25 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean follow(FollowCoreObj fcobj){
-		HttpURLConnection connection = null;
+	public boolean follow(FollowCoreObj fcobj){			
 		try{
 			JSONObject  data = constructFollowJson(fcobj);
 
-			connection = httpCmdStart(URL_follow,data);
+			HttpResponse response = httpCmdStart(URL_follow,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
 				ret = obj.getInt("ret");
 
 				if(isRetOK()){
+					JSONObject user = obj.getJSONObject("user");
 					userinfo = fcobj.sp;
-					JSONObject state_date = obj.getJSONObject("state_date");
-					long previous = state_date.getLong("previous");
-					long last = state_date.getLong("last");
-					SamLog.i(TAG,"add previous:"+previous+" last:"+last+" fldate:"+UserPreferences.getFldate());
-					if(UserPreferences.getFldate().equals(""+previous)){
-						UserPreferences.saveFldate(""+last);
-					}
+					latest_lastupdate = user.getLong("lastupdate");
 				}
 				
 				return true;
@@ -1618,14 +1487,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"follow:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -1646,17 +1507,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean block(BlockCoreObj bcobj){
-		HttpURLConnection connection = null;
+	public boolean block(BlockCoreObj bcobj){			
 		try{
 			JSONObject  data = constructBlockJson(bcobj);
 
-			connection = httpCmdStart(URL_block,data);
+			HttpResponse response = httpCmdStart(URL_block,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -1665,12 +1525,7 @@ public class HttpCommClient {
 				if(isRetOK()){
 					JSONObject user = obj.getJSONObject("user");
 					userinfo = bcobj.sam_pros;
-					JSONObject state_date = obj.getJSONObject("state_date");
-					long previous = state_date.getLong("previous");
-					long last = state_date.getLong("last");
-					if(UserPreferences.getFldate().equals(""+previous)){
-						UserPreferences.saveFldate(""+last);
-					}
+					latest_lastupdate = user.getLong("lastupdate");
 				}
 				
 				return true;
@@ -1700,14 +1555,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"block:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -1728,17 +1575,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean favourite(FavouriteCoreObj fcobj){
-		HttpURLConnection connection = null;
+	public boolean favourite(FavouriteCoreObj fcobj){			
 		try{
 			JSONObject  data = constructFavouriteJson(fcobj);
 
-			connection = httpCmdStart(URL_favourite,data);
+			HttpResponse response = httpCmdStart(URL_favourite,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -1747,12 +1593,7 @@ public class HttpCommClient {
 				if(isRetOK()){
 					JSONObject user = obj.getJSONObject("user");
 					userinfo = fcobj.sam_pros;
-					JSONObject state_date = obj.getJSONObject("state_date");
-					long previous = state_date.getLong("previous");
-					long last = state_date.getLong("last");
-					if(UserPreferences.getFldate().equals(""+previous)){
-						UserPreferences.saveFldate(""+last);
-					}
+					latest_lastupdate = user.getLong("lastupdate");
 				}
 				
 				return true;
@@ -1782,14 +1623,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"favourite:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -1815,17 +1648,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean query_user_fuzzy(QueryUserFuzzyCoreObj qufobj){
-		HttpURLConnection connection = null;
+	public boolean query_user_fuzzy(QueryUserFuzzyCoreObj qufobj){			
 		try{
 			JSONObject  data = constructQueryUserFuzzyJson(qufobj);
 
-			connection = httpCmdStart(URL_queryUserFuzzy,data);
+			HttpResponse response = httpCmdStart(URL_queryUserFuzzy,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -1867,14 +1699,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"query user fuzzy:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -1909,17 +1733,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean query_user_precise(QueryUserPreciseCoreObj qupobj){
-		HttpURLConnection connection = null;
+	public boolean query_user_precise(QueryUserPreciseCoreObj qupobj){			
 		try{
 			JSONObject  data = constructQueryUserPreciseJson(qupobj);
 
-			connection = httpCmdStart(URL_queryUserPrecise,data);
+			HttpResponse response = httpCmdStart(URL_queryUserPrecise,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -1961,14 +1784,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"query user precise:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -1995,17 +1810,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean query_user_multiple(QueryUserMultipleCoreObj qumobj){
-		HttpURLConnection connection = null;
+	public boolean query_user_multiple(QueryUserMultipleCoreObj qumobj){			
 		try{
 			JSONObject  data = constructQueryUserMultipleJson(qumobj);
 
-			connection = httpCmdStart(URL_queryGroup,data);
+			HttpResponse response = httpCmdStart(URL_queryGroup,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -2047,14 +1861,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"query user multiple:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -2086,16 +1892,15 @@ public class HttpCommClient {
 	}
 	
 	public boolean query_user_without_token(QueryUserWithoutTokenCoreObj quwobj){
-		HttpURLConnection connection = null;
 		try{
 			JSONObject  data = constructQueryUserWithoutTokenJson(quwobj);
 
-			connection = httpCmdStart(URL_queryUserWithoutToken,data);
+			HttpResponse response = httpCmdStart(URL_queryUserWithoutToken,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -2133,14 +1938,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"query user without token:Exception");
 			e.printStackTrace(); 
 			return false;
-		}finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -2168,17 +1965,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean send_invite_msg(SendInviteMsgCoreObj simobj){
-		HttpURLConnection connection = null;
+	public boolean send_invite_msg(SendInviteMsgCoreObj simobj){			
 		try{
 			JSONObject  data = constructSendInviteMsgJson(simobj);
 
-			connection = httpCmdStart(URL_sendInviteMsg,data);
+			HttpResponse response = httpCmdStart(URL_sendInviteMsg,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -2211,14 +2007,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"send invite msg:Exception");
 			e.printStackTrace(); 
 			return false;
-		} finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -2229,81 +2017,43 @@ public class HttpCommClient {
 			header.putOpt("token", epobj.token);
 
 			JSONObject user = new JSONObject();
-			if(epobj.type == EditProfileCoreObj.EDIT_PROFILE_TYPE_ALL){
-				if(epobj.user.getemail()!=null){
-					user.putOpt("email",epobj.user.getemail());
-				}
-				if(epobj.user.getaddress()!=null){
-					user.putOpt("address",epobj.user.getaddress());
-				}
+			/*if(epobj.user.getcountrycode()!=null){
+				user.putOpt("countrycode",epobj.user.getcountrycode());
+			}
+			if(epobj.user.getcellphone()!=null){
+				user.putOpt("cellphone",epobj.user.getcellphone());
+			}*/
+			
+			if(epobj.user.getemail()!=null){
+				user.putOpt("email",epobj.user.getemail());
+			}
+			if(epobj.user.getaddress()!=null){
+				user.putOpt("address",epobj.user.getaddress());
+			}
 
-				if(epobj.user.getusertype() == Constants.SAM_PROS){
-					JSONObject sam_pros_info = new JSONObject();
-					if(epobj.user.getcompany_name() != null){
-						sam_pros_info.putOpt("company_name",epobj.user.getcompany_name());
-					}
-					if(epobj.user.getservice_category() != null){
-						sam_pros_info.putOpt("service_category",epobj.user.getservice_category());
-					}
-					if(epobj.user.getservice_description() != null){
-						sam_pros_info.putOpt("service_description",epobj.user.getservice_description());
-					}
-					if(epobj.user.getcountrycode_sp() != null){
-						sam_pros_info.putOpt("countrycode",epobj.user.getcountrycode_sp());
-					}
-					if(epobj.user.getphone_sp() != null){
-						sam_pros_info.putOpt("phone",epobj.user.getphone_sp());
-					}
-					if(epobj.user.getemail_sp() != null){
-						sam_pros_info.putOpt("email",epobj.user.getemail_sp());
-					}
-					if(epobj.user.getaddress_sp() != null){
-						sam_pros_info.putOpt("address",epobj.user.getaddress_sp());
-					}
-					user.put("sam_pros_info",sam_pros_info);
+			if(epobj.user.getusertype() == Constants.SAM_PROS){
+				JSONObject sam_pros_info = new JSONObject();
+				if(epobj.user.getcompany_name() != null){
+					sam_pros_info.putOpt("company_name",epobj.user.getcompany_name());
 				}
-			}else if(epobj.type ==  EditProfileCoreObj.EDIT_PROFILE_TYPE_CUSTOMER_EMAIL){
-				user.putOpt("email",epobj.data);
-			}else if(epobj.type ==  EditProfileCoreObj.EDIT_PROFILE_TYPE_CUSTOMER_ADDRESS){
-				JSONObject location = new JSONObject();
-				if(epobj.place_info != null){
-					location.putOpt("place_id",epobj.place_info.place_id);
-					location.putOpt("address",epobj.place_info.description);
-				}else{
-					location.putOpt("address",epobj.data);
+				if(epobj.user.getservice_category() != null){
+					sam_pros_info.putOpt("service_category",epobj.user.getservice_category());
 				}
-				user.put("location",location);
-			}else if(epobj.type ==  EditProfileCoreObj.EDIT_PROFILE_TYPE_SP_EMAIL){
-				JSONObject sam_pros_info = new JSONObject();
-				sam_pros_info.putOpt("email",epobj.data);
-				user.put("sam_pros_info",sam_pros_info);
-			}else if(epobj.type ==  EditProfileCoreObj.EDIT_PROFILE_TYPE_SP_ADDRESS){
-				JSONObject sam_pros_info = new JSONObject();
-				JSONObject location = new JSONObject();
-				if(epobj.place_info != null){
-					location.putOpt("place_id",epobj.place_info.place_id);
-					location.putOpt("address",epobj.place_info.description);
-				}else{
-					location.putOpt("address",epobj.data);
+				if(epobj.user.getservice_description() != null){
+					sam_pros_info.putOpt("service_description",epobj.user.getservice_description());
 				}
-				sam_pros_info.put("location",location);
-				user.put("sam_pros_info",sam_pros_info);
-			}else if(epobj.type ==  EditProfileCoreObj.EDIT_PROFILE_TYPE_SP_COMPANY_NAME){
-				JSONObject sam_pros_info = new JSONObject();
-				sam_pros_info.putOpt("company_name",epobj.data);
-				user.put("sam_pros_info",sam_pros_info);
-			}else if(epobj.type ==  EditProfileCoreObj.EDIT_PROFILE_TYPE_SP_SERVICE_CATEGORY){
-				JSONObject sam_pros_info = new JSONObject();
-				sam_pros_info.putOpt("service_category",epobj.data);
-				user.put("sam_pros_info",sam_pros_info);
-			}else if(epobj.type ==  EditProfileCoreObj.EDIT_PROFILE_TYPE_SP_SERVICE_DESCRIPTION){
-				JSONObject sam_pros_info = new JSONObject();
-				sam_pros_info.putOpt("service_description",epobj.data);
-				user.put("sam_pros_info",sam_pros_info);
-
-			}else if(epobj.type ==  EditProfileCoreObj.EDIT_PROFILE_TYPE_SP_PHONE){
-				JSONObject sam_pros_info = new JSONObject();
-				sam_pros_info.putOpt("phone",epobj.data);
+				if(epobj.user.getcountrycode_sp() != null){
+					sam_pros_info.putOpt("countrycode",epobj.user.getcountrycode_sp());
+				}
+				if(epobj.user.getphone_sp() != null){
+					sam_pros_info.putOpt("phone",epobj.user.getphone_sp());
+				}
+				if(epobj.user.getemail_sp() != null){
+					sam_pros_info.putOpt("email",epobj.user.getemail_sp());
+				}
+				if(epobj.user.getaddress_sp() != null){
+					sam_pros_info.putOpt("address",epobj.user.getaddress_sp());
+				}
 				user.put("sam_pros_info",sam_pros_info);
 			}
 			
@@ -2317,17 +2067,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean edit_profile(EditProfileCoreObj epobj){
-		HttpURLConnection connection = null;
+	public boolean edit_profile(EditProfileCoreObj epobj){			
 		try{
 			JSONObject  data = constructEditProfileJson(epobj);
 
-			connection = httpCmdStart(URL_editProfile,data);
+			HttpResponse response = httpCmdStart(URL_editProfile,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -2365,94 +2114,9 @@ public class HttpCommClient {
 			SamLog.e(TAG,"edit profile:Exception");
 			e.printStackTrace(); 
 			return false;
-		} finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
-
-	private JSONObject constructCreateSamchatIDJson(CreateSamchatIDCoreObj uaobj) throws JSONException{
-			JSONObject header = new JSONObject();
-			header.putOpt("action", "create-samchat-id");
-			header.putOpt("token", uaobj.token);
-			
-			JSONObject body = new JSONObject();
-
-			body.put("samchat_id",uaobj.samchat_id);
-			
-			JSONObject data = new JSONObject();
-			data.put("header", header);
-			data.put("body", body);
-
-			return data;
-	}
-	
-	public boolean create_samchat_id(CreateSamchatIDCoreObj uaobj){
-		HttpURLConnection connection = null;
-		try{
-			JSONObject  data = constructCreateSamchatIDJson(uaobj);
-
-			connection = httpCmdStart(URL_createSamchatID,data);
-			
-			statusCode = connection.getResponseCode();
-			
-			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
-				SamLog.i(TAG,"rev:" + rev);
-				
-				JSONObject obj = new JSONObject(rev); 
-				ret = obj.getInt("ret");
-
-				if(isRetOK()){
-					JSONObject user = obj.getJSONObject("user");
-					latest_lastupdate	 = user.getLong("lastupdate");				
-				}
-				
-				return true;
-				
-			}else{
-				SamLog.i(TAG,"create samchat id http status code:"+statusCode);
-				return false;
-			}
-		
-		}catch (JSONException e) {  
-			exception = true;
-			e.printStackTrace();
-			SamLog.e(TAG,"create samchat id :JSONException");
-			return false;
-		} catch (ClientProtocolException e) {
-			exception = true;
-			SamLog.e(TAG,"create samchat id :ClientProtocolException");
-			e.printStackTrace(); 
-			return false;
-		} catch (IOException e) { 
-			exception = true;
-			SamLog.e(TAG,"create samchat id :IOException");
-			e.printStackTrace(); 
-			return false;
-		} catch (Exception e) { 
-			exception = true;
-			SamLog.e(TAG,"create samchat id :Exception");
-			e.printStackTrace(); 
-			return false;
-		} finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
-		}
-		
-	}
-
 
 
 	private JSONObject constructUpdateAvatarJson(UpdateAvatarCoreObj uaobj) throws JSONException{
@@ -2477,17 +2141,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean update_avatar(UpdateAvatarCoreObj uaobj){
-		HttpURLConnection connection = null;
+	public boolean update_avatar(UpdateAvatarCoreObj uaobj){			
 		try{
 			JSONObject  data = constructUpdateAvatarJson(uaobj);
 
-			connection = httpCmdStart(URL_updateAvatar,data);
+			HttpResponse response = httpCmdStart(URL_updateAvatar,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -2527,14 +2190,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"update avatar:Exception");
 			e.printStackTrace(); 
 			return false;
-		} finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -2584,17 +2239,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean query_public(QueryPublicCoreObj qpobj){
-		HttpURLConnection connection = null;
+	public boolean query_public(QueryPublicCoreObj qpobj){			
 		try{
 			JSONObject  data = constructQueryPublicJson(qpobj);
 
-			connection = httpCmdStart(URL_queryPublic,data);
+			HttpResponse response = httpCmdStart(URL_queryPublic,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -2633,14 +2287,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"query public:Exception");
 			e.printStackTrace(); 
 			return false;
-		} finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -2663,35 +2309,20 @@ public class HttpCommClient {
 	}
 	
 	public boolean add_contact(ContactCoreObj opobj){
-		HttpURLConnection connection = null;
 		try{
 			JSONObject  data = constructAddContactJson(opobj);
 
-			connection = httpCmdStart(URL_contact,data);
+			HttpResponse response = httpCmdStart(URL_contact,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
 				ret = obj.getInt("ret");
 				userinfo = opobj.user;
-				JSONObject state_date = obj.getJSONObject("state_date");
-				long previous = state_date.getLong("previous");
-				long last = state_date.getLong("last");
-				if(opobj.type == Constants.ADD_INTO_CONTACT){
-					SamLog.i(TAG,"add previous:"+previous+" last:"+last+" ccdate:"+UserPreferences.getCcdate());
-					if(UserPreferences.getCcdate().equals(""+previous)){
-						UserPreferences.saveCcdate(""+last);
-					}
-				}else{
-					SamLog.i(TAG,"add previous:"+previous+" last:"+last+" ccdate:"+UserPreferences.getCudate());
-					if(UserPreferences.getCudate().equals(""+previous)){
-						UserPreferences.saveCudate(""+last);
-					}
-				}
 				return true;
 				
 			}else{
@@ -2719,14 +2350,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"add contact:Exception");
 			e.printStackTrace(); 
 			return false;
-		} finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -2749,36 +2372,20 @@ public class HttpCommClient {
 	}
 	
 	public boolean remove_contact(ContactCoreObj opobj){
-		HttpURLConnection connection = null;
 		try{
 			JSONObject  data = constructRemoveContactJson(opobj);
 
-			connection = httpCmdStart(URL_contact,data);
+			HttpResponse response = httpCmdStart(URL_contact,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
 				ret = obj.getInt("ret");
 				userinfo = opobj.user;
-				JSONObject state_date = obj.getJSONObject("state_date");
-				long previous = state_date.getLong("previous");
-				long last = state_date.getLong("last");
-
-				if(opobj.type == Constants.REMOVE_OUT_CONTACT){
-					SamLog.i(TAG,"remove previous:"+previous+" last:"+last+" ccdate:"+UserPreferences.getCcdate());
-					if(UserPreferences.getCcdate().equals(""+previous)){
-						UserPreferences.saveCcdate(""+last);
-					}
-				}else{
-					SamLog.i(TAG,"remove previous:"+previous+" last:"+last+" cudate:"+UserPreferences.getCudate());
-					if(UserPreferences.getCudate().equals(""+previous)){
-						UserPreferences.saveCudate(""+last);
-					}
-				}
 				return true;
 				
 			}else{
@@ -2806,14 +2413,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"remove contact:Exception");
 			e.printStackTrace(); 
 			return false;
-		} finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -2840,16 +2439,15 @@ public class HttpCommClient {
 	}
 	
 	public boolean sync_contact_list(SyncContactListCoreObj sflobj){
-		HttpURLConnection connection = null;
 		try{
 			JSONObject  data = constructSyncContactListJson(sflobj);
 
-			connection = httpCmdStart(URL_synccontact,data);
+			HttpResponse response = httpCmdStart(URL_synccontact,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -2875,14 +2473,7 @@ public class HttpCommClient {
 
 						contacts.setcount(jsonArrayX.length());
 					}
-
-					JSONObject state_date = obj.getJSONObject("state_date");
-					long last = state_date.getLong("last");
-					if(!sflobj.isCustomer){
-						UserPreferences.saveCcdate(""+last);
-					}else{
-						UserPreferences.saveCudate(""+last);
-					}
+					
 				}
 				
 				return true;
@@ -2912,14 +2503,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"sync contact list:Exception");
 			e.printStackTrace(); 
 			return false;
-		} finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -2940,17 +2523,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean sync_follow_list(SyncFollowListCoreObj sflobj){
-		HttpURLConnection connection = null;
+	public boolean sync_follow_list(SyncFollowListCoreObj sflobj){			
 		try{
 			JSONObject  data = constructSyncFollowListJson(sflobj);
 
-			connection = httpCmdStart(URL_syncFollowList,data);
+			HttpResponse response = httpCmdStart(URL_syncFollowList,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -2979,10 +2561,7 @@ public class HttpCommClient {
 
 						followusers.setcount(jsonArrayX.length());
 					}
-
-					JSONObject state_date = obj.getJSONObject("state_date");
-					long last = state_date.getLong("last");
-					UserPreferences.saveFldate(""+last);
+					
 				}
 				
 				return true;
@@ -3012,14 +2591,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"sync follow list:Exception");
 			e.printStackTrace(); 
 			return false;
-		} finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -3045,16 +2616,15 @@ public class HttpCommClient {
 	}
 	
 	public boolean write_advertisement(AdvCoreObj advobj) {
-		HttpURLConnection connection = null;
         try {
             JSONObject data = constructWriteAdvJson(advobj);
 
-            connection = httpCmdStart(URL_writeAdvertisement, data);
+            HttpResponse response = httpCmdStart(URL_writeAdvertisement, data);
 
-            statusCode = connection.getResponseCode();
+            statusCode = response.getStatusLine().getStatusCode();
 
             if (isHttpOK()) {
-                String rev = inputStream2String(connection.getInputStream());
+                String rev = EntityUtils.toString(response.getEntity());
                 SamLog.i(TAG, "rev:" + rev);
 
                 JSONObject obj = new JSONObject(rev);
@@ -3093,15 +2663,7 @@ public class HttpCommClient {
             SamLog.e(TAG, "write adv :Exception");
             e.printStackTrace();
             return false;
-        } finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
-		}
+        }
 
     }
 
@@ -3125,17 +2687,16 @@ public class HttpCommClient {
 			return data;
 	}
 	
-	public boolean delete_advertisement(DeleteAdvCoreObj advobj){
-		HttpURLConnection connection = null;
+	public boolean delete_advertisement(DeleteAdvCoreObj advobj){			
 		try{
 			JSONObject  data = constructDeleteAdvJson(advobj);
 
-			connection = httpCmdStart(URL_deleteAdvertisement,data);
+			HttpResponse response = httpCmdStart(URL_deleteAdvertisement,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -3168,87 +2729,9 @@ public class HttpCommClient {
 			SamLog.e(TAG,"delete adv :Exception");
 			e.printStackTrace(); 
 			return false;
-		} finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
-
-	private JSONObject constructRecallRequestJson(RecallRequestCoreObj advobj) throws JSONException{
-			JSONObject header = new JSONObject();
-			header.putOpt("action", "recall");
-			header.putOpt("token", advobj.token);
-			
-			JSONObject body = new JSONObject();
-			body.putOpt("type",advobj.type);
-			body.putOpt("business_id",advobj.request_id);
-			body.putOpt("publish_timestamp", TimeUtil.currentTimeMillis());
-			
-			JSONObject data = new JSONObject();
-			data.put("header", header);
-			data.put("body", body);
-
-			return data;
-	}
-	
-	public boolean recall_request(RecallRequestCoreObj advobj) {
-		HttpURLConnection connection = null;
-        try {
-            JSONObject data = constructRecallRequestJson(advobj);
-
-            connection = httpCmdStart(URL_recallRequest, data);
-
-            statusCode = connection.getResponseCode();
-
-            if (isHttpOK()) {
-                String rev = inputStream2String(connection.getInputStream());
-                SamLog.i(TAG, "rev:" + rev);
-                JSONObject obj = new JSONObject(rev);
-                ret = obj.getInt("ret");
-                return true;
-            } else {
-                SamLog.i(TAG, "recall request http status code:" + statusCode);
-                return false;
-            }
-
-        } catch (JSONException e) {
-            exception = true;
-            e.printStackTrace();
-            SamLog.e(TAG, "recall request :JSONException");
-            return false;
-        } catch (ClientProtocolException e) {
-            exception = true;
-            SamLog.e(TAG, "recall request :ClientProtocolException");
-            e.printStackTrace();
-            return false;
-        } catch (IOException e) {
-            exception = true;
-            SamLog.e(TAG, "recall request :IOException");
-            e.printStackTrace();
-            return false;
-        } catch (Exception e) {
-            exception = true;
-            SamLog.e(TAG, "recall request :Exception");
-            e.printStackTrace();
-            return false;
-        } finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
-		}
-
-    }
-
 
 	private JSONObject constructQueryStateJson(QueryStateCoreObj  qsobj) throws JSONException{
 			JSONObject header = new JSONObject();
@@ -3265,16 +2748,15 @@ public class HttpCommClient {
 	}
 	
 	public boolean query_state(QueryStateCoreObj qsobj){
-		HttpURLConnection connection = null;
 		try{
 			JSONObject  data = constructQueryStateJson(qsobj);
 
-			connection = httpCmdStart(URL_queryStateDate,data);
+			HttpResponse response = httpCmdStart(URL_queryStateDate,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -3312,14 +2794,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"query state:Exception");
 			e.printStackTrace(); 
 			return false;
-		} finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -3346,12 +2820,12 @@ public class HttpCommClient {
 		/*try{
 			JSONObject  data = constructSendClientIDJson(bdobj);
 
-			connection = httpCmdStart(URL_sendClientId,data);
+			HttpResponse response = httpCmdStart(URL_sendClientId,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -3405,16 +2879,15 @@ public class HttpCommClient {
 	}
 
 	public boolean edit_cellphone_code_request(EditCellphoneVerifyCodeCoreObj vcobj){
-		HttpURLConnection connection = null;
 		try{
 			JSONObject  data = constructEditCellphoneCodeRequestJson(vcobj);
 
-			connection = httpCmdStart(URL_editCellphoneCodeRequest,data);
+			HttpResponse response = httpCmdStart(URL_editCellphoneCodeRequest,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -3446,14 +2919,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"edit cellphone code request:Exception");
 			e.printStackTrace(); 
 			return false;
-		} finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 		
 	}
@@ -3476,16 +2941,15 @@ public class HttpCommClient {
 	}
 
 	public boolean edit_cellphone(EditCellphoneCoreObj ecobj){
-		HttpURLConnection connection = null;
 		try{
 			JSONObject  data = constructEditCellphoneJson(ecobj);
 
-			connection = httpCmdStart(URL_editCellphoneUpdate,data);
+			HttpResponse response = httpCmdStart(URL_editCellphoneUpdate,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -3522,14 +2986,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"edit cellphone:Exception");
 			e.printStackTrace(); 
 			return false;
-		} finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 	}
 
@@ -3549,16 +3005,15 @@ public class HttpCommClient {
 	}
 
 	public boolean update_question_notify(UpdateQuestionNotifyCoreObj ecobj){
-		HttpURLConnection connection = null;
 		try{
 			JSONObject  data = constructUpdateQuestionNotifyJson(ecobj);
 
-			connection = httpCmdStart(URL_updateQuestionNotify,data);
+			HttpResponse response = httpCmdStart(URL_updateQuestionNotify,data);
 			
-			statusCode = connection.getResponseCode();
+			statusCode = response.getStatusLine().getStatusCode();
 			
 			if(isHttpOK()){
-				String rev = inputStream2String(connection.getInputStream());
+				String rev = EntityUtils.toString(response.getEntity());
 				SamLog.i(TAG,"rev:" + rev);
 				
 				JSONObject obj = new JSONObject(rev); 
@@ -3595,14 +3050,6 @@ public class HttpCommClient {
 			SamLog.e(TAG,"update question notify:Exception");
 			e.printStackTrace(); 
 			return false;
-		} finally {
-			if (connection != null) {
-				try {
-					connection.disconnect();
-				} catch (Exception ex) {
-					SamLog.e(TAG, "Error in http connection" + ex.toString());
-				}
-        	}
 		}
 	}
 

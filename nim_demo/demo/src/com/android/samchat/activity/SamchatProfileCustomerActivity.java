@@ -69,10 +69,12 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 	private TextView username_textview;
 	private TextView email_textview;
 	private TextView address_textview;
+	private TextView samchat_id_tv;
 
 	private RelativeLayout phone_layout;
 	private RelativeLayout email_layout;
 	private RelativeLayout address_layout;
+	private RelativeLayout samchat_id_layout;
 	
 	private Uri cropImageUri;
 	
@@ -240,6 +242,11 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 			}
 		});
 
+		if(!TextUtils.isEmpty(SamService.getInstance().get_current_user().getsamchat_id())){
+			samchat_id_layout.setEnabled(false);
+			samchat_id_tv.setText(SamService.getInstance().get_current_user().getsamchat_id());
+		}
+
 		if(!TextUtils.isEmpty(SamService.getInstance().get_current_user().getcountrycode())){
 			countrycode_textview.setVisibility(View.VISIBLE);
 			countrycode_textview.setText("+"+SamService.getInstance().get_current_user().getcountrycode());
@@ -259,6 +266,12 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		}else{
 			countrycode_textview.setVisibility(View.GONE);
 		}
+		
+		if(!TextUtils.isEmpty(SamService.getInstance().get_current_user().getsamchat_id())){
+			samchat_id_layout.setEnabled(false);
+			samchat_id_tv.setText(SamService.getInstance().get_current_user().getsamchat_id());
+		}
+		
 		phonenumber_textview.setText(SamService.getInstance().get_current_user().getcellphone());
 		username_textview.setText(SamService.getInstance().get_current_user().getusername());
 		email_textview.setText(SamService.getInstance().get_current_user().getemail());
@@ -274,6 +287,8 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		email_textview= findView(R.id.email);
 		address_textview= findView(R.id.address);
 		wall_iv = findView(R.id.wall);
+		samchat_id_tv = findView(R.id.samchat_id);
+		samchat_id_layout = findView(R.id.samchat_id_layout);
 
 		phone_layout = findView(R.id.phone_layout);
 		email_layout = findView(R.id.email_layout);
@@ -284,6 +299,7 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 		setupEmailClick();
 		setupAddressClick();
 		setupPhoneClick();
+		setupSamchatIDClick();
 	}
 	
 	private void setupBackArrowClick(){
@@ -304,6 +320,22 @@ public class SamchatProfileCustomerActivity extends UI implements OnKeyListener 
 					SamService.getInstance().get_current_user().getcellphone());
 			}
 		});
+	}
+
+	private void setupSamchatIDClick(){
+		samchat_id_layout.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				if(TextUtils.isEmpty(SamService.getInstance().get_current_user().getsamchat_id())){
+					SamchatProfileEditActivity.start(SamchatProfileCustomerActivity.this, 
+						SamchatProfileEditActivity.EDIT_PROFILE_TYPE_CUSTOMER_SAMCHAT_ID, "");
+				}
+			}
+		});
+		
+		if(!TextUtils.isEmpty(SamService.getInstance().get_current_user().getsamchat_id())){
+			samchat_id_layout.setEnabled(false);
+		}
 	}
 
 	private void setupAvaterClick(){

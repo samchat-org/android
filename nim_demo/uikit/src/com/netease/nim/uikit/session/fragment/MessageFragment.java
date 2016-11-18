@@ -11,6 +11,7 @@ import com.netease.nim.uikit.NimConstants;
 import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.cache.SendIMMessageCache;
 import com.netease.nim.uikit.common.fragment.TFragment;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.session.SessionCustomization;
 import com.netease.nim.uikit.session.actions.BaseAction;
 import com.netease.nim.uikit.session.actions.ImageAction;
@@ -72,6 +73,9 @@ public class MessageFragment extends TFragment implements ModuleProxy {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         parseIntent();
+        if(sessionType == SessionTypeEnum.P2P){
+           NimUIKit.getCallback().clearUnreadCount(sessionId,  mode);
+        }
     }
 
     @Override
@@ -100,12 +104,6 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         messageListPanel.onResume();
         NIMClient.getService(MsgService.class).setChattingAccount(sessionId, sessionType);
         getActivity().setVolumeControlStream(AudioManager.STREAM_VOICE_CALL); // 默认使用听筒播放
-
-        /*SAMC_BEGIN(clear unread count)*/
-        if(sessionType == SessionTypeEnum.P2P){
-            NimUIKit.getCallback().clearUnreadCount(sessionId,  mode);
-        }
-        /*SAMC_END(clear unread count)*/
     }
 
     @Override
@@ -113,11 +111,6 @@ public class MessageFragment extends TFragment implements ModuleProxy {
         super.onDestroy();
         messageListPanel.onDestroy();
         registerObservers(false);
-        /*SAMC_BEGIN(clear unread count)*/
-        if(sessionType == SessionTypeEnum.P2P){
-            NimUIKit.getCallback().clearUnreadCount(sessionId,  mode);
-        }
-        /*SAMC_END(clear unread count)*/
     }
 
     public boolean onBackPressed() {
@@ -253,6 +246,15 @@ public class MessageFragment extends TFragment implements ModuleProxy {
              public void run() {
                  messageListPanel.onIncomingMessage(messages);
                  sendMsgReceipt();
+
+					Map<String, Object> content = messages.get(0).getRemoteExtension();
+					if(content != null){
+						int msg_from = (int)content.get(NimConstants.MSG_FROM);
+						int msg_mode = (msg_from == NimConstants.FROM_CUSTOMER ? ModeEnum.SP_MODE.ordinal():ModeEnum.CUSTOMER_MODE.ordinal());
+						if(msg_mode == mode && messages.get(0).getSessionId().equals(sessionId)){
+							NimUIKit.getCallback().clearUnreadCount(sessionId,  mode);
+						}
+					}
              }
           }, 50);
 		}

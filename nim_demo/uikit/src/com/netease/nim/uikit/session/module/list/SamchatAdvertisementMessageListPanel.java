@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.view.View;
@@ -18,6 +19,7 @@ import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.UserPreferences;
 import com.netease.nim.uikit.common.adapter.TAdapterDelegate;
 import com.netease.nim.uikit.common.adapter.TViewHolder;
+import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
@@ -27,6 +29,7 @@ import com.netease.nim.uikit.common.ui.listview.MessageListView;
 import com.netease.nim.uikit.common.util.media.BitmapDecoder;
 import com.netease.nim.uikit.common.util.sys.ClipboardUtil;
 import com.netease.nim.uikit.common.util.sys.ScreenUtil;
+import com.netease.nim.uikit.common.util.sys.TimeUtil;
 import com.netease.nim.uikit.contact_selector.activity.ContactSelectActivity;
 import com.netease.nim.uikit.session.activity.VoiceTrans;
 import com.netease.nim.uikit.session.audio.MessageAudioControl;
@@ -751,22 +754,51 @@ public class SamchatAdvertisementMessageListPanel implements TAdapterDelegate {
 
         // 长按消息item的菜单项准备。如果消息item的MsgViewHolder处理长按事件(MsgViewHolderBase#onItemLongClick),且返回为true，
         // 则对应项的长按事件不会调用到此处
-        private void prepareDialogItems(final IMMessage selectedItem, CustomAlertDialog alertDialog) {
-            MsgTypeEnum msgType = selectedItem.getMsgType();
+		private void prepareDialogItems(final IMMessage selectedItem, CustomAlertDialog alertDialog) {
+			MsgTypeEnum msgType = selectedItem.getMsgType();
 
-            MessageAudioControl.getInstance(container.activity).stopAudio();
+			MessageAudioControl.getInstance(container.activity).stopAudio();
 
-            // 0 EarPhoneMode
-            longClickItemEarPhoneMode(alertDialog, msgType);
-            // 1 resend
-            longClickItemResend(selectedItem, alertDialog);
-            // 2 copy
-            longClickItemCopy(selectedItem, alertDialog, msgType);
-            // 3 delete
-            longClickItemDelete(selectedItem, alertDialog);
-            // 4 trans
-            longClickItemVoidToText(selectedItem, alertDialog, msgType);
+			// 0 EarPhoneMode
+			longClickItemEarPhoneMode(alertDialog, msgType);
+			// 1 resend
+			longClickItemResend(selectedItem, alertDialog);
+			// 2 copy
+			longClickItemCopy(selectedItem, alertDialog, msgType);
+			// 3 delete
+			longClickItemDelete(selectedItem, alertDialog);
+			// 4 trans
+			longClickItemVoidToText(selectedItem, alertDialog, msgType);
+			//5 recall if could
+			longClickItemRecall(selectedItem, alertDialog, msgType);
         }
+
+		private void longClickItemRecall(final IMMessage item, CustomAlertDialog alertDialog, MsgTypeEnum msgType){
+			int interval = NimUIKit.getCallback().getAdvRecallInterval();
+			long duration = TimeUtil.currentTimeMillis()-item.getTime();
+			if(item.getStatus() == MsgStatusEnum.success &&  duration<interval*60*1000L && duration>0){
+                alertDialog.addItem(container.activity.getString(R.string.samchat_recall), new CustomAlertDialog.onSeparateItemClickListener() {
+                    @Override
+                    public void onClick() {
+                        recallItem(item);
+                    }
+                });
+			}
+		}
+
+		public void recallItem(final IMMessage messageItem) {
+			NimUIKit.getCallback().recallAdvertisement(container.activity,messageItem,new NIMCallback(){
+				@Override
+				public void onResult(Object obj1,Object obj2, int code) {
+					if(code == NIMCallback.SUCCEED){
+						deleteItem(messageItem);
+					}else{
+						Toast.makeText(container.activity, container.activity.getString(R.string.samchat_recall_failed), Toast.LENGTH_SHORT).show();
+					}
+				}
+			});
+		}
+		
 
         // 长按菜单项--重发
         private void longClickItemResend(final IMMessage item, CustomAlertDialog alertDialog) {

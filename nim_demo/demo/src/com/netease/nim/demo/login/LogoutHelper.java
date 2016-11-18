@@ -3,6 +3,7 @@ package com.netease.nim.demo.login;
 import com.netease.nim.demo.DemoCache;
 import com.netease.nim.demo.chatroom.helper.ChatRoomHelper;
 import com.netease.nim.demo.config.preference.Preferences;
+import com.netease.nim.demo.config.preference.UserPreferences;
 import com.netease.nim.uikit.LoginSyncDataStatusObserver;
 import com.netease.nim.uikit.NimUIKit;
 
@@ -28,9 +29,7 @@ public class LogoutHelper {
         /*SAMC_BEGIN(stop push service when logout)*/
         SamDBManager.getInstance().registerObservers(false);
         SamService.getInstance().stopSamService();
-        Preferences.saveUserAlias("");
-        Preferences.saveMode(ModeEnum.CUSTOMER_MODE.getValue());
-        Preferences.clearSyncDate();
+        UserPreferences.saveMode(ModeEnum.CUSTOMER_MODE.getValue());
         SamchatDataCacheManager.clearDataCache();
         /*SAMC_END(stop push service when logout)*/
     }

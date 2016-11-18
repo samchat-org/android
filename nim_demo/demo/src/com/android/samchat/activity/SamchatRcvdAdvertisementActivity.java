@@ -90,13 +90,14 @@ public class SamchatRcvdAdvertisementActivity extends UI implements OnKeyListene
 		setupPanel();
 
 		registerObservers(true);
+
+		SamDBManager.getInstance().asyncClearReceivedAdvertisementUnreadCount(user.getunique_id());
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		registerObservers(false);
-		SamDBManager.getInstance().asyncClearReceivedAdvertisementUnreadCount(user.getunique_id());
 	}
 
 	private void setupPanel() {
@@ -172,7 +173,6 @@ public class SamchatRcvdAdvertisementActivity extends UI implements OnKeyListene
 				}
 			});
 		}
-
 		alertDialog.show();
     }
 
@@ -281,6 +281,7 @@ public class SamchatRcvdAdvertisementActivity extends UI implements OnKeyListene
 					updateItems(adv);
 					refreshAdvertisementList();
 					pull_refresh_list.getRefreshableView().setSelection((adapter.getCount() - 1));
+					SamDBManager.getInstance().asyncClearReceivedAdvertisementUnreadCount(user.getunique_id());
 				}
 			}, 0);
 		}

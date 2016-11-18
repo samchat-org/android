@@ -54,7 +54,6 @@ public class SamchatPublicListFragment extends MainTabFragment {
 			@Override
 			public void onItemClick(FollowedSamPros fsp){
 				SamchatRcvdAdvertisementActivity.start(getActivity(),  fsp);
-				SamDBManager.getInstance().asyncClearReceivedAdvertisementUnreadCount(fsp.getunique_id());
 			}
 
 			@Override

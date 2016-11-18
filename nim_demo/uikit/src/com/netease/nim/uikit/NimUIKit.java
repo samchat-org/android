@@ -300,6 +300,7 @@ public final class NimUIKit {
 
     /*SAMC_BEGIN(add callback interface)*/
     public interface NimUIKitInterface {
+        int getAdvRecallInterval();
         int getCurrentMode();
         void storeSendMessage(IMMessage msg,NIMCallback callback);
         void clearUnreadCount(String session_id, int mode);
@@ -323,6 +324,8 @@ public final class NimUIKit {
         void onAvatarClick(String clickAccount, String creator);
         void selectForwardMember(Context context, int requestCode);
         void selectForwardTeam(Context context, int requestCode);	
+        void recallAdvertisement(Context context,IMMessage im, NIMCallback callback);
+        
     }
 
     static private NimUIKitInterface callback;

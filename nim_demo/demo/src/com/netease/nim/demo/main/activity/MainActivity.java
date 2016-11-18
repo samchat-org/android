@@ -23,6 +23,7 @@ import com.android.samchat.activity.SamchatSearchPublicActivity;
 import com.android.samchat.cache.ContactDataCache;
 import com.android.samchat.cache.CustomerDataCache;
 import com.android.samchat.cache.FollowDataCache;
+import com.android.samchat.cache.MsgSessionDataCache;
 import com.android.samchat.cache.SamchatUserInfoCache;
 import com.android.samchat.common.BasicUserInfoHelper;
 import com.android.samchat.receiver.NetworkStateBroadcastReceiver;
@@ -33,11 +34,14 @@ import com.android.samservice.HttpCommClient;
 import com.android.samservice.callback.SMCallBack;
 import com.android.samservice.info.Contact;
 import com.android.samservice.info.FollowedSamPros;
+import com.android.samservice.info.Message;
+import com.android.samservice.info.MsgSession;
 import com.android.samservice.type.TypeEnum;
 import com.netease.nim.demo.avchat.AVChatProfile;
 import com.netease.nim.demo.avchat.activity.AVChatActivity;
 import com.netease.nim.demo.chatroom.helper.ChatRoomHelper;
 import com.android.samchat.activity.SamchatLoginActivity;
+import com.netease.nim.demo.config.preference.UserPreferences;
 import com.netease.nim.demo.login.LogoutHelper;
 import com.netease.nim.demo.main.fragment.HomeFragment;
 import com.netease.nim.uikit.LoginSyncDataStatusObserver;
@@ -272,6 +276,7 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 				
         initSamAutoLogin();
         initMode();
+        initAVRecall();
         registerObservers(true);
 
         setContentView(R.layout.activity_main_tab);
@@ -871,10 +876,14 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	}
 
 	public void initMode(){
-		SamchatGlobal.setmode(ModeEnum.typeOfValue(Preferences.getMode())); 
+		SamchatGlobal.setmode(ModeEnum.typeOfValue(UserPreferences.getMode()));
 	}
 	public void saveMode(ModeEnum mode){
-		Preferences.saveMode(ModeEnum.valueOfType(mode));
+		UserPreferences.saveMode(ModeEnum.valueOfType(mode));
+	}
+
+	public void initAVRecall(){
+		SamchatGlobal.setapp_advertisement_recall_minute(Preferences.getAVRecall()); 
 	}
 
 	//NimUIKitInterface
@@ -883,6 +892,10 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 			new SamchatMemberSelectActivity.Option(1,NimConstants.MAX_TEAM_MEMBER_NUMBERS, selected,true,
 				SamchatMemberSelectActivity.MemberSelectType.BUDDY_CUSTOMER), 
 			requestCode);
+	}
+
+	public  int getAdvRecallInterval(){
+		return SamchatGlobal.getapp_advertisement_recall_minute();
 	}
 	
 	public  int getCurrentMode(){
@@ -1024,6 +1037,62 @@ public class MainActivity extends UI implements NimUIKit.NimUIKitInterface{
 	public void selectForwardTeam(Context context, int requestCode){
 		SamchatMemberSelectActivity.Option option = new SamchatMemberSelectActivity.Option(1,1,null,false,SamchatMemberSelectActivity.MemberSelectType.TEAM);
 		SamchatMemberSelectActivity.startActivityForResult(context,option, requestCode);
+	}
+
+	public void recallAdvertisement(Context context , IMMessage im, final NIMCallback callback){
+		MsgSession session = MsgSessionDataCache.getInstance().getMsgSession(im.getSessionId(), ModeEnum.SP_MODE.ordinal());
+		if(session != null){
+			String table = session.getmsg_table_name();
+			Message msg = SamService.getInstance().getDao().query_Message_db_by_uuid(table, im.getUuid());
+			if(msg != null && msg.getdata_id() >0){
+				long adv_id = msg.getdata_id();
+				DialogMaker.showProgressDialog(context, null, getString(R.string.samchat_processing), false, new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface dialog) {
+
+					}
+				}).setCanceledOnTouchOutside(false);
+				SamService.getInstance().recall_request(Constants.RECALL_TYPE_ADV, adv_id, new SMCallBack(){
+					@Override
+					public void onSuccess(final Object obj, final int WarningCode) {
+						final HttpCommClient hcc = (HttpCommClient)obj;
+						getHandler().postDelayed(new Runnable() {
+							@Override
+							public void run() {
+								DialogMaker.dismissProgressDialog();
+								callback.onResult(null,null,NIMCallback.SUCCEED);
+							}
+						}, 0);
+					}
+
+					@Override
+					public void onFailed(final int code) {
+						getHandler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                DialogMaker.dismissProgressDialog();
+                                callback.onResult(null,null,NIMCallback.FAILED);
+                            }
+						}, 0);
+					}
+
+					@Override
+					public void onError(int code) {
+                        getHandler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                DialogMaker.dismissProgressDialog();
+                                callback.onResult(null,null,NIMCallback.FAILED);
+                            }
+                        }, 0);
+                    }
+				});
+			}else{
+				callback.onResult(null,null,NIMCallback.SUCCEED);
+			}
+		}else{
+			callback.onResult(null,null,NIMCallback.SUCCEED);
+		}
 	}
 	
 /*SAMC_END(...)*/

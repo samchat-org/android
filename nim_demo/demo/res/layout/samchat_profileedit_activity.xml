@@ -94,6 +94,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/samchat_color_split_line"/>
+
     <RelativeLayout
         android:id="@+id/edit_layout_single"
         android:layout_width="match_parent"
@@ -141,6 +142,7 @@
             android:layout_below="@+id/edit_layout"
             android:background="@color/color_black_1d4d73"/>
     </RelativeLayout>
+
     <RelativeLayout
         android:id="@+id/edit_layout_multiple"
         android:layout_width="match_parent"
@@ -174,6 +176,15 @@
                 android:textColor="@color/samchat_color_ink" />
         </LinearLayout>
     </RelativeLayout>
+    <TextView
+        android:id="@+id/illustration"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="@dimen/body_left_margin"
+        android:layout_marginRight="@dimen/body_right_margin"
+        android:textSize="@dimen/text_size_16"
+        android:textColor="@color/samchat_color_dark_grey"/>
     <ListView
         android:id="@+id/address"
         android:layout_width="match_parent"

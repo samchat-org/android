@@ -211,14 +211,13 @@ public class SamchatLocationSearchActivity extends Activity {
 			}
 			
 			LogUtil.i(TAG,"pre_locationInput:"+pre_locationInput+" locationInput:"+locationInput);
-			if(!stringEquals(pre_locationInput,locationInput) 
+			if(!TextUtils.isEmpty(locationInput)
+				&& !stringEquals(pre_locationInput,locationInput) 
 				&& !locationInput.equals(getString(R.string.samchat_current_location))
 				&& findAddress() == null){
 				cancelQueryCountDown();
 				startQueryCountDown();
-			}else if(locationInput.equals(getString(R.string.samchat_current_location))){
-				cancelQueryCountDown();
-			}else if(findAddress() != null){
+			}else{
 				cancelQueryCountDown();
 			}
 		}

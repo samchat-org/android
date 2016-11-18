@@ -44,7 +44,6 @@ public class TestCase_PreCondition_Setup_000001 extends InstrumentationTestCase 
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         loginActivity = (SamchatLoginActivity) getInstrumentation().startActivitySync(intent);
-        Preferences.clearAllDate();
         logininput_et = (EditText) loginActivity.findViewById(R.id.logininput);
         password_et = (EditText) loginActivity.findViewById(R.id.password);
         signin_tv = (TextView) loginActivity.findViewById(R.id.signin);

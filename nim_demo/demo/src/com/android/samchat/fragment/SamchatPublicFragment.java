@@ -33,6 +33,7 @@ import com.android.samservice.info.ContactUser;
 import com.android.samservice.info.MsgSession;
 import com.android.samservice.info.RcvdAdvSession;
 import com.android.samservice.utils.S3Util;
+import com.netease.nim.demo.DemoCache;
 import com.netease.nim.demo.main.activity.MainActivity;
 import com.netease.nim.demo.session.SessionHelper;
 import com.netease.nim.uikit.NIMCallback;
@@ -66,6 +67,7 @@ import com.android.samservice.info.FollowedSamPros;
 import com.netease.nim.uikit.common.type.ModeEnum;
 import com.netease.nim.uikit.common.ui.dialog.CustomAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.DialogMaker;
+import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialog;
 import com.netease.nim.uikit.common.ui.dialog.EasyAlertDialogHelper;
 import com.netease.nim.uikit.common.ui.listview.ListViewUtil;
 import com.netease.nim.uikit.common.ui.listview.MessageListView;
@@ -262,10 +264,10 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 
 	@Override
     public void onResume() {
+    	LogUtil.i("test","public onResume");
         super.onResume();
         messageListPanel.onResume();
         getActivity().setVolumeControlStream(AudioManager.STREAM_VOICE_CALL); //play audio by ringtone
-        notifyDataSetChangedFSP();
     }
 
 	@Override
@@ -395,6 +397,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 				}
 			}
 		});
+		
 		alertDialog.show();
 	}
 
@@ -724,6 +727,33 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
 
 	@Override
 	public boolean sendMessage(final IMMessage message) {
+		if(message.getMsgType() == MsgTypeEnum.text){
+			return sendMessageWithoutConfrimation(message);
+		}else{
+			showSelectDialog(message);
+		}
+		return true;
+	}
+
+	private void showSelectDialog(final IMMessage message){
+		EasyAlertDialogHelper.OnDialogActionListener listener = new EasyAlertDialogHelper.OnDialogActionListener() {
+			@Override
+			public void doCancelAction() {
+
+			}
+
+			@Override
+			public void doOkAction() {
+				sendMessageWithoutConfrimation(message);
+			}
+		};
+
+		final EasyAlertDialog dialog = EasyAlertDialogHelper.createOkCancelDiolag(getActivity(), DemoCache.getContext().getString(R.string.samchat_send_advertisement_title),
+			DemoCache.getContext().getString(R.string.samchat_send_advertisement_desc), true, listener);
+		dialog.show();
+	}
+
+	private boolean sendMessageWithoutConfrimation(final IMMessage message){
 		if (!isAllowSendMessage(message)) {
 			return false;
 		}
@@ -784,7 +814,7 @@ public class SamchatPublicFragment extends TFragment implements ModuleProxy{
         
 
         return true;
-    }
+	}
 
 	public boolean resendMessage(IMMessage message) {
 		message.setStatus(MsgStatusEnum.sending);
